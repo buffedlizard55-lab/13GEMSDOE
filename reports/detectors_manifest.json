@@ -1,0 +1,105 @@
+{
+  "bands_in_file": {
+    "mag_anom": 1,
+    "rtp": 2,
+    "tmi_hg": 3,
+    "geod_2ndinv": 4,
+    "iso_grav_anom_slope": 5,
+    "tc": 6,
+    "geod_shearrate": 7,
+    "geod_dilaterate": 8,
+    "tmi_vg": 9,
+    "deq_n100a15": 10,
+    "iso_grav_anom_vg": 11,
+    "det_elev": 12,
+    "iso_grav_anom": 13,
+    "tmi": 14,
+    "depth_to_base_surf": 15,
+    "ieq_n100a15": 16,
+    "cond_surf": 17,
+    "iso_grav_anom_hg": 18,
+    "det_elev_slope": 19
+  },
+  "detectors": {
+    "HA_worms_rtp": {
+      "description": "cross-scale persistence of horizontal-gradient maxima of the reduced-to-pole magnetic field, upward-continued 0-8 km",
+      "bands": [
+        "rtp"
+      ],
+      "seconds": 22.2
+    },
+    "HA_worms_grav": {
+      "description": "same worming operator on the isostatic gravity anomaly",
+      "bands": [
+        "iso_grav_anom"
+      ],
+      "seconds": 23.1
+    },
+    "HB_tdr_rtp": {
+      "description": "tilt-derivative zero-contour steepness on RTP magnetics",
+      "bands": [
+        "rtp"
+      ],
+      "seconds": 5.8
+    },
+    "HB_tdr_grav": {
+      "description": "tilt-derivative zero-contour steepness on isostatic gravity",
+      "bands": [
+        "iso_grav_anom"
+      ],
+      "seconds": 6.1
+    },
+    "HB_theta_rtp": {
+      "description": "theta map (acos(THDR/AS)) on RTP magnetics",
+      "bands": [
+        "rtp"
+      ],
+      "seconds": 5.3
+    },
+    "HC_hinge": {
+      "description": "linear steps in depth-to-conductive-base restricted to topographically flat ground (buried structures only)",
+      "bands": [
+        "depth_to_base_surf",
+        "det_elev_slope"
+      ],
+      "seconds": 9.5
+    },
+    "HD_strain_raw": {
+      "description": "geodetic 2nd invariant minus earthquake density (fault-density term is added per holdout fold from the VISIBLE catalogue only)",
+      "bands": [
+        "geod_2ndinv",
+        "ieq_n100a15"
+      ],
+      "seconds": 9.6
+    },
+    "HE_lin_tc": {
+      "description": "oriented matched-filter lineaments in band `tc` (GeoDAWN radiometric total count - see irregularity I-2)",
+      "bands": [
+        "tc"
+      ],
+      "seconds": 7.2
+    },
+    "HE_lin_cond": {
+      "description": "oriented matched-filter lineaments in surface conductivity",
+      "bands": [
+        "cond_surf"
+      ],
+      "seconds": 6.9
+    },
+    "BASE_topo_ridge": {
+      "description": "BASELINE: topographic scarp/ridge detector on detrended-elevation slope - the family this team has already submitted repeatedly",
+      "bands": [
+        "det_elev_slope"
+      ],
+      "seconds": 4.7
+    },
+    "BASE_tmi_hg": {
+      "description": "BASELINE: single-scale horizontal-gradient ridge on the provided TMI horizontal gradient band",
+      "bands": [
+        "tmi_hg"
+      ],
+      "seconds": 4.8
+    }
+  },
+  "total_seconds": 105.3
+}

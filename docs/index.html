@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Submit — 13GEMSDOE</title>
+<meta name="description" content="GEMS Prize Challenge: audited scoring metric, hide-and-recover holdout, and a one-click validated submission GeoTIFF.">
+<link rel="stylesheet" href="assets/style.css">
+</head><body>
+<header class="site"><div class="wrap">
+  <a class="brand" href="index.html">13<span>GEMS</span>DOE</a>
+  <nav class="site"><a href="index.html" class="on">Submit</a><a href="executive_summary.html" class="">How to submit</a><a href="evidence.html" class="">Evidence</a><a href="hypotheses.html" class="">Hypotheses</a><a href="sources.html" class="">Sources</a></nav>
+</div></header>
+<div class="hero"><div class="wrap">
+  <h1>Download a validated GEMS submission, then upload it.</h1>
+  <p class="sub">The file below already passes every format rule in the official
+  submission spec — single-band float32, EPSG:32611, exact geotransform, and
+  every value inside [0,&nbsp;1]. Nothing here is released unless the validator passes.</p>
+  
+  <div class="dl">
+    <div class="row">
+      <a class="btn" href="downloads/13gems-composite-20260928T040920Z.tif" download>⬇ Download submission GeoTIFF</a>
+      <a class="btn ghost" href="downloads/13gems-composite-20260928T040920Z.zip" download>⬇ .zip version</a>
+      <a class="btn ghost" href="downloads/13gems-composite-20260928T040920Z_allfinite.tif" download>⬇ all-finite variant</a>
+    </div>
+    <div class="meta">
+      <b>Validated:</b> ✅ passes every official format requirement
+      &nbsp;·&nbsp; single-band float32 &nbsp;·&nbsp; EPSG:32611 &nbsp;·&nbsp; 3730×3292 @100 m
+      &nbsp;·&nbsp; value range <b>0 – 1</b> &nbsp;·&nbsp; 338,755 predicted pixels
+      (6.5557% of the survey area)
+    </div>
+    <div class="copyfield">
+      <input id="fn" readonly value="13gems-composite-20260928T040920Z.tif">
+      <button onclick="cp('fn',this)">Copy file name</button>
+    </div>
+    <div class="copyfield">
+      <input id="nt" readonly value="tip-extension rays reach 1000m decimated 1-per-3px + topo-ridge fill 5%, binary 0/1, catalogue included (masked at scoring)">
+      <button onclick="cp('nt',this)">Copy the Note field</button>
+    </div>
+  </div>
+  <script>function cp(id,b){const i=document.getElementById(id);i.select();
+  navigator.clipboard.writeText(i.value);const t=b.textContent;b.textContent='Copied ✓';
+  setTimeout(()=>b.textContent=t,1400);}</script>
+</div></div>
+<main class="wrap">
+<section>
+  <h2>What this is</h2>
+  <p class="lede">A working system for the DOE GEMS Prize: the scoring metric
+  audited before any model was built, a holdout that mirrors the actual
+  distribution shift, and a one-click submission file. Every number is generated
+  by a script in the repository.</p>
+  <div class="grid g4">
+    <div class="kpi ok"><div class="v">12/12</div><div class="l">metric audit checks passed</div></div>
+    <div class="kpi bad"><div class="v">1.15×</div><div class="l">best prior submission, vs pure chance</div></div>
+    <div class="kpi ok"><div class="v">16×</div><div class="l">chance beaten by tip-extension rays</div></div>
+    <div class="kpi warn"><div class="v">0.3168</div><div class="l">leaderboard #1 to beat</div></div>
+  </div>
+</section>
+
+<section>
+  <h2>Four facts that should drive every decision</h2>
+  <p class="lede">All proved analytically and re-checked numerically in
+  <a href="https://github.com/buffedlizard55-lab/13GEMSDOE/blob/main/scripts/audit_metric.py"><code>scripts/audit_metric.py</code></a>,
+  and reproduced against the organizers' own worked example
+  (TP<sub>w</sub>&nbsp;3.00, FP<sub>w</sub>&nbsp;1.89, FN<sub>w</sub>&nbsp;2.00&nbsp;→&nbsp;0.60).</p>
+  <div class="grid g2">
+    <div class="panel"><h3 style="margin-top:0">1 · DTI is a distance-weighted F2 score</h3>
+      <p class="small">Because <code>FN_w ≡ |G| − TP_w</code>, the index collapses to
+      <code>TP/(0.2·TP + 0.2·FP + 0.8·|G|)</code> = <code>1/(0.2/P + 0.8/R)</code>.
+      With β²&nbsp;=&nbsp;0.8/0.2&nbsp;=&nbsp;4 this is exactly F2. Recall is worth four times precision.</p></div>
+    <div class="panel"><h3 style="margin-top:0">2 · Be radically more inclusive than 0.5</h3>
+      <p class="small">A block of predictions raises the score <b>iff</b> its marginal weighted
+      precision exceeds <code>0.2 × DTI</code>. At our 0.1563 that is <b>3.1%</b>;
+      even at first place it is only 6.3%. A calibrated 0.5 cutoff discards enormous score.</p></div>
+    <div class="panel"><h3 style="margin-top:0">3 · The optimum is binary</h3>
+      <p class="small"><code>DTI(c·p)</code> strictly increases in <code>c</code>, and a pixel
+      exactly on truth costs zero false-positive mass because <code>k(0)=1</code>.
+      Graded probabilities are only useful for <i>ranking</i> which pixels to turn on.</p></div>
+    <div class="panel"><h3 style="margin-top:0">4 · Decimate lines, don't thicken them</h3>
+      <p class="small"><code>TP_w</code> takes a <b>max</b> over the 300&nbsp;m neighbourhood, so a
+      second predicted pixel within 3&nbsp;px of the first earns nothing and pays full
+      FP mass. The efficient primitive is a 1-px line thinned to ~300&nbsp;m spacing.</p></div>
+  </div>
+</section>
+
+<section>
+  <h2>The finding that reframes the whole project</h2>
+  <div class="callout bad">
+    <p style="margin-top:0"><b>All eight of our previously scored submissions are
+    statistically indistinguishable from a random map of the same size.</b> The best is
+    1.15× chance; four are <i>below</i> chance; the most catalogue-hugging one is
+    <b>0.21×</b> — five times worse than random.</p>
+    <p style="margin-bottom:0">The chance DTI curve peaks at <b>0.145 around 5%
+    coverage</b>. That is why every idea converged on ≈0.156: the team was not hitting a
+    modelling ceiling, it was hitting <b>the score a random map of that size earns</b>.</p>
+  </div>
+  <div class='scroll'><table><thead><tr><th>submission</th><th class='num'>public LB</th><th class='num'>coverage</th><th class='num'>catalogue echo</th><th class='num'>chance DTI</th><th class='num'>lift</th></tr></thead><tbody><tr><td class='mono'>gemsdoe1_ens12_LB0.1563</td><td class='num'>0.1563</td><td class='num'>3.35%</td><td class='num'>20%</td><td class='num'>0.1370</td><td class='num'><b>1.14×</b></td></tr><tr><td class='mono'>gems8_apex_LB0.1563</td><td class='num'>0.1563</td><td class='num'>4.06%</td><td class='num'>91%</td><td class='num'>0.1419</td><td class='num'><b>1.10×</b></td></tr><tr><td class='mono'>gemsdoe2_dualunion_LB0.1560</td><td class='num'>0.1560</td><td class='num'>3.55%</td><td class='num'>22%</td><td class='num'>0.1387</td><td class='num'><b>1.12×</b></td></tr><tr><td class='mono'>gems7_halo15_LB0.1461</td><td class='num'>0.1461</td><td class='num'>11.73%</td><td class='num'>40%</td><td class='num'>0.1267</td><td class='num'><b>1.15×</b></td></tr><tr><td class='mono'>gems3_pindrop_nodes_LB0.1193</td><td class='num'>0.1193</td><td class='num'>3.00%</td><td class='num'>8%</td><td class='num'>0.1333</td><td class='num'><b>0.90×</b></td></tr><tr><td class='mono'>gems3_pindrop_ridge_LB0.1152</td><td class='num'>0.1152</td><td class='num'>3.00%</td><td class='num'>18%</td><td class='num'>0.1333</td><td class='num'><b>0.86×</b></td></tr><tr><td class='mono'>gems3_pindrop_discovery_LB0.0830</td><td class='num'>0.0830</td><td class='num'>3.00%</td><td class='num'>8%</td><td class='num'>0.1333</td><td class='num'><b>0.62×</b></td></tr><tr><td class='mono'>gems6_hgb88_LB0.0286</td><td class='num'>0.0286</td><td class='num'>3.00%</td><td class='num'>70%</td><td class='num'>0.1333</td><td class='num'><b>0.21×</b></td></tr></tbody></table></div><p class='small'>Chance computed in closed form from the kernel, validated to 1.2% median error against 105 measured random controls. |G| is the public-chunk new-fault pixel count, estimated at ~35,262. The ordering is stable across every plausible |G| — see reports/chance_baseline.json.</p>
+</section>
+
+<section>
+  <h2>What actually carries signal</h2>
+  <p class="lede">Two holdout regimes disagree, and the disagreement is the result.</p>
+  <div class="grid g2">
+    <div class="panel"><h3 style="margin-top:0">Isolated unmapped systems
+      <span class="tag t-bad">nothing works</span></h3>
+      <p class="small">Withhold whole fault systems plus a 500 m buffer. Best honest
+      candidate reaches <b>1.06× chance</b>. Every new hypothesis — worms, tilt
+      derivative, basement hinge, radiometric lineaments — lands <i>below</i> chance.
+      Finding a completely unmapped, isolated fault from geophysics alone is, on this
+      evidence, not something we can currently do.</p></div>
+    <div class="panel"><h3 style="margin-top:0">Extensions &amp; corrections
+      <span class="tag t-ok">16× chance</span></h3>
+      <p class="small">Hide the terminal 20–30% of every mapped segment — the regime the
+      organizers explicitly named. Projecting each mapped tip forward along its own
+      strike recovers them at <b>13.9–16.1× chance</b> with only 0.4% coverage and
+      <b>37% weighted precision</b>. Blanket catalogue dilation manages only 2.6×, so
+      the gain is in the <i>direction</i>, not the proximity.</p></div>
+  </div>
+  <div class="callout ok">
+    <p style="margin:0"><b>The shipped recipe is the hedge between them:</b> tip-extension
+    rays (1 km reach, one pixel per 3×3 tile) ∪ topographic-ridge fill at 5% ∪ the known
+    catalogue. Validated on both regimes at once: <b>2.11× chance</b> where extensions
+    dominate, <b>0.96×</b> where they do not — i.e. meaningful upside with no
+    meaningful downside.</p>
+  </div>
+</section>
+
+<section>
+  <div class="callout bad">
+    <p><strong>Before the next upload:</strong> two 🔴 issues are open — the
+    <code>example_submission.tif</code> in our data mirror is actually the known fault
+    catalogue, and the repeated 0.1563 appears to be a leaderboard reading error
+    across several accounts. Both are documented with evidence in
+    <a href="evidence.html">Evidence</a>.</p>
+  </div>
+</section></main>
+<footer class="site"><div class="wrap">
+  <p><strong>13GEMSDOE</strong> — working repository for the
+  <a href="https://www.drivendata.org/competitions/306/competition-doe-gems/">DOE GEMS Prize Challenge</a>.
+  Page generated 2026-09-28 04:10 UTC from <code>reports/*.json</code>.</p>
+  <p class="small">Every figure on this site is produced by a script in this
+  repository and is reproducible from a clean checkout. Claims that could not be
+  verified against an official source are listed as irregularities rather than
+  presented as fact.</p>
+</div></footer></body></html>

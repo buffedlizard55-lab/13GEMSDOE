@@ -1,0 +1,787 @@
+{
+  "grid": {
+    "shape": [
+      3730,
+      3292
+    ],
+    "n_valid_pixels": 5167373,
+    "n_known_fault_pixels": 60988,
+    "known_fault_fraction_of_valid": 0.011803,
+    "crs": "EPSG:32611",
+    "pixel_m": 100
+  },
+  "maps": {
+    "gemsdoe1_ens12_LB0.1563.tif": {
+      "public_LB_DW_Tversky": 0.1563,
+      "n_pixels_gt0": 172974,
+      "coverage_pct_of_valid": 3.3474,
+      "total_mass_sum_p": 172974.0,
+      "mean_value_where_positive": 1.0,
+      "max_value": 1.0,
+      "n_distinct_values": 1,
+      "frac_mass_binary_1.0": 1.0,
+      "mass_by_distance_to_known_catalogue": {
+        "on_known": 0.03732,
+        "within_300m": 0.16512,
+        "300m_1km": 0.22301,
+        "1km_3km": 0.3294,
+        "beyond_3km": 0.24516
+      },
+      "catalogue_echo_FPw_if_truth_were_catalogue": 153180.3
+    },
+    "gems8_apex_LB0.1563.tif": {
+      "public_LB_DW_Tversky": 0.1563,
+      "n_pixels_gt0": 427862,
+      "coverage_pct_of_valid": 8.2801,
+      "total_mass_sum_p": 209900.2,
+      "mean_value_where_positive": 0.4906,
+      "max_value": 0.95,
+      "n_distinct_values": 72781,
+      "frac_mass_binary_1.0": 0.0,
+      "mass_by_distance_to_known_catalogue": {
+        "on_known": 0.27603,
+        "within_300m": 0.63207,
+        "300m_1km": 0.0867,
+        "1km_3km": 0.00467,
+        "beyond_3km": 0.00053
+      },
+      "catalogue_echo_FPw_if_truth_were_catalogue": 78194.4
+    },
+    "gemsdoe2_dualunion_LB0.1560.tif": {
+      "public_LB_DW_Tversky": 0.156,
+      "n_pixels_gt0": 183642,
+      "coverage_pct_of_valid": 3.5539,
+      "total_mass_sum_p": 183642.0,
+      "mean_value_where_positive": 1.0,
+      "max_value": 1.0,
+      "n_distinct_values": 1,
+      "frac_mass_binary_1.0": 1.0,
+      "mass_by_distance_to_known_catalogue": {
+        "on_known": 0.04189,
+        "within_300m": 0.17615,
+        "300m_1km": 0.22207,
+        "1km_3km": 0.32101,
+        "beyond_3km": 0.23888
+      },
+      "catalogue_echo_FPw_if_truth_were_catalogue": 160673.5
+    },
+    "gems7_halo15_LB0.1461.tif": {
+      "public_LB_DW_Tversky": 0.1461,
+      "n_pixels_gt0": 1828699,
+      "coverage_pct_of_valid": 35.3893,
+      "total_mass_sum_p": 606252.4,
+      "mean_value_where_positive": 0.3315,
+      "max_value": 0.95,
+      "n_distinct_values": 643,
+      "frac_mass_binary_1.0": 0.0,
+      "mass_by_distance_to_known_catalogue": {
+        "on_known": 0.09557,
+        "within_300m": 0.30304,
+        "300m_1km": 0.50602,
+        "1km_3km": 0.09536,
+        "beyond_3km": 1e-05
+      },
+      "catalogue_echo_FPw_if_truth_were_catalogue": 466785.3
+    },
+    "gems3_pindrop_nodes_LB0.1193.tif": {
+      "public_LB_DW_Tversky": 0.1193,
+      "n_pixels_gt0": 155021,
+      "coverage_pct_of_valid": 3.0,
+      "total_mass_sum_p": 155021.0,
+      "mean_value_where_positive": 1.0,
+      "max_value": 1.0,
+      "n_distinct_values": 1,
+      "frac_mass_binary_1.0": 1.0,
+      "mass_by_distance_to_known_catalogue": {
+        "on_known": 0.0,
+        "within_300m": 0.08132,
+        "300m_1km": 0.16159,
+        "1km_3km": 0.34833,
+        "beyond_3km": 0.40875
+      },
+      "catalogue_echo_FPw_if_truth_were_catalogue": 148857.7
+    },
+    "gems3_pindrop_ridge_LB0.1152.tif": {
+      "public_LB_DW_Tversky": 0.1152,
+      "n_pixels_gt0": 155021,
+      "coverage_pct_of_valid": 3.0,
+      "total_mass_sum_p": 155021.0,
+      "mean_value_where_positive": 1.0,
+      "max_value": 1.0,
+      "n_distinct_values": 1,
+      "frac_mass_binary_1.0": 1.0,
+      "mass_by_distance_to_known_catalogue": {
+        "on_known": 0.0,
+        "within_300m": 0.18146,
+        "300m_1km": 0.22853,
+        "1km_3km": 0.32012,
+        "beyond_3km": 0.26989
+      },
+      "catalogue_echo_FPw_if_truth_were_catalogue": 141246.4
+    },
+    "gems3_pindrop_discovery_LB0.0830.tif": {
+      "public_LB_DW_Tversky": 0.083,
+      "n_pixels_gt0": 155021,
+      "coverage_pct_of_valid": 3.0,
+      "total_mass_sum_p": 155021.0,
+      "mean_value_where_positive": 1.0,
+      "max_value": 1.0,
+      "n_distinct_values": 1,
+      "frac_mass_binary_1.0": 1.0,
+      "mass_by_distance_to_known_catalogue": {
+        "on_known": 0.0,
+        "within_300m": 0.07687,
+        "300m_1km": 0.1692,
+        "1km_3km": 0.35022,
+        "beyond_3km": 0.40371
+      },
+      "catalogue_echo_FPw_if_truth_were_catalogue": 149558.4
+    },
+    "gems6_hgb88_LB0.0286.tif": {
+      "public_LB_DW_Tversky": 0.0286,
+      "n_pixels_gt0": 155021,
+      "coverage_pct_of_valid": 3.0,
+      "total_mass_sum_p": 155021.0,
+      "mean_value_where_positive": 1.0,
+      "max_value": 1.0,
+      "n_distinct_values": 1,
+      "frac_mass_binary_1.0": 1.0,
+      "mass_by_distance_to_known_catalogue": {
+        "on_known": 0.15227,
+        "within_300m": 0.5431,
+        "300m_1km": 0.26668,
+        "1km_3km": 0.03194,
+        "beyond_3km": 0.00601
+      },
+      "catalogue_echo_FPw_if_truth_were_catalogue": 90176.0
+    }
+  },
+  "pairwise": [
+    {
+      "a": "gemsdoe1_ens12_LB0.1563.tif",
+      "b": "gems8_apex_LB0.1563.tif",
+      "LB_a": 0.1563,
+      "LB_b": 0.1563,
+      "same_LB": true,
+      "IoU_of_support": 0.06703,
+      "pearson_r_on_union": -0.54628,
+      "dice_of_support": 0.12564
+    },
+    {
+      "a": "gemsdoe1_ens12_LB0.1563.tif",
+      "b": "gemsdoe2_dualunion_LB0.1560.tif",
+      "LB_a": 0.1563,
+      "LB_b": 0.156,
+      "same_LB": false,
+      "IoU_of_support": 0.94191,
+      "pearson_r_on_union": NaN,
+      "dice_of_support": 0.97009
+    },
+    {
+      "a": "gemsdoe1_ens12_LB0.1563.tif",
+      "b": "gems7_halo15_LB0.1461.tif",
+      "LB_a": 0.1563,
+      "LB_b": 0.1461,
+      "same_LB": false,
+      "IoU_of_support": 0.04922,
+      "pearson_r_on_union": -0.15432,
+      "dice_of_support": 0.09382
+    },
+    {
+      "a": "gemsdoe1_ens12_LB0.1563.tif",
+      "b": "gems3_pindrop_nodes_LB0.1193.tif",
+      "LB_a": 0.1563,
+      "LB_b": 0.1193,
+      "same_LB": false,
+      "IoU_of_support": 0.02459,
+      "pearson_r_on_union": -0.95186,
+      "dice_of_support": 0.04799
+    },
+    {
+      "a": "gemsdoe1_ens12_LB0.1563.tif",
+      "b": "gems3_pindrop_ridge_LB0.1152.tif",
+      "LB_a": 0.1563,
+      "LB_b": 0.1152,
+      "same_LB": false,
+      "IoU_of_support": 0.06603,
+      "pearson_r_on_union": -0.87572,
+      "dice_of_support": 0.12388
+    },
+    {
+      "a": "gemsdoe1_ens12_LB0.1563.tif",
+      "b": "gems3_pindrop_discovery_LB0.0830.tif",
+      "LB_a": 0.1563,
+      "LB_b": 0.083,
+      "same_LB": false,
+      "IoU_of_support": 0.01762,
+      "pearson_r_on_union": -0.96526,
+      "dice_of_support": 0.03463
+    },
+    {
+      "a": "gemsdoe1_ens12_LB0.1563.tif",
+      "b": "gems6_hgb88_LB0.0286.tif",
+      "LB_a": 0.1563,
+      "LB_b": 0.0286,
+      "same_LB": false,
+      "IoU_of_support": 0.06838,
+      "pearson_r_on_union": -0.87158,
+      "dice_of_support": 0.12801
+    },
+    {
+      "a": "gems8_apex_LB0.1563.tif",
+      "b": "gemsdoe2_dualunion_LB0.1560.tif",
+      "LB_a": 0.1563,
+      "LB_b": 0.156,
+      "same_LB": false,
+      "IoU_of_support": 0.07609,
+      "pearson_r_on_union": -0.53618,
+      "dice_of_support": 0.14143
+    },
+    {
+      "a": "gems8_apex_LB0.1563.tif",
+      "b": "gems7_halo15_LB0.1461.tif",
+      "LB_a": 0.1563,
+      "LB_b": 0.1461,
+      "same_LB": false,
+      "IoU_of_support": 0.23128,
+      "pearson_r_on_union": 0.72821,
+      "dice_of_support": 0.37568
+    },
+    {
+      "a": "gems8_apex_LB0.1563.tif",
+      "b": "gems3_pindrop_nodes_LB0.1193.tif",
+      "LB_a": 0.1563,
+      "LB_b": 0.1193,
+      "same_LB": false,
+      "IoU_of_support": 0.02523,
+      "pearson_r_on_union": -0.63445,
+      "dice_of_support": 0.04923
+    },
+    {
+      "a": "gems8_apex_LB0.1563.tif",
+      "b": "gems3_pindrop_ridge_LB0.1152.tif",
+      "LB_a": 0.1563,
+      "LB_b": 0.1152,
+      "same_LB": false,
+      "IoU_of_support": 0.06468,
+      "pearson_r_on_union": -0.58178,
+      "dice_of_support": 0.1215
+    },
+    {
+      "a": "gems8_apex_LB0.1563.tif",
+      "b": "gems3_pindrop_discovery_LB0.0830.tif",
+      "LB_a": 0.1563,
+      "LB_b": 0.083,
+      "same_LB": false,
+      "IoU_of_support": 0.02243,
+      "pearson_r_on_union": -0.64008,
+      "dice_of_support": 0.04388
+    },
+    {
+      "a": "gems8_apex_LB0.1563.tif",
+      "b": "gems6_hgb88_LB0.0286.tif",
+      "LB_a": 0.1563,
+      "LB_b": 0.0286,
+      "same_LB": false,
+      "IoU_of_support": 0.2647,
+      "pearson_r_on_union": -0.10537,
+      "dice_of_support": 0.41859
+    },
+    {
+      "a": "gemsdoe2_dualunion_LB0.1560.tif",
+      "b": "gems7_halo15_LB0.1461.tif",
+      "LB_a": 0.156,
+      "LB_b": 0.1461,
+      "same_LB": false,
+      "IoU_of_support": 0.0533,
+      "pearson_r_on_union": -0.14286,
+      "dice_of_support": 0.10121
+    },
+    {
+      "a": "gemsdoe2_dualunion_LB0.1560.tif",
+      "b": "gems3_pindrop_nodes_LB0.1193.tif",
+      "LB_a": 0.156,
+      "LB_b": 0.1193,
+      "same_LB": false,
+      "IoU_of_support": 0.02623,
+      "pearson_r_on_union": -0.94851,
+      "dice_of_support": 0.05111
+    },
+    {
+      "a": "gemsdoe2_dualunion_LB0.1560.tif",
+      "b": "gems3_pindrop_ridge_LB0.1152.tif",
+      "LB_a": 0.156,
+      "LB_b": 0.1152,
+      "same_LB": false,
+      "IoU_of_support": 0.07675,
+      "pearson_r_on_union": -0.85633,
+      "dice_of_support": 0.14255
+    },
+    {
+      "a": "gemsdoe2_dualunion_LB0.1560.tif",
+      "b": "gems3_pindrop_discovery_LB0.0830.tif",
+      "LB_a": 0.156,
+      "LB_b": 0.083,
+      "same_LB": false,
+      "IoU_of_support": 0.01802,
+      "pearson_r_on_union": -0.96433,
+      "dice_of_support": 0.03541
+    },
+    {
+      "a": "gemsdoe2_dualunion_LB0.1560.tif",
+      "b": "gems6_hgb88_LB0.0286.tif",
+      "LB_a": 0.156,
+      "LB_b": 0.0286,
+      "same_LB": false,
+      "IoU_of_support": 0.08156,
+      "pearson_r_on_union": -0.848,
+      "dice_of_support": 0.15082
+    },
+    {
+      "a": "gems7_halo15_LB0.1461.tif",
+      "b": "gems3_pindrop_nodes_LB0.1193.tif",
+      "LB_a": 0.1461,
+      "LB_b": 0.1193,
+      "same_LB": false,
+      "IoU_of_support": 0.02798,
+      "pearson_r_on_union": -0.28853,
+      "dice_of_support": 0.05443
+    },
+    {
+      "a": "gems7_halo15_LB0.1461.tif",
+      "b": "gems3_pindrop_ridge_LB0.1152.tif",
+      "LB_a": 0.1461,
+      "LB_b": 0.1152,
+      "same_LB": false,
+      "IoU_of_support": 0.04225,
+      "pearson_r_on_union": -0.1827,
+      "dice_of_support": 0.08108
+    },
+    {
+      "a": "gems7_halo15_LB0.1461.tif",
+      "b": "gems3_pindrop_discovery_LB0.0830.tif",
+      "LB_a": 0.1461,
+      "LB_b": 0.083,
+      "same_LB": false,
+      "IoU_of_support": 0.02836,
+      "pearson_r_on_union": -0.28806,
+      "dice_of_support": 0.05515
+    },
+    {
+      "a": "gems7_halo15_LB0.1461.tif",
+      "b": "gems6_hgb88_LB0.0286.tif",
+      "LB_a": 0.1461,
+      "LB_b": 0.0286,
+      "same_LB": false,
+      "IoU_of_support": 0.08303,
+      "pearson_r_on_union": 0.33023,
+      "dice_of_support": 0.15334
+    },
+    {
+      "a": "gems3_pindrop_nodes_LB0.1193.tif",
+      "b": "gems3_pindrop_ridge_LB0.1152.tif",
+      "LB_a": 0.1193,
+      "LB_b": 0.1152,
+      "same_LB": false,
+      "IoU_of_support": 0.10762,
+      "pearson_r_on_union": -0.80567,
+      "dice_of_support": 0.19433
+    },
+    {
+      "a": "gems3_pindrop_nodes_LB0.1193.tif",
+      "b": "gems3_pindrop_discovery_LB0.0830.tif",
+      "LB_a": 0.1193,
+      "LB_b": 0.083,
+      "same_LB": false,
+      "IoU_of_support": 0.03489,
+      "pearson_r_on_union": -0.93257,
+      "dice_of_support": 0.06743
+    },
+    {
+      "a": "gems3_pindrop_nodes_LB0.1193.tif",
+      "b": "gems6_hgb88_LB0.0286.tif",
+      "LB_a": 0.1193,
+      "LB_b": 0.0286,
+      "same_LB": false,
+      "IoU_of_support": 0.02145,
+      "pearson_r_on_union": -0.95799,
+      "dice_of_support": 0.04201
+    },
+    {
+      "a": "gems3_pindrop_ridge_LB0.1152.tif",
+      "b": "gems3_pindrop_discovery_LB0.0830.tif",
+      "LB_a": 0.1152,
+      "LB_b": 0.083,
+      "same_LB": false,
+      "IoU_of_support": 0.02896,
+      "pearson_r_on_union": -0.94371,
+      "dice_of_support": 0.05629
+    },
+    {
+      "a": "gems3_pindrop_ridge_LB0.1152.tif",
+      "b": "gems6_hgb88_LB0.0286.tif",
+      "LB_a": 0.1152,
+      "LB_b": 0.0286,
+      "same_LB": false,
+      "IoU_of_support": 0.08275,
+      "pearson_r_on_union": -0.84714,
+      "dice_of_support": 0.15286
+    },
+    {
+      "a": "gems3_pindrop_discovery_LB0.0830.tif",
+      "b": "gems6_hgb88_LB0.0286.tif",
+      "LB_a": 0.083,
+      "LB_b": 0.0286,
+      "same_LB": false,
+      "IoU_of_support": 0.01503,
+      "pearson_r_on_union": -0.97038,
+      "dice_of_support": 0.02962
+    }
+  ],
+  "inversion": {
+    "identity": "FP_w = |G| * ( r*(1-0.2*DTI)/(0.2*DTI) - 4 ),  r = TP_w/|G|",
+    "note": "|G| here is the number of ground-truth pixels in the PUBLIC test chunk only. Because FP_w <= total predicted mass M, each score implies a hard upper bound on |G| for any assumed recall.",
+    "hard_floor_on_recall": "every scored map must have achieved weighted recall >= 0.8*DTI/(1-0.2*DTI); at DTI=0.1563 that is 0.1291",
+    "per_map": {
+      "gemsdoe1_ens12_LB0.1563.tif": {
+        "total_mass_M": 172974.0,
+        "min_feasible_weighted_recall": 0.12907,
+        "scenarios": [
+          {
+            "assumed_weighted_recall": 0.15,
+            "implied_max_|G|_public": 266743
+          },
+          {
+            "assumed_weighted_recall": 0.2,
+            "implied_max_|G|_public": 78697
+          },
+          {
+            "assumed_weighted_recall": 0.3,
+            "implied_max_|G|_public": 32655
+          },
+          {
+            "assumed_weighted_recall": 0.4,
+            "implied_max_|G|_public": 20602
+          },
+          {
+            "assumed_weighted_recall": 0.5,
+            "implied_max_|G|_public": 15047
+          },
+          {
+            "assumed_weighted_recall": 0.7,
+            "implied_max_|G|_public": 9776
+          },
+          {
+            "assumed_weighted_recall": 0.9,
+            "implied_max_|G|_public": 7240
+          },
+          {
+            "assumed_weighted_recall": 1.0,
+            "implied_max_|G|_public": 6408
+          }
+        ]
+      },
+      "gems8_apex_LB0.1563.tif": {
+        "total_mass_M": 209900.2,
+        "min_feasible_weighted_recall": 0.12907,
+        "scenarios": [
+          {
+            "assumed_weighted_recall": 0.15,
+            "implied_max_|G|_public": 323688
+          },
+          {
+            "assumed_weighted_recall": 0.2,
+            "implied_max_|G|_public": 95498
+          },
+          {
+            "assumed_weighted_recall": 0.3,
+            "implied_max_|G|_public": 39626
+          },
+          {
+            "assumed_weighted_recall": 0.4,
+            "implied_max_|G|_public": 25000
+          },
+          {
+            "assumed_weighted_recall": 0.5,
+            "implied_max_|G|_public": 18260
+          },
+          {
+            "assumed_weighted_recall": 0.7,
+            "implied_max_|G|_public": 11863
+          },
+          {
+            "assumed_weighted_recall": 0.9,
+            "implied_max_|G|_public": 8785
+          },
+          {
+            "assumed_weighted_recall": 1.0,
+            "implied_max_|G|_public": 7777
+          }
+        ]
+      },
+      "gemsdoe2_dualunion_LB0.1560.tif": {
+        "total_mass_M": 183642.0,
+        "min_feasible_weighted_recall": 0.12882,
+        "scenarios": [
+          {
+            "assumed_weighted_recall": 0.15,
+            "implied_max_|G|_public": 279221
+          },
+          {
+            "assumed_weighted_recall": 0.2,
+            "implied_max_|G|_public": 83086
+          },
+          {
+            "assumed_weighted_recall": 0.3,
+            "implied_max_|G|_public": 34549
+          },
+          {
+            "assumed_weighted_recall": 0.4,
+            "implied_max_|G|_public": 21808
+          },
+          {
+            "assumed_weighted_recall": 0.5,
+            "implied_max_|G|_public": 15933
+          },
+          {
+            "assumed_weighted_recall": 0.7,
+            "implied_max_|G|_public": 10354
+          },
+          {
+            "assumed_weighted_recall": 0.9,
+            "implied_max_|G|_public": 7668
+          },
+          {
+            "assumed_weighted_recall": 1.0,
+            "implied_max_|G|_public": 6788
+          }
+        ]
+      },
+      "gems7_halo15_LB0.1461.tif": {
+        "total_mass_M": 606252.4,
+        "min_feasible_weighted_recall": 0.1204,
+        "scenarios": [
+          {
+            "assumed_weighted_recall": 0.15,
+            "implied_max_|G|_public": 616442
+          },
+          {
+            "assumed_weighted_recall": 0.2,
+            "implied_max_|G|_public": 229239
+          },
+          {
+            "assumed_weighted_recall": 0.3,
+            "implied_max_|G|_public": 101601
+          },
+          {
+            "assumed_weighted_recall": 0.4,
+            "implied_max_|G|_public": 65263
+          },
+          {
+            "assumed_weighted_recall": 0.5,
+            "implied_max_|G|_public": 48071
+          },
+          {
+            "assumed_weighted_recall": 0.7,
+            "implied_max_|G|_public": 31483
+          },
+          {
+            "assumed_weighted_recall": 0.9,
+            "implied_max_|G|_public": 23406
+          },
+          {
+            "assumed_weighted_recall": 1.0,
+            "implied_max_|G|_public": 20745
+          }
+        ]
+      },
+      "gems3_pindrop_nodes_LB0.1193.tif": {
+        "total_mass_M": 155021.0,
+        "min_feasible_weighted_recall": 0.09777,
+        "scenarios": [
+          {
+            "assumed_weighted_recall": 0.15,
+            "implied_max_|G|_public": 72552
+          },
+          {
+            "assumed_weighted_recall": 0.2,
+            "implied_max_|G|_public": 37066
+          },
+          {
+            "assumed_weighted_recall": 0.3,
+            "implied_max_|G|_public": 18737
+          },
+          {
+            "assumed_weighted_recall": 0.4,
+            "implied_max_|G|_public": 12537
+          },
+          {
+            "assumed_weighted_recall": 0.5,
+            "implied_max_|G|_public": 9420
+          },
+          {
+            "assumed_weighted_recall": 0.7,
+            "implied_max_|G|_public": 6291
+          },
+          {
+            "assumed_weighted_recall": 0.9,
+            "implied_max_|G|_public": 4723
+          },
+          {
+            "assumed_weighted_recall": 1.0,
+            "implied_max_|G|_public": 4199
+          }
+        ]
+      },
+      "gems3_pindrop_ridge_LB0.1152.tif": {
+        "total_mass_M": 155021.0,
+        "min_feasible_weighted_recall": 0.09433,
+        "scenarios": [
+          {
+            "assumed_weighted_recall": 0.15,
+            "implied_max_|G|_public": 65675
+          },
+          {
+            "assumed_weighted_recall": 0.2,
+            "implied_max_|G|_public": 34598
+          },
+          {
+            "assumed_weighted_recall": 0.3,
+            "implied_max_|G|_public": 17775
+          },
+          {
+            "assumed_weighted_recall": 0.4,
+            "implied_max_|G|_public": 11960
+          },
+          {
+            "assumed_weighted_recall": 0.5,
+            "implied_max_|G|_public": 9012
+          },
+          {
+            "assumed_weighted_recall": 0.7,
+            "implied_max_|G|_public": 6036
+          },
+          {
+            "assumed_weighted_recall": 0.9,
+            "implied_max_|G|_public": 4537
+          },
+          {
+            "assumed_weighted_recall": 1.0,
+            "implied_max_|G|_public": 4036
+          }
+        ]
+      },
+      "gems3_pindrop_discovery_LB0.0830.tif": {
+        "total_mass_M": 155021.0,
+        "min_feasible_weighted_recall": 0.06752,
+        "scenarios": [
+          {
+            "assumed_weighted_recall": 0.15,
+            "implied_max_|G|_public": 31726
+          },
+          {
+            "assumed_weighted_recall": 0.2,
+            "implied_max_|G|_public": 19752
+          },
+          {
+            "assumed_weighted_recall": 0.3,
+            "implied_max_|G|_public": 11256
+          },
+          {
+            "assumed_weighted_recall": 0.4,
+            "implied_max_|G|_public": 7870
+          },
+          {
+            "assumed_weighted_recall": 0.5,
+            "implied_max_|G|_public": 6050
+          },
+          {
+            "assumed_weighted_recall": 0.7,
+            "implied_max_|G|_public": 4137
+          },
+          {
+            "assumed_weighted_recall": 0.9,
+            "implied_max_|G|_public": 3143
+          },
+          {
+            "assumed_weighted_recall": 1.0,
+            "implied_max_|G|_public": 2806
+          }
+        ]
+      },
+      "gems6_hgb88_LB0.0286.tif": {
+        "total_mass_M": 155021.0,
+        "min_feasible_weighted_recall": 0.02301,
+        "scenarios": [
+          {
+            "assumed_weighted_recall": 0.15,
+            "implied_max_|G|_public": 7022
+          },
+          {
+            "assumed_weighted_recall": 0.2,
+            "implied_max_|G|_public": 5038
+          },
+          {
+            "assumed_weighted_recall": 0.3,
+            "implied_max_|G|_public": 3219
+          },
+          {
+            "assumed_weighted_recall": 0.4,
+            "implied_max_|G|_public": 2365
+          },
+          {
+            "assumed_weighted_recall": 0.5,
+            "implied_max_|G|_public": 1869
+          },
+          {
+            "assumed_weighted_recall": 0.7,
+            "implied_max_|G|_public": 1317
+          },
+          {
+            "assumed_weighted_recall": 0.9,
+            "implied_max_|G|_public": 1016
+          },
+          {
+            "assumed_weighted_recall": 1.0,
+            "implied_max_|G|_public": 912
+          }
+        ]
+      }
+    }
+  },
+  "findings": [
+    {
+      "id": "F1",
+      "question": "Are the 0.1563 submissions literally the same file?",
+      "answer": "No -- different bytes, different sizes, different SHAs.",
+      "evidence": [
+        {
+          "a": "gemsdoe1_ens12_LB0.1563.tif",
+          "b": "gems8_apex_LB0.1563.tif",
+          "LB_a": 0.1563,
+          "LB_b": 0.1563,
+          "same_LB": true,
+          "IoU_of_support": 0.06703,
+          "pearson_r_on_union": -0.54628,
+          "dice_of_support": 0.12564
+        }
+      ]
+    },
+    {
+      "id": "F2",
+      "question": "How much of each map is an echo of the known catalogue?",
+      "answer": "fraction of predicted mass lying within 300 m of a KNOWN fault",
+      "evidence": {
+        "gems8_apex_LB0.1563.tif": 0.9081,
+        "gems6_hgb88_LB0.0286.tif": 0.6954,
+        "gems7_halo15_LB0.1461.tif": 0.3986,
+        "gemsdoe2_dualunion_LB0.1560.tif": 0.218,
+        "gemsdoe1_ens12_LB0.1563.tif": 0.2024,
+        "gems3_pindrop_ridge_LB0.1152.tif": 0.1815,
+        "gems3_pindrop_nodes_LB0.1193.tif": 0.0813,
+        "gems3_pindrop_discovery_LB0.0830.tif": 0.0769
+      },
+      "why_it_matters": "The organizers mask known fault pixels from scoring. Mass inside that mask can only earn credit via new-fault pixels that happen to lie within 300 m of a known trace; everything else there is pure FP_w."
+    }
+  ]
+}

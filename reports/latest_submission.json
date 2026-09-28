@@ -1,0 +1,101 @@
+{
+  "name": "13gems-composite-20260928T040920Z",
+  "generated_utc": "20260928T040920Z",
+  "note_for_submission_form": "tip-extension rays reach 1000m decimated 1-per-3px + topo-ridge fill 5%, binary 0/1, catalogue included (masked at scoring)",
+  "recipe_selection": {
+    "selected_by": "scripts/validate_composite.py",
+    "objective": "geometric mean of lift-over-chance across two holdout regimes",
+    "lift_tip_extension_regime": 2.11,
+    "lift_isolated_system_regime": 0.96
+  },
+  "map_stats": {
+    "recipe": "composite_tip_rays_plus_fill",
+    "tip_ray_reach_px": 10,
+    "tip_ray_reach_m": 1000,
+    "decimation_spacing_px": 3,
+    "fill_coverage": 0.05,
+    "fill_detector": "BASE_topo_ridge",
+    "include_known_catalogue": true,
+    "n_tip_ray_px_before_decimation": 44944,
+    "n_tip_ray_px": 20470,
+    "n_fill_px": 258368,
+    "n_predicted_px": 338755,
+    "pct_of_valid": 6.5557,
+    "max_value": 1.0,
+    "min_value": 0.0,
+    "validated_lift_tip_regime": 2.11,
+    "validated_lift_isolated_regime": 0.96
+  },
+  "validation": {
+    "nan_outside": {
+      "ok": true,
+      "errors": [],
+      "warnings": [
+        "7111787 NaN cells. Official format permits nan OUTSIDE the data bounds, but some validators reject nan. An all-finite twin is written alongside every submission for exactly this reason."
+      ],
+      "stats": {
+        "driver": "GTiff",
+        "shape": [
+          3730,
+          3292
+        ],
+        "count": 1,
+        "dtype": "float32",
+        "crs": "EPSG:32611",
+        "nodata": "nan",
+        "transform": [
+          100.0,
+          0.0,
+          243350.0,
+          0.0,
+          -100.0,
+          4508550.0
+        ],
+        "n_finite": 5167373,
+        "n_nan": 7111787,
+        "n_inf": 0,
+        "min": 0.0,
+        "max": 1.0,
+        "sum": 338755.0,
+        "n_gt0": 338755
+      }
+    },
+    "all_finite": {
+      "ok": true,
+      "errors": [],
+      "warnings": [],
+      "stats": {
+        "driver": "GTiff",
+        "shape": [
+          3730,
+          3292
+        ],
+        "count": 1,
+        "dtype": "float32",
+        "crs": "EPSG:32611",
+        "nodata": null,
+        "transform": [
+          100.0,
+          0.0,
+          243350.0,
+          0.0,
+          -100.0,
+          4508550.0
+        ],
+        "n_finite": 12279160,
+        "n_nan": 0,
+        "n_inf": 0,
+        "min": 0.0,
+        "max": 1.0,
+        "sum": 338755.0,
+        "n_gt0": 338755
+      }
+    }
+  },
+  "metric_facts": {
+    "DTI_is_distance_weighted_F2": true,
+    "marginal_precision_needed_to_help": "0.2 x current DTI",
+    "binary_is_optimal": "DTI(c*p) strictly increases in c"
+  },
+  "official_format_source": "https://www.drivendata.org/competitions/306/competition-doe-gems/page/967/"
+}

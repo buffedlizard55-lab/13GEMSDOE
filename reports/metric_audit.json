@@ -1,0 +1,676 @@
+{
+  "official_source": "https://www.drivendata.org/competitions/306/competition-doe-gems/page/967/",
+  "official_constants": {
+    "alpha": 0.2,
+    "beta": 0.8,
+    "R_m": 300.0,
+    "pixel_m": 100.0,
+    "R_pix": 3.0
+  },
+  "checks": {
+    "kernel_offsets_count": {
+      "pass": true,
+      "detail": {
+        "n_offsets_with_positive_weight": 25,
+        "note": "d<=3px, k=1-d/3; the four d==3 offsets have k=0 and are dropped",
+        "weights_sorted": [
+          1.0,
+          0.666667,
+          0.528595,
+          0.333333,
+          0.254644,
+          0.057191
+        ]
+      }
+    },
+    "worked_example_direct_formula": {
+      "pass": true,
+      "detail": {
+        "TP_w": 3.0,
+        "FP_w": 1.89,
+        "FN_w": 2.0,
+        "DTI": 0.602652,
+        "rounded_2dp": 0.6,
+        "official_states": 0.6
+      }
+    },
+    "worked_example_FN_equals_G_minus_TP": {
+      "pass": true,
+      "detail": {
+        "|G| = TP_w + FN_w": 5.0,
+        "consistent_with": "ground truth is a single vertical line of 5 pixels"
+      }
+    },
+    "worked_example_reduced_formula_matches": {
+      "pass": true,
+      "detail": {
+        "direct": 0.6026516673362796,
+        "reduced TP/(0.2TP+0.2FP+0.8|G|)": 0.6026516673362796
+      }
+    },
+    "worked_example_is_weighted_harmonic_mean": {
+      "pass": true,
+      "detail": {
+        "precision_w": 0.613497,
+        "recall_w": 0.6,
+        "1/(0.2/P + 0.8/R)": 0.602652,
+        "equals_F_beta_with_beta_squared": 4.0,
+        "i.e._distance_weighted_F2": true
+      }
+    },
+    "worked_example_raster_reconstructed": {
+      "pass": true,
+      "detail": {
+        "searched": "all binary patterns of 3-6 pixels on a 9x11 grid, ground truth = vertical line of 5",
+        "match": {
+          "pred_pixels_(row,col)": [
+            [
+              0,
+              3
+            ],
+            [
+              0,
+              7
+            ],
+            [
+              4,
+              5
+            ]
+          ],
+          "TP_w": 3.0,
+          "FP_w": 1.8856,
+          "FN_w": 2.0,
+          "DTI": 0.6028,
+          "official": {
+            "TP_w": 3.0,
+            "FP_w": 1.89,
+            "FN_w": 2.0,
+            "DTI": 0.6
+          }
+        }
+      }
+    },
+    "identity_FN_w_equals_G_minus_TP_w": {
+      "pass": true,
+      "detail": {
+        "max_abs_error_over_60_random_rasters": 7.105427357601002e-15
+      }
+    },
+    "identity_reduced_formula": {
+      "pass": true,
+      "detail": {
+        "max_abs_error": 5.551115123125783e-17,
+        "formula": "TP_w / (0.2*TP_w + 0.2*FP_w + 0.8*|G|)"
+      }
+    },
+    "identity_weighted_harmonic_mean": {
+      "pass": true,
+      "detail": {
+        "max_abs_error": 9.608674966798958e-12,
+        "formula": "1 / (0.2/precision_w + 0.8/recall_w)"
+      }
+    },
+    "consequenceA_marginal_precision_rule": {
+      "pass": true,
+      "detail": {
+        "rule": "a block raises DTI iff dTP/(dTP+dFP) > alpha*DTI = 0.2*DTI",
+        "base_DTI": 0.59719,
+        "threshold": 0.119438,
+        "interpretation": "at DTI=0.5972 any block with weighted precision above 11.94% is accretive",
+        "trials": [
+          {
+            "block_marginal_precision": 0.0,
+            "threshold_0.2xDTI": 0.11944,
+            "predicted_helps": false,
+            "observed_helps": false,
+            "dti_before": 0.59719,
+            "dti_after": 0.308343
+          },
+          {
+            "block_marginal_precision": 0.01,
+            "threshold_0.2xDTI": 0.11944,
+            "predicted_helps": false,
+            "observed_helps": false,
+            "dti_before": 0.59719,
+            "dti_after": 0.332527
+          },
+          {
+            "block_marginal_precision": 0.02,
+            "threshold_0.2xDTI": 0.11944,
+            "predicted_helps": false,
+            "observed_helps": false,
+            "dti_before": 0.59719,
+            "dti_after": 0.356711
+          },
+          {
+            "block_marginal_precision": 0.03,
+            "threshold_0.2xDTI": 0.11944,
+            "predicted_helps": false,
+            "observed_helps": false,
+            "dti_before": 0.59719,
+            "dti_after": 0.380895
+          },
+          {
+            "block_marginal_precision": 0.05,
+            "threshold_0.2xDTI": 0.11944,
+            "predicted_helps": false,
+            "observed_helps": false,
+            "dti_before": 0.59719,
+            "dti_after": 0.429262
+          },
+          {
+            "block_marginal_precision": 0.08,
+            "threshold_0.2xDTI": 0.11944,
+            "predicted_helps": false,
+            "observed_helps": false,
+            "dti_before": 0.59719,
+            "dti_after": 0.501814
+          },
+          {
+            "block_marginal_precision": 0.11227,
+            "threshold_0.2xDTI": 0.11944,
+            "predicted_helps": false,
+            "observed_helps": false,
+            "dti_before": 0.59719,
+            "dti_after": 0.580247
+          },
+          {
+            "block_marginal_precision": 0.15194,
+            "threshold_0.2xDTI": 0.11944,
+            "predicted_helps": true,
+            "observed_helps": true,
+            "dti_before": 0.59719,
+            "dti_after": 0.661972
+          },
+          {
+            "block_marginal_precision": 1.0,
+            "threshold_0.2xDTI": 0.11944,
+            "predicted_helps": true,
+            "observed_helps": true,
+            "dti_before": 0.59719,
+            "dti_after": 1.0
+          }
+        ]
+      }
+    },
+    "consequenceB_uniform_scaling_monotone": {
+      "pass": true,
+      "detail": {
+        "rule": "DTI(c*p) = TP/(0.2TP + 0.2FP + 0.8|G|/c) is strictly increasing in c",
+        "curve": [
+          {
+            "scale": 0.05,
+            "dti": 0.033681
+          },
+          {
+            "scale": 0.1,
+            "dti": 0.066912
+          },
+          {
+            "scale": 0.2,
+            "dti": 0.132056
+          },
+          {
+            "scale": 0.35,
+            "dti": 0.226609
+          },
+          {
+            "scale": 0.5,
+            "dti": 0.317559
+          },
+          {
+            "scale": 0.7,
+            "dti": 0.433568
+          },
+          {
+            "scale": 0.85,
+            "dti": 0.516871
+          },
+          {
+            "scale": 1.0,
+            "dti": 0.59719
+          }
+        ],
+        "implication": "never submit a globally down-scaled map; renormalise so max=1",
+        "on_truth_pixel_FP_cost": 0.0,
+        "bang_bang": "k(0)=1 so a pixel on truth costs 0 FP mass -> push to 1; DTI is linear in each p(x) for fixed argmax, so the optimum is binary. Graded values only encode ranking."
+      }
+    },
+    "consequenceC_recall_beats_precision_iff_P_gt_quarter_R": {
+      "pass": true,
+      "detail": {
+        "rule": "d log DTI/d log R > d log DTI/d log P  <=>  P > (alpha/beta)*R = 0.25*R",
+        "note": "elasticities always sum to 1",
+        "grid": [
+          {
+            "P": 0.02,
+            "R": 0.1,
+            "P_over_R": 0.2,
+            "elasticity_P": 0.5556,
+            "elasticity_R": 0.4444,
+            "recall_wins_predicted": false,
+            "recall_wins_observed": false,
+            "agree": true
+          },
+          {
+            "P": 0.05,
+            "R": 0.1,
+            "P_over_R": 0.5,
+            "elasticity_P": 0.3333,
+            "elasticity_R": 0.6667,
+            "recall_wins_predicted": true,
+            "recall_wins_observed": true,
+            "agree": true
+          },
+          {
+            "P": 0.1,
+            "R": 0.1,
+            "P_over_R": 1.0,
+            "elasticity_P": 0.2,
+            "elasticity_R": 0.8,
+            "recall_wins_predicted": true,
+            "recall_wins_observed": true,
+            "agree": true
+          },
+          {
+            "P": 0.2,
+            "R": 0.1,
+            "P_over_R": 2.0,
+            "elasticity_P": 0.1111,
+            "elasticity_R": 0.8889,
+            "recall_wins_predicted": true,
+            "recall_wins_observed": true,
+            "agree": true
+          },
+          {
+            "P": 0.25,
+            "R": 0.1,
+            "P_over_R": 2.5,
+            "elasticity_P": 0.0909,
+            "elasticity_R": 0.9091,
+            "recall_wins_predicted": true,
+            "recall_wins_observed": true,
+            "agree": true
+          },
+          {
+            "P": 0.3,
+            "R": 0.1,
+            "P_over_R": 3.0,
+            "elasticity_P": 0.0769,
+            "elasticity_R": 0.9231,
+            "recall_wins_predicted": true,
+            "recall_wins_observed": true,
+            "agree": true
+          },
+          {
+            "P": 0.5,
+            "R": 0.1,
+            "P_over_R": 5.0,
+            "elasticity_P": 0.0476,
+            "elasticity_R": 0.9524,
+            "recall_wins_predicted": true,
+            "recall_wins_observed": true,
+            "agree": true
+          },
+          {
+            "P": 0.9,
+            "R": 0.1,
+            "P_over_R": 9.0,
+            "elasticity_P": 0.027,
+            "elasticity_R": 0.973,
+            "recall_wins_predicted": true,
+            "recall_wins_observed": true,
+            "agree": true
+          },
+          {
+            "P": 0.02,
+            "R": 0.2,
+            "P_over_R": 0.1,
+            "elasticity_P": 0.7143,
+            "elasticity_R": 0.2857,
+            "recall_wins_predicted": false,
+            "recall_wins_observed": false,
+            "agree": true
+          },
+          {
+            "P": 0.05,
+            "R": 0.2,
+            "P_over_R": 0.25,
+            "elasticity_P": 0.5,
+            "elasticity_R": 0.5,
+            "recall_wins_predicted": false,
+            "recall_wins_observed": false,
+            "agree": true
+          },
+          {
+            "P": 0.1,
+            "R": 0.2,
+            "P_over_R": 0.5,
+            "elasticity_P": 0.3333,
+            "elasticity_R": 0.6667,
+            "recall_wins_predicted": true,
+            "recall_wins_observed": true,
+            "agree": true
+          },
+          {
+            "P": 0.2,
+            "R": 0.2,
+            "P_over_R": 1.0,
+            "elasticity_P": 0.2,
+            "elasticity_R": 0.8,
+            "recall_wins_predicted": true,
+            "recall_wins_observed": true,
+            "agree": true
+          },
+          {
+            "P": 0.25,
+            "R": 0.2,
+            "P_over_R": 1.25,
+            "elasticity_P": 0.1667,
+            "elasticity_R": 0.8333,
+            "recall_wins_predicted": true,
+            "recall_wins_observed": true,
+            "agree": true
+          },
+          {
+            "P": 0.3,
+            "R": 0.2,
+            "P_over_R": 1.5,
+            "elasticity_P": 0.1429,
+            "elasticity_R": 0.8571,
+            "recall_wins_predicted": true,
+            "recall_wins_observed": true,
+            "agree": true
+          },
+          {
+            "P": 0.5,
+            "R": 0.2,
+            "P_over_R": 2.5,
+            "elasticity_P": 0.0909,
+            "elasticity_R": 0.9091,
+            "recall_wins_predicted": true,
+            "recall_wins_observed": true,
+            "agree": true
+          },
+          {
+            "P": 0.9,
+            "R": 0.2,
+            "P_over_R": 4.5,
+            "elasticity_P": 0.0526,
+            "elasticity_R": 0.9474,
+            "recall_wins_predicted": true,
+            "recall_wins_observed": true,
+            "agree": true
+          },
+          {
+            "P": 0.02,
+            "R": 0.3,
+            "P_over_R": 0.0667,
+            "elasticity_P": 0.7895,
+            "elasticity_R": 0.2105,
+            "recall_wins_predicted": false,
+            "recall_wins_observed": false,
+            "agree": true
+          },
+          {
+            "P": 0.05,
+            "R": 0.3,
+            "P_over_R": 0.1667,
+            "elasticity_P": 0.6,
+            "elasticity_R": 0.4,
+            "recall_wins_predicted": false,
+            "recall_wins_observed": false,
+            "agree": true
+          },
+          {
+            "P": 0.1,
+            "R": 0.3,
+            "P_over_R": 0.3333,
+            "elasticity_P": 0.4286,
+            "elasticity_R": 0.5714,
+            "recall_wins_predicted": true,
+            "recall_wins_observed": true,
+            "agree": true
+          },
+          {
+            "P": 0.2,
+            "R": 0.3,
+            "P_over_R": 0.6667,
+            "elasticity_P": 0.2727,
+            "elasticity_R": 0.7273,
+            "recall_wins_predicted": true,
+            "recall_wins_observed": true,
+            "agree": true
+          },
+          {
+            "P": 0.25,
+            "R": 0.3,
+            "P_over_R": 0.8333,
+            "elasticity_P": 0.2308,
+            "elasticity_R": 0.7692,
+            "recall_wins_predicted": true,
+            "recall_wins_observed": true,
+            "agree": true
+          },
+          {
+            "P": 0.3,
+            "R": 0.3,
+            "P_over_R": 1.0,
+            "elasticity_P": 0.2,
+            "elasticity_R": 0.8,
+            "recall_wins_predicted": true,
+            "recall_wins_observed": true,
+            "agree": true
+          },
+          {
+            "P": 0.5,
+            "R": 0.3,
+            "P_over_R": 1.6667,
+            "elasticity_P": 0.1304,
+            "elasticity_R": 0.8696,
+            "recall_wins_predicted": true,
+            "recall_wins_observed": true,
+            "agree": true
+          },
+          {
+            "P": 0.9,
+            "R": 0.3,
+            "P_over_R": 3.0,
+            "elasticity_P": 0.0769,
+            "elasticity_R": 0.9231,
+            "recall_wins_predicted": true,
+            "recall_wins_observed": true,
+            "agree": true
+          },
+          {
+            "P": 0.02,
+            "R": 0.5,
+            "P_over_R": 0.04,
+            "elasticity_P": 0.8621,
+            "elasticity_R": 0.1379,
+            "recall_wins_predicted": false,
+            "recall_wins_observed": false,
+            "agree": true
+          },
+          {
+            "P": 0.05,
+            "R": 0.5,
+            "P_over_R": 0.1,
+            "elasticity_P": 0.7143,
+            "elasticity_R": 0.2857,
+            "recall_wins_predicted": false,
+            "recall_wins_observed": false,
+            "agree": true
+          },
+          {
+            "P": 0.1,
+            "R": 0.5,
+            "P_over_R": 0.2,
+            "elasticity_P": 0.5556,
+            "elasticity_R": 0.4444,
+            "recall_wins_predicted": false,
+            "recall_wins_observed": false,
+            "agree": true
+          },
+          {
+            "P": 0.2,
+            "R": 0.5,
+            "P_over_R": 0.4,
+            "elasticity_P": 0.3846,
+            "elasticity_R": 0.6154,
+            "recall_wins_predicted": true,
+            "recall_wins_observed": true,
+            "agree": true
+          },
+          {
+            "P": 0.25,
+            "R": 0.5,
+            "P_over_R": 0.5,
+            "elasticity_P": 0.3333,
+            "elasticity_R": 0.6667,
+            "recall_wins_predicted": true,
+            "recall_wins_observed": true,
+            "agree": true
+          },
+          {
+            "P": 0.3,
+            "R": 0.5,
+            "P_over_R": 0.6,
+            "elasticity_P": 0.2941,
+            "elasticity_R": 0.7059,
+            "recall_wins_predicted": true,
+            "recall_wins_observed": true,
+            "agree": true
+          },
+          {
+            "P": 0.5,
+            "R": 0.5,
+            "P_over_R": 1.0,
+            "elasticity_P": 0.2,
+            "elasticity_R": 0.8,
+            "recall_wins_predicted": true,
+            "recall_wins_observed": true,
+            "agree": true
+          },
+          {
+            "P": 0.9,
+            "R": 0.5,
+            "P_over_R": 1.8,
+            "elasticity_P": 0.122,
+            "elasticity_R": 0.878,
+            "recall_wins_predicted": true,
+            "recall_wins_observed": true,
+            "agree": true
+          },
+          {
+            "P": 0.02,
+            "R": 0.8,
+            "P_over_R": 0.025,
+            "elasticity_P": 0.9091,
+            "elasticity_R": 0.0909,
+            "recall_wins_predicted": false,
+            "recall_wins_observed": false,
+            "agree": true
+          },
+          {
+            "P": 0.05,
+            "R": 0.8,
+            "P_over_R": 0.0625,
+            "elasticity_P": 0.8,
+            "elasticity_R": 0.2,
+            "recall_wins_predicted": false,
+            "recall_wins_observed": false,
+            "agree": true
+          },
+          {
+            "P": 0.1,
+            "R": 0.8,
+            "P_over_R": 0.125,
+            "elasticity_P": 0.6667,
+            "elasticity_R": 0.3333,
+            "recall_wins_predicted": false,
+            "recall_wins_observed": false,
+            "agree": true
+          },
+          {
+            "P": 0.2,
+            "R": 0.8,
+            "P_over_R": 0.25,
+            "elasticity_P": 0.5,
+            "elasticity_R": 0.5,
+            "recall_wins_predicted": false,
+            "recall_wins_observed": false,
+            "agree": true
+          },
+          {
+            "P": 0.25,
+            "R": 0.8,
+            "P_over_R": 0.3125,
+            "elasticity_P": 0.4444,
+            "elasticity_R": 0.5556,
+            "recall_wins_predicted": true,
+            "recall_wins_observed": true,
+            "agree": true
+          },
+          {
+            "P": 0.3,
+            "R": 0.8,
+            "P_over_R": 0.375,
+            "elasticity_P": 0.4,
+            "elasticity_R": 0.6,
+            "recall_wins_predicted": true,
+            "recall_wins_observed": true,
+            "agree": true
+          },
+          {
+            "P": 0.5,
+            "R": 0.8,
+            "P_over_R": 0.625,
+            "elasticity_P": 0.2857,
+            "elasticity_R": 0.7143,
+            "recall_wins_predicted": true,
+            "recall_wins_observed": true,
+            "agree": true
+          },
+          {
+            "P": 0.9,
+            "R": 0.8,
+            "P_over_R": 1.125,
+            "elasticity_P": 0.1818,
+            "elasticity_R": 0.8182,
+            "recall_wins_predicted": true,
+            "recall_wins_observed": true,
+            "agree": true
+          }
+        ]
+      }
+    }
+  },
+  "saturation_reference": [
+    {
+      "map": "truth_only",
+      "dti": 1.0,
+      "TP_w": 94.0,
+      "FP_w": 0.0,
+      "precision_w": 1.0,
+      "recall_w": 1.0
+    },
+    {
+      "map": "truth_dilated_1px",
+      "dti": 0.882353,
+      "TP_w": 94.0,
+      "FP_w": 62.67,
+      "precision_w": 0.6,
+      "recall_w": 1.0
+    },
+    {
+      "map": "all_ones",
+      "dti": 0.056744,
+      "TP_w": 94.0,
+      "FP_w": 7812.76,
+      "precision_w": 0.0119,
+      "recall_w": 1.0
+    }
+  ],
+  "verdict": "ALL CHECKS PASSED"
+}

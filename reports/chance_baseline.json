@@ -1,0 +1,100 @@
+{
+  "method": "closed-form chance DTI for a random map of equal mass",
+  "n_valid_px": 5167373,
+  "median_implied_|G|": 35262,
+  "note": "Each row's implied |G| is the public-chunk new-fault pixel count that would make that submission EXACTLY chance. Rows clustering on one value are indistinguishable from random; a much larger implied |G| means the map beat chance.",
+  "rows": [
+    {
+      "submission": "gemsdoe1_ens12_LB0.1563",
+      "public_LB": 0.1563,
+      "predicted_mass": 172974.0,
+      "coverage_pct": 3.347,
+      "catalogue_echo_pct": 20.2,
+      "implied_|G|_if_pure_chance": 45597,
+      "chance_DTI_at_|G|=median": 0.137,
+      "lift_over_chance": 1.141
+    },
+    {
+      "submission": "gems8_apex_LB0.1563",
+      "public_LB": 0.1563,
+      "predicted_mass": 209900.2,
+      "coverage_pct": 4.062,
+      "catalogue_echo_pct": 90.8,
+      "implied_|G|_if_pure_chance": 41759,
+      "chance_DTI_at_|G|=median": 0.1419,
+      "lift_over_chance": 1.101
+    },
+    {
+      "submission": "gemsdoe2_dualunion_LB0.1560",
+      "public_LB": 0.156,
+      "predicted_mass": 183642.0,
+      "coverage_pct": 3.554,
+      "catalogue_echo_pct": 21.8,
+      "implied_|G|_if_pure_chance": 43954,
+      "chance_DTI_at_|G|=median": 0.1387,
+      "lift_over_chance": 1.125
+    },
+    {
+      "submission": "gems7_halo15_LB0.1461",
+      "public_LB": 0.1461,
+      "predicted_mass": 606252.4,
+      "coverage_pct": 11.732,
+      "catalogue_echo_pct": 39.9,
+      "implied_|G|_if_pure_chance": 42131,
+      "chance_DTI_at_|G|=median": 0.1267,
+      "lift_over_chance": 1.153
+    },
+    {
+      "submission": "gems3_pindrop_nodes_LB0.1193",
+      "public_LB": 0.1193,
+      "predicted_mass": 155021.0,
+      "coverage_pct": 3.0,
+      "catalogue_echo_pct": 8.1,
+      "implied_|G|_if_pure_chance": 28765,
+      "chance_DTI_at_|G|=median": 0.1333,
+      "lift_over_chance": 0.895
+    },
+    {
+      "submission": "gems3_pindrop_ridge_LB0.1152",
+      "public_LB": 0.1152,
+      "predicted_mass": 155021.0,
+      "coverage_pct": 3.0,
+      "catalogue_echo_pct": 18.1,
+      "implied_|G|_if_pure_chance": 27072,
+      "chance_DTI_at_|G|=median": 0.1333,
+      "lift_over_chance": 0.864
+    },
+    {
+      "submission": "gems3_pindrop_discovery_LB0.0830",
+      "public_LB": 0.083,
+      "predicted_mass": 155021.0,
+      "coverage_pct": 3.0,
+      "catalogue_echo_pct": 7.7,
+      "implied_|G|_if_pure_chance": 16268,
+      "chance_DTI_at_|G|=median": 0.1333,
+      "lift_over_chance": 0.623
+    },
+    {
+      "submission": "gems6_hgb88_LB0.0286",
+      "public_LB": 0.0286,
+      "predicted_mass": 155021.0,
+      "coverage_pct": 3.0,
+      "catalogue_echo_pct": 69.5,
+      "implied_|G|_if_pure_chance": 4378,
+      "chance_DTI_at_|G|=median": 0.1333,
+      "lift_over_chance": 0.215
+    }
+  ],
+  "chance_curve_at_median_G": {
+    "0.005": 0.0475,
+    "0.010": 0.079,
+    "0.020": 0.1155,
+    "0.030": 0.1333,
+    "0.050": 0.1446,
+    "0.080": 0.1402,
+    "0.120": 0.1257,
+    "0.200": 0.0994,
+    "0.350": 0.0702,
+    "1.000": 0.0341
+  }
+}

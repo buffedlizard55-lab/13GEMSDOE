@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>How to submit — 13GEMSDOE</title>
+<meta name="description" content="GEMS Prize Challenge: audited scoring metric, hide-and-recover holdout, and a one-click validated submission GeoTIFF.">
+<link rel="stylesheet" href="assets/style.css">
+</head><body>
+<header class="site"><div class="wrap">
+  <a class="brand" href="index.html">13<span>GEMS</span>DOE</a>
+  <nav class="site"><a href="index.html" class="">Submit</a><a href="executive_summary.html" class="on">How to submit</a><a href="evidence.html" class="">Evidence</a><a href="hypotheses.html" class="">Hypotheses</a><a href="sources.html" class="">Sources</a></nav>
+</div></header>
+
+<main class="wrap">
+<section>
+  <h2>Executive summary — how to make a submission</h2>
+  <p class="lede">Start to finish in about two minutes. You need a DrivenData
+  account that is registered as a competitor for this challenge.</p>
+
+  <ol class="steps">
+    <li><h4>Download the file</h4>
+      <p>From the <a href="index.html">front page</a>, click
+      <b>Download submission GeoTIFF</b>. You get
+      <code>13gems-composite-20260928T040920Z.tif</code>.</p>
+      <p class="small">A <code>.zip</code> is offered too — the form accepts
+      "a single-band GeoTIFF (.tif) file, or a .zip file containing a single GeoTIFF".
+      There is also an <b>all-finite</b> variant; use it only if the plain file is
+      rejected (see troubleshooting below).</p></li>
+
+    <li><h4>Open the submission form</h4>
+      <p>Go to the
+      <a href="https://www.drivendata.org/competitions/306/competition-doe-gems/submissions/">
+      competition submissions page</a> and click <b>New submission</b>.</p>
+      <p class="small">Limit: <b>three submissions per week</b>
+      (<a href="https://docs.nlr.gov/docs/fy26osti/96647.pdf">Official Rules §3.2</a>).</p></li>
+
+    <li><h4>Choose the file</h4>
+      <p>Select the <code>.tif</code> you downloaded. It already matches the required
+      CRS, shape and geotransform, so the format check passes immediately.</p></li>
+
+    <li><h4>Paste the Note</h4>
+      <p>The form's optional <i>Note</i> is "a short comment to help you or your team
+      tell submissions apart later". Use the one generated with the file — it records the
+      detector, coverage and line spacing:</p>
+      <pre><code>tip-extension rays reach 1000m decimated 1-per-3px + topo-ridge fill 5%, binary 0/1, catalogue included (masked at scoring)</code></pre>
+      <p class="small">The front page has a <b>Copy the Note field</b> button.</p></li>
+
+    <li><h4>Submit, then record the score</h4>
+      <p>After scoring, copy the <b>per-submission</b> score — not the leaderboard
+      figure — into <code>reports/leaderboard_ledger.csv</code>.</p>
+      <div class="callout warn"><p style="margin:0"><b>This matters.</b> The public
+      leaderboard column is literally "<i>Best public DW-Tversky</i>". It shows your
+      best-ever score, so it does <b>not</b> change when a later submission scores
+      worse. Reading it as "the score of what I just uploaded" is what produced the
+      illusion of a 0.1563 plateau.</p></div></li>
+  </ol>
+</section>
+
+<section>
+  <h2>Troubleshooting</h2>
+  <div class="panel">
+    <h3 style="margin-top:0"><span class="tag t-bad">Error</span>
+      &nbsp;“Predicted values must be in range [0, 1]”</h3>
+    <p>Every file this site publishes is checked by
+    <code>src/gems/rio.py::validate_submission</code> before release, which rejects
+    any raster whose finite minimum is below 0, whose maximum exceeds 1, or that
+    contains infinities. If the platform still rejects the plain file, the cause is
+    almost certainly <b>NaN</b>: the official format permits nan outside the data
+    bounds, but a validator written as <code>min()&lt;0 or max()&gt;1</code> can
+    treat it as out of range.</p>
+    <p><b>Fix:</b> upload <code>13gems-composite-20260928T040920Z_allfinite.tif</code>, which is identical
+    inside the survey footprint and writes <code>0.0</code> instead of nan outside it.</p>
+  </div>
+  <div class="panel">
+    <h3 style="margin-top:0"><span class="tag t-warn">Check</span>
+      &nbsp;Format requirements, verbatim</h3>
+    <ul class="small">
+      <li>Same projected CRS as the training data — <b>EPSG:32611</b> (UTM 11N)</li>
+      <li>Same resolution — <b>100 m</b></li>
+      <li>Same bounds; data outside the bounds null or nan</li>
+      <li>A single layer, <b>float32</b>, values between <b>0 and 1</b></li>
+    </ul>
+    <p class="small">Source:
+    <a href="https://www.drivendata.org/competitions/306/competition-doe-gems/page/967/">
+    problem description → Submission format</a>. Our grid is
+    3730×3292, transform <code>(100, 0, 243350; 0, −100, 4508550)</code>,
+    5,167,373 valid pixels.</p>
+  </div>
+</section>
+
+<section>
+  <h2>Choosing the one submission that counts</h2>
+  <div class="callout">
+    <p>Competitors must nominate a <b>single</b> submission that is scored in both
+    rounds, before the deadline, without seeing private performance
+    (<a href="https://www.drivendata.org/competitions/306/competition-doe-gems/page/967/">problem description</a>).</p>
+    <p><b>Phase 2 is 83% of the money</b> ($250k of $300k) and its labels are built by
+    expert review of every team's predictions. The organizers confirmed this directly:
+    <i>"your fault predictions have an impact on final evaluation even if they are not
+    the most performant in Phase 1"</i>
+    (<a href="https://community.drivendata.org/t/how-were-the-new-test-faults-identified-data-sources-and-fault-types/11527/7">forum 11527</a>).
+    Nominate the map that is most defensible geologically and broadest in coverage,
+    not the one that squeezed the most out of the public chunk.</p>
+  </div>
+</section></main>
+<footer class="site"><div class="wrap">
+  <p><strong>13GEMSDOE</strong> — working repository for the
+  <a href="https://www.drivendata.org/competitions/306/competition-doe-gems/">DOE GEMS Prize Challenge</a>.
+  Page generated 2026-09-28 04:10 UTC from <code>reports/*.json</code>.</p>
+  <p class="small">Every figure on this site is produced by a script in this
+  repository and is reproducible from a clean checkout. Claims that could not be
+  verified against an official source are listed as irregularities rather than
+  presented as fact.</p>
+</div></footer></body></html>
