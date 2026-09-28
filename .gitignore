@@ -1,0 +1,11 @@
+# Large competition / derived rasters are never committed: they exceed the
+# repo artifact cap and are reproducible via scripts/fetch_data.py
+data/raw/
+data/derived/
+data/scored/
+data/holdout/
+*.tif.part-*
+.venv/
+__pycache__/
+*.pyc
+.ipynb_checkpoints/

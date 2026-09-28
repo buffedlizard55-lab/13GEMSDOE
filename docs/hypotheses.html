@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Hypotheses — 13GEMSDOE</title>
+<meta name="description" content="GEMS Prize Challenge: audited scoring metric, hide-and-recover holdout, and a one-click validated submission GeoTIFF.">
+<link rel="stylesheet" href="assets/style.css">
+</head><body>
+<header class="site"><div class="wrap">
+  <a class="brand" href="index.html">13<span>GEMS</span>DOE</a>
+  <nav class="site"><a href="index.html" class="">Submit</a><a href="executive_summary.html" class="">How to submit</a><a href="evidence.html" class="">Evidence</a><a href="hypotheses.html" class="on">Hypotheses</a><a href="sources.html" class="">Sources</a></nav>
+</div></header>
+
+<main class="wrap">
+<section>
+  <h2>Candidate hypotheses</h2>
+  <p class="lede">Every one of these targets a <b>systematic blind spot of a
+  scarp-derived catalogue</b> rather than re-detecting the topographic signature the
+  catalogue already encodes. That is the point: the test labels are, by definition,
+  faults the USGS/INGENIOUS compilation does not contain.</p>
+  <p class="small">Full write-up with references: <a href="https://github.com/buffedlizard55-lab/13GEMSDOE/blob/main/knowledge/03_hypotheses.md">knowledge/03_hypotheses.md</a>.</p>
+  <div class="callout">
+    <p><b>Why not more topography?</b> The USGS Quaternary Fault and Fold Database is
+    built predominantly from surface scarp expression. A better topographic ridge
+    detector finds more of what is <i>already mapped</i>. The organizers confirmed
+    “new fault” means “any fault pixel not already captured”, explicitly including
+    extensions, splays and corrections — so the productive search is for faults whose
+    surface expression is weak, absent, or non-topographic.</p>
+  </div>
+  <div class="scroll"><table><thead><tr>
+    <th>hypothesis</th><th>layers</th><th>physical signature</th>
+    <th>why it finds a <i>missing</i> fault</th><th>how it differs from prior work</th>
+    <th>rank</th></tr></thead><tbody><tr>
+          <td><b>H-A</b><br><span class="small">Multiscale potential-field “worms”</span><br><span class='tag t-info'>worst 0.0198 · best 0.0330</span></td>
+          <td class="small mono">rtp (2), iso_grav_anom (13)</td>
+          <td class="small">Fourier upward continuation to 0.5–8 km, horizontal-gradient maxima at each height, thinned and stacked by cross-scale persistence.</td>
+          <td class="small">A steeply-dipping, vertically-extensive contact keeps producing a gradient maximum as the field is continued upward; shallow sedimentary texture washes out within a few hundred metres. QFaults is built from surface scarp evidence, so it cannot contain contacts buried under basin fill.</td>
+          <td class="small">The repo used the <i>provided</i> single-scale gradient bands (<code>tmi_hg</code>, <code>iso_grav_anom_hg</code>) and generic ridge filters. Explicit upward continuation and cross-scale persistence were never computed.</td>
+          <td><span class="tag t-ok">High</span><br>
+              <span class="tag t-mut">cost Low</span></td></tr><tr>
+          <td><b>H-B</b><br><span class="small">Tilt-derivative zero contour / theta map</span><br><span class='tag t-info'>worst 0.0274 · best 0.0515</span></td>
+          <td class="small mono">rtp (2), iso_grav_anom (13)</td>
+          <td class="small">TDR = atan2(dF/dz, |∇ₕF|); the zero contour sits over the source edge. Also θ = acos(THDR/AS).</td>
+          <td class="small">TDR is amplitude-normalised, so a weak anomaly over a deep or low-contrast source scores as strongly as a loud shallow one. Loud anomalies are already mapped; the unmapped ones are quiet by construction.</td>
+          <td class="small">Nothing in the repo computes a vertical derivative or a tilt angle from RTP. Band 6 <code>tc</code> was assumed to be a tilt angle, but it is almost certainly radiometric Total Count (irregularity I-2).</td>
+          <td><span class="tag t-ok">High</span><br>
+              <span class="tag t-mut">cost Low</span></td></tr><tr>
+          <td><b>H-C</b><br><span class="small">Concealed basement hinge under flat cover</span><br><span class='tag t-info'>worst 0.0172 · best 0.0381</span></td>
+          <td class="small mono">depth_to_base_surf (15), det_elev_slope (19)</td>
+          <td class="small">Ridge of |∇ depth-to-basement|, thinned, then <b>multiplied by a flat-topography mask</b> (bottom ~55% of slope).</td>
+          <td class="small">A normal fault that offsets basement but is buried by Quaternary fill makes a hinge in basement depth and nothing at the surface. Conditioning on flat ground <i>inverts</i> the usual scarp hunt so the detector can only fire where a scarp-derived catalogue is blind. This is also the classic hidden-geothermal target that motivates INGENIOUS.</td>
+          <td class="small">Conductivity and depth-to-basement were used as generic ML features. The anti-topographic conjunction — require a basement step AND no relief — is new.</td>
+          <td><span class="tag t-ok">Medium-High</span><br>
+              <span class="tag t-mut">cost Low</span></td></tr><tr>
+          <td><b>H-D</b><br><span class="small">Strain-budget residual</span><br><span class='tag t-info'>worst 0.0108 · best 0.0760</span></td>
+          <td class="small mono">geod_2ndinv (4), ieq_n100a15 (16), + visible catalogue density</td>
+          <td class="small">Normalised second invariant of the strain-rate tensor minus normalised earthquake density minus normalised mapped-fault density.</td>
+          <td class="small">Geodetic strain has to be accommodated somewhere. Where strain is high but both seismicity and mapped faults are absent, the accommodating structure is by elimination not in the catalogue.</td>
+          <td class="small">Strain bands were fed to ML models and a “dilational annulus/top-k” was tried, but never as a <i>deficit</i> conditioned on catalogue density.</td>
+          <td><span class="tag t-ok">Low-Medium</span><br>
+              <span class="tag t-mut">cost Low</span></td></tr><tr>
+          <td><b>H-E</b><br><span class="small">Directional-coherence lineaments in non-topographic contrast</span><br><span class='tag t-info'>worst 0.0097 · best 0.0207</span></td>
+          <td class="small mono">tc (6) — see I-2, cond_surf (17)</td>
+          <td class="small">Oriented matched-filter bank: 12 strikes × 1.5 km length, maximum response.</td>
+          <td class="small">Faults juxtapose lithologies and channel groundwater, so they appear as sharp linear K/U/Th and conductivity contrasts even on perfectly flat ground. Radiometrics is the least-exploited GeoDAWN product.</td>
+          <td class="small">Radiometrics appears in the repo only as an ML input raster (<code>radiometric_u8.tif</code>, <code>context_detector_prob_topo_rad</code>), never as an oriented lineament detector. Partial overlap — flagged honestly.</td>
+          <td><span class="tag t-ok">Medium</span><br>
+              <span class="tag t-mut">cost Low</span></td></tr></tbody></table></div>
+</section>
+
+<section>
+  <h2>External data that would unlock more — and whether it is obtainable</h2>
+  <div class="scroll"><table><thead><tr><th>source</th><th>what it adds</th>
+  <th>licence</th><th>status</th></tr></thead><tbody>
+  <tr><td><a href="https://gdr.openei.org/submissions/1391">INGENIOUS Great Basin
+      Compilation</a> (DOI 10.15121/1881483)</td>
+      <td><b>Quaternary Faults v2</b> carries fault <b>ages and slip rates</b> — the
+      missing holdout strata. Also <b>Paleo Geothermal Features</b> (sinter/tufa
+      deposits), 2 m temperature probes, Quaternary volcanics, heat flow, MT conductance.</td>
+      <td>CC-BY-4.0 ✅ permits competition use</td>
+      <td><span class="tag t-warn">verified to exist; download blocked by sandbox
+      egress — see L-2</span></td></tr>
+  <tr><td><a href="https://doi.org/10.5066/P93LGLVQ">GeoDAWN survey (USGS)</a></td>
+      <td>Native-resolution magnetics and radiometrics (the provided grid is
+      resampled to 100 m)</td><td>USGS public domain ✅</td>
+      <td><span class="tag t-warn">egress blocked</span></td></tr>
+  <tr><td>USGS 3DEP 1 m DEM (<code>1m_DEM_links.csv</code>)</td>
+      <td>Metre-scale scarp morphology</td><td>USGS public domain ✅</td>
+      <td><span class="tag t-bad">needs a DrivenData login</span></td></tr>
+  </tbody></table></div>
+  <p class="small"><b>Honest limitation:</b> none of the five hypotheses above requires
+  external data — all five run on the 19 official bands, which is deliberate. The
+  external sources would strengthen the <i>holdout</i> (age/slip-rate strata) and add a
+  genuinely new geothermal channel (paleo-hydrothermal deposits), not the detectors.</p>
+</section></main>
+<footer class="site"><div class="wrap">
+  <p><strong>13GEMSDOE</strong> — working repository for the
+  <a href="https://www.drivendata.org/competitions/306/competition-doe-gems/">DOE GEMS Prize Challenge</a>.
+  Page generated 2026-09-28 04:10 UTC from <code>reports/*.json</code>.</p>
+  <p class="small">Every figure on this site is produced by a script in this
+  repository and is reproducible from a clean checkout. Claims that could not be
+  verified against an official source are listed as irregularities rather than
+  presented as fact.</p>
+</div></footer></body></html>
