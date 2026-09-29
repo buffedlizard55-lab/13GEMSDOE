@@ -19,12 +19,13 @@
   <ol class="steps">
     <li><h4>Download the file</h4>
       <p>From the <a href="index.html">front page</a>, click
-      <b>Download submission GeoTIFF</b>. You get
-      <code>13gems-composite-20260928T040920Z.tif</code>.</p>
-      <p class="small">A <code>.zip</code> is offered too — the form accepts
-      "a single-band GeoTIFF (.tif) file, or a .zip file containing a single GeoTIFF".
-      There is also an <b>all-finite</b> variant; use it only if the plain file is
-      rejected (see troubleshooting below).</p></li>
+      <b>Download submission GeoTIFF (recommended)</b>. Use
+      <code>13gems-composite-20260928T040920Z_allfinite.tif</code>. This file uses finite 0.0 values outside
+      the data footprint, avoiding the NaN range rejection seen in a prior upload.
+      The adjacent <code>.zip</code> also contains this all-finite raster.</p>
+      <p class="small">Do not use the separate NaN-outside variant unless the competition
+      validator accepts it. The recommended file is checked locally for finite values
+      entirely within [0, 1].</p></li>
 
     <li><h4>Open the submission form</h4>
       <p>Go to the
@@ -105,7 +106,7 @@
 <footer class="site"><div class="wrap">
   <p><strong>13GEMSDOE</strong> — working repository for the
   <a href="https://www.drivendata.org/competitions/306/competition-doe-gems/">DOE GEMS Prize Challenge</a>.
-  Page generated 2026-09-28 04:10 UTC from <code>reports/*.json</code>.</p>
+  Page generated 2026-09-29 18:03 UTC from <code>reports/*.json</code>.</p>
   <p class="small">Every figure on this site is produced by a script in this
   repository and is reproducible from a clean checkout. Claims that could not be
   verified against an official source are listed as irregularities rather than

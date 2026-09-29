@@ -224,8 +224,12 @@ def main() -> None:
     if not ok:
         raise SystemExit("VALIDATION FAILED - nothing released")
 
+    # DrivenData's upload validator has rejected our NaN-outside TIFF with
+    # "Predicted values must be in range [0, 1]". Package the all-finite
+    # (zero outside footprint) variant by default; it still has exact grid
+    # metadata and all pixel values in [0, 1].
     with zipfile.ZipFile(OUT / f"{name}.zip", "w", zipfile.ZIP_DEFLATED) as z:
-        z.write(tif, arcname=f"{name}.tif")
+        z.write(fin, arcname=f"{name}.tif")
 
     note = (note_bits + ", binary 0/1"
             + (", catalogue included (masked at scoring)"
