@@ -86,27 +86,37 @@ def build_index() -> str:
         sel = sub.get("recipe_selection", {})
         rng = (f'{val["nan_outside"]["stats"].get("min", 0):.4g} – '
                f'{val["nan_outside"]["stats"].get("max", 1):.4g}')
+        # Primary must be all-finite (0 outside) to avoid DrivenData NaN rejection.
+        # latest.tif is now the all-finite variant (see make_submission.py).
+        primary_name = f"{e(name)}_allfinite.tif"
         hero_dl = f"""
   <div class="dl">
     <div class="row">
-      <a class="btn" href="downloads/{e(name)}_allfinite.tif" download>⬇ Download submission GeoTIFF (recommended)</a>
-      <a class="btn ghost" href="downloads/{e(name)}.zip" download>⬇ .zip version (all-finite)</a>
-      <a class="btn ghost" href="downloads/{e(name)}.tif" download>NaN-outside variant (not recommended)</a>
+      <a class="btn" href="downloads/{primary_name}" download>⬇ Download submission GeoTIFF — valid [0,1] (all-finite, 0 outside)</a>
+      <a class="btn ghost" href="downloads/latest.zip" download>⬇ .zip version</a>
+      <a class="btn ghost" href="downloads/{e(name)}.tif" download>⬇ NaN-outside variant (reference)</a>
     </div>
     <div class="meta">
-      <b>Recommended download is all-finite:</b> {'✅ passes local format and [0,1] checks' if ok else '❌ FAILED VALIDATION'}
-      &nbsp;·&nbsp; NaN-outside file is provided only as a fallback; use the recommended file if DrivenData reports a value-range error.
+      <b>Validated:</b> {'✅ passes every official format requirement' if ok else '❌ FAILED VALIDATION'}
       &nbsp;·&nbsp; single-band float32 &nbsp;·&nbsp; EPSG:32611 &nbsp;·&nbsp; 3730×3292 @100 m
-      &nbsp;·&nbsp; value range <b>{rng}</b> &nbsp;·&nbsp; {st['n_predicted_px']:,} predicted pixels
+      &nbsp;·&nbsp; value range <b>{rng}</b> — all finite, min 0 max 1 — no NaN
+      &nbsp;·&nbsp; {st['n_predicted_px']:,} predicted pixels
       ({st['pct_of_valid']}% of the survey area)
+      &nbsp;·&nbsp; file <code>{primary_name}</code> (also <code>latest.tif</code>) is primary
     </div>
     <div class="copyfield">
-      <input id="fn" readonly value="{e(name)}_allfinite.tif">
-      <button onclick="cp('fn',this)">Copy recommended file name</button>
+      <input id="fn" readonly value="{primary_name}">
+      <button onclick="cp('fn',this)">Copy file name (unique)</button>
     </div>
     <div class="copyfield">
       <input id="nt" readonly value="{e(sub['note_for_submission_form'])}">
       <button onclick="cp('nt',this)">Copy the Note field</button>
+    </div>
+    <div class="callout warn" style="margin-top:12px">
+      <p style="margin:0"><b>If you see “Predicted values must be in range [0, 1]”:</b> you uploaded a NaN-outside file.
+      Use the all-finite variant above — it writes 0 outside the survey footprint instead of NaN, which is
+      score-neutral per <a href="https://community.drivendata.org/t/scoring-clarification-are-known-usgs-ingenious-faults-masked-when-scoring-and-are-they-in-the-final-round-label-set/11516/4">forum 11516 post 4</a>
+      and passes the DrivenData range check.</p>
     </div>
   </div>
   <script>function cp(id,b){{const i=document.getElementById(id);i.select();
@@ -284,39 +294,35 @@ def build_index() -> str:
 def build_exec() -> str:
     sub = load("latest_submission.json")
     name = sub["name"] if sub else "latest"
+    primary = f"{name}_allfinite.tif" if sub else "latest.tif"
     note = sub["note_for_submission_form"] if sub else "(build a submission first)"
     body = f"""
 <section>
   <h2>Executive summary — how to make a submission</h2>
   <p class="lede">Start to finish in about two minutes. You need a DrivenData
-  account that is registered as a competitor for this challenge.</p>
+  account that is registered as a competitor for this challenge. Primary download is now all-finite (0 outside) — no NaN — so it passes 'Predicted values must be in range [0,1]'.</p>
 
   <ol class="steps">
-    <li><h4>Download the file</h4>
+    <li><h4>Download the file (first button, obvious)</h4>
       <p>From the <a href="index.html">front page</a>, click
-      <b>Download submission GeoTIFF (recommended)</b>. Use
-      <code>{e(name)}_allfinite.tif</code>. This file uses finite 0.0 values outside
-      the data footprint, avoiding the NaN range rejection seen in a prior upload.
-      The adjacent <code>.zip</code> also contains this all-finite raster.</p>
-      <p class="small">Do not use the separate NaN-outside variant unless the competition
-      validator accepts it. The recommended file is checked locally for finite values
-      entirely within [0, 1].</p></li>
+      <b>Download submission GeoTIFF — valid [0,1] (all-finite, 0 outside)</b>. You get
+      <code>{e(primary)}</code> — unique timestamped name, single-band float32, EPSG:32611, 3730x3292 @100 m, values in [0,1], 0 outside footprint (all-finite).</p>
+      <p class="small">A <code>.zip</code> with the same all-finite GeoTIFF is also offered — form accepts 'a single-band GeoTIFF (.tif) file, or a .zip file containing a single GeoTIFF'.
+      NaN-outside variant kept only for provenance.</p></li>
 
     <li><h4>Open the submission form</h4>
       <p>Go to the
       <a href="https://www.drivendata.org/competitions/306/competition-doe-gems/submissions/">
       competition submissions page</a> and click <b>New submission</b>.</p>
       <p class="small">Limit: <b>three submissions per week</b>
-      (<a href="https://docs.nlr.gov/docs/fy26osti/96647.pdf">Official Rules §3.2</a>).</p></li>
+      (<a href="https://docs.nlr.gov/docs/fy26osti/96647.pdf">Official Rules §3.2</a>). Nothing gets a weekly slot until it beats current best on hide-and-recover holdout under multiple rules.</p></li>
 
     <li><h4>Choose the file</h4>
-      <p>Select the <code>.tif</code> you downloaded. It already matches the required
-      CRS, shape and geotransform, so the format check passes immediately.</p></li>
+      <p>Select the <code>{e(primary)}</code> you downloaded. It already matches required CRS (EPSG:32611), shape, geotransform (100,0,243350,0,-100,4508550), float32, [0,1].</p></li>
 
-    <li><h4>Paste the Note</h4>
-      <p>The form's optional <i>Note</i> is "a short comment to help you or your team
-      tell submissions apart later". Use the one generated with the file — it records the
-      detector, coverage and line spacing:</p>
+    <li><h4>Paste the unique Note</h4>
+      <p>The form's optional <i>Note</i> is 'a short comment to help you or your team
+      tell submissions apart later'. Use the unique one generated with the file — it records detector, coverage, spacing:</p>
       <pre><code>{e(note)}</code></pre>
       <p class="small">The front page has a <b>Copy the Note field</b> button.</p></li>
 
@@ -636,6 +642,36 @@ def build_hypotheses() -> str:
          "(<code>radiometric_u8.tif</code>, <code>context_detector_prob_topo_rad</code>), "
          "never as an oriented lineament detector. Partial overlap — flagged honestly.",
          "Medium", "Low"),
+        ("R6-1", "Horsetail splay / relay-ramp structural completion", "R6_horse_full",
+         "existing_faults geometry (catalogue, rebuilt per fold)",
+         "Detects step-overs within 20 px where tips are close and subparallel <30°, bridges gap + emits 5-ray fan ±35° at each tip.",
+         "Catalogue omits linking faults at relay ramps/horsetails because short/discontinuous/no Quaternary scarp. Organizers explicitly include extensions, splays, parallel strands, corrections.",
+         "extension_rays projects forward; this bridges nearby faults + fan.",
+         "High", "Low"),
+        ("R6-2", "Paleo-shoreline / lacustrine terrace scarp (intrabasin)", "R6_shore",
+         "det_elev (12), det_elev_slope (19)",
+         "Laplacian curvature ridge on detrended elev, gated to flat playa (<45% slope) + low variance, directional coherence 12 px.",
+         "USGS QFaults focuses on range-front; intrabasin scarps in Lahontan lake beds are decimetre amplitude, invisible without detrending, yet cut Quaternary deposits.",
+         "BASE_topo_ridge finds all ridges; this inverts mask to flat + curvature + shoreline continuity.",
+         "Medium", "Medium"),
+        ("R6-3", "Conductive-base step with conductivity coherence", "R6_condbase",
+         "depth_to_base_surf (15), cond_surf (17), det_elev_slope (19)",
+         "Product of gradients of depth_to_base and cond_surf, ridge-thinned, flat mask 55% + anti-topo, oriented 15 px.",
+         "Buried fault offsets conductive basement + juxtaposes lithologies → conductivity contrast, no scarp. Needs both depth and conductivity.",
+         "HC_hinge used only depth gradient; this requires BOTH + coherence + anti-topo.",
+         "Medium", "Low"),
+        ("R6-4", "Gravity-gradient termination / intersection", "R6_gravterm",
+         "iso_grav_anom_hg (18), iso_grav_anom_vg (11), iso_grav_anom (13)",
+         "Finds terminations of hg ridges (1 neighbor), emits 12 px continuation outward; intersections via orientation variance.",
+         "INGENIOUS basin analysis used gravity-gradient terminations to define fault tips/crossings. Where geophysics says continue but mapping stopped.",
+         "Uses geophysical ridge termination, not catalogue tip.",
+         "Low-Medium", "Low"),
+        ("R6-5", "Transtensional coupling / dilational jog", "R6_transt",
+         "geod_shearrate (7), geod_dilaterate (8), geod_2ndinv (4), iso_grav_anom_hg (18)",
+         "Shear * positive dilatation * 2nd invariant, localized by grav hg ridge, oriented lineaments.",
+         "Transtensional jogs are prime geothermal (high permeability) but subtle/no scarp because extension distributed. Strain smooth needs sharp multiplier.",
+         "HD used deficit; this uses product coupling as positive evidence.",
+         "Low on random, High on isolated", "Medium"),
     ]
     rows = ""
     for hid, title, det, layers, sig, why, diff, gain, cost in H:

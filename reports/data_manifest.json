@@ -1,0 +1,52 @@
+{
+  "source": "mirrors in this group's own public repos",
+  "warning": "see knowledge/02_irregularities.md I-1",
+  "files": {
+    "existing_faults.tif": {
+      "blob_sha": "4ad3c1f3f19823e40924589bee7e51e44ae3a2e7",
+      "bytes": 425830,
+      "md5": "b0e0d9b90d8abb30578faf048de6443d"
+    },
+    "example_submission.tif": {
+      "blob_sha": "7d865a9921a40ed2ea4c742a6a25b1fa2f357c5a",
+      "bytes": 1599597,
+      "md5": "712d174099872fc3084cf19463929dc8"
+    },
+    "gems-geodawn-numerical-features.tif": {
+      "bytes": 418912844,
+      "parts": 5
+    },
+    "scored/gemsdoe1_ens12_LB0.1563.tif": {
+      "repo": "GEMSDOE",
+      "blob_sha": "812e61b74050d1350cc2bde1fab0c76ead32e0c4"
+    },
+    "scored/gems8_apex_LB0.1563.tif": {
+      "repo": "8GEMSDOE",
+      "blob_sha": "d3aac36c0d38464793640b30920d2a3bea4c4143"
+    },
+    "scored/gemsdoe2_dualunion_LB0.1560.tif": {
+      "repo": "GEMSDOE2",
+      "blob_sha": "fd56d5c4806521438ee89cc9bd7dd1cf89e9fd44"
+    },
+    "scored/gems7_halo15_LB0.1461.tif": {
+      "repo": "7GEMSDOE",
+      "blob_sha": "06c2e93680efb5106acd46aad60fca571ea33975"
+    },
+    "scored/gems3_pindrop_nodes_LB0.1193.tif": {
+      "repo": "GEMSDOE3",
+      "blob_sha": "fdd931161c431a583cf7039362e51832e59d07ad"
+    },
+    "scored/gems3_pindrop_ridge_LB0.1152.tif": {
+      "repo": "GEMSDOE3",
+      "blob_sha": "b298154c2e405095db5e58f9c5232618ef4827f1"
+    },
+    "scored/gems3_pindrop_discovery_LB0.0830.tif": {
+      "repo": "GEMSDOE3",
+      "blob_sha": "32a4a6d2d4df8ef8e880120f36d2a4d94f134f8a"
+    },
+    "scored/gems6_hgb88_LB0.0286.tif": {
+      "repo": "6GEMSDOE",
+      "blob_sha": "3957f33ad98537c14db71425667dcbf199629af2"
+    }
+  }
+}

@@ -14,35 +14,30 @@
 <section>
   <h2>Executive summary — how to make a submission</h2>
   <p class="lede">Start to finish in about two minutes. You need a DrivenData
-  account that is registered as a competitor for this challenge.</p>
+  account that is registered as a competitor for this challenge. Primary download is now all-finite (0 outside) — no NaN — so it passes 'Predicted values must be in range [0,1]'.</p>
 
   <ol class="steps">
-    <li><h4>Download the file</h4>
+    <li><h4>Download the file (first button, obvious)</h4>
       <p>From the <a href="index.html">front page</a>, click
-      <b>Download submission GeoTIFF (recommended)</b>. Use
-      <code>13gems-composite-20260928T040920Z_allfinite.tif</code>. This file uses finite 0.0 values outside
-      the data footprint, avoiding the NaN range rejection seen in a prior upload.
-      The adjacent <code>.zip</code> also contains this all-finite raster.</p>
-      <p class="small">Do not use the separate NaN-outside variant unless the competition
-      validator accepts it. The recommended file is checked locally for finite values
-      entirely within [0, 1].</p></li>
+      <b>Download submission GeoTIFF — valid [0,1] (all-finite, 0 outside)</b>. You get
+      <code>13gems-composite-plus-20260929T183249Z_allfinite.tif</code> — unique timestamped name, single-band float32, EPSG:32611, 3730x3292 @100 m, values in [0,1], 0 outside footprint (all-finite).</p>
+      <p class="small">A <code>.zip</code> with the same all-finite GeoTIFF is also offered — form accepts 'a single-band GeoTIFF (.tif) file, or a .zip file containing a single GeoTIFF'.
+      NaN-outside variant kept only for provenance.</p></li>
 
     <li><h4>Open the submission form</h4>
       <p>Go to the
       <a href="https://www.drivendata.org/competitions/306/competition-doe-gems/submissions/">
       competition submissions page</a> and click <b>New submission</b>.</p>
       <p class="small">Limit: <b>three submissions per week</b>
-      (<a href="https://docs.nlr.gov/docs/fy26osti/96647.pdf">Official Rules §3.2</a>).</p></li>
+      (<a href="https://docs.nlr.gov/docs/fy26osti/96647.pdf">Official Rules §3.2</a>). Nothing gets a weekly slot until it beats current best on hide-and-recover holdout under multiple rules.</p></li>
 
     <li><h4>Choose the file</h4>
-      <p>Select the <code>.tif</code> you downloaded. It already matches the required
-      CRS, shape and geotransform, so the format check passes immediately.</p></li>
+      <p>Select the <code>13gems-composite-plus-20260929T183249Z_allfinite.tif</code> you downloaded. It already matches required CRS (EPSG:32611), shape, geotransform (100,0,243350,0,-100,4508550), float32, [0,1].</p></li>
 
-    <li><h4>Paste the Note</h4>
-      <p>The form's optional <i>Note</i> is "a short comment to help you or your team
-      tell submissions apart later". Use the one generated with the file — it records the
-      detector, coverage and line spacing:</p>
-      <pre><code>tip-extension rays reach 1000m decimated 1-per-3px + topo-ridge fill 5%, binary 0/1, catalogue included (masked at scoring)</code></pre>
+    <li><h4>Paste the unique Note</h4>
+      <p>The form's optional <i>Note</i> is 'a short comment to help you or your team
+      tell submissions apart later'. Use the unique one generated with the file — it records detector, coverage, spacing:</p>
+      <pre><code>tip-rays 2000m + horse splay gap20 splay12 + topo-ridge fill 8%, decimated 1-per-3px, binary 0/1, catalogue included (masked at scoring)</code></pre>
       <p class="small">The front page has a <b>Copy the Note field</b> button.</p></li>
 
     <li><h4>Submit, then record the score</h4>
@@ -68,7 +63,7 @@
     almost certainly <b>NaN</b>: the official format permits nan outside the data
     bounds, but a validator written as <code>min()&lt;0 or max()&gt;1</code> can
     treat it as out of range.</p>
-    <p><b>Fix:</b> upload <code>13gems-composite-20260928T040920Z_allfinite.tif</code>, which is identical
+    <p><b>Fix:</b> upload <code>13gems-composite-plus-20260929T183249Z_allfinite.tif</code>, which is identical
     inside the survey footprint and writes <code>0.0</code> instead of nan outside it.</p>
   </div>
   <div class="panel">
@@ -106,7 +101,7 @@
 <footer class="site"><div class="wrap">
   <p><strong>13GEMSDOE</strong> — working repository for the
   <a href="https://www.drivendata.org/competitions/306/competition-doe-gems/">DOE GEMS Prize Challenge</a>.
-  Page generated 2026-09-29 18:03 UTC from <code>reports/*.json</code>.</p>
+  Page generated 2026-09-29 18:36 UTC from <code>reports/*.json</code>.</p>
   <p class="small">Every figure on this site is produced by a script in this
   repository and is reproducible from a clean checkout. Claims that could not be
   verified against an official source are listed as irregularities rather than

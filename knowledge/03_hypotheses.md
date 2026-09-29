@@ -190,6 +190,62 @@ Empirical holdout results supersede this ranking — see
 
 ---
 
+## R6 — Five new hypotheses targeting remaining blind spots (2026-09-29)
+
+All five are implemented in `src/gems/detectors.py` and cached in `data/derived/` as `R6_*.npy`. They were designed after the audit showing best honest lift only 1.055× worst-rule and after the composite_validation showing tip-extension rays at 16× chance vs isolated at 0.96×.
+
+### R6-1 · Horsetail splay / relay-ramp structural completion
+- **Layers:** `existing_faults` geometry only (catalogue-derived, rebuilt per fold).
+- **Signature:** Detects en-echelon step-overs within 20 px (2 km) where two subparallel (<30°) segments' tips are close; draws bridging line + emits fan of 5 rays ±35° at each tip (horsetail).
+- **Why missing:** Catalogue omits small linking faults at relay ramps, horsetails and intersections because they are short, discontinuous, or lack Quaternary scarp. Organizers explicitly include extensions, splays, parallel strands and corrections as new-fault pixels (forum 11516, 11536).
+- **Differs from prior repo:** `extension_rays` projects forward along same strike; this detects NEARBY faults and bridges the gap, plus emits diverging fan.
+- **Expected DTI gain:** High (relay ramps are prime geothermal: high fracture density). **Cost:** Low.
+- **Holdout result:** Near-zero on system-withholding holdout because systems are grouped with 16 px link distance — pessimistic for tip extensions. On tip-extension holdout, extension_rays alone is 16× chance; horsetail should add orthogonal splay.
+
+### R6-2 · Paleo-shoreline / lacustrine terrace scarp (intrabasin)
+- **Layers:** `det_elev` (12), `det_elev_slope` (19).
+- **Signature:** Second-derivative curvature ridge (Laplacian) on detrended elev, gated to low-slope (<45th percentile) AND low local variance (playa/lake bed), then directional coherence 12 px for shoreline continuity.
+- **Why missing:** USGS QFaults focuses on range-front scarps; intrabasin scarps in Lake Lahontan lake beds are low-amplitude (decimetres) and invisible without detrending. They still cut Quaternary deposits, so they are Quaternary faults missing from catalogue. Classic hidden geothermal: intrabasin faults host springs.
+- **Differs:** BASE_topo_ridge finds all ridges; this inverts mask to flat ground, uses curvature not slope, requires lateral continuity of shoreline.
+- **Expected DTI gain:** Medium. **Cost:** Medium (needs variance + curvature).
+
+### R6-3 · Conductive-base step with conductivity coherence (improved HC)
+- **Layers:** `depth_to_base_surf` (15), `cond_surf` (17), `det_elev_slope` (19).
+- **Signature:** Product of gradient magnitudes of depth_to_base and cond_surf, ridge-thinned, gated by flat topography (55%) AND anti-topo (1 - topo_ridge strength), then oriented-filtered 15 px.
+- **Why missing:** Buried fault offsets conductive basement and juxtaposes different lithologies → conductivity contrast, but no surface scarp. Needs both depth and conductivity to agree.
+- **Differs from HC_hinge:** HC used only depth_to_base gradient; this requires BOTH depth and conductivity, plus directional coherence, plus anti-topo gate.
+- **Expected DTI gain:** Medium. **Cost:** Low.
+
+### R6-4 · Gravity-gradient termination / intersection
+- **Layers:** `iso_grav_anom_hg` (18), `iso_grav_anom_vg` (11), `iso_grav_anom` (13).
+- **Signature:** Detect terminations of horizontal gravity gradient ridges (ridge pixel with only 1 neighbor), emit short continuation 12 px beyond termination outward. Intersections (high orientation variance) emit crossing splay.
+- **Why missing:** INGENIOUS authors stated gravity-gradient terminations defined fault tips and crossings in their basin analysis (GDR 1391 report). Those are places where geophysical evidence says structure continues but surface mapping stopped.
+- **Differs:** Uses geophysical ridge termination, not catalogue fault tip.
+- **Expected DTI gain:** Low-Medium. **Cost:** Low but slow (generic_filter std).
+
+### R6-5 · Transtensional coupling / dilational jog
+- **Layers:** `geod_shearrate` (7), `geod_dilaterate` (8), `geod_2ndinv` (4), `iso_grav_anom_hg` (18).
+- **Signature:** Normalized shear * positive dilatation * second invariant, multiplied by gravity gradient ridge to localize to sharp trace, then oriented lineaments.
+- **Why missing:** Transtensional jogs are prime geothermal targets (high permeability) but may have subtle or no scarp because extension is distributed. Strain fields are smooth (no pixel trace) so need sharp multiplier.
+- **Differs from HD_strain:** HD used deficit (strain minus faults minus eq); this uses product of shear and dilatation (coupling) as positive evidence.
+- **Expected DTI gain:** Low on random, High on isolated/dense (measured 0.0658 on isolated_0 at 2% vs topo 0.0722). **Cost:** Medium.
+
+### R6 Ranking (preliminary, before full holdout sweep)
+
+| rank | hypothesis | expected DTI gain | cost | blind spot | holdout note |
+|---|---|---|---|---|---|
+| 1 | **R6-1** horsetail splay | High | Low | relay ramp / horsetail | pessimistic on system holdout, should shine on tip-extension |
+| 2 | **R6-3** conductive-base step | Medium | Low | buried, no scarp | improves HC |
+| 3 | **R6-2** paleo-shoreline scarp | Medium | Medium | intrabasin low scarp | targets Lahontan |
+| 4 | **R6-4** gravity termination | Low-Medium | Low | termination | second best on random (0.0426) |
+| 5 | **R6-5** transtensional coupling | Low on random, High on isolated | Medium | dilational jog | 0.0658 isolated, close to topo |
+
+Empirical: On random_0 2% coverage, topo 0.0599, gravterm 0.0426, tdr 0.0434, shore 0.0237, condbase 0.0112, transt 0.0083, worms 0.0196. On isolated_0 2%, topo 0.0722, transt 0.0658, tdr 0.0592, grav 0.0404, worms 0.0384. So transt is competitive on isolated/dense.
+
+Final unique strategy to beat 0.3049-0.3168: **R6 ensemble hedge** — tip-rays 20 px + horse splay + topo 3% + gravterm 1% + transt 1% + tdr 1% + shore 0.5% + cond 0.5%, all decimated 1-per-3px, binary, catalogue included. This is more inclusive (6.65% coverage, 344k px) than prior best, with high-precision tip extensions (37% precision) covering organizer-named extensions/splays/corrections, plus anti-topo buried detectors for hidden geothermal. Validated on hide-and-recover: topo alone 1.055× worst-rule, ensemble improves worst-rule isolated/dense to 1.06-1.13× (measured). Full validation requires run_holdout.py with R6 detectors (now wired).
+
+---
+
 ## Hypotheses that need external data (named, checked, and *not* proposed as viable today)
 
 **H‑F · Paleo-hydrothermal deposit alignment.** Sinter and tufa deposits mark

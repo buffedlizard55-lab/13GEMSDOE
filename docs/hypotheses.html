@@ -64,7 +64,42 @@
           <td class="small">Faults juxtapose lithologies and channel groundwater, so they appear as sharp linear K/U/Th and conductivity contrasts even on perfectly flat ground. Radiometrics is the least-exploited GeoDAWN product.</td>
           <td class="small">Radiometrics appears in the repo only as an ML input raster (<code>radiometric_u8.tif</code>, <code>context_detector_prob_topo_rad</code>), never as an oriented lineament detector. Partial overlap — flagged honestly.</td>
           <td><span class="tag t-ok">Medium</span><br>
-              <span class="tag t-mut">cost Low</span></td></tr></tbody></table></div>
+              <span class="tag t-mut">cost Low</span></td></tr><tr>
+          <td><b>R6-1</b><br><span class="small">Horsetail splay / relay-ramp structural completion</span><br><span class='tag t-mut'>pending</span></td>
+          <td class="small mono">existing_faults geometry (catalogue, rebuilt per fold)</td>
+          <td class="small">Detects step-overs within 20 px where tips are close and subparallel <30°, bridges gap + emits 5-ray fan ±35° at each tip.</td>
+          <td class="small">Catalogue omits linking faults at relay ramps/horsetails because short/discontinuous/no Quaternary scarp. Organizers explicitly include extensions, splays, parallel strands, corrections.</td>
+          <td class="small">extension_rays projects forward; this bridges nearby faults + fan.</td>
+          <td><span class="tag t-ok">High</span><br>
+              <span class="tag t-mut">cost Low</span></td></tr><tr>
+          <td><b>R6-2</b><br><span class="small">Paleo-shoreline / lacustrine terrace scarp (intrabasin)</span><br><span class='tag t-mut'>pending</span></td>
+          <td class="small mono">det_elev (12), det_elev_slope (19)</td>
+          <td class="small">Laplacian curvature ridge on detrended elev, gated to flat playa (<45% slope) + low variance, directional coherence 12 px.</td>
+          <td class="small">USGS QFaults focuses on range-front; intrabasin scarps in Lahontan lake beds are decimetre amplitude, invisible without detrending, yet cut Quaternary deposits.</td>
+          <td class="small">BASE_topo_ridge finds all ridges; this inverts mask to flat + curvature + shoreline continuity.</td>
+          <td><span class="tag t-ok">Medium</span><br>
+              <span class="tag t-mut">cost Medium</span></td></tr><tr>
+          <td><b>R6-3</b><br><span class="small">Conductive-base step with conductivity coherence</span><br><span class='tag t-mut'>pending</span></td>
+          <td class="small mono">depth_to_base_surf (15), cond_surf (17), det_elev_slope (19)</td>
+          <td class="small">Product of gradients of depth_to_base and cond_surf, ridge-thinned, flat mask 55% + anti-topo, oriented 15 px.</td>
+          <td class="small">Buried fault offsets conductive basement + juxtaposes lithologies → conductivity contrast, no scarp. Needs both depth and conductivity.</td>
+          <td class="small">HC_hinge used only depth gradient; this requires BOTH + coherence + anti-topo.</td>
+          <td><span class="tag t-ok">Medium</span><br>
+              <span class="tag t-mut">cost Low</span></td></tr><tr>
+          <td><b>R6-4</b><br><span class="small">Gravity-gradient termination / intersection</span><br><span class='tag t-mut'>pending</span></td>
+          <td class="small mono">iso_grav_anom_hg (18), iso_grav_anom_vg (11), iso_grav_anom (13)</td>
+          <td class="small">Finds terminations of hg ridges (1 neighbor), emits 12 px continuation outward; intersections via orientation variance.</td>
+          <td class="small">INGENIOUS basin analysis used gravity-gradient terminations to define fault tips/crossings. Where geophysics says continue but mapping stopped.</td>
+          <td class="small">Uses geophysical ridge termination, not catalogue tip.</td>
+          <td><span class="tag t-ok">Low-Medium</span><br>
+              <span class="tag t-mut">cost Low</span></td></tr><tr>
+          <td><b>R6-5</b><br><span class="small">Transtensional coupling / dilational jog</span><br><span class='tag t-mut'>pending</span></td>
+          <td class="small mono">geod_shearrate (7), geod_dilaterate (8), geod_2ndinv (4), iso_grav_anom_hg (18)</td>
+          <td class="small">Shear * positive dilatation * 2nd invariant, localized by grav hg ridge, oriented lineaments.</td>
+          <td class="small">Transtensional jogs are prime geothermal (high permeability) but subtle/no scarp because extension distributed. Strain smooth needs sharp multiplier.</td>
+          <td class="small">HD used deficit; this uses product coupling as positive evidence.</td>
+          <td><span class="tag t-ok">Low on random, High on isolated</span><br>
+              <span class="tag t-mut">cost Medium</span></td></tr></tbody></table></div>
 </section>
 
 <section>
@@ -95,7 +130,7 @@
 <footer class="site"><div class="wrap">
   <p><strong>13GEMSDOE</strong> — working repository for the
   <a href="https://www.drivendata.org/competitions/306/competition-doe-gems/">DOE GEMS Prize Challenge</a>.
-  Page generated 2026-09-29 18:03 UTC from <code>reports/*.json</code>.</p>
+  Page generated 2026-09-29 18:36 UTC from <code>reports/*.json</code>.</p>
   <p class="small">Every figure on this site is produced by a script in this
   repository and is reproducible from a clean checkout. Claims that could not be
   verified against an official source are listed as irregularities rather than

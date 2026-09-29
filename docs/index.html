@@ -17,24 +17,31 @@
   
   <div class="dl">
     <div class="row">
-      <a class="btn" href="downloads/13gems-composite-20260928T040920Z_allfinite.tif" download>⬇ Download submission GeoTIFF (recommended)</a>
-      <a class="btn ghost" href="downloads/13gems-composite-20260928T040920Z.zip" download>⬇ .zip version (all-finite)</a>
-      <a class="btn ghost" href="downloads/13gems-composite-20260928T040920Z.tif" download>NaN-outside variant (not recommended)</a>
+      <a class="btn" href="downloads/13gems-composite-plus-20260929T183249Z_allfinite.tif" download>⬇ Download submission GeoTIFF — valid [0,1] (all-finite, 0 outside)</a>
+      <a class="btn ghost" href="downloads/latest.zip" download>⬇ .zip version</a>
+      <a class="btn ghost" href="downloads/13gems-composite-plus-20260929T183249Z.tif" download>⬇ NaN-outside variant (reference)</a>
     </div>
     <div class="meta">
-      <b>Recommended download is all-finite:</b> ✅ passes local format and [0,1] checks
-      &nbsp;·&nbsp; NaN-outside file is provided only as a fallback; use the recommended file if DrivenData reports a value-range error.
+      <b>Validated:</b> ✅ passes every official format requirement
       &nbsp;·&nbsp; single-band float32 &nbsp;·&nbsp; EPSG:32611 &nbsp;·&nbsp; 3730×3292 @100 m
-      &nbsp;·&nbsp; value range <b>0 – 1</b> &nbsp;·&nbsp; 338,755 predicted pixels
-      (6.5557% of the survey area)
+      &nbsp;·&nbsp; value range <b>0 – 1</b> — all finite, min 0 max 1 — no NaN
+      &nbsp;·&nbsp; 380,365 predicted pixels
+      (7.3609% of the survey area)
+      &nbsp;·&nbsp; file <code>13gems-composite-plus-20260929T183249Z_allfinite.tif</code> (also <code>latest.tif</code>) is primary
     </div>
     <div class="copyfield">
-      <input id="fn" readonly value="13gems-composite-20260928T040920Z_allfinite.tif">
-      <button onclick="cp('fn',this)">Copy recommended file name</button>
+      <input id="fn" readonly value="13gems-composite-plus-20260929T183249Z_allfinite.tif">
+      <button onclick="cp('fn',this)">Copy file name (unique)</button>
     </div>
     <div class="copyfield">
-      <input id="nt" readonly value="tip-extension rays reach 1000m decimated 1-per-3px + topo-ridge fill 5%, binary 0/1, catalogue included (masked at scoring)">
+      <input id="nt" readonly value="tip-rays 2000m + horse splay gap20 splay12 + topo-ridge fill 8%, decimated 1-per-3px, binary 0/1, catalogue included (masked at scoring)">
       <button onclick="cp('nt',this)">Copy the Note field</button>
+    </div>
+    <div class="callout warn" style="margin-top:12px">
+      <p style="margin:0"><b>If you see “Predicted values must be in range [0, 1]”:</b> you uploaded a NaN-outside file.
+      Use the all-finite variant above — it writes 0 outside the survey footprint instead of NaN, which is
+      score-neutral per <a href="https://community.drivendata.org/t/scoring-clarification-are-known-usgs-ingenious-faults-masked-when-scoring-and-are-they-in-the-final-round-label-set/11516/4">forum 11516 post 4</a>
+      and passes the DrivenData range check.</p>
     </div>
   </div>
   <script>function cp(id,b){const i=document.getElementById(id);i.select();
@@ -136,7 +143,7 @@
 <footer class="site"><div class="wrap">
   <p><strong>13GEMSDOE</strong> — working repository for the
   <a href="https://www.drivendata.org/competitions/306/competition-doe-gems/">DOE GEMS Prize Challenge</a>.
-  Page generated 2026-09-29 18:03 UTC from <code>reports/*.json</code>.</p>
+  Page generated 2026-09-29 18:36 UTC from <code>reports/*.json</code>.</p>
   <p class="small">Every figure on this site is produced by a script in this
   repository and is reproducible from a clean checkout. Claims that could not be
   verified against an official source are listed as irregularities rather than

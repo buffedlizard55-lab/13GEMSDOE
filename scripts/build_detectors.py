@@ -110,6 +110,39 @@ def main() -> None:
          "oriented matched-filter lineaments in surface conductivity",
          ["cond_surf"])
 
+    # ---- R6-2 paleo shoreline / intrabasin scarp -------------------------
+    step("R6_shore",
+         lambda: D.paleo_shoreline_scarp(band("det_elev"), band("det_elev_slope")),
+         "R6-2 paleo-shoreline / lacustrine terrace scarp: curvature ridge on detrended elev gated to flat playa/lake beds",
+         ["det_elev", "det_elev_slope"])
+
+    # ---- R6-3 conductive base step improved --------------------------------
+    step("R6_condbase",
+         lambda: D.conductive_base_step(band("depth_to_base_surf"), band("cond_surf"), band("det_elev_slope")),
+         "R6-3 conductive-base step: product of depth-to-base and cond gradients, oriented-filtered, anti-topo gated",
+         ["depth_to_base_surf", "cond_surf", "det_elev_slope"])
+
+    # ---- R6-4 gravity termination ------------------------------------------
+    step("R6_gravterm",
+         lambda: D.gravity_termination(band("iso_grav_anom_hg"), band("iso_grav_anom_vg"), band("iso_grav_anom")),
+         "R6-4 gravity-gradient termination/intersection: where hg ridge terminates, emit continuation",
+         ["iso_grav_anom_hg", "iso_grav_anom_vg", "iso_grav_anom"])
+
+    # ---- R6-5 transtensional coupling --------------------------------------
+    step("R6_transt",
+         lambda: D.transtensional_coupling(band("geod_shearrate"), band("geod_dilaterate"), band("geod_2ndinv"), band("iso_grav_anom_hg")),
+         "R6-5 transtensional coupling: shear * positive dilatation * 2nd invariant localized by gravity gradient",
+         ["geod_shearrate", "geod_dilaterate", "geod_2ndinv", "iso_grav_anom_hg"])
+
+    # ---- R6-1 horsetail splay (catalogue-dependent, cached for full catalogue)
+    def _horse_full():
+        known = np.load(OUTDIR / "_known.npy")
+        return D.horsetail_splay(known, max_gap_px=20, splay_len_px=12)
+    step("R6_horse_full",
+         _horse_full,
+         "R6-1 horsetail splay / relay-ramp (full catalogue version for submission): connects step-overs and fans at tips",
+         ["existing_faults (catalogue geometry)"])
+
     # ---- baseline the team has already relied on ---------------------------
     step("BASE_topo_ridge",
          lambda: D.robust_norm(D.nms_thin(
