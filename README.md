@@ -76,6 +76,10 @@ docs/                     the GitHub Pages site (no build step)
 
 ---
 
+## Latest review (2026-09-29)
+
+See [`reports/repository_review_2026-09-29.md`](reports/repository_review_2026-09-29.md) for a three-pass review and explicit limits. The metric audit passed locally. However, the ignored competition rasters are absent from this checkout, so no fresh hide-and-recover run or new submission was produced in this session. Existing detector/holdout JSON files are prior-run evidence, not freshly reproduced results. The identical displayed 0.1563 scores do **not** mean identical prediction files: the forensic report records different SHAs and only 0.067 support IoU for one such pair.
+
 ## Reproduce everything
 
 ```bash
