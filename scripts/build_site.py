@@ -89,19 +89,20 @@ def build_index() -> str:
         hero_dl = f"""
   <div class="dl">
     <div class="row">
-      <a class="btn" href="downloads/{e(name)}.tif" download>⬇ Download submission GeoTIFF</a>
-      <a class="btn ghost" href="downloads/{e(name)}.zip" download>⬇ .zip version</a>
-      <a class="btn ghost" href="downloads/{e(name)}_allfinite.tif" download>⬇ all-finite variant</a>
+      <a class="btn" href="downloads/{e(name)}_allfinite.tif" download>⬇ Download submission GeoTIFF (recommended)</a>
+      <a class="btn ghost" href="downloads/{e(name)}.zip" download>⬇ .zip version (all-finite)</a>
+      <a class="btn ghost" href="downloads/{e(name)}.tif" download>NaN-outside variant (not recommended)</a>
     </div>
     <div class="meta">
-      <b>Validated:</b> {'✅ passes every official format requirement' if ok else '❌ FAILED VALIDATION'}
+      <b>Recommended download is all-finite:</b> {'✅ passes local format and [0,1] checks' if ok else '❌ FAILED VALIDATION'}
+      &nbsp;·&nbsp; NaN-outside file is provided only as a fallback; use the recommended file if DrivenData reports a value-range error.
       &nbsp;·&nbsp; single-band float32 &nbsp;·&nbsp; EPSG:32611 &nbsp;·&nbsp; 3730×3292 @100 m
       &nbsp;·&nbsp; value range <b>{rng}</b> &nbsp;·&nbsp; {st['n_predicted_px']:,} predicted pixels
       ({st['pct_of_valid']}% of the survey area)
     </div>
     <div class="copyfield">
-      <input id="fn" readonly value="{e(name)}.tif">
-      <button onclick="cp('fn',this)">Copy file name</button>
+      <input id="fn" readonly value="{e(name)}_allfinite.tif">
+      <button onclick="cp('fn',this)">Copy recommended file name</button>
     </div>
     <div class="copyfield">
       <input id="nt" readonly value="{e(sub['note_for_submission_form'])}">
@@ -293,12 +294,13 @@ def build_exec() -> str:
   <ol class="steps">
     <li><h4>Download the file</h4>
       <p>From the <a href="index.html">front page</a>, click
-      <b>Download submission GeoTIFF</b>. You get
-      <code>{e(name)}.tif</code>.</p>
-      <p class="small">A <code>.zip</code> is offered too — the form accepts
-      "a single-band GeoTIFF (.tif) file, or a .zip file containing a single GeoTIFF".
-      There is also an <b>all-finite</b> variant; use it only if the plain file is
-      rejected (see troubleshooting below).</p></li>
+      <b>Download submission GeoTIFF (recommended)</b>. Use
+      <code>{e(name)}_allfinite.tif</code>. This file uses finite 0.0 values outside
+      the data footprint, avoiding the NaN range rejection seen in a prior upload.
+      The adjacent <code>.zip</code> also contains this all-finite raster.</p>
+      <p class="small">Do not use the separate NaN-outside variant unless the competition
+      validator accepts it. The recommended file is checked locally for finite values
+      entirely within [0, 1].</p></li>
 
     <li><h4>Open the submission form</h4>
       <p>Go to the
