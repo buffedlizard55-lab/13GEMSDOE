@@ -1,33 +1,70 @@
 {
-  "name": "13gems-composite-plus-20260929T183249Z",
-  "generated_utc": "20260929T183249Z",
-  "note_for_submission_form": "tip-rays 2000m + horse splay gap20 splay12 + topo-ridge fill 8%, decimated 1-per-3px, binary 0/1, catalogue included (masked at scoring)",
+  "name": "13gems-r6-ensemble-20260929T182914Z",
+  "generated_utc": "20260929T182914Z",
+  "note_for_submission_form": "R6 ensemble: tip-rays 2000m + horse splay + topo 3% + gravterm 1% + transt 1% + tdr 1% + shore 0.5% + cond 0.5%, decimated 1-per-3px, binary 0/1, catalogue included (masked at scoring)",
   "recipe_selection": {
-    "selected_by": "holdout worst-rule + tip-extension high precision",
-    "objective": "hedge: high-precision tip extensions (37% precision) + topo fill for isolated, decimated",
-    "lift_tip_extension_regime": 2.11,
-    "lift_isolated_system_regime": 0.96
+    "selected_by": "holdout worst-rule lift + geological blind-spot targeting",
+    "detectors": [
+      "extension_rays",
+      "horsetail_splay",
+      "BASE_topo_ridge",
+      "R6_gravterm",
+      "R6_transt",
+      "HB_tdr_rtp",
+      "R6_shore",
+      "R6_condbase"
+    ],
+    "objective": "maximize worst-rule lift while covering organizer-named tip extensions, relay ramps, intrabasin scarps, buried steps"
   },
   "map_stats": {
-    "recipe": "composite_plus_rays_horse_fill",
+    "recipe": "r6_ensemble",
     "tip_ray_reach_px": 20,
     "tip_ray_reach_m": 2000,
-    "horse_gap_px": 20,
-    "horse_splay_px": 12,
     "decimation_spacing_px": 3,
-    "fill_coverage": 0.08,
-    "fill_detector": "BASE_topo_ridge",
-    "include_known_catalogue": true,
+    "coverages": {
+      "BASE_topo_ridge": 0.03,
+      "R6_gravterm": 0.01,
+      "R6_transt": 0.01,
+      "HB_tdr_rtp": 0.01,
+      "R6_shore": 0.005,
+      "R6_condbase": 0.005
+    },
+    "n_px_per_detector": {
+      "BASE_topo_ridge": {
+        "coverage_target": 0.03,
+        "n_px_after_decimation": 110647
+      },
+      "R6_gravterm": {
+        "coverage_target": 0.01,
+        "n_px_after_decimation": 33418
+      },
+      "R6_transt": {
+        "coverage_target": 0.01,
+        "n_px_after_decimation": 8168
+      },
+      "HB_tdr_rtp": {
+        "coverage_target": 0.01,
+        "n_px_after_decimation": 37659
+      },
+      "R6_shore": {
+        "coverage_target": 0.005,
+        "n_px_after_decimation": 6708
+      },
+      "R6_condbase": {
+        "coverage_target": 0.005,
+        "n_px_after_decimation": 6300
+      }
+    },
     "n_tip_ray_px_before_decimation": 89026,
     "n_tip_ray_px": 36478,
     "n_horse_px_before_decimation": 248458,
     "n_horse_px": 69170,
-    "n_fill_px_before_decimation": 413389,
-    "n_fill_px": 236425,
-    "n_predicted_px": 380365,
-    "pct_of_valid": 7.3609,
+    "n_union_new_px": 283053,
+    "n_predicted_px": 344041,
+    "pct_of_valid": 6.6579,
     "max_value": 1.0,
-    "min_value": 0.0
+    "min_value": 0.0,
+    "include_known_catalogue": true
   },
   "validation": {
     "nan_outside": {
@@ -59,8 +96,8 @@
         "n_inf": 0,
         "min": 0.0,
         "max": 1.0,
-        "sum": 380365.0,
-        "n_gt0": 380365
+        "sum": 344041.0,
+        "n_gt0": 344041
       }
     },
     "all_finite": {
@@ -90,8 +127,8 @@
         "n_inf": 0,
         "min": 0.0,
         "max": 1.0,
-        "sum": 380365.0,
-        "n_gt0": 380365
+        "sum": 344041.0,
+        "n_gt0": 344041
       }
     }
   },

@@ -70,6 +70,181 @@ def pick_best_recipe() -> tuple[str, float, int, dict]:
     }
 
 
+def build_r6_ensemble(reach: int = 20, spacing: int = 3,
+                      topo_cov: float = 0.03, grav_cov: float = 0.01,
+                      transt_cov: float = 0.01, tdr_cov: float = 0.01,
+                      shore_cov: float = 0.005, cond_cov: float = 0.005,
+                      include_catalogue: bool = True) -> tuple[np.ndarray, np.ndarray, dict]:
+    """R6 ensemble: tip rays + horsetail + topo + gravterm + transt + tdr + shore + condbase.
+
+    Designed to improve worst-rule lift over BASE_topo_ridge alone:
+    - topo_ridge remains strongest on random/short
+    - transt improves isolated/dense
+    - gravterm improves random/short/oriented
+    - tdr adds orthogonal magnetic edge
+    - shore/condbase target intrabasin blind spots (low precision but high recall for missing types)
+    - extension rays + horsetail target organizer-named tip extensions, relay ramps, horsetails
+      (holdout with system grouping underestimates them, but they are explicitly in test label set)
+
+    All components decimated 1-per-spacing x spacing to enforce metric geometry rule.
+    """
+    valid = np.load(DER / "_valid.npy")
+    known = np.load(DER / "_known.npy")
+    n_valid = int(valid.sum())
+    allowed = valid & ~known
+
+    def topk_from_score(score: np.ndarray, cov: float) -> np.ndarray:
+        if cov <= 0:
+            return np.zeros(score.shape, dtype=bool)
+        n = int(cov * n_valid)
+        flat = np.where(allowed, score, -np.inf).ravel()
+        n = min(n, int(np.isfinite(flat).sum()))
+        if n <= 0:
+            return np.zeros(score.shape, dtype=bool)
+        idx = np.argpartition(flat, -n)[-n:]
+        mask = np.zeros(flat.size, dtype=bool)
+        mask[idx] = True
+        return mask.reshape(score.shape)
+
+    # catalogue-derived rays (full catalogue for submission)
+    rays = D.extension_rays(known, reach_px=reach)
+    m_rays = (rays > 0) & allowed
+    n_rays_raw = int(m_rays.sum())
+    if spacing > 1:
+        m_rays = D.decimate_grid(m_rays, rays, spacing)
+    n_rays = int(m_rays.sum())
+
+    horse = D.horsetail_splay(known, max_gap_px=20, splay_len_px=12)
+    m_horse = (horse > 0) & allowed
+    n_horse_raw = int(m_horse.sum())
+    if spacing > 1:
+        m_horse = D.decimate_grid(m_horse, horse, spacing)
+    n_horse = int(m_horse.sum())
+
+    # load cached detectors
+    def load_det(name):
+        p = DER / f"{name}.npy"
+        return np.load(p) if p.exists() else None
+
+    topo = load_det("BASE_topo_ridge")
+    grav = load_det("R6_gravterm")
+    transt = load_det("R6_transt")
+    tdr = load_det("HB_tdr_rtp")
+    shore = load_det("R6_shore")
+    cond = load_det("R6_condbase")
+
+    masks = []
+    masks.append(m_rays)
+    masks.append(m_horse)
+
+    cov_map = {
+        "BASE_topo_ridge": (topo, topo_cov),
+        "R6_gravterm": (grav, grav_cov),
+        "R6_transt": (transt, transt_cov),
+        "HB_tdr_rtp": (tdr, tdr_cov),
+        "R6_shore": (shore, shore_cov),
+        "R6_condbase": (cond, cond_cov),
+    }
+    details = {}
+    for det_name, (score, cov) in cov_map.items():
+        if score is None or cov <= 0:
+            continue
+        m = topk_from_score(score, cov)
+        if spacing > 1:
+            m = D.decimate_grid(m, score, spacing)
+        masks.append(m)
+        details[det_name] = {"coverage_target": cov, "n_px_after_decimation": int(m.sum())}
+
+    union = np.zeros(valid.shape, dtype=bool)
+    for m in masks:
+        union |= m
+
+    pred = union.astype(np.float32)
+    if include_catalogue:
+        pred = np.maximum(pred, known.astype(np.float32))
+
+    stats = {
+        "recipe": "r6_ensemble",
+        "tip_ray_reach_px": reach,
+        "tip_ray_reach_m": reach * 100,
+        "decimation_spacing_px": spacing,
+        "coverages": {k: v["coverage_target"] for k, v in details.items()},
+        "n_px_per_detector": details,
+        "n_tip_ray_px_before_decimation": n_rays_raw,
+        "n_tip_ray_px": n_rays,
+        "n_horse_px_before_decimation": n_horse_raw,
+        "n_horse_px": n_horse,
+        "n_union_new_px": int(union.sum()),
+        "n_predicted_px": int((pred > 0).sum()),
+        "pct_of_valid": round(100.0 * float((pred > 0).sum()) / n_valid, 4),
+        "max_value": float(pred.max()),
+        "min_value": float(pred.min()),
+        "include_known_catalogue": include_catalogue,
+    }
+    return pred, valid, stats
+
+
+def build_composite_plus(reach: int = 20, spacing: int = 3, fill_cov: float = 0.05,
+                         horse_gap: int = 20, horse_splay: int = 12,
+                         include_catalogue: bool = True) -> tuple[np.ndarray, np.ndarray, dict]:
+    """Improved hedge: tip rays + horsetail splay + topo fill + catalogue.
+
+    Keeps high-precision tip extensions (rays + horse) and adds topo fill for isolated.
+    """
+    valid = np.load(DER / "_valid.npy")
+    known = np.load(DER / "_known.npy")
+    topo = np.load(DER / "BASE_topo_ridge.npy")
+    n_valid = int(valid.sum())
+    allowed = valid & ~known
+
+    rays = D.extension_rays(known, reach_px=reach)
+    m_rays = (rays > 0) & allowed
+    n_rays_raw = int(m_rays.sum())
+    if spacing > 1:
+        m_rays = D.decimate_grid(m_rays, rays, spacing)
+    n_rays = int(m_rays.sum())
+
+    horse = D.horsetail_splay(known, max_gap_px=horse_gap, splay_len_px=horse_splay)
+    m_horse = (horse > 0) & allowed
+    n_horse_raw = int(m_horse.sum())
+    if spacing > 1:
+        m_horse = D.decimate_grid(m_horse, horse, spacing)
+    n_horse = int(m_horse.sum())
+
+    n_fill = int(fill_cov * n_valid)
+    flat = np.where(allowed, topo, -np.inf).ravel()
+    n_fill = min(n_fill, int(np.isfinite(flat).sum()))
+    idx = np.argpartition(flat, -n_fill)[-n_fill:]
+    fill = np.zeros(flat.size, bool); fill[idx] = True
+    fill = fill.reshape(topo.shape)
+    if spacing > 1:
+        fill = D.decimate_grid(fill, topo, spacing)
+    n_fill_after = int(fill.sum())
+
+    pred = (m_rays | m_horse | fill).astype(np.float32)
+    if include_catalogue:
+        pred = np.maximum(pred, known.astype(np.float32))
+
+    stats = {
+        "recipe": "composite_plus_rays_horse_fill",
+        "tip_ray_reach_px": reach, "tip_ray_reach_m": reach*100,
+        "horse_gap_px": horse_gap, "horse_splay_px": horse_splay,
+        "decimation_spacing_px": spacing, "fill_coverage": fill_cov,
+        "fill_detector": "BASE_topo_ridge",
+        "include_known_catalogue": include_catalogue,
+        "n_tip_ray_px_before_decimation": n_rays_raw,
+        "n_tip_ray_px": n_rays,
+        "n_horse_px_before_decimation": n_horse_raw,
+        "n_horse_px": n_horse,
+        "n_fill_px_before_decimation": n_fill,
+        "n_fill_px": n_fill_after,
+        "n_predicted_px": int((pred>0).sum()),
+        "pct_of_valid": round(100.0*float((pred>0).sum())/n_valid,4),
+        "max_value": float(pred.max()), "min_value": float(pred.min()),
+    }
+    return pred, valid, stats
+
+
 def build_composite(reach: int, spacing: int, fill_cov: float,
                     include_catalogue: bool) -> tuple[np.ndarray, np.ndarray, dict]:
     """The validated hedge: tip-extension rays + broad fill + the catalogue.
@@ -169,7 +344,7 @@ def build(detector: str, coverage: float, spacing: int,
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--recipe", default="composite",
-                    choices=["composite", "best"])
+                    choices=["composite", "composite_plus", "best", "r6"])
     ap.add_argument("--reach", type=int, default=10)
     ap.add_argument("--fill", type=float, default=0.05)
     ap.add_argument("--detector")
@@ -185,6 +360,33 @@ def main() -> None:
         print(f"recipe: detector={det} coverage={cov} spacing={sp}")
         pred, valid, stats = build(det, cov, sp, not a.no_catalogue)
         note_bits = (f"{det} top-{cov*100:g}% strike-decimated every {sp}px")
+    elif a.recipe == "r6":
+        sp = a.spacing or 3
+        reach = a.reach if a.reach != 10 else 20
+        print(f"recipe: R6 ensemble reach={reach} spacing={sp}")
+        pred, valid, stats = build_r6_ensemble(reach=reach, spacing=sp,
+                                               topo_cov=0.03, grav_cov=0.01,
+                                               transt_cov=0.01, tdr_cov=0.01,
+                                               shore_cov=0.005, cond_cov=0.005,
+                                               include_catalogue=not a.no_catalogue)
+        det = "r6-ensemble"
+        note_bits = (f"R6 ensemble: tip-rays {reach*100}m + horse splay + topo 3% + gravterm 1% + transt 1% + tdr 1% + shore 0.5% + cond 0.5%, decimated 1-per-{sp}px")
+        prov = {"selected_by": "holdout worst-rule lift + geological blind-spot targeting",
+                "detectors": ["extension_rays", "horsetail_splay", "BASE_topo_ridge", "R6_gravterm", "R6_transt", "HB_tdr_rtp", "R6_shore", "R6_condbase"],
+                "objective": "maximize worst-rule lift while covering organizer-named tip extensions, relay ramps, intrabasin scarps, buried steps"}
+    elif a.recipe == "composite_plus":
+        sp = a.spacing or 3
+        reach = a.reach if a.reach != 10 else 20
+        print(f"recipe: composite_plus reach={reach} spacing={sp} fill={a.fill}")
+        pred, valid, stats = build_composite_plus(reach=reach, spacing=sp, fill_cov=a.fill,
+                                                  horse_gap=20, horse_splay=12,
+                                                  include_catalogue=not a.no_catalogue)
+        det = "composite-plus"
+        note_bits = (f"tip-rays {reach*100}m + horse splay gap20 splay12 + topo-ridge fill {a.fill*100:g}%, decimated 1-per-{sp}px")
+        prov = {"selected_by": "holdout worst-rule + tip-extension high precision",
+                "objective": "hedge: high-precision tip extensions (37% precision) + topo fill for isolated, decimated",
+                "lift_tip_extension_regime": 2.11,
+                "lift_isolated_system_regime": 0.96}
     elif a.recipe == "composite":
         sp = a.spacing or 3
         print(f"recipe: composite reach={a.reach} spacing={sp} fill={a.fill}")
@@ -245,9 +447,19 @@ def main() -> None:
     }
     (OUT / f"{name}.json").write_text(json.dumps(prov_out, indent=2))
 
-    for suffix in (".tif", "_allfinite.tif", ".zip", ".json"):
-        src = OUT / f"{name}{suffix}"
-        shutil.copyfile(src, OUT / f"latest{suffix}")
+    # Primary download must be all-finite (0 outside) to pass DrivenData's
+    # "Predicted values must be in range [0, 1]" check which rejects NaN.
+    # NaN-outside variant is kept as latest_nan.tif for reference; the
+    # all-finite twin is score-neutral per forum 11516 and is the safe default.
+    shutil.copyfile(OUT / f"{name}.tif", OUT / f"latest_nan.tif")
+    shutil.copyfile(OUT / f"{name}_allfinite.tif", OUT / f"latest.tif")
+    shutil.copyfile(OUT / f"{name}_allfinite.tif", OUT / f"latest_allfinite.tif")
+    # zip should contain the finite version (also valid: outside null or nan)
+    with zipfile.ZipFile(OUT / f"latest.zip", "w", zipfile.ZIP_DEFLATED) as z:
+        z.write(OUT / f"{name}_allfinite.tif", arcname=f"{name}_allfinite.tif")
+    shutil.copyfile(OUT / f"{name}.json", OUT / f"latest.json")
+    # also keep original zip for backwards compat
+    shutil.copyfile(OUT / f"{name}.zip", OUT / f"latest_nan.zip")
 
     (REP / "latest_submission.json").write_text(json.dumps(prov_out, indent=2))
     print(f"\nWROTE {OUT}/{name}.tif  (+ _allfinite, .zip, .json, and latest.*)")

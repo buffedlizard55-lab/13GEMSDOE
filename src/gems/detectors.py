@@ -428,3 +428,315 @@ def extension_rays(visible: np.ndarray, reach_px: int = 30,
                 else:
                     break
     return out
+
+
+# ---------------------------------------------------------------------------
+# R6-1 · Horsetail splay / relay-ramp structural completion
+# ---------------------------------------------------------------------------
+def horsetail_splay(visible: np.ndarray, max_gap_px: int = 20,
+                    min_size: int = 6, splay_len_px: int = 12,
+                    n_fan: int = 5, fan_angle_deg: float = 35.0) -> np.ndarray:
+    """Connect step-overs and emit horsetail fans at fault tips.
+
+    Layers: existing_faults geometry only (catalogue-derived, rebuilt per fold).
+    Physical signature: en-echelon step detection + tip splay.
+    Why missing: catalogue omits small linking faults at relay ramps,
+    horsetails and intersections because they are short, discontinuous, or lack
+    Quaternary scarp. Organizers explicitly include extensions, splays,
+    parallel strands and corrections as new-fault pixels.
+    Differs from extension_rays: extension_rays projects forward along same
+    strike; this detects NEARBY faults and bridges the gap, plus emits a fan
+    of diverging rays at each tip (horsetail).
+    """
+    lab, ncomp = ndi.label(visible, structure=np.ones((3, 3), dtype=int))
+    H, W = visible.shape
+    out = np.zeros((H, W), dtype=np.float32)
+    if ncomp == 0:
+        return out
+    objs = ndi.find_objects(lab)
+    comps = []
+    for i, sl in enumerate(objs):
+        if sl is None:
+            continue
+        ys, xs = np.nonzero(lab[sl] == i + 1)
+        if ys.size < min_size:
+            continue
+        ys = ys + sl[0].start
+        xs = xs + sl[1].start
+        cy, cx = float(ys.mean()), float(xs.mean())
+        dy, dx = ys - cy, xs - cx
+        cov = np.array([[np.dot(dx, dx), np.dot(dx, dy)],
+                        [np.dot(dx, dy), np.dot(dy, dy)]]) / max(ys.size, 1)
+        w, v = np.linalg.eigh(cov)
+        ax = v[:, -1]  # principal (x,y)
+        # strike angle
+        ang = np.arctan2(ax[1], ax[0])
+        t = dx * ax[0] + dy * ax[1]
+        tmin, tmax = float(t.min()), float(t.max())
+        # tip positions
+        tip_lo = (ys[t.argmin()], xs[t.argmin()])
+        tip_hi = (ys[t.argmax()], xs[t.argmax()])
+        comps.append(dict(ys=ys, xs=xs, cy=cy, cx=cx, ax=ax, ang=ang,
+                          tmin=tmin, tmax=tmax, tip_lo=tip_lo, tip_hi=tip_hi,
+                          sl=sl))
+    # relay ramp bridging
+    for a in comps:
+        for b in comps:
+            if a is b:
+                continue
+            # quick distance between centroids
+            dcent = np.hypot(a['cy'] - b['cy'], a['cx'] - b['cx'])
+            if dcent > max_gap_px * 2:
+                continue
+            # check strike subparallel within 30 deg
+            dang = abs(a['ang'] - b['ang'])
+            dang = min(dang, np.pi - dang)
+            if dang > np.deg2rad(30):
+                continue
+            # closest tip pair
+            best = None
+            best_d = 1e9
+            for ta in (a['tip_lo'], a['tip_hi']):
+                for tb in (b['tip_lo'], b['tip_hi']):
+                    d = np.hypot(ta[0] - tb[0], ta[1] - tb[1])
+                    if d < best_d:
+                        best_d = d
+                        best = (ta, tb)
+            if best is None or best_d > max_gap_px or best_d < 1:
+                continue
+            (y0, x0), (y1, x1) = best
+            # draw line between tips
+            steps = int(max(abs(y1 - y0), abs(x1 - x0))) + 1
+            for s in range(steps + 1):
+                yy = int(round(y0 + (y1 - y0) * s / max(steps, 1)))
+                xx = int(round(x0 + (x1 - x0) * s / max(steps, 1)))
+                if 0 <= yy < H and 0 <= xx < W:
+                    out[yy, xx] = max(out[yy, xx], 1.0 - best_d / max_gap_px)
+    # horsetail fan at each tip
+    fan_rad = np.deg2rad(fan_angle_deg)
+    for c in comps:
+        for tip, sgn in ((c['tip_lo'], -1.0), (c['tip_hi'], 1.0)):
+            base_ang = c['ang']
+            # fan angles centered on strike continuation
+            for k in range(n_fan):
+                frac = (k - (n_fan - 1) / 2) / max((n_fan - 1) / 2, 1)
+                ang = base_ang + frac * fan_rad
+                if sgn < 0:
+                    # flip for lo tip
+                    ang += np.pi if np.cos(ang - base_ang) > 0 else 0
+                    # ensure continuation outward: if dot with principal is wrong, flip
+                    dvec = np.array([np.cos(ang), np.sin(ang)])
+                    if dvec[0] * c['ax'][0] + dvec[1] * c['ax'][1] > 0:
+                        ang += np.pi
+                else:
+                    dvec = np.array([np.cos(ang), np.sin(ang)])
+                    if dvec[0] * c['ax'][0] + dvec[1] * c['ax'][1] < 0:
+                        ang += np.pi
+                # emit ray
+                for s in range(1, splay_len_px + 1):
+                    yy = int(round(tip[0] + np.sin(ang) * s))
+                    xx = int(round(tip[1] + np.cos(ang) * s))
+                    if 0 <= yy < H and 0 <= xx < W:
+                        val = (0.97 ** s) * (1.0 - abs(frac) * 0.3)
+                        if val > out[yy, xx]:
+                            out[yy, xx] = val
+                    else:
+                        break
+    return out.astype(np.float32)
+
+
+# ---------------------------------------------------------------------------
+# R6-2 · Paleo-shoreline / lacustrine terrace scarp (intrabasin)
+# ---------------------------------------------------------------------------
+def paleo_shoreline_scarp(det_elev: np.ndarray, det_elev_slope: np.ndarray,
+                          sigma: float = 2.0, flat_pct: float = 45.0) -> np.ndarray:
+    """Subtle intrabasin scarps that offset flat lake-bottom sediments.
+
+    Layers: det_elev (12), det_elev_slope (19).
+    Physical signature: second-derivative / curvature ridge on detrended
+    elevation, gated to low-slope, low-relief playa/lake beds.
+    Why missing: USGS QFaults focuses on range-front scarps; intrabasin scarps
+    in Lake Lahontan lake beds are low-amplitude (decimetres) and invisible
+    without detrending. They still cut Quaternary deposits, so they are
+    Quaternary faults missing from the catalogue.
+    Differs from BASE_topo_ridge: BASE finds all ridges; this inverts the mask
+    to flat ground, uses curvature (second derivative) not slope, and uses
+    directional coherence to require lateral continuity of the shoreline.
+    """
+    elev = fill_nan_nearest(det_elev)
+    slope = fill_nan_nearest(det_elev_slope)
+    # flat mask: bottom 45% slope AND low local variance of elev
+    thr_slope = np.percentile(slope[np.isfinite(slope)], flat_pct)
+    flat = (slope <= thr_slope)
+    # local variance via gaussian
+    mean = ndi.gaussian_filter(elev, 6.0, mode='nearest')
+    var = ndi.gaussian_filter((elev - mean) ** 2, 6.0, mode='nearest')
+    thr_var = np.percentile(var[np.isfinite(var)], 50.0)
+    flat = flat & (var <= thr_var)
+    flat_f = ndi.gaussian_filter(flat.astype(np.float32), 3.0)
+
+    # curvature: Laplacian of detrended elev
+    lap = ndi.gaussian_laplace(elev, sigma=sigma)
+    # ridge strength on slope magnitude for continuity
+    st, ori = ridge_strength(slope, sigma=1.5)
+    crest = nms_thin(st, ori)
+    # combine: curvature magnitude where flat and crest present
+    curv = robust_norm(np.abs(lap))
+    out = curv * robust_norm(crest) * flat_f
+    # directional coherence along strike (shoreline continuity)
+    out = directional_lineaments(out, sigma=1.0, n_theta=8, length=12)
+    return out.astype(np.float32)
+
+
+# ---------------------------------------------------------------------------
+# R6-3 · Conductive-base step with conductivity coherence
+# ---------------------------------------------------------------------------
+def conductive_base_step(depth_to_base: np.ndarray, cond_surf: np.ndarray,
+                         det_elev_slope: np.ndarray,
+                         sigma: float = 2.0, flat_pct: float = 55.0) -> np.ndarray:
+    """Improved buried-fault detector: basement step AND conductivity contrast.
+
+    Layers: depth_to_base_surf (15), cond_surf (17), det_elev_slope (19).
+    Signature: product of gradient magnitudes of depth_to_base and cond_surf,
+    oriented-filtered for line continuity, gated by flat topography AND low
+    topo-ridge strength (so not already mapped).
+    Why missing: buried fault offsets conductive basement and juxtaposes
+    different lithologies -> conductivity contrast, but no surface scarp.
+    Differs from HC_hinge: HC used only depth_to_base gradient magnitude;
+    this requires BOTH depth and conductivity to agree, plus directional
+    coherence, plus anti-topo gate.
+    """
+    dbase = fill_nan_nearest(depth_to_base)
+    cond = fill_nan_nearest(cond_surf)
+    slope = fill_nan_nearest(det_elev_slope)
+
+    hg_base = horizontal_gradient_mag(dbase)
+    hg_cond = horizontal_gradient_mag(cond)
+
+    # ridge on product
+    prod = robust_norm(hg_base) * robust_norm(hg_cond)
+    st, ori = ridge_strength(prod, sigma=sigma)
+    crest = nms_thin(st, ori)
+
+    thr = np.percentile(slope[np.isfinite(slope)], flat_pct)
+    flat = ndi.gaussian_filter((slope <= thr).astype(np.float32), 3.0)
+
+    # also low topo ridge
+    topo_st, _ = ridge_strength(slope, sigma=1.5)
+    topo_norm = robust_norm(topo_st)
+    anti_topo = 1.0 - topo_norm
+    anti_topo = ndi.gaussian_filter(anti_topo, 2.0)
+
+    out = robust_norm(crest) * flat * anti_topo
+    # coherence
+    out = directional_lineaments(out, sigma=1.2, n_theta=12, length=15)
+    return out.astype(np.float32)
+
+
+# ---------------------------------------------------------------------------
+# R6-4 · Gravity-gradient termination / intersection
+# ---------------------------------------------------------------------------
+def gravity_termination(iso_grav_hg: np.ndarray, iso_grav_vg: np.ndarray,
+                        iso_grav: np.ndarray,
+                        sigma: float = 1.5, reach_px: int = 12) -> np.ndarray:
+    """Where gravity gradient ridge terminates, a fault tip is hypothesized.
+
+    Layers: iso_grav_anom_hg (18), iso_grav_anom_vg (11), iso_grav_anom (13).
+    Signature: detect terminations of horizontal gravity gradient ridges,
+    emit short continuation beyond termination. At intersections of two
+    ridges, emit crossing splay.
+    Why missing: INGENIOUS authors stated gravity-gradient terminations
+    defined fault tips and crossings in their basin analysis. Those are
+    places where geophysical evidence says structure continues but surface
+    mapping stopped.
+    Differs: uses geophysical ridge termination, not catalogue fault tip.
+    """
+    hg = fill_nan_nearest(iso_grav_hg)
+    st, ori = ridge_strength(hg, sigma=sigma)
+    crest = nms_thin(st, ori)
+    # binary ridge
+    ridge = crest > np.percentile(crest[crest > 0], 80) if (crest > 0).any() else crest > 0
+
+    # find endpoints: ridge pixel with only 1 neighbor in 8-connectivity
+    out = np.zeros_like(crest, dtype=np.float32)
+    # use binary hit-or-miss for endpoints
+    # simple approach: convolve neighbor count
+    neigh = ndi.convolve(ridge.astype(np.float32), np.ones((3, 3)), mode='constant') - ridge.astype(np.float32)
+    endpoints = ridge & (neigh == 1)
+
+    ys, xs = np.nonzero(endpoints)
+    H, W = crest.shape
+    for y, x in zip(ys, xs):
+        ang = ori[y, x]
+        # two directions along ridge; we want outward continuation
+        # estimate outward by checking which side has no ridge
+        # try both directions, keep one with lower ridge density ahead
+        best_dir = None
+        best_score = 1e9
+        for sgn in (1.0, -1.0):
+            cnt = 0
+            for s in range(1, 6):
+                yy = int(round(y + np.sin(ang) * s * sgn))
+                xx = int(round(x + np.cos(ang) * s * sgn))
+                if 0 <= yy < H and 0 <= xx < W and ridge[yy, xx]:
+                    cnt += 1
+            if cnt < best_score:
+                best_score = cnt
+                best_dir = sgn
+        if best_dir is None:
+            best_dir = 1.0
+        for s in range(1, reach_px + 1):
+            yy = int(round(y + np.sin(ang) * s * best_dir))
+            xx = int(round(x + np.cos(ang) * s * best_dir))
+            if 0 <= yy < H and 0 <= xx < W:
+                val = 0.95 ** s
+                if val > out[yy, xx]:
+                    out[yy, xx] = val
+            else:
+                break
+    # intersections: where two different orientations cross -> emit short cross
+    # approximate by high ridge strength + high orientation variance in 3x3
+    ori_var = ndi.generic_filter(ori, lambda x: np.std(x), size=3, mode='nearest')
+    inter = ridge & (ori_var > np.deg2rad(25))
+    out = np.maximum(out, inter.astype(np.float32) * 0.8)
+    return out.astype(np.float32)
+
+
+# ---------------------------------------------------------------------------
+# R6-5 · Transtensional coupling / dilational jog
+# ---------------------------------------------------------------------------
+def transtensional_coupling(shear_rate: np.ndarray, dilate_rate: np.ndarray,
+                            second_inv: np.ndarray, grav_hg: np.ndarray,
+                            sigma: float = 2.0) -> np.ndarray:
+    """High shear + positive dilatation + gravity gradient = dilational jog.
+
+    Layers: geod_shearrate (7), geod_dilaterate (8), geod_2ndinv (4),
+            iso_grav_anom_hg (18).
+    Signature: normalized shear * positive dilatation * second invariant,
+    multiplied by gravity gradient ridge strength to localize to a sharp trace.
+    Why missing: transtensional jogs are prime geothermal targets (high
+    permeability) but may have subtle or no scarp because extension is
+    distributed. Strain fields are smooth (no pixel trace) so need sharp
+    multiplier.
+    Differs from HD_strain: HD used deficit (strain minus faults minus eq);
+    this uses product of shear and dilatation (coupling) as positive evidence.
+    """
+    shear = fill_nan_nearest(shear_rate)
+    dil = fill_nan_nearest(dilate_rate)
+    sec = fill_nan_nearest(second_inv)
+    grav = fill_nan_nearest(grav_hg)
+
+    shear_n = robust_norm(ndi.gaussian_filter(shear, sigma))
+    dil_pos = np.clip(dil, 0, None)
+    dil_n = robust_norm(ndi.gaussian_filter(dil_pos, sigma))
+    sec_n = robust_norm(ndi.gaussian_filter(sec, sigma))
+    grav_st, _ = ridge_strength(grav, sigma=1.5)
+    grav_n = robust_norm(grav_st)
+
+    # coupling: shear * dil * sec
+    coupling = shear_n * dil_n * sec_n
+    out = coupling * (0.5 + 0.5 * grav_n)  # gravity localizes but not required
+    out = robust_norm(out)
+    # oriented lineament on top to make it trace-like
+    out = directional_lineaments(out, sigma=1.2, n_theta=12, length=15)
+    return out.astype(np.float32)

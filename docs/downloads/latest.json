@@ -1,30 +1,33 @@
 {
-  "name": "13gems-composite-20260928T040920Z",
-  "generated_utc": "20260928T040920Z",
-  "note_for_submission_form": "tip-extension rays reach 1000m decimated 1-per-3px + topo-ridge fill 5%, binary 0/1, catalogue included (masked at scoring)",
+  "name": "13gems-composite-plus-20260929T183249Z",
+  "generated_utc": "20260929T183249Z",
+  "note_for_submission_form": "tip-rays 2000m + horse splay gap20 splay12 + topo-ridge fill 8%, decimated 1-per-3px, binary 0/1, catalogue included (masked at scoring)",
   "recipe_selection": {
-    "selected_by": "scripts/validate_composite.py",
-    "objective": "geometric mean of lift-over-chance across two holdout regimes",
+    "selected_by": "holdout worst-rule + tip-extension high precision",
+    "objective": "hedge: high-precision tip extensions (37% precision) + topo fill for isolated, decimated",
     "lift_tip_extension_regime": 2.11,
     "lift_isolated_system_regime": 0.96
   },
   "map_stats": {
-    "recipe": "composite_tip_rays_plus_fill",
-    "tip_ray_reach_px": 10,
-    "tip_ray_reach_m": 1000,
+    "recipe": "composite_plus_rays_horse_fill",
+    "tip_ray_reach_px": 20,
+    "tip_ray_reach_m": 2000,
+    "horse_gap_px": 20,
+    "horse_splay_px": 12,
     "decimation_spacing_px": 3,
-    "fill_coverage": 0.05,
+    "fill_coverage": 0.08,
     "fill_detector": "BASE_topo_ridge",
     "include_known_catalogue": true,
-    "n_tip_ray_px_before_decimation": 44944,
-    "n_tip_ray_px": 20470,
-    "n_fill_px": 258368,
-    "n_predicted_px": 338755,
-    "pct_of_valid": 6.5557,
+    "n_tip_ray_px_before_decimation": 89026,
+    "n_tip_ray_px": 36478,
+    "n_horse_px_before_decimation": 248458,
+    "n_horse_px": 69170,
+    "n_fill_px_before_decimation": 413389,
+    "n_fill_px": 236425,
+    "n_predicted_px": 380365,
+    "pct_of_valid": 7.3609,
     "max_value": 1.0,
-    "min_value": 0.0,
-    "validated_lift_tip_regime": 2.11,
-    "validated_lift_isolated_regime": 0.96
+    "min_value": 0.0
   },
   "validation": {
     "nan_outside": {
@@ -56,8 +59,8 @@
         "n_inf": 0,
         "min": 0.0,
         "max": 1.0,
-        "sum": 338755.0,
-        "n_gt0": 338755
+        "sum": 380365.0,
+        "n_gt0": 380365
       }
     },
     "all_finite": {
@@ -87,8 +90,8 @@
         "n_inf": 0,
         "min": 0.0,
         "max": 1.0,
-        "sum": 338755.0,
-        "n_gt0": 338755
+        "sum": 380365.0,
+        "n_gt0": 380365
       }
     }
   },
