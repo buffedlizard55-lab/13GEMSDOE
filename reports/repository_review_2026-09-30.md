@@ -75,14 +75,17 @@ to fail closed and adds regression tests.
   workflow. It clearly labels the raster **review only / NOT CLEARED**. This is
   the correct safety posture: local GeoTIFF format checks do not establish a
   holdout win, remote form acceptance, or leaderboard performance.
-- The archived NaN-outside TIFF was freshly checked against the staged label
-  footprint with `src/gems/rio.py::validate_submission`: single-band float32,
-  expected grid/CRS/transform, 5,167,373 finite in-footprint values, min 0.0,
-  max 1.0, no infinities or finite outside-footprint cells, and the ZIP contains
-  exactly that one TIFF. The zero-filled twin remains diagnostic only. This
-  establishes local conformance for this archived R8 file, not remote acceptance
-  or the cause of the earlier range rejection; the rejected original and its
-  receipt were not provided.
+- All committed download TIFFs were inspected: every finite value is in
+  `[0,1]` and there are no infinities. The NaN-outside R8 TIFF was freshly
+  checked against the staged label footprint with
+  `src/gems/rio.py::validate_submission`: single-band float32, expected
+  grid/CRS/transform, 5,167,373 finite in-footprint values, min 0.0, max 1.0,
+  and no finite outside-footprint cells. The ZIP contains exactly that one
+  TIFF. **Irregularity found and corrected:** `latest.tif` and `latest.zip` were
+  stale all-finite aliases; they now point to/package the NaN-outside primary
+  raster. The all-finite twins remain diagnostic only. This does not prove
+  remote acceptance or explain the earlier range rejection; the rejected
+  original and receipt were not provided.
 - `scripts/build_detectors.py` completed from the mirrored feature raster in
   478 seconds and rebuilt 29 detector maps. `scripts/validate_ensemble_holdout.py`
   then reran the 18-fold comparison in 274 seconds (270 result rows). On its
@@ -166,25 +169,22 @@ submission was generated and no submission slot was used.
 
 ## Open blockers and next actions
 
-1. Restore the official competition rasters through the official authenticated
-   DrivenData data tab (or verify permitted local mirrors and checksums as
-   described in `knowledge/02_irregularities.md`); do not claim training data
-   were fetched by this review.
-2. Use the authenticated DrivenData data tab to compare the staged feature
-   stack and labels against the first-party downloads; preserve byte checksums,
-   band metadata, and official provenance.
-3. Acquire candidate #1's official USGS ComCat products and inspect actual
+1. Compare/replace the staged group mirrors with authenticated first-party
+   DrivenData downloads. Record official checksums, band metadata, and source
+   provenance; the current feature TIFF's exact match to the official download
+   is unverified.
+2. Acquire candidate #1's official USGS ComCat products and inspect actual
    coverage/product completeness before deciding whether focal-plane coherence
    is testable. If transport fails, report it as an acquisition blocker rather
    than pretending the idea was validated.
-4. Do not expose a candidate as “ready to submit” until it has both passed
+3. Do not expose a candidate as “ready to submit” until it has both passed
    strict format validation and beaten the current paired multi-rule holdout
    best. Keep the clear download available for review, but preserve the
    NOT_CLEARED warning until evidence changes.
-5. Refresh the dated leaderboard snapshot from the official leaderboard on
+4. Refresh the dated leaderboard snapshot from the official leaderboard on
    each research pass. The site currently links the live leaderboard but its
    embedded snapshot is static; automatic scheduled refresh is not implemented.
-6. Once a valid experiment is actually uploaded, record the submission ID,
+5. Once a valid experiment is actually uploaded, record the submission ID,
    exact file checksum, unique name/comment, and authenticated per-submission
    result. Until then, 0.1563 labels remain unverified attribution.
 
