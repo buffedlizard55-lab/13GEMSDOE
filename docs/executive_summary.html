@@ -2,7 +2,7 @@
 <html lang="en"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Submission workflow — 13GEMSDOE</title>
-<meta name="description" content="GEMS Prize Challenge: audited scoring metric, local hide-and-recover evidence, and a review-only artifact that has not cleared submission holdout.">
+<meta name="description" content="GEMS Prize Challenge: download the current submission GeoTIFF from the front page, plus the audited scoring metric, holdout evidence, and the recorded DrivenData form responses behind it.">
 <link rel="stylesheet" href="assets/style.css">
 </head><body>
 <header class="site"><div class="wrap">
@@ -14,11 +14,14 @@
 <section>
   <h2>Submission workflow — the five steps, in order</h2>
   <div class="callout">
-    <p style="margin:0"><b>Current artifact: <code>13gems-r11-greedy-mp.tif</code></b> —
+    <p style="margin:0"><b>Current artifact to upload: <code>13gems-r11-greedy-mp_allfinite.tif</code></b> —
     status <b>CLEARED_LOCAL_HOLDOUT_WIN_NOT_PRIVATE_TEST_CLAIM</b> (a catalogue hide-and-recover proxy result, not a
     predicted leaderboard score). greedy_r11 beat the in-run topo_05_sp3 reference on tune and confirmation worst-rule-mean DTI, won 6/6 confirmation rule means and 18/18 paired folds; gain exceeds 10x rebuild drift (I-15). Catalogue hide-and-recover proxy only.
     Download it from the <a href="index.html">front page</a> or directly
-    <a href="downloads/13gems-r11-greedy-mp.tif">here</a>. Full comparison:
+    <a href="downloads/13gems-r11-greedy-mp_allfinite.tif">here</a>. The all-finite encoding is the default
+    because the form <b>rejected the null/NaN-outside encoding on 2026-09-30</b>
+    (“Predicted values must be in range [0, 1]”) — evidence:
+    <code>reports/form_responses.json</code>. Full comparison:
     <a href="https://github.com/buffedlizard55-lab/13GEMSDOE/blob/main/reports/holdout_r11_2026-09-30.json">R11 holdout report</a> (R9:
     <a href="https://github.com/buffedlizard55-lab/13GEMSDOE/blob/main/reports/holdout_r9_2026-09-30.json">here</a>).</p>
   </div>
@@ -47,11 +50,16 @@
       maps — no exact-duplicate match.</p></li>
 
     <li><h4>3. Validate official GeoTIFF format</h4>
-      <p>Check one float32 band, EPSG:32611, 100 m resolution, 3730×3292 shape,
-      exact affine transform, finite in-footprint values in [0,1], and null/NaN outside
-      the valid footprint. The source page specifies null/NaN outside data bounds.
-      The current artifact passes all of these checks locally; the recorded validation
-      is in <code>reports/latest_submission.json</code>.</p></li>
+      <p>The primary download is <b>all-finite by policy</b> (flipped 2026-09-30):
+      one float32 band, EPSG:32611, 100 m, 3730×3292, exact affine transform,
+      <b>every cell finite and in [0,1]</b>, and exactly 0.0 outside the survey
+      footprint. That passes both a NoData-honouring read and a naive raw
+      <code>all(0 ≤ v ≤ 1)</code> validator, and for a binary map the zero-fill is
+      score-neutral (0 is a non-prediction, so TP_w and FP_w are unchanged).
+      Recorded verification: <code>reports/primary_flip_2026-09-30.json</code> and
+      <code>reports/latest_submission.json</code>. The strict null/NaN-outside
+      variant (what the problem-page text describes) exists as
+      <code>13gems-r11-greedy-mp.tif</code> — record-only, do <b>not</b> upload it first.</p></li>
 
     <li><h4>4. Fill the DrivenData form</h4>
       <p>On the
@@ -59,14 +67,17 @@
       click <b>Submit file</b> and fill the form exactly like this:</p>
       <table class="small">
         <tr><td><b>File to submit</b></td>
-            <td>choose <code>13gems-r11-greedy-mp.tif</code> (single-band GeoTIFF), or
+            <td>choose <code>13gems-r11-greedy-mp_allfinite.tif</code> (single-band GeoTIFF), or
                 <code>13gems-r11-greedy-mp.zip</code> (a .zip containing that one GeoTIFF)</td></tr>
         <tr><td><b>Note (optional)</b></td>
             <td class="mono">R11-4 greedy marginal-precision: topo top-5% sp3 + R10_vent@0.25%+R8_tpi@0.25%+R10_dzt_field@0.25% (each &gt;300 m from prior), binary, catalogue included; R11 holdout WIN vs topo_05_sp3 (18/18 folds), NOT a private-test claim</td></tr>
       </table>
       <p class="small">The note must identify what was actually generated and must not
       claim hidden-test performance or unsupported geothermal certainty. Submitting the
-      <i>same file twice</i> wastes a slot; the generator blocks byte-identical reuse.</p></li>
+      <i>same file twice</i> wastes a slot; the generator blocks byte-identical reuse.
+      The file name is unique per build; if the form ever rejects the finite encoding,
+      record the response in <code>reports/form_responses.json</code> and only then
+      A/B the strict variant.</p></li>
 
     <li><h4>5. Upload, then record the receipt</h4>
       <p>The competition allows three submissions per week per the
@@ -80,41 +91,44 @@
 
 <section id="if-the-form-says-predicted-values-must-be-in-range-01">
   <h2>If the form says “Predicted values must be in range [0, 1]”</h2>
-  <p class="lede">This exact rejection was received once on an earlier team upload. It has
-  <b>never been reproduced from any file published by this repository</b> — every artifact
-  here is gated so that all in-footprint values are finite and inside [0, 1] before it
-  becomes downloadable. The two plausible causes, and what to do:</p>
-  <div class="scroll"><table><thead><tr><th>possible cause</th><th>evidence</th>
+  <p class="lede"><b>Status 2026-09-30 (session 6): reproduced and answered for this
+  encoding.</b> The team uploaded this site's then-primary NaN-outside file
+  (<code>13gems-r11-greedy-mp.tif</code>) and the form returned this exact message —
+  the first platform response recorded against a known file from this repository.
+  The predeclared triage step 2 was executed the same day: the <b>all-finite twin is
+  now the primary download</b>. Notably, NaN-outside files from this group
+  <i>were</i> accepted and scored earlier (the pindrop trio, sha256 prefixes
+  <code>f347b70daa</code>, <code>37f9d5b855</code>, <code>4e03fc9705</code>,
+  re-verified against the archived bytes), so the platform validator changed or is
+  inconsistent — flagged in irregularity I-8. Current policy and the remaining
+  contingency:</p>
+  <div class="scroll"><table><thead><tr><th>encoding</th><th>validator behaviour</th>
   <th>what to do</th></tr></thead><tbody>
-  <tr><td><b>NaN read as out-of-range.</b> The official format requires null/NaN outside
-      the survey footprint. A validator that reads the raw array <i>without</i> honouring
-      the NoData tag and tests <code>all(0 ≤ v ≤ 1)</code> would reject <i>any</i>
-      NaN-outside file — including the official sample submission's own structure
-      (float32, NoData=NaN, finite values only inside the footprint; measured on our
-      pinned mirror, blob <code>7d865a99…</code>).</td>
-      <td><code>reports/latest_submission.json → platform_check_simulation</code>
-      records both readings of the shipped file: a masked read passes ([0.0, 1.0]);
-      the naive raw test fails on NaN alone.</td>
-      <td>Upload the <b>all-finite twin</b>
-      <a href="downloads/13gems-r11-greedy-mp_allfinite.tif"><code>13gems-r11-greedy-mp_allfinite.tif</code></a> — same predictions,
-      0.0 instead of NaN outside the footprint, so it passes even a naive raw range
-      test. Record in the ledger which variant the form accepted.</td></tr>
-  <tr><td><b>A stale file from an older repository.</b> Earlier team sites (GEMSDOE,
-      6GEMSDOE, 12GEMSDOE …) shipped their own generators; sibling-repo reviews traced
-      two concrete historical bugs: NaN cells <i>inside</i> the footprint
-      (6GEMSDOE PR #6) and the float32 nodata sentinel −3.4028e38 leaking into
-      predictions (12GEMSDOE PR #8). Either would trip a range check.</td>
-      <td>Those repositories' own PR records. No file downloadable from this site
-      reproduces the error: the <code>validate_submission</code> gate refuses to
-      release an invalid file.</td>
-      <td>Always download from <i>this</i> site's front page (file names start with
-      <code>13gems-</code>), never reuse older downloads. The stem of the file you
-      choose must match <code>reports/latest_submission.json → name</code>.</td></tr>
+  <tr><td><b>All-finite (PRIMARY).</b> float32, no NoData tag, every cell in
+      [0,1], exactly 0.0 outside the survey footprint. Score-neutral for a binary
+      map: 0 is a non-prediction, so TP_w and FP_w are unchanged.</td>
+      <td>Passes BOTH readings: a NoData-honouring (masked) read and a naive raw
+      <code>all(0 ≤ v ≤ 1)</code> test. The team's round-12 upload
+      (<code>r7-nms3-dem10-scarp_…_allfinite</code>) was accepted under this
+      encoding family (team-recorded).</td>
+      <td><b>Upload this first, always.</b> The front-page primary button and the
+      .zip both serve it. If it is ever rejected, record the exact response in
+      <code>reports/form_responses.json</code> — that would be new evidence.</td></tr>
+  <tr><td><b>Null/NaN outside (record-only).</b> The problem-page text describes
+      null/NaN outside the data bounds; a validator that reads the raw array
+      without honouring the NoData tag and tests <code>all(0 ≤ v ≤ 1)</code>
+      rejects any such file — <b>measured on the form 2026-09-30</b>.</td>
+      <td>REJECTED with “Predicted values must be in range [0, 1]” on the R11
+      primary (user-reported, this session). Earlier NaN-outside uploads were
+      accepted, so the validator behaviour changed or is inconsistent (I-8).</td>
+      <td>Never upload first. Kept as <code>13gems-r11-greedy-mp.tif</code> for the record
+      and A/B evidence only.</td></tr>
   </tbody></table></div>
-  <p class="small">If the all-finite twin <i>also</i> fails, stop spending slots and
-  capture the response: that would be the first evidence that neither NoData encoding
-  is the issue, and the next suspects are the ZIP wrapper or CRS/transform. Local
-  checks cannot prove remote acceptance — only the recorded form response can.</p>
+  <p class="small">If the all-finite primary <i>also</i> fails, stop spending slots
+  and capture the exact response: that would be the first evidence that neither
+  NoData encoding is the issue, and the next suspects are the ZIP wrapper or
+  CRS/transform. Local checks cannot prove remote acceptance — only the recorded
+  form response can.</p>
 </section>
 
 <section>
@@ -124,12 +138,17 @@
       <li>Same projected CRS and bounds as training data: <b>EPSG:32611</b></li>
       <li>Same resolution: <b>100 m</b>; 3730×3292 grid and matching transform</li>
       <li>One layer, <b>float32</b>, values between <b>0 and 1</b></li>
-      <li>Outside the data bounds: <b>null/NaN</b> per the problem description</li>
+      <li>Outside the data bounds: <b>null/NaN per the problem description — but the
+          form's validator REJECTED that encoding on 2026-09-30</b>, so this
+          repository now ships the score-neutral all-finite encoding (0.0 outside
+          the footprint) as the primary upload</li>
     </ul>
     <p class="small">Official source:
     <a href="https://www.drivendata.org/competitions/306/competition-doe-gems/page/967/">DrivenData problem description → Submission format</a>.
-    The shipped NaN-outside file passes the repository's local grid/range/footprint
-    checks; that does not clear its prediction map or verify server acceptance.</p>
+    The shipped all-finite file passes the repository's local grid/range/footprint
+    checks (recorded in <code>reports/primary_flip_2026-09-30.json</code>); that does
+    not clear its prediction map or fully verify server acceptance — the form's own
+    response, recorded in <code>reports/form_responses.json</code>, is the receipt.</p>
   </div>
 </section>
 
@@ -149,7 +168,7 @@
 <footer class="site"><div class="wrap">
   <p><strong>13GEMSDOE</strong> — working repository for the
   <a href="https://www.drivendata.org/competitions/306/competition-doe-gems/">DOE GEMS Prize Challenge</a>.
-  Page generated 2026-09-30 22:24 UTC from <code>reports/*.json</code>.</p>
+  Page generated 2026-09-30 23:49 UTC from <code>reports/*.json</code>.</p>
   <p class="small">Every figure on this site is produced by a script in this
   repository and is reproducible from a clean checkout. Claims that could not be
   verified against an official source are listed as irregularities rather than

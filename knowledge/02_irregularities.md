@@ -270,39 +270,56 @@ also employs the geology experts who labelled the new faults
 
 ---
 
-## I‑8 🟠 UNRESOLVED (narrowed 2026-09-30) — the rejected file's remote validation cause is unknown, but the candidate encodings are now characterised
+## I‑8 🟡 PARTIALLY RESOLVED (2026-09-30 session 6) — the form's rejection of the NaN-outside encoding is CONFIRMED by a recorded platform response; the all-finite encoding is now the default upload. Validator behaviour is inconsistent across rounds (root cause external, unobservable from here)
 
-The reported rejection message is `Predicted values must be in range [0, 1]`.
-It does not identify whether the remote validator saw a finite out-of-range value,
-NaN/NoData, or another issue. `src/gems/rio.py::validate_submission` checks the
-repository's local grid, dtype, band-count, NoData, and range rules; it does not
-reproduce the remote validator.
+The rejection message is `Predicted values must be in range [0, 1]`.
 
-**What is now measured (2026-09-30 session 3):**
+**What is now measured (sessions 3 → 6):**
 
-1. The current primary artifact (`13gems-toporef-holdoutref.tif`) has **zero NaN
-   inside the footprint, zero finite values outside it, and in-footprint range
-   exactly [0, 1]**. It structurally matches the official sample submission mirror
-   (float32, NoData tag `nan`, finite values only inside the footprint).
-2. `reports/latest_submission.json → platform_check_simulation` records both
-   readings: a NoData-honouring (masked) read passes [0.0, 1.0]; a naive raw
-   `all(0 ≤ v ≤ 1)` test fails **on the NaN cells alone** — and would equally fail
-   the official sample's structure. So "NaN-outside" cannot be declared the cause:
-   if the remote validator used a naive raw test, it would reject the organizers'
-   own sample format.
-3. Sibling repositories traced two concrete historical bugs that *would* trip a
-   range check on their own files: NaN cells inside the footprint (6GEMSDOE PR #6)
-   and the float32 nodata sentinel −3.4028e38 leaking into predictions
-   (12GEMSDOE PR #8). No file currently published by 13GEMSDOE reproduces either.
-   The earlier claim (16GEMSDOE, flag F13) that the error could not be reproduced
-   from any published file is consistent with our files.
+1. (S3) The then-primary artifacts have zero NaN inside the footprint, zero finite
+   values outside it, and in-footprint range exactly [0, 1]. A NoData-honouring
+   (masked) read passes [0.0, 1.0]; a naive raw `all(0 ≤ v ≤ 1)` test fails on the
+   NaN cells alone (`reports/latest_submission.json → platform_check_simulation`).
+2. **(S6) REPRODUCED AGAINST A KNOWN FILE.** The team uploaded this repository's
+   then-primary NaN-outside file (`13gems-r11-greedy-mp.tif`, downloaded from the
+   site's front-page primary button) and the form returned the exact message above.
+   First platform response recorded against a known file from this repo. Log:
+   `reports/form_responses.json` (entry `user_reported_platform_response`).
+3. **(S6) The validator is INCONSISTENT across rounds.** Three NaN-outside files
+   were accepted and scored earlier (team-recorded sha256 prefixes
+   `f347b70daa`, `37f9d5b855`, `4e03fc9705`; each re-verified against the archived
+   bytes in `data/scored/` on 2026-09-30 — the prefixes in the team's own
+   submission notes match the files bit-for-bit). The team's round-12 upload was
+   named `…_allfinite`, i.e. the finite encoding family. Conclusion: the platform's
+   range validation changed or is inconsistent; we cannot observe which (no
+   access to the validator). **Flagged for review — this is an external,
+   unverifiable-from-here behaviour change.**
+4. (S3) Sibling repositories traced two concrete historical bugs that *would* trip
+   a range check on their own files: NaN cells inside the footprint (6GEMSDOE
+   PR #6) and the float32 nodata sentinel −3.4028e38 leaking into predictions
+   (12GEMSDOE PR #8). No file published by 13GEMSDOE reproduces either.
 
-**Action.** Triage path, in order, recording each response in
-`reports/leaderboard_ledger.csv`: (1) upload the NaN-outside primary; (2) if the
-range error repeats, upload the all-finite twin (0.0 outside the footprint) — same
-predictions, passes a naive raw range test; (3) if both fail, stop spending slots
-and capture the exact response (next suspects: ZIP wrapper, CRS/transform). Do not
-claim a cause or fix until a form response is recorded against a file checksum.
+**Action taken (2026-09-30, predeclared triage step 2 executed and made DEFAULT).**
+
+* The **all-finite encoding is now the primary upload encoding** everywhere:
+  `scripts/make_submission.py` writes `{name}.tif` all-finite (0.0 outside the
+  footprint, no NoData tag) and `{name}_nanoutside.tif` as the record-only strict
+  variant; `{name}.zip` and `latest.zip` wrap the finite file; the site's
+  front-page primary button serves the finite file. For the already-archived R11
+  artifact this was executed by `scripts/flip_primary_encoding.py`
+  (`reports/primary_flip_2026-09-30.json`) WITHOUT rebuilding the map (a rebuild
+  would drift the bytes, I-15): the finite twin is byte-identical to the NaN
+  variant inside the footprint (verified), 0.0 outside, and 0-fill is
+  score-neutral for a binary map (0 is a non-prediction; TP_w and FP_w unchanged
+  under any scorer).
+* **Every future form response must be appended to `reports/form_responses.json`**
+  and the score receipt to `reports/leaderboard_ledger.csv`.
+* If the all-finite primary is ever rejected: stop spending slots, capture the
+  exact response; next suspects are the ZIP wrapper and CRS/transform.
+
+**Still unresolved (external):** which validator code the platform runs and why it
+changed. No public official source documents it; nothing further can be verified
+from here.
 
 ---
 

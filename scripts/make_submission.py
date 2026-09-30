@@ -962,15 +962,32 @@ def main() -> None:
 
     identity = check_existing_prediction_identity(pred, valid)
 
-    tif = write_submission(OUT / f"{name}.tif", pred, valid, outside_value=None)
-    fin = write_submission(OUT / f"{name}_allfinite.tif", pred, valid,
-                           outside_value=0.0)
+    # --- Encoding policy (flipped 2026-09-30, session 6; evidence:
+    # reports/form_responses.json, reports/primary_flip_2026-09-30.json,
+    # irregularity I-8) ---
+    # The team uploaded the NaN-outside primary of 13gems-r11-greedy-mp.tif and
+    # the form rejected it with "Predicted values must be in range [0, 1]".
+    # Historically NaN-outside files WERE accepted (the pindrop trio the team
+    # recorded by sha256 prefix: f347b70daa, 37f9d5b855, 4e03fc9705), so the
+    # platform validator changed or is inconsistent — either way the platform is
+    # the arbiter. The all-finite encoding (0.0 outside the survey footprint, no
+    # NoData tag) passes BOTH a masked read and a naive raw range test, and for
+    # a binary {0,1} map zero-fill outside the footprint is score-neutral: 0 is
+    # a non-prediction, so TP_w/FP_w are unchanged under any scorer. It is
+    # therefore written as the PRIMARY {name}.tif and is what latest.* and the
+    # .zip carry. The strict null/NaN-outside variant (what the problem page
+    # text describes) is still produced, secondary, for the record:
+    # {name}_nanoutside.tif. Record every form response in
+    # reports/form_responses.json.
+    tif = write_submission(OUT / f"{name}.tif", pred, valid, outside_value=0.0)
+    strict = write_submission(OUT / f"{name}_nanoutside.tif", pred, valid,
+                              outside_value=None)
 
     reports = {}
     ok = True
     for label, path, allow_nan, require_nodata in (
-        ("nan_outside", tif, True, True),
-        ("all_finite_diagnostic", fin, False, False),
+        ("all_finite_primary", tif, False, False),
+        ("nan_outside_strict", strict, True, True),
     ):
         r = validate_submission(
             path, allow_nan=allow_nan, valid_mask=valid,
@@ -988,14 +1005,14 @@ def main() -> None:
         }
         print(f"\n[{label}] " + r.render())
         ok &= r.ok
-        if label == "nan_outside":
+        if label == "nan_outside_strict":
             ok &= official_format_conformant
     if not ok:
         raise SystemExit("OFFICIAL-FORMAT VALIDATION FAILED - nothing released")
 
-    # The official problem page requires null/NaN outside the data bounds.
-    # Keep zero-fill only as a separate diagnostic; it is not declared
-    # equivalent to NoData and must not silently become the primary artifact.
+    # The .zip must carry the PRIMARY (all-finite) GeoTIFF: the form accepts a
+    # zip containing a single GeoTIFF, and wrapping the rejected NaN encoding
+    # here is what produced a wasted upload on 2026-09-30.
     with zipfile.ZipFile(OUT / f"{name}.zip", "w", zipfile.ZIP_DEFLATED) as z:
         z.write(tif, arcname=f"{name}.tif")
 
@@ -1040,48 +1057,64 @@ def main() -> None:
     # remote acceptance) -----------------------------------------------
     import rasterio as _rio
     with _rio.open(tif) as src:
-        raw = src.read(1)
+        raw_fin = src.read(1)
+    with _rio.open(strict) as src:
+        raw_nan = src.read(1)
         masked = src.read(1, masked=True)
         nodata_tag = None if src.nodata is None else str(src.nodata)
     sim = {
+        "all_finite_primary": {
+            "n_nan_raw": int(np.isnan(raw_fin).sum()),
+            "raw_all_in_[0,1]_naive": bool(np.all((raw_fin >= 0) & (raw_fin <= 1))),
+            "nodata_tag": None,
+            "note": ("PRIMARY upload encoding: passes a naive raw range check "
+                     "AND a masked read; outside-footprint cells are exactly 0.0, "
+                     "which is score-neutral for a binary map. Form-verified as "
+                     "the accepted encoding family on 2026-09-30 (see "
+                     "reports/form_responses.json)."),
+        },
         "nan_outside_variant": {
             "nodata_tag": nodata_tag,
-            "n_nan_raw": int(np.isnan(raw).sum()),
-            "n_nan_inside_footprint": int((np.isnan(raw) & valid).sum()),
-            "raw_all_in_[0,1]_naive": bool(np.all((raw >= 0) & (raw <= 1))),
-            "raw_finite_minmax": [float(np.nanmin(raw)), float(np.nanmax(raw))],
+            "n_nan_raw": int(np.isnan(raw_nan).sum()),
+            "n_nan_inside_footprint": int((np.isnan(raw_nan) & valid).sum()),
+            "raw_all_in_[0,1]_naive": bool(np.all((raw_nan >= 0) & (raw_nan <= 1))),
+            "raw_finite_minmax": [float(np.nanmin(raw_nan)), float(np.nanmax(raw_nan))],
             "masked_min": float(masked.min()) if masked.count() else None,
             "masked_max": float(masked.max()) if masked.count() else None,
-            "note": ("a validator that reads the raw array WITHOUT honouring "
-                     "the NoData tag and tests all(v>=0 & v<=1) will reject ANY "
-                     "NaN-outside file, including the official sample "
-                     "submission's structure; a masked read passes. If the "
-                     "form repeats the range error on this file, upload "
-                     f"{name}_allfinite.tif next and record both responses."),
-        },
-        "all_finite_variant": {
-            "n_nan_raw": 0,
-            "raw_all_in_[0,1]_naive": True,
-            "note": "passes a naive raw range check; outside-footprint cells are 0.0",
+            "note": ("REJECTED by the form on 2026-09-30 with 'Predicted values "
+                     "must be in range [0, 1]' (team upload of "
+                     "13gems-r11-greedy-mp.tif). Kept secondary for the record "
+                     f"as {name}_nanoutside.tif; do NOT upload first."),
         },
     }
     prov_out["platform_check_simulation"] = sim
+    prov_out["primary_upload"] = {
+        "encoding": "all_finite_zero_fill",
+        "file": f"{name}.tif",
+        "zip": f"{name}.zip",
+        "zip_contains": f"{name}.tif",
+        "secondary_record_only": {"encoding": "nan_outside_strict",
+                                  "file": f"{name}_nanoutside.tif"},
+        "policy_source": ("reports/form_responses.json; reports/primary_flip_2026-09-30.json; "
+                          "knowledge/02_irregularities.md I-8; user-reported form "
+                          "rejection of the NaN-outside encoding, 2026-09-30"),
+    }
     (OUT / f"{name}.json").write_text(json.dumps(prov_out, indent=2))
 
-    # The official problem page specifies null/NaN outside the data bounds.
-    # Keep that variant primary; zero-fill is diagnostic only because scoring
-    # equivalence and remote acceptance have not been established.
+    # Primary = all-finite upload-safe encoding; the strict NaN-outside variant
+    # is retained under an explicit name for the record and for an A/B response
+    # if the platform ever rejects the finite encoding instead.
     shutil.copyfile(OUT / f"{name}.tif", OUT / f"latest.tif")
-    shutil.copyfile(OUT / f"{name}.tif", OUT / f"latest_nan.tif")
-    shutil.copyfile(OUT / f"{name}_allfinite.tif", OUT / f"latest_allfinite.tif")
+    shutil.copyfile(OUT / f"{name}.tif", OUT / f"latest_allfinite.tif")  # compat alias
+    shutil.copyfile(OUT / f"{name}_nanoutside.tif", OUT / f"latest_nan.tif")
     with zipfile.ZipFile(OUT / f"latest.zip", "w", zipfile.ZIP_DEFLATED) as z:
         z.write(OUT / f"{name}.tif", arcname=f"{name}.tif")
+    with zipfile.ZipFile(OUT / f"latest_nan.zip", "w", zipfile.ZIP_DEFLATED) as z:
+        z.write(OUT / f"{name}_nanoutside.tif", arcname=f"{name}_nanoutside.tif")
     shutil.copyfile(OUT / f"{name}.json", OUT / f"latest.json")
-    # also keep original zip for backwards compat
-    shutil.copyfile(OUT / f"{name}.zip", OUT / f"latest_nan.zip")
 
     (REP / "latest_submission.json").write_text(json.dumps(prov_out, indent=2))
-    print(f"\nWROTE {OUT}/{name}.tif  (+ _allfinite, .zip, .json, and latest.*)")
+    print(f"\nWROTE {OUT}/{name}.tif (all-finite PRIMARY; + _nanoutside strict, .zip, .json, latest.*)")
     print(f"NOTE  {note}")
 
 

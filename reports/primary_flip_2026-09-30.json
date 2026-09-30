@@ -1,0 +1,71 @@
+{
+  "executed_utc": "20260930T232919Z",
+  "reason": "form rejected the NaN-outside primary on 2026-09-30 with 'Predicted values must be in range [0, 1]'; predeclared I-8 triage step 2 executed and made DEFAULT",
+  "predictions_changed": false,
+  "primary_before": {
+    "file": "13gems-r11-greedy-mp.tif (nan_outside)"
+  },
+  "primary_after": {
+    "file": "13gems-r11-greedy-mp_allfinite.tif (all_finite)"
+  },
+  "zip_before_sha256": {
+    "13gems-r11-greedy-mp.zip": "0a1535fba8c814b739d6fe10df371ea7d01969d27275d3f683c68d1c9d54804c",
+    "latest.zip": "0a1535fba8c814b739d6fe10df371ea7d01969d27275d3f683c68d1c9d54804c"
+  },
+  "finite_verification": {
+    "driver": "GTiff",
+    "count": 1,
+    "dtype": "float32",
+    "crs": "EPSG:32611",
+    "shape": [
+      3730,
+      3292
+    ],
+    "nodata": null,
+    "transform": [
+      100.0,
+      0.0,
+      243350.0,
+      0.0,
+      -100.0,
+      4508550.0
+    ],
+    "n_nan": 0,
+    "n_inf": 0,
+    "min": 0.0,
+    "max": 1.0,
+    "n_positive": 272853,
+    "raw_all_in_[0,1]_naive": true
+  },
+  "nan_verification": {
+    "driver": "GTiff",
+    "count": 1,
+    "dtype": "float32",
+    "crs": "EPSG:32611",
+    "shape": [
+      3730,
+      3292
+    ],
+    "nodata": "nan",
+    "transform": [
+      100.0,
+      0.0,
+      243350.0,
+      0.0,
+      -100.0,
+      4508550.0
+    ],
+    "n_nan": 7111787,
+    "n_inf": 0,
+    "min": NaN,
+    "max": NaN,
+    "n_positive": 272853,
+    "raw_all_in_[0,1]_naive": false
+  },
+  "in_footprint_identity": true,
+  "outside_footprint_all_zero": true,
+  "zip_after_sha256": {
+    "13gems-r11-greedy-mp.zip": "2b28a440a6cc5eb9a002877538a6d0db6a8996627314affa751bfd2258003ab3",
+    "latest.zip": "2b28a440a6cc5eb9a002877538a6d0db6a8996627314affa751bfd2258003ab3"
+  }
+}

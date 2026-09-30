@@ -1,18 +1,33 @@
 {
   "observed_date": "2026-09-30",
+  "observed_time_note": "re-fetched 2026-09-30 during session 6 (later the same UTC day as the session-5 snapshot); top-2 values unchanged, table extended to the top 25",
   "source_url": "https://www.drivendata.org/competitions/306/competition-doe-gems/leaderboard/",
   "score_column": "Best public DW-Tversky",
   "scope": "These are account-level best-public scores, not per-submission receipts and not scores attributable to any local GeoTIFF.",
   "rows": [
-    {
-      "rank": 1,
-      "account": "DARD",
-      "best_public_dw_tversky": 0.3168
-    },
-    {
-      "rank": 2,
-      "account": "alexoktaba",
-      "best_public_dw_tversky": 0.3042
-    }
+    {"rank": 1, "account": "DARD", "submissions": 11, "best_public_dw_tversky": 0.3168},
+    {"rank": 2, "account": "alexoktaba", "submissions": 17, "best_public_dw_tversky": 0.3042},
+    {"rank": 3, "account": "joeyfezster", "submissions": 16, "best_public_dw_tversky": 0.2919},
+    {"rank": 4, "account": "xiaofanhu", "submissions": 5, "best_public_dw_tversky": 0.2901},
+    {"rank": 5, "account": "HardcoreTechGod", "submissions": 6, "best_public_dw_tversky": 0.2854},
+    {"rank": 6, "account": "mzoorob", "submissions": 19, "best_public_dw_tversky": 0.2843},
+    {"rank": 7, "account": "GrigorSargsyan", "submissions": 7, "best_public_dw_tversky": 0.2742},
+    {"rank": 8, "account": "op01", "submissions": 5, "best_public_dw_tversky": 0.2710},
+    {"rank": 9, "account": "Batik Shirt Brothers", "submissions": 15, "best_public_dw_tversky": 0.2653},
+    {"rank": 10, "account": "exposed", "submissions": 16, "best_public_dw_tversky": 0.2584},
+    {"rank": 11, "account": "tchu", "submissions": 14, "best_public_dw_tversky": 0.2511},
+    {"rank": 12, "account": "ndavis7", "submissions": 5, "best_public_dw_tversky": 0.2368},
+    {"rank": 13, "account": "moongrega", "submissions": 14, "best_public_dw_tversky": 0.2306},
+    {"rank": 14, "account": "Ndabenhle", "submissions": 6, "best_public_dw_tversky": 0.2304},
+    {"rank": 15, "account": "ad3002", "submissions": 16, "best_public_dw_tversky": 0.2297},
+    {"rank": 16, "account": "hiii12345", "submissions": 9, "best_public_dw_tversky": 0.2262},
+    {"rank": 17, "account": "oshbocker", "submissions": 19, "best_public_dw_tversky": 0.2224},
+    {"rank": 18, "account": "kpomazi", "submissions": 6, "best_public_dw_tversky": 0.2209},
+    {"rank": 19, "account": "jgaines", "submissions": 16, "best_public_dw_tversky": 0.2184},
+    {"rank": 20, "account": "hall4jm", "submissions": 10, "best_public_dw_tversky": 0.2010},
+    {"rank": 21, "account": "hudsonenterprises", "submissions": 6, "best_public_dw_tversky": 0.1907},
+    {"rank": 22, "account": "smrtdoog5", "submissions": 4, "best_public_dw_tversky": 0.1894},
+    {"rank": 23, "account": "extradr19", "submissions": 4, "best_public_dw_tversky": 0.1855},
+    {"rank": 24, "account": "doegemsDrivendata", "submissions": 5, "best_public_dw_tversky": 0.1847}
   ]
 }
