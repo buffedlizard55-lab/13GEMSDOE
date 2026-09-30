@@ -15,6 +15,8 @@ import numpy as np
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 from gems import rio  # noqa: E402
+sys.path.insert(0, str(ROOT / "scripts"))
+import make_submission  # noqa: E402
 
 
 class WriteSubmissionValidationTests(unittest.TestCase):
@@ -68,6 +70,16 @@ class WriteSubmissionValidationTests(unittest.TestCase):
     def test_rejects_invalid_outside_fill(self) -> None:
         with self.assertRaisesRegex(ValueError, "outside_value"):
             rio.write_submission("unused.tif", self.values, self.valid, outside_value=2.0)
+
+
+class DetectorSelectionValidationTests(unittest.TestCase):
+    def test_zero_coverage_is_rejected_before_topk_slicing(self) -> None:
+        with self.assertRaisesRegex(ValueError, "coverage must be in \\(0, 1\\]"):
+            make_submission.build("unused", 0.0, 1, False)
+
+    def test_nonpositive_spacing_is_rejected(self) -> None:
+        with self.assertRaisesRegex(ValueError, "spacing must be a positive integer"):
+            make_submission.build("unused", 0.05, 0, False)
 
 
 if __name__ == "__main__":

@@ -1,5 +1,5 @@
 {
-  "generated_utc": "2026-09-30T03:36:52Z",
+  "generated_utc": "2026-09-30T18:48:05Z",
   "status": "LOCAL_PROXY_HOLDOUT_ONLY_NOT_PRIVATE_TEST_PERFORMANCE",
   "purpose": "Evaluate the archived R8 recipe as a per-fold rebuild, not by scoring its full-catalogue raster; compare predeclared cutoff/spacing/width/fusion alternatives with the historical BASE_topo_ridge local leader.",
   "input_artifact": {
@@ -21,7 +21,10 @@
   },
   "protocol": {
     "system_folds": {
-      "construction": "group 8-connected trace segments into systems by 8-px link dilation",
+      "construction": "group 8-connected trace segments when their 8-px dilations connect",
+      "link_px_per_trace": 8,
+      "maximum_gap_px_approx": 16,
+      "maximum_gap_m_approx": 1600,
       "n_folds_per_rule": 3,
       "hide_fraction_target": 0.25,
       "rules": [
@@ -30,10 +33,7 @@
         "isolated",
         "oriented",
         "dense"
-      ],
-      "link_px_per_trace": 8,
-      "maximum_gap_px_approx": 16,
-      "maximum_gap_m_approx": 1600
+      ]
     },
     "segment_folds": {
       "construction": "raw 8-connected pixel components, randomly grouped by pixel mass",
@@ -49,8 +49,14 @@
     ],
     "known_fault_mask": "pixel-exact visible catalogue mask; the 5-px buffer is removed from visible features but remains inside the evaluation domain and can accrue FP",
     "scoring": "local FoldScorer scores withheld truth only and masks prediction FP outside eval_mask; candidate maps are clipped to eval_mask",
+    "masked_prediction_policy": {
+      "status": "CONSERVATIVE_LOCAL_CHOICE",
+      "policy": "predictions outside eval_mask are discarded before TP and FP calculation",
+      "uncertainty": "organizer wording does not resolve whether predictions on exact masked known-fault pixels can contribute TP to nearby new truth; see knowledge/02_irregularities.md Q-1"
+    },
     "concealed_subset": "withheld truth pixels in the valid-footprint slope bottom third; proxy stress test only",
     "candidate_selection": "threshold static scores at config coverage times full valid-pixel count, restricted to each fold's eval_mask; then apply grid decimation",
+    "random_control": "No candidate-to-chance ratio is used. Candidate comparison is by direct DTI on each fold; the report is a local catalogue-recovery proxy only.",
     "scorer_verification": {
       "pass": true,
       "trials": 15,
@@ -64,7 +70,7 @@
         "tp_rel": 0.0001,
         "fp_rel": 0.0001
       },
-      "note": "Float32 FoldScorer matched the local float64 reference on 15 trials after applying the same conservative eval_mask clipping; this does not resolve private evaluator masked-prediction semantics."
+      "note": "float32 accumulation in FoldScorer vs float64 reference"
     },
     "tuning_folds": [
       "dense_0",
@@ -87,13 +93,16 @@
       "short_2",
       "strike_0_60",
       "strike_120_180"
-    ],
-    "masked_prediction_policy": {
-      "status": "CONSERVATIVE_LOCAL_CHOICE",
-      "policy": "predictions outside eval_mask are discarded before TP and FP calculation",
-      "uncertainty": "Organizer wording does not resolve whether predictions on exact masked known-fault pixels can contribute TP to nearby new truth; see knowledge/02_irregularities.md Q-1."
-    },
-    "random_control": "Candidate variants are compared using direct DTI on the same fold families. Candidate-to-chance ratios are not used or reported; this remains a local catalogue-recovery proxy, not a private-test estimate."
+    ]
+  },
+  "r8_base_coverages": {
+    "BASE_topo_ridge": 0.03,
+    "R8_openness": 0.02,
+    "R8_tpi": 0.01,
+    "R8_flow": 0.02,
+    "R8_isocoherence": 0.005,
+    "R8_remanence": 0.005,
+    "R8_intersections": 0.01
   },
   "configurations": [
     {
@@ -5046,16 +5055,5 @@
       "n_truth_concealed": 3238
     }
   ],
-  "runtime_s": 347.6,
-  "r8_base_coverages": {
-    "R8_openness": 0.02,
-    "R8_tpi": 0.01,
-    "R8_flow": 0.02,
-    "R8_isocoherence": 0.005,
-    "R8_remanence": 0.005,
-    "R8_intersections": 0.01,
-    "BASE_topo_ridge": 0.03
-  },
-  "chance_metrics_status": "NOT_REPORTED; prior analytic candidate-to-chance ratios were uncalibrated and are withdrawn.",
-  "scope": "LOCAL_PROXY_HOLDOUT_ONLY_NOT_PRIVATE_TEST_PERFORMANCE"
+  "runtime_s": 273.8
 }

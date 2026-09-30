@@ -13,10 +13,11 @@
 
 ## Latest review — 2026-09-30
 
-The current checkout has no competition rasters. An ignored `.venv` was created
-and the metric audit was rerun; no data-dependent holdout or prediction could be
-reproduced in this session. The latest code review found and fixed two fail-open
-edges: serialization
+The checkout started without competition rasters; this session staged the
+team's public-repository mirrors (not verified first-party data), rebuilt the
+detectors, and reran the targeted R8 holdout. The local topo comparator still
+beat R8, so no submission was cleared. The latest code review also found and
+fixed two fail-open edges: serialization
 no longer clips out-of-range probabilities silently, and zero coverage can no
 longer accidentally select the full ranking. Regression tests are in
 [`tests/test_rio.py`](tests/test_rio.py). Full findings, source links, three-pass
