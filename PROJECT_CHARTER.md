@@ -15,8 +15,12 @@ and — more importantly — contribute *real* geological discoveries, because
 **83 % of the $300,000 is in Phase 2, whose labels are created by expert review
 of our own submitted predictions.**
 
-Current state (2026‑09‑28): leaderboard #1 = **0.3168**. Our best attributable
-public score = **0.1563** (~rank #26).
+Current official snapshot (2026‑09‑30): leaderboard #1 DARD = **0.3168**,
+#2 alexoktaba = **0.3042**. The column is **“Best public DW-Tversky”** and is
+account-level, not a per-submission receipt. No public score is currently
+verified against a local GeoTIFF; historical 0.1563 labels remain
+unattributed. See [`reports/leaderboard_snapshot_2026-09-30.json`](reports/leaderboard_snapshot_2026-09-30.json)
+and irregularities I-3/I-9.
 
 ## 2. The product
 
@@ -37,17 +41,19 @@ Weigh trade-offs, assess risk, choose the path that maximises the probability
 the project succeeds. Set emotions aside. Make the hard call.
 
 *Applied here:* we do not spend submission slots on untested ideas; we do not
-keep re-running a family of detectors that already plateaued; and we surface
-eligibility/compliance risk immediately, because a disqualification sets
-P(Win) to zero regardless of model quality.
+mistake account-best scores or rounded score labels for per-file evidence; and we
+surface verified eligibility/compliance risks promptly, because a disqualification
+sets P(Win) to zero regardless of model quality.
 
 ### Own the Outcome
 Own results end to end, not one slice. When a problem appears and we can act,
 act — without waiting for permission. Treat failure and success as signals.
 
-*Applied here:* when the "0.1563 plateau" turned out to be a measurement
-artefact rather than a modelling ceiling, the correct response was to fix the
-measurement, not to tune the model harder.
+*Applied here:* the cause of the historical repeated 0.1563 labels is
+**unresolved**. We withdrew both the “measurement artefact” and “modelling
+ceiling” conclusions because no per-submission receipts map those scores to the
+local TIFFs. Own the outcome by preserving exact file/pixel identity and
+recording authenticated per-submission scores when available.
 
 ## 4. Non-negotiables
 
@@ -67,6 +73,11 @@ measurement, not to tune the model harder.
    [Official Rules §3.2](https://docs.nlr.gov/docs/fy26osti/96647.pdf).
 8. **Finalists must ship reproducible code.** Keep the pipeline runnable
    end-to-end from a clean checkout.
+9. **Never repeat an identical prediction as a new submission.** Before an
+   artifact is written, compare canonical scored-grid pixel identity against
+   existing downloads and historical TIFFs; block exact duplicates and record
+   support identity. Distinct maps can still round to the same score, so never
+   promise unique scores.
 
 ## 5. How we decide what to build (the scoring facts, settled numerically)
 
@@ -74,29 +85,37 @@ The metric is a **distance-weighted F2 score**; see
 `knowledge/01_verified_facts.md §2.1` for the proofs and
 `reports/metric_audit.json` for the machine output.
 
-* Add a block of predictions **iff** its marginal weighted precision exceeds
-  `0.2 × DTI`. Today that is ~3 %. **Be far more inclusive than a 0.5 cutoff.**
-* The optimum is **binary**; graded values only rank pixels.
+* Add a block of predictions only when its marginal weighted precision exceeds
+  `0.2 × DTI` for the **same evaluation set**. Do not substitute an unverified
+  historical score label for our current DTI.
+* Scaling predictions upward increases DTI; graded values are for ranking before
+  thresholding, with the candidate cutoff selected on holdout.
 * **Recall outweighs precision** whenever `P > 0.25·R`.
-* `TP_w` maxes over the 300 m neighbourhood → **redundant nearby predictions
-  cost FP mass and earn nothing.** Decimate lines; don't thicken them.
+* `TP_w` takes a maximum in the 300 m neighbourhood: once one truth pixel's
+  credit is saturated, a redundant nearby prediction may only add FP mass, while
+  another nearby truth pixel may still benefit.
 
-Settle "precision versus coverage" **numerically on the holdout**, never by
-assertion.
+Settle cutoff, line spacing, ridge width, and fusion **numerically on the
+multiple-rule holdout**, never by assertion. Rank candidates by direct DTI.
+The closed-form chance helper is at most an approximate, same-run local random-
+control sanity check with known truth size and eligible fold area; never use it
+as a candidate-selection metric, submission gate, or public/private baseline.
 
 ## 6. Validation doctrine
 
-**Hide-and-recover is the main check.** Withhold whole fault segments/systems
-with a buffer; derive every catalogue-based feature only from what stays
-visible; mask the visible faults pixel-exactly as the organizers do; score DTI
-on the withheld pixels alone, under several withholding rules (random, short,
-isolated, strike class, dense). **Flag any idea that wins under only one rule
-as fragile.**
+**Hide-and-recover is the primary local check, not a private-test substitute.**
+Withhold whole fault segments/systems with a buffer; derive every
+catalogue-based feature only from what stays visible; apply the pixel-exact
+visible-fault mask; score DTI on withheld truth only under several rules
+(random, short, isolated, strike class, dense) and on separate raw-segment folds.
+**Flag an idea that wins under only one rule as fragile.** Known-catalogue
+recovery cannot establish transfer to expert-labelled new faults or their
+undisclosed distribution.
 
-**Geographic block CV is a stress test, not the main check.** The submission
-shares the training features' bounds and the test sets are chunks of the same
-region, so the real distribution shift is *unmapped faults among mapped ones*,
-not new geography.
+**Geographic block CV is a secondary stress test.** The submission grid shares
+the supplied feature bounds and test chunks come from the same region, but the
+label-generating process and fault types may differ. We do not claim the local
+holdout reproduces that shift.
 
 ## 7. Standing to-do at the start of each session
 

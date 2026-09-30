@@ -1,3 +1,17 @@
+> **ARCHIVE — SUPERSEDED; DO NOT USE ITS CHANCE/LIFT CONCLUSIONS.** This report
+> records a prior session. Its public chance inference, candidate-to-chance ratios,
+> “measurement artefact”/plateau interpretation, low-slope hidden-fault analogue,
+> and resulting submission recommendation have been withdrawn or qualified.
+> Several chance calculations used the full valid-grid area instead of the fold's
+> smaller eligible `eval_mask`. Use direct-DTI summaries and current status in
+> [`knowledge/02_irregularities.md`](../knowledge/02_irregularities.md),
+> [`knowledge/03_hypotheses.md`](../knowledge/03_hypotheses.md), and
+> [`reports/holdout_candidate_r8_2026-09-30.json`](holdout_candidate_r8_2026-09-30.json).
+> The historical file is retained for audit trail only; it is not a current model
+> recommendation or hidden/private-test estimate.
+
+---
+
 # Session report — 2026-09-29 (session 2)
 
 Scope: review the repo, re-verify every official claim line by line, fix what

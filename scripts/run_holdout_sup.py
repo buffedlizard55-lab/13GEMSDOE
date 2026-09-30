@@ -7,11 +7,10 @@ comparable:
   * whole fault SYSTEMS withheld with a 500 m buffer, five withholding rules
     (random, short, isolated, strike-class, dense);
   * the visible catalogue masked pixel-exactly, as the organizers do;
-  * DTI computed on the withheld pixels alone, with a coverage-matched random
-    control and the closed-form chance DTI at the ACTUAL pixel count;
-  * the concealed subset (withheld pixels in the flattest third of ground)
-    scored alongside, because the catalogue is 1.7x over-represented on slopes
-    (irregularity I-11);
+  * DTI computed on the withheld pixels alone, with same-run random-map DTI
+    reported as a limited local control (not a universal chance calibration);
+  * the lowest-slope-third subset is reported as a catalogue robustness stress
+    test, not as an analogue of hidden-test truth (irregularity I-11);
   * the classifier is trained ONLY on the visible catalogue of that fold.
 
 Usage:  python scripts/run_holdout_sup.py [--epochs 40] [--l2 1e-3]
@@ -37,7 +36,6 @@ from gems import detectors as D                        # noqa: E402
 from gems.fastscore import FoldScorer, verify_against_reference  # noqa: E402
 from gems.holdout import build_folds                   # noqa: E402
 from gems.supervised import fit_labelled               # noqa: E402
-from chance_baseline import dti_chance                 # noqa: E402
 
 DER = ROOT / "data" / "derived"
 REP = ROOT / "reports"
@@ -151,14 +149,18 @@ def main() -> None:
         n = int(cov * n_valid)
         evaluate(f"CTRL_random|cov{cov}|rep0", "control_random",
                  lambda f, n=n: noise.topk(f.eval_mask.ravel(), n), FOLDS5)
-    chance = defaultdict(list)
+    control_scores = defaultdict(list)
     for r in results:
         if r["family"] == "control_random":
-            chance[(float(r["tag"].split("|")[1][3:]), r["fold"])].append(r["dti"])
-    chance_mean = {k: float(np.mean(v)) for k, v in chance.items()}
+            control_scores[(float(r["tag"].split("|")[1][3:]),
+                            r["fold"])].append(r["dti"])
+    random_control_dti_by_cov_fold = {
+        k: float(np.mean(v)) for k, v in control_scores.items()
+    }
     for cov in COVERAGES:
-        vals = [v for (c, _), v in chance_mean.items() if c == cov]
-        print(f"      cov={cov:<6} chance DTI={np.mean(vals):.4f}")
+        vals = [v for (c, _), v in random_control_dti_by_cov_fold.items()
+                if c == cov]
+        print(f"      cov={cov:<6} local random-control DTI={np.mean(vals):.4f}")
 
     st = ndi.generate_binary_structure(2, 2)
     for k in (1, 2):
@@ -239,7 +241,9 @@ def main() -> None:
                            "n_px": int(concealed_zone.sum()),
                            "catalogue_px_inside": int((known & concealed_zone).sum())},
         "folds": [{"name": f.name, "rule": f.rule, "n_hidden": f.n_hidden,
-                   "n_visible": f.n_visible, **f.meta} for f in folds],
+                   "n_visible": f.n_visible,
+                   "n_eval_px": int(f.eval_mask.sum()), **f.meta}
+                  for f in folds],
         "coverages": COVERAGES, "spacings": SPACINGS,
         "train_config": {"l2": a.l2, "epochs": a.epochs,
                          "max_neg": a.max_neg, "seed": 7,
@@ -248,8 +252,10 @@ def main() -> None:
                          "context_scales": ["1 px", "3x3 mean (150 m)",
                                             "9x9 mean (450 m)"]},
         "top_feature_weights_fold_random_0": top,
-        "chance_dti_by_cov_fold": {f"{k[0]}|{k[1]}": round(v2, 6)
-                                   for k, v2 in chance_mean.items()},
+        "random_control_dti_by_cov_fold": {
+            f"{k[0]}|{k[1]}": round(v2, 6)
+            for k, v2 in random_control_dti_by_cov_fold.items()
+        },
         "results": results, "runtime_s": round(time.time() - t0, 1)}
     (REP / "holdout_supervised.json").write_text(json.dumps(out, indent=1))
     print(f"wrote {REP/'holdout_supervised.json'} ({time.time()-t0:.0f}s)")

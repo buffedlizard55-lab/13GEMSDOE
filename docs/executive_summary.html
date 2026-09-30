@@ -1,8 +1,8 @@
 <!doctype html>
 <html lang="en"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>How to submit — 13GEMSDOE</title>
-<meta name="description" content="GEMS Prize Challenge: audited scoring metric, hide-and-recover holdout, and a one-click validated submission GeoTIFF.">
+<title>Submission workflow — 13GEMSDOE</title>
+<meta name="description" content="GEMS Prize Challenge: audited scoring metric, local hide-and-recover evidence, and a review-only artifact that has not cleared submission holdout.">
 <link rel="stylesheet" href="assets/style.css">
 </head><body>
 <header class="site"><div class="wrap">
@@ -12,96 +12,96 @@
 
 <main class="wrap">
 <section>
-  <h2>Executive summary — how to make a submission</h2>
-  <p class="lede">Start to finish in about two minutes. You need a DrivenData
-  account that is registered as a competitor for this challenge. Primary download is now all-finite (0 outside) — no NaN — so it passes 'Predicted values must be in range [0,1]'.</p>
-
+  <h2>Submission workflow — clearance comes before upload</h2>
+  <div class="callout bad">
+    <p style="margin:0"><b>Current status: NOT_CLEARED.</b> The archived full-catalogue raster is not scored directly because its catalogue-derived tip/horsetail features would leak holdout truth. A per-fold rebuild using visible catalogue was tested; it did not beat the local BASE_topo_ridge comparator on the confirmation folds.
+    The archived artifact <a href="downloads/13gems-r8-ensemble-20260930T014614Z.tif"><code>13gems-r8-ensemble-20260930T014614Z.tif</code></a>
+    is retained for review only; do not upload it. The full local proxy comparison is
+    <a href="https://github.com/buffedlizard55-lab/13GEMSDOE/blob/main/reports/holdout_candidate_r8_2026-09-30.json">here</a>. A format-valid GeoTIFF is not evidence that
+    its predictions improve DTI.</p>
+  </div>
+  <p class="lede">When a candidate eventually clears the holdout, follow these steps.
+  The current R8 artifact has <b>not</b> cleared them.</p>
   <ol class="steps">
-    <li><h4>Download the file (first button, obvious)</h4>
-      <p>From the <a href="index.html">front page</a>, click
-      <b>Download submission GeoTIFF — valid [0,1] (all-finite, 0 outside)</b>. You get
-      <code>13gems-r8-ensemble-20260930T014614Z_allfinite.tif</code> — unique timestamped name, single-band float32, EPSG:32611, 3730x3292 @100 m, values in [0,1], 0 outside footprint (all-finite).</p>
-      <p class="small">A <code>.zip</code> with the same all-finite GeoTIFF is also offered — form accepts 'a single-band GeoTIFF (.tif) file, or a .zip file containing a single GeoTIFF'.
-      NaN-outside variant kept only for provenance.</p></li>
+    <li><h4>1. Validate the candidate on the local holdout</h4>
+      <p>Use whole-system and raw-segment hide-and-recover folds with buffers,
+      visible-catalogue-only construction of catalogue-dependent features, the exact
+      visible known-fault mask, and DTI scored on withheld truth only. Compare multiple
+      withholding rules and report cutoff, support, precision, recall, and DTI.
+      The low-slope-third slice is a robustness stress test, not a hidden-test analogue.</p>
+      <p class="small">Do not spend a weekly submission slot unless the candidate beats
+      the current holdout best under more than one rule and improves the confirmation
+      summary—not only a tuning fold or a qualitative geological rationale.</p></li>
 
-    <li><h4>Open the submission form</h4>
-      <p>Go to the
-      <a href="https://www.drivendata.org/competitions/306/competition-doe-gems/submissions/">
-      competition submissions page</a> and click <b>New submission</b>.</p>
-      <p class="small">Limit: <b>three submissions per week</b>
-      (<a href="https://docs.nlr.gov/docs/fy26osti/96647.pdf">Official Rules §3.2</a>). Nothing gets a weekly slot until it beats current best on hide-and-recover holdout under multiple rules.</p></li>
+    <li><h4>2. Check map identity before proposing an upload</h4>
+      <p>Compare the complete raster and effective/chargeable positive support with all
+      prior candidates. Record file hash, canonical pixel hash, support hash and overlap.
+      An exact duplicate is different from a distinct map with the same rounded score;
+      neither outcome can be inferred from filenames or account-level leaderboard values.</p>
+      <p class="small">Use a new immutable file stem and note. The generator refuses a
+      stem collision. Never promise a unique score: distinct maps can round to the same
+      score.</p></li>
 
-    <li><h4>Choose the file</h4>
-      <p>Select the <code>13gems-r8-ensemble-20260930T014614Z_allfinite.tif</code> you downloaded. It already matches required CRS (EPSG:32611), shape, geotransform (100,0,243350,0,-100,4508550), float32, [0,1].</p></li>
+    <li><h4>3. Validate official GeoTIFF format</h4>
+      <p>Check one float32 band, EPSG:32611, 100 m resolution, 3730×3292 shape,
+      exact affine transform, finite in-footprint values in [0,1], and null/NaN outside
+      the valid footprint. The source page specifies null/NaN outside data bounds.</p>
+      <p class="small">Local checks establish only conformance to the checked fields;
+      they do not establish remote acceptance. The earlier server-side “[0,1]” rejection
+      remains unexplained. A zero-filled outside-footprint twin is diagnostic only.</p></li>
 
-    <li><h4>Paste the unique Note</h4>
-      <p>The form's optional <i>Note</i> is 'a short comment to help you or your team
-      tell submissions apart later'. Use the unique one generated with the file — it records detector, coverage, spacing:</p>
-      <pre><code>R8 geothermal-vent ensemble: tip-rays 2000m + horse splay + openness 2% + TPI 1% + flow 2% + isocoherence 0.5% + remanence 0.5% + intersections 1% + topo 3%, decimated 1-per-3px, hidden-vent focus, binary 0/1, catalogue included (masked at scoring)</code></pre>
-      <p class="small">The front page has a <b>Copy the Note field</b> button.</p></li>
+    <li><h4>4. Prepare the uniquely named raster and truthful note</h4>
+      <p>After the holdout gate, run <code>.venv/bin/python scripts/make_submission.py</code>
+      with the chosen recipe and an unused <code>--name</code>. Inspect the generated
+      JSON provenance, local validation report, output TIFF, ZIP contents, and form note.
+      The note must identify what was actually generated and must not claim hidden-test
+      performance or unsupported geothermal certainty.</p></li>
 
-    <li><h4>Submit, then record the score</h4>
-      <p>After scoring, copy the <b>per-submission</b> score — not the leaderboard
-      figure — into <code>reports/leaderboard_ledger.csv</code>.</p>
-      <div class="callout warn"><p style="margin:0"><b>This matters.</b> The public
-      leaderboard column is literally "<i>Best public DW-Tversky</i>". It shows your
-      best-ever score, so it does <b>not</b> change when a later submission scores
-      worse. Reading it as "the score of what I just uploaded" is what produced the
-      illusion of a 0.1563 plateau.</p></div></li>
+    <li><h4>5. Upload only after clearance, then record the receipt</h4>
+      <p>Use the
+      <a href="https://www.drivendata.org/competitions/306/competition-doe-gems/submissions/">official submissions page</a>
+      and select the validated named GeoTIFF (or ZIP only if it contains that one TIFF).
+      The competition allows three submissions per week per the
+      <a href="https://docs.nlr.gov/docs/fy26osti/96647.pdf">Official Rules §3.2</a>.</p>
+      <p>After scoring, record the authenticated per-submission score and submission ID
+      in <code>reports/leaderboard_ledger.csv</code>, tied to the exact file checksum.
+      The account-level “Best public DW-Tversky” leaderboard value is not a receipt for
+      that upload.</p></li>
   </ol>
 </section>
 
 <section>
-  <h2>Troubleshooting</h2>
+  <h2>Official format requirements</h2>
   <div class="panel">
-    <h3 style="margin-top:0"><span class="tag t-bad">Error</span>
-      &nbsp;“Predicted values must be in range [0, 1]”</h3>
-    <p>Every file this site publishes is checked by
-    <code>src/gems/rio.py::validate_submission</code> before release, which rejects
-    any raster whose finite minimum is below 0, whose maximum exceeds 1, or that
-    contains infinities. If the platform still rejects the plain file, the cause is
-    almost certainly <b>NaN</b>: the official format permits nan outside the data
-    bounds, but a validator written as <code>min()&lt;0 or max()&gt;1</code> can
-    treat it as out of range.</p>
-    <p><b>Fix:</b> upload <code>13gems-r8-ensemble-20260930T014614Z_allfinite.tif</code>, which is identical
-    inside the survey footprint and writes <code>0.0</code> instead of nan outside it.</p>
-  </div>
-  <div class="panel">
-    <h3 style="margin-top:0"><span class="tag t-warn">Check</span>
-      &nbsp;Format requirements, verbatim</h3>
     <ul class="small">
-      <li>Same projected CRS as the training data — <b>EPSG:32611</b> (UTM 11N)</li>
-      <li>Same resolution — <b>100 m</b></li>
-      <li>Same bounds; data outside the bounds null or nan</li>
-      <li>A single layer, <b>float32</b>, values between <b>0 and 1</b></li>
+      <li>Same projected CRS and bounds as training data: <b>EPSG:32611</b></li>
+      <li>Same resolution: <b>100 m</b>; 3730×3292 grid and matching transform</li>
+      <li>One layer, <b>float32</b>, values between <b>0 and 1</b></li>
+      <li>Outside the data bounds: <b>null/NaN</b> per the problem description</li>
     </ul>
-    <p class="small">Source:
-    <a href="https://www.drivendata.org/competitions/306/competition-doe-gems/page/967/">
-    problem description → Submission format</a>. Our grid is
-    3730×3292, transform <code>(100, 0, 243350; 0, −100, 4508550)</code>,
-    5,167,373 valid pixels.</p>
+    <p class="small">Official source:
+    <a href="https://www.drivendata.org/competitions/306/competition-doe-gems/page/967/">DrivenData problem description → Submission format</a>.
+    The NaN-outside archived R8 file passes the repository's local grid/range/footprint
+    checks; that does not clear its prediction map or verify server acceptance.</p>
   </div>
 </section>
 
 <section>
-  <h2>Choosing the one submission that counts</h2>
-  <div class="callout">
-    <p>Competitors must nominate a <b>single</b> submission that is scored in both
-    rounds, before the deadline, without seeing private performance
-    (<a href="https://www.drivendata.org/competitions/306/competition-doe-gems/page/967/">problem description</a>).</p>
-    <p><b>Phase 2 is 83% of the money</b> ($250k of $300k) and its labels are built by
-    expert review of every team's predictions. The organizers confirmed this directly:
-    <i>"your fault predictions have an impact on final evaluation even if they are not
-    the most performant in Phase 1"</i>
-    (<a href="https://community.drivendata.org/t/how-were-the-new-test-faults-identified-data-sources-and-fault-types/11527/7">forum 11527</a>).
-    Nominate the map that is most defensible geologically and broadest in coverage,
-    not the one that squeezed the most out of the public chunk.</p>
-  </div>
+  <h2>Why the holdout gate matters</h2>
+  <p>Competition organizers define a new fault to include uncaptured extensions,
+  splays, parallel strands, and corrections, and say known training pixels are masked
+  pixel-exactly. Predictions near known traces but far from new-fault truth are
+  penalized. These are reasons to test plausible detectors locally, not permission to
+  treat catalogue hide-and-recover results as a reconstruction of the undisclosed
+  test distribution.</p>
+  <p>Keep the scientific rationale and the scoring evidence separate. The current
+  R8 union has higher proxy recall but lower weighted precision and DTI than the topo
+  baseline in confirmation folds; its download is not recommended for an upload.</p>
 </section></main>
 <footer class="site"><div class="wrap">
   <p><strong>13GEMSDOE</strong> — working repository for the
   <a href="https://www.drivendata.org/competitions/306/competition-doe-gems/">DOE GEMS Prize Challenge</a>.
-  Page generated 2026-09-30 01:51 UTC from <code>reports/*.json</code>.</p>
+  Page generated 2026-09-30 18:14 UTC from <code>reports/*.json</code>.</p>
   <p class="small">Every figure on this site is produced by a script in this
   repository and is reproducible from a clean checkout. Claims that could not be
   verified against an official source are listed as irregularities rather than

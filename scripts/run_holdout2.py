@@ -3,11 +3,10 @@
 
 Three changes over v1, each forced by what v1 measured:
 
-1. COVERAGE-MATCHED RANDOM CONTROL at every coverage. v1 only ran random at
-   1% and 3%, and at 3% random scored 0.0716 while the topographic baseline
-   scored 0.0663. Without a matched control the entire sweep is uninterpretable:
-   most of DTI at these coverages is bought by *area*, not by signal. Every
-   detector is now reported as a RATIO to chance at the same coverage.
+1. COVERAGE-MATCHED RANDOM CONTROLS at every coverage. These show the direct
+   DTI of same-run random maps on the same folds; they are limited local
+   references, not a universal chance calibration. Candidate ranking uses direct
+   DTI, not a candidate-to-chance ratio.
 
 2. GRID DECIMATION instead of strike decimation. v1's strike decimation removed
    only 2.5% of mass at spacing=4 because the orientation estimate on an
@@ -15,16 +14,11 @@ Three changes over v1, each forced by what v1 measured:
    spacing x spacing tile, which is what the metric's 300 m max actually
    rewards.
 
-3. CONCEALED-SUBSET SCORING. This is the important one. The withheld pixels are
-   *catalogue* faults, and a Quaternary fault catalogue is built largely from
-   topographic scarp expression -- so the withheld set is, by construction,
-   biased toward exactly the signature a topographic detector finds. That makes
-   plain hide-and-recover structurally unfair to detectors aimed at the
-   catalogue's blind spots. We therefore also score on the subset of withheld
-   pixels with the WEAKEST topographic expression (bottom tercile of
-   detrended-elevation slope): catalogue faults that a scarp-based mapper could
-   not have seen. That subset is the closest available analogue to the
-   genuinely unmapped population the competition is actually scored on.
+3. LOW-SLOPE ROBUSTNESS SLICE. The withheld pixels still come from the known
+   catalogue, so this is not the undisclosed new-fault population. We also score
+   withheld truth in the lowest one-third of detrended-elevation slope as a
+   predeclared stress test. It describes detector behavior on this catalogue
+   subset; it is not an analogue or estimate of hidden-test truth.
 """
 from __future__ import annotations
 
@@ -116,7 +110,9 @@ def main() -> None:
             sf, sc = scorers(fn)
             a = sf.score(pred)
             row = {"tag": tag, "family": family, "fold": fn, "rule": f.rule,
-                   "n_hidden": f.n_hidden, "n_pred_px": int((pred > 0).sum()),
+                   "n_hidden": f.n_hidden, "n_visible": f.n_visible,
+                   "n_eval_px": int(f.eval_mask.sum()),
+                   "n_pred_px": int((pred > 0).sum()),
                    "dti": round(a["dti"], 6),
                    "precision_w": round(a["precision_w"], 6),
                    "recall_w": round(a["recall_w"], 6)}
@@ -138,15 +134,19 @@ def main() -> None:
             evaluate(f"CTRL_random|cov{cov}|rep{i}", "control_random",
                      lambda f, rk=rk, n=n: rk.topk(f.eval_mask.ravel(), n),
                      FOLDS5)
-    chance = defaultdict(list)
+    control_scores = defaultdict(list)
     for r in results:
         if r["family"] == "control_random":
-            chance[(float(r["tag"].split("|")[1][3:]), r["fold"])].append(r["dti"])
-    chance_mean = {k: float(np.mean(v)) for k, v in chance.items()}
-    print("    chance DTI by coverage (mean over folds & reps):")
+            control_scores[(float(r["tag"].split("|")[1][3:]),
+                            r["fold"])].append(r["dti"])
+    random_control_dti_by_cov_fold = {
+        k: float(np.mean(v)) for k, v in control_scores.items()
+    }
+    print("    same-run random-control DTI by coverage:")
     for cov in COVERAGES:
-        vals = [v for (c, _), v in chance_mean.items() if c == cov]
-        print(f"      cov={cov:<6} chance DTI={np.mean(vals):.4f}")
+        vals = [v for (c, _), v in random_control_dti_by_cov_fold.items()
+                if c == cov]
+        print(f"      cov={cov:<6} mean control DTI={np.mean(vals):.4f}")
 
     st = ndi.generate_binary_structure(2, 2)
     for k in (1, 2):
@@ -191,19 +191,23 @@ def main() -> None:
             evaluate(f"HD_strain|cov{cov}|sp{sp}", "HD_strain", build, FOLDS5)
     print(f"    HD_strain ({time.time()-t0:.0f}s)")
 
-    # ---------------- lift over chance, then confirm on all folds ---------
-    def lift(r):
-        c = chance_mean.get((float(r["tag"].split("|")[1][3:]), r["fold"]))
-        return (r["dti"] / c) if c else np.nan
-
-    agg = defaultdict(list)
+    # ---------------- direct-DTI screening, then confirmation -------------
+    by_tag_rule: dict[str, dict[str, list[float]]] = defaultdict(
+        lambda: defaultdict(list))
     for r in results:
         if r["family"] in ("control", "control_random", "prior_submission"):
             continue
-        agg[r["tag"]].append(lift(r))
-    ranked = sorted(((float(np.mean(v)), t) for t, v in agg.items()), reverse=True)
-    survivors = [t for _, t in ranked[:8]]
-    print(f"--- stage 2: {survivors} ({time.time()-t0:.0f}s)")
+        by_tag_rule[r["tag"]][r["rule"]].append(float(r["dti"]))
+
+    ranked = []
+    for tag, by_rule in by_tag_rule.items():
+        per_rule = [float(np.mean(values)) for values in by_rule.values()]
+        if per_rule:
+            ranked.append((min(per_rule), float(np.mean(per_rule)), tag))
+    ranked.sort(key=lambda row: (-row[0], -row[1], row[2]))
+    survivors = [tag for _, _, tag in ranked[:8]]
+    print(f"--- stage 2, shortlisted by worst-rule DTI: {survivors} "
+          f"({time.time()-t0:.0f}s)")
 
     allf = [f.name for f in folds]
     for tag in survivors:
@@ -239,10 +243,15 @@ def main() -> None:
                "n_px": int(concealed_zone.sum()),
                "catalogue_px_inside": int((known & concealed_zone).sum())},
            "folds": [{"name": f.name, "rule": f.rule, "n_hidden": f.n_hidden,
-                      "n_visible": f.n_visible, **f.meta} for f in folds],
+                      "n_visible": f.n_visible,
+                      "n_eval_px": int(f.eval_mask.sum()), **f.meta}
+                     for f in folds],
            "coverages": COVERAGES, "spacings": SPACINGS,
-           "chance_dti_by_cov_fold": {f"{k[0]}|{k[1]}": round(v2, 6)
-                                      for k, v2 in chance_mean.items()},
+           "stage2_shortlist_metric": "worst_rule_mean_dti",
+           "random_control_dti_by_cov_fold": {
+               f"{k[0]}|{k[1]}": round(v2, 6)
+               for k, v2 in random_control_dti_by_cov_fold.items()
+           },
            "results": results, "runtime_s": round(time.time() - t0, 1)}
     (REP / "holdout_v2.json").write_text(json.dumps(out, indent=2))
     print(f"wrote {REP/'holdout_v2.json'} ({time.time()-t0:.0f}s)")

@@ -1,8 +1,8 @@
 # Hidden geothermal vents — verified research base
 
-**Purpose:** the scientific discovery of geothermal vents is the component that matters most for Phase-2 (83% of the $300k). This file collects only line-by-line verified facts with official URLs, for manual review and for reuse in future projects. No hallucinations; every line has a source.
+**Purpose:** preserve source-linked background relevant to geothermal systems and the competition's fault-mapping task. The competition target is fault geometry, not a verified geothermal-vent inventory. Source statements in §§1–3 are literature or organizer claims; §4 contains hypotheses and must not be read as established competition signal or private-test evidence.
 
-**Verification date: 2026-09-30.** All links fetched this session or previously verified in `knowledge/01_verified_facts.md`.
+**Verification date: 2026-09-30.** Links were fetched this session or previously verified in `knowledge/01_verified_facts.md`; a linked source does not verify every interpretation in this file.
 
 ---
 
@@ -44,19 +44,40 @@
 
 ---
 
-## 4. What this means for detection strategy (contrarian but grounded)
+## 4. Research implications (hypotheses, not verified competition signal)
 
-1. **Do not chase the main range front.** The literature says vents are rare there (clay gouge, stress release). Target horse-tails, step-overs and intersections of short discontinuous splays — exactly the *\"new fault pixel not already captured\"* including extensions/splays/parallel strands/corrections (verified organizer definition at [11536](https://community.drivendata.org/t/where-do-you-draw-the-line/11536) and [11516 post 4](https://community.drivendata.org/t/scoring-clarification-are-known-usgs-ingenious-faults-masked-when-scoring-and-are-they-in-the-final-round-label-set/11516/4)).
+1. **Structural settings worth testing.** The cited Great Basin literature describes
+   geothermal systems at some fault step-overs, intersections, transfer zones, and
+   horse-tailing terminations. This supports testing those settings as geological
+   hypotheses; it does not imply that every mapped junction is permeable or that a
+   detector-output crossing marks a geothermal system.
 
-2. **Measure permeability, not just fault existence.** A single trace without an intersection is a poor conduit. The R8 second-order detector **intersection density** (R8-5) is the direct vent proxy; no line detector in H/R6/R7 does this.
+2. **R8-5 is not a direct permeability or vent measurement.** Its “intersection
+   density” is calculated from crossings among candidate raster ridges. Those ridges
+   are not independently confirmed faults. R8-5 is a secondary image transform, and
+   its geothermal interpretation remains unvalidated.
 
-3. **On flat basin floors, hydrology sees what magnetics and slope miss.** Buried faults under Quaternary fill have no scarp but perturb drainages and coherence between gravity and topography (BRIDGE basin analysis). Hence R8-2 (flow accumulation) and R8-3 (isostatic coherence breakdown) — both orthogonal to worm/TDR/cross-gradient — and R8-1a/b (openness/TPI) as illumination-invariant scarp operators.
+3. **Terrain and gravity transforms remain exploratory.** R8-1a/b (openness/TPI),
+   R8-2 (flow), and R8-3 (gravity–topography coherence) generate testable features;
+   drainage, depositional edges, regional compensation, resolution, and processing
+   differences are plausible confounds. The features themselves do not establish that
+   faults or vents are present. In the historical five-fold direct-DTI screen at
+   cov0.05/sp3, openness was near the topo reference (0.07807 vs 0.07844), while TPI,
+   flow, and isocoherence scored 0.06922, 0.07319, and 0.03143. These are local
+   catalogue-recovery measurements only. In the later visible-only confirmation,
+   the broad R8 union scored below the topo comparator (worst-rule mean DTI 0.05584
+   vs 0.08687); no R8 artifact is cleared for submission. See
+   [`reports/holdout_candidate_r8_2026-09-30.json`](../reports/holdout_candidate_r8_2026-09-30.json).
 
-4. **Remanence matters in the Great Basin.** Faults juxtaposing Q volcanics create remanent vs induced mismatch (R8-4), invisible to single-field worms.
+4. **Magnetic-product disagreement is only a hypothesis.** R8-4 compares transformed
+   magnetic products. A mismatch may reflect magnetization, lithology, or processing;
+   it is not by itself evidence of a fault, remanence, permeability, or a vent.
 
-5. **Phase 2 labels are created from our own predictions** ([Problem description](https://www.drivendata.org/competitions/306/competition-doe-gems/page/967/): *\"expanded label set built by expert review of **every team's** submission\"*; [Official Rules §1.1](https://docs.nlr.gov/docs/fy26osti/96647.pdf)). A defensible, geologically-argued vent map is worth more than a leaderboard-tuned line map — which is why the R8 ensemble hedges both high-precision tip extensions (37% precision) and low-scored but high-concealed-lift vent proxies.
-
----
+5. **Phase-2 expert review does not validate this detector suite.** The competition
+   description and rules describe expert review of submitted predictions as part of
+   the expanded label set. That makes a defensible, well-documented map important; it
+   does not turn the R8 recipe into a verified vent map or justify an upload. The
+   archived R8 raster is retained for review only, with `NOT_CLEARED` status.
 
 ## 5. Sources table for manual review (every URL verified)
 

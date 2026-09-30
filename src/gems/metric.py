@@ -137,18 +137,24 @@ def dti(
     eval_mask: np.ndarray | None = None,
     eps: float = EPS,
 ) -> DTIResult:
-    """Distance-weighted Tversky index, exactly as officially specified.
+    """Distance-weighted Tversky index; the base formula matches the official metric.
 
     Parameters
     ----------
     pred : float array in [0, 1]. NaN is treated as 0 (no prediction).
     truth : array; > 0 marks a ground-truth fault pixel.
-    eval_mask : optional bool array. Where False, the pixel contributes
-        NOTHING to FP_w and is not a candidate ground-truth pixel. Used to
-        model the organizer-stated masking of known fault pixels. Predictions
-        inside a masked region can STILL supply TP_w credit to unmasked truth
-        pixels within R -- this mirrors the organizer statement that new-fault
-        pixels may lie within 300 m of known traces.
+    eval_mask : local optional evaluation-mask extension. Where False, truth
+        pixels are excluded and FP_w is zeroed. In this function, prediction
+        mass outside the mask can still contribute through the TP dilation for
+        in-mask truth. The organizer confirms pixel-exact masking of known
+        pixels and that new-fault truth may lie within 300 m of known traces,
+        but public wording does not resolve whether predictions on masked known
+        pixels can supply that TP credit. See knowledge/02_irregularities.md Q-1.
+        `FoldScorer` defaults to conservatively dropping predictions outside its
+        eval mask, so its default is not equivalent to this function on arbitrary
+        unmasked prediction arrays; holdout candidate maps are clipped to the
+        eval mask before either scorer is used. This is a local proxy policy,
+        not a claim about the private evaluator.
     """
     p = np.nan_to_num(np.asarray(pred, dtype=np.float64), nan=0.0)
     if p.size and (p.min() < -1e-9 or p.max() > 1 + 1e-9):

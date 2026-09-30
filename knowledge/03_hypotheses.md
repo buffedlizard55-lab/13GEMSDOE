@@ -1,4 +1,10 @@
-# Candidate hypotheses — targeting the blind spots of a scarp-derived catalogue
+# Candidate hypotheses — targeting gaps in the mapped-fault catalogue
+
+> **Evidence boundary:** the geological mechanisms below are hypotheses unless a
+> cited source directly supports the underlying mechanism. “Expected DTI gain” and
+> cost labels are qualitative planning judgments, not numerical forecasts. All
+> local hide-and-recover results use known-catalogue truth and are proxy
+> measurements—not public/private leaderboard performance.
 
 ## The premise, stated precisely
 
@@ -28,16 +34,17 @@ Its systematic blind spots therefore are:
 | B4 | **Subtle vertical component** | strike-slip and oblique structures with little scarp |
 | B5 | **Coarse historical mapping** | scale-limited legacy compilation |
 
-**The strategic error in the prior work is now measurable.** Our eight
-leaderboard-scored submissions are dominated by topographic ridge detection and
-catalogue-derived priors — i.e. by re-detecting exactly the signature the
-catalogue already encodes. The most catalogue-hugging submission scored
-**0.0286**, the worst of the eight (`reports/scored_forensics.json`). Better
-scarp detection finds more of what is *already mapped*.
+**Prior-art scope:** eight historical TIFFs are available for structural
+comparison, and several filenames carry score labels, but no per-submission
+receipts tie those labels to the files (`reports/leaderboard_ledger.csv`). We
+therefore cannot rank those maps by competition score. The data support a
+methodological concern—not a performance conclusion—that repeating only
+scarp/ridge detectors may miss other expressions of uncatalogued faults.
 
-Each hypothesis below attacks a specific blind spot. **None requires external
-data** — all five run on the 19 official bands. That is deliberate: it keeps
-them validatable today.
+The H-A–H-E candidates use the supplied feature stack (H-D also uses the visible
+catalogue per fold). Their mechanisms and expected gains remain hypotheses until
+implemented and measured under a leak-free local protocol; none of those local
+scores estimates hidden-test performance.
 
 ---
 
@@ -185,64 +192,85 @@ them validatable today.
 | 4 | **H‑E** directional lineaments | Medium | Low | B2 | partial (radiometrics used as ML feature) |
 | 5 | **H‑D** strain residual | Low-Medium | Low | B1, B5 | the deficit framing is new |
 
-Empirical holdout results supersede this ranking — see
-`reports/holdout_results.json` and the [Hypotheses page](https://buffedlizard55-lab.github.io/13GEMSDOE/hypotheses.html).
+The local proxy-holdout results qualify this research ranking; they do not
+measure hidden-test performance. See `reports/holdout_results.json` and the
+[Hypotheses page](https://buffedlizard55-lab.github.io/13GEMSDOE/hypotheses.html).
 
 ---
 
-## R6 — Five new hypotheses targeting remaining blind spots (2026-09-29)
+## R6 — Earlier detector hypotheses (2026-09-29; historical)
 
-All five are implemented in `src/gems/detectors.py` and cached in `data/derived/` as `R6_*.npy`. They were designed after the audit showing best honest lift only 1.055× worst-rule and after the composite_validation showing tip-extension rays at 16× chance vs isolated at 0.96×.
+All five were implemented in `src/gems/detectors.py` and cached as `R6_*.npy`.
+Their original rankings and per-detector scores came from older local protocols and
+are not expected private-test gains. A review found the historical holdout-v3 chance
+comparison had used the full valid-grid count rather than each fold's smaller eligible
+`eval_mask`; the old lift values are superseded. The corrected holdout-v3 summary is
+DTI-ranked and its chance values are only local diagnostics. The current 18-fold
+visible-only comparison tests the broader archived R8 recipe against a local topo
+baseline; R8 loses, and does not establish whether an R6-only map would win. No full
+R6 recipe has been cleared for upload.
 
 ### R6-1 · Horsetail splay / relay-ramp structural completion
 - **Layers:** `existing_faults` geometry only (catalogue-derived, rebuilt per fold).
 - **Signature:** Detects en-echelon step-overs within 20 px (2 km) where two subparallel (<30°) segments' tips are close; draws bridging line + emits fan of 5 rays ±35° at each tip (horsetail).
-- **Why missing:** Catalogue omits small linking faults at relay ramps, horsetails and intersections because they are short, discontinuous, or lack Quaternary scarp. Organizers explicitly include extensions, splays, parallel strands and corrections as new-fault pixels (forum 11516, 11536).
-- **Differs from prior repo:** `extension_rays` projects forward along same strike; this detects NEARBY faults and bridges the gap, plus emits diverging fan.
-- **Expected DTI gain:** High (relay ramps are prime geothermal: high fracture density). **Cost:** Low.
-- **Holdout result:** Near-zero on system-withholding holdout because systems are grouped with 16 px link distance — pessimistic for tip extensions. On tip-extension holdout, extension_rays alone is 16× chance; horsetail should add orthogonal splay.
+- **Why it could find an uncaptured fault:** a real relay ramp or splay may be unmapped or only partly captured; the organizer's definition includes newly mapped extensions, splays, parallel strands, and corrections. Whether this geometric prior improves discovery beyond catalogue proximity is uncertain.
+- **Differs from prior repo:** `extension_rays` projects forward along an individual trace; this operator links nearby traces and adds a diverging fan. It is catalogue-derived and therefore must be rebuilt from each fold's visible geometry.
+- **Expected DTI impact:** unknown. The prior tip-focused holdout measured a different target protocol and is not evidence of private-test gain. **Cost:** Low implementation, with substantial geometry/false-positive validation risk.
 
 ### R6-2 · Paleo-shoreline / lacustrine terrace scarp (intrabasin)
 - **Layers:** `det_elev` (12), `det_elev_slope` (19).
 - **Signature:** Second-derivative curvature ridge (Laplacian) on detrended elev, gated to low-slope (<45th percentile) AND low local variance (playa/lake bed), then directional coherence 12 px for shoreline continuity.
-- **Why missing:** USGS QFaults focuses on range-front scarps; intrabasin scarps in Lake Lahontan lake beds are low-amplitude (decimetres) and invisible without detrending. They still cut Quaternary deposits, so they are Quaternary faults missing from catalogue. Classic hidden geothermal: intrabasin faults host springs.
-- **Differs:** BASE_topo_ridge finds all ridges; this inverts mask to flat ground, uses curvature not slope, requires lateral continuity of shoreline.
-- **Expected DTI gain:** Medium. **Cost:** Medium (needs variance + curvature).
+- **Why it could find an uncaptured fault:** if a Quaternary fault has a subtle scarp within a basin, detrended curvature and lateral continuity may help distinguish it from broad relief. The supplied 100 m elevation grid cannot establish decimetre-scale morphology; shoreline, depositional, and erosional lineaments are confounds. No claim is made that these features are absent from the catalogue or geothermal.
+- **Differs:** BASE_topo_ridge emphasizes ridges; this candidate uses curvature plus low-slope/variance gates. It remains a topographic detector and may be redundant.
+- **Expected DTI impact:** unknown; rank is qualitative only. **Cost:** Medium (curvature and gate sensitivity).
 
 ### R6-3 · Conductive-base step with conductivity coherence (improved HC)
 - **Layers:** `depth_to_base_surf` (15), `cond_surf` (17), `det_elev_slope` (19).
 - **Signature:** Product of gradient magnitudes of depth_to_base and cond_surf, ridge-thinned, gated by flat topography (55%) AND anti-topo (1 - topo_ridge strength), then oriented-filtered 15 px.
-- **Why missing:** Buried fault offsets conductive basement and juxtaposes different lithologies → conductivity contrast, but no surface scarp. Needs both depth and conductivity to agree.
-- **Differs from HC_hinge:** HC used only depth_to_base gradient; this requires BOTH depth and conductivity, plus directional coherence, plus anti-topo gate.
-- **Expected DTI gain:** Medium. **Cost:** Low.
+- **Why it could find an uncaptured fault:** a buried basement or lithologic boundary may coincide with a fault under weak relief, but depth and conductivity anomalies are not fault-specific and their co-location is not proof of faulting.
+- **Differs from HC_hinge:** HC uses basement-depth gradient alone; this tests a joint depth/conductivity response plus flat/anti-topographic gates.
+- **Expected DTI impact:** unknown. **Cost:** Low-to-medium (co-registration and scale checks).
 
 ### R6-4 · Gravity-gradient termination / intersection
 - **Layers:** `iso_grav_anom_hg` (18), `iso_grav_anom_vg` (11), `iso_grav_anom` (13).
 - **Signature:** Detect terminations of horizontal gravity gradient ridges (ridge pixel with only 1 neighbor), emit short continuation 12 px beyond termination outward. Intersections (high orientation variance) emit crossing splay.
-- **Why missing:** INGENIOUS authors stated gravity-gradient terminations defined fault tips and crossings in their basin analysis (GDR 1391 report). Those are places where geophysical evidence says structure continues but surface mapping stopped.
-- **Differs:** Uses geophysical ridge termination, not catalogue fault tip.
-- **Expected DTI gain:** Low-Medium. **Cost:** Low but slow (generic_filter std).
+- **Why it could find an uncaptured fault:** a gravity-gradient termination could be consistent with an unmapped structural edge or continuation, but it can also arise from data resolution, noise, processing, or non-fault density boundaries. The cited INGENIOUS analysis motivates testing the signature; it does not validate this detector.
+- **Differs:** Uses candidate gravity-ridge terminations rather than catalogue fault tips.
+- **Expected DTI impact:** unknown. **Cost:** Low-to-medium (termination thresholds and local filtering).
 
 ### R6-5 · Transtensional coupling / dilational jog
 - **Layers:** `geod_shearrate` (7), `geod_dilaterate` (8), `geod_2ndinv` (4), `iso_grav_anom_hg` (18).
 - **Signature:** Normalized shear * positive dilatation * second invariant, multiplied by gravity gradient ridge to localize to sharp trace, then oriented lineaments.
-- **Why missing:** Transtensional jogs are prime geothermal targets (high permeability) but may have subtle or no scarp because extension is distributed. Strain fields are smooth (no pixel trace) so need sharp multiplier.
-- **Differs from HD_strain:** HD used deficit (strain minus faults minus eq); this uses product of shear and dilatation (coupling) as positive evidence.
-- **Expected DTI gain:** Low on random, High on isolated/dense (measured 0.0658 on isolated_0 at 2% vs topo 0.0722). **Cost:** Medium.
+- **Why it could find an uncaptured fault:** a transtensional strain pattern may indicate distributed deformation where no clear surface scarp is mapped. Strain can be broad or reflect regional motion; it is not fault-specific, and any permeability interpretation is a hypothesis.
+- **Differs from HD_strain:** HD used a deficit construction; this candidate multiplies shear and dilatation with a gravity-edge score as positive evidence.
+- **Expected DTI impact:** unknown. Earlier fold-specific DTI values were mixed and protocol-dependent (for example, the cited isolated fold scored below topo); they do not establish a general or hidden-test gain. **Cost:** Medium.
 
-### R6 Ranking (preliminary, before full holdout sweep)
+### R6 ranking (historical qualitative order; not a current submission ranking)
 
-| rank | hypothesis | expected DTI gain | cost | blind spot | holdout note |
-|---|---|---|---|---|---|
-| 1 | **R6-1** horsetail splay | High | Low | relay ramp / horsetail | pessimistic on system holdout, should shine on tip-extension |
-| 2 | **R6-3** conductive-base step | Medium | Low | buried, no scarp | improves HC |
-| 3 | **R6-2** paleo-shoreline scarp | Medium | Medium | intrabasin low scarp | targets Lahontan |
-| 4 | **R6-4** gravity termination | Low-Medium | Low | termination | second best on random (0.0426) |
-| 5 | **R6-5** transtensional coupling | Low on random, High on isolated | Medium | dilational jog | 0.0658 isolated, close to topo |
+| earlier research order | hypothesis | qualitative potential | cost | limitation / local note |
+|---|---|---|---|---|
+| 1 | **R6-1** horsetail splay | unknown | Low implementation | Catalogue-derived geometry; old tip-focused validation does not test the current target mix |
+| 2 | **R6-3** conductive-base step | unknown | Low-to-medium | Joint layers may be correlated; no current full-recipe comparison |
+| 3 | **R6-2** intrabasin curvature | unknown | Medium | Topography remains a confounded proxy; no confirmed Lahontan-specific coverage |
+| 4 | **R6-4** gravity termination | unknown | Low-to-medium | Threshold/resolution sensitivity; old single-fold result is not a general rank |
+| 5 | **R6-5** transtensional coupling | unknown | Medium | Earlier isolated-fold DTI was below topo; not a confirmed robust gain |
 
-Empirical: On random_0 2% coverage, topo 0.0599, gravterm 0.0426, tdr 0.0434, shore 0.0237, condbase 0.0112, transt 0.0083, worms 0.0196. On isolated_0 2%, topo 0.0722, transt 0.0658, tdr 0.0592, grav 0.0404, worms 0.0384. So transt is competitive on isolated/dense.
+Historical per-fold DTI values at 2% target coverage: on `random_0`, topo 0.0599,
+gravity termination 0.0426, TDR 0.0434, shoreline 0.0237, conductive-base 0.0112,
+transtension 0.0083, and worms 0.0196. On `isolated_0`, topo 0.0722, transtension
+0.0658, TDR 0.0592, gravity 0.0404, and worms 0.0384. These are isolated local
+measurements from that historical protocol; they are not comparable to a private score
+or enough to select a full ensemble.
 
-Final unique strategy to beat 0.3049-0.3168: **R6 ensemble hedge** — tip-rays 20 px + horse splay + topo 3% + gravterm 1% + transt 1% + tdr 1% + shore 0.5% + cond 0.5%, all decimated 1-per-3px, binary, catalogue included. This is more inclusive (6.65% coverage, 344k px) than prior best, with high-precision tip extensions (37% precision) covering organizer-named extensions/splays/corrections, plus anti-topo buried detectors for hidden geothermal. Validated on hide-and-recover: topo alone 1.055× worst-rule, ensemble improves worst-rule isolated/dense to 1.06-1.13× (measured). Full validation requires run_holdout.py with R6 detectors (now wired).
+**Current decision:** the old “R6 ensemble hedge” description and its chance-lift,
+precision, and 300 m decimation claims are withdrawn as a submission recommendation.
+No R6-only recipe has been evaluated under the latest full confirmation protocol.
+The archived broader R8 recipe was rebuilt with visible-only catalogue geometry and
+scored in the 18-fold local comparison: the topo baseline's confirmation worst-rule
+mean DTI was 0.08687 (mean 0.09763), while the R8 union scored 0.05584 (mean 0.06615).
+R8 had higher recall but lower precision and greater support; no R8 variant beat the
+baseline. This catalogue-recovery result is a local proxy, not a private-test estimate.
+See `reports/holdout_candidate_r8_2026-09-30.json`. No map is cleared for an upload.
 
 ---
 
@@ -439,123 +467,86 @@ five withholding rules plus the concealed subset.
 | 4 | **R7-2** basement curvature hinge | Medium | Low | flexure/hinge | partial (new derivative order on a used layer) |
 | 5 | **R7-5** structural grain | Unknown, probably low | Medium | parallel strands, systems | complete (system-level property) |
 
-Empirical holdout results supersede this ranking — see
-`reports/holdout_v3.json` and `reports/holdout_verdict_v3.json`.
+Local proxy-holdout results qualify this research ranking but do not predict
+hidden-test performance; see `reports/holdout_v3.json` and
+`reports/holdout_verdict_v3.json`.
 
 ---
 
-## R7 empirical verdict (measured 2026-09-29, `reports/holdout_v3.json`)
+## R7 empirical verdict (historical local DTI comparison; revised)
 
-Protocol: whole fault systems withheld with a 500 m buffer, 10 folds across 5
-withholding rules (random / short / isolated / strike-class / dense), visible
-catalogue masked pixel-exactly, DTI scored on the withheld pixels only, against
-the **closed-form chance DTI at the actual predicted-pixel count** and 30
-coverage-matched random controls (median relative error 1.1 %). Catalogue-derived
-detectors (`HD_strain`, `R7_grain`) were rebuilt per fold from the VISIBLE
-catalogue only, so no withheld geometry is used to build the detector. Runtime
-4,911 s.
+`reports/holdout_v3.json` contains a five-rule first-stage screen (random, short,
+isolated, strike-class, and dense) plus later rows for configurations shortlisted by
+the older chance/lift procedure. Those later rows are excluded from the revised
+summary because their shortlist was not selected by direct DTI. The table below is
+therefore a **five-fold screening result only**, not a ten-fold confirmation.
+Catalogue-derived `HD_strain`/`R7_grain` features were rebuilt from visible geometry.
+The low-slope slice is a stress test, not a hidden-test analogue. The older candidate
+chance/lift values used the full valid-grid size instead of each fold's smaller eligible
+`eval_mask`; they are withdrawn. The revised summary in
+`reports/holdout_verdict_v3.json` ranks only direct DTI. A fresh DTI-selected
+confirmation was not rerun because the ignored source rasters are not staged in this
+checkout; no current R7 confirmation claim is made.
 
-`lift` = candidate DTI / chance DTI at the same pixel count on the same fold.
-`worst` = the worst of the five withholding rules, which is the number the
-shipping rule uses.
+The historical screen's approximate local chance check used 30 same-run random
+controls (median relative error 1.8%, p90 7.3%). This is an in-sample sanity check,
+not a universal calibration, private-test baseline, or submission gate. In addition,
+the local scorer conservatively clips predictions to each fold's eval mask; whether
+predictions on masked known pixels can still supply TP to nearby new truth is
+unresolved (Q-1).
 
-| rank | family | best config | mean lift | **worst-rule lift** | concealed lift | verdict |
-|---|---|---|---|---|---|---|
-| 1 | `BASE_topo_ridge` | cov0.05 / sp3 | 1.09 | **1.06** | 0.51 | still the best honest detector in the repo |
-| 2 | `R7_seis_cross` | cov0.005 / sp3 | 1.20 | 0.97 | 0.45 | best mean lift, but below chance on the worst rule |
-| 3 | `BASE_tmi_hg` | cov0.05 / sp3 | 1.02 | 0.98 | 0.95 | unchanged |
-| 4 | `R7_crossgrad` | cov0.08 / sp3 | 0.96 | 0.93 | 0.94 | **R7-1 does not beat its own inputs** |
-| 5 | `R6_gravterm` | cov0.005 / sp3 | 1.00 | 0.90 | 1.31 | best concealed lift of any non-prior (1.31) |
-| 6 | `R7_seis_grav` | cov0.01 / sp3 | 1.12 | 0.86 | 0.64 | below chance |
-| 7 | `HB_theta_rtp` / `HB_tdr_rtp` | cov0.01 / 0.08 | 0.89 / 0.94 | 0.80 / 0.80 | 0.76 / 0.64 | below chance |
-| 8 | `R6_transt` | cov0.08 / sp3 | 1.26 | 0.60 | 0.53 | huge variance: 4.42x on `strike_60_120`, 0.46x on `random_0` |
-| 9 | `R7_consensus4` / `R7_consensus3` | cov0.03 / sp3 | 0.82 / 0.77 | 0.45 / 0.44 | 0.76 / 0.74 | consensus of mediocre detectors is worse than the best member |
-| 10 | `HD_strain` | cov0.08 / sp3 | 0.74 | 0.19 | 0.61 | below chance |
-| 11 | `R7_hinge_curv` | cov0.08 / sp3 | 0.47 | 0.20 | 1.20 | dead |
-| 12 | `R7_grain` | cov0.005 / sp1 | 0.15 | 0.00 | 0.05 | dead (see I-12) |
+| family | best configuration in this historical run | mean DTI | worst-rule mean DTI |
+|---|---|---:|---:|
+| `BASE_topo_ridge` | cov0.03 / sp3 | 0.07452 | 0.04976 |
+| `BASE_tmi_hg` | cov0.03 / sp3 | 0.06904 | 0.04448 |
+| `HB_tdr_rtp` | cov0.03 / sp3 | 0.06034 | 0.04128 |
+| `R6_transt` | cov0.08 / sp3 | 0.06958 | 0.03269 |
+| `R7_crossgrad` | cov0.05 / sp3 | 0.06623 | 0.03305 |
+| `R7_seis_cross` | cov0.05 / sp3 | 0.05142 | 0.03294 |
+| `R7_seis_grav` | cov0.05 / sp3 | 0.04937 | 0.03093 |
+| `R7_consensus4` | cov0.03 / sp3 | 0.02809 | 0.01621 |
+| `R7_consensus3` | cov0.03 / sp3 | 0.02645 | 0.01618 |
+| `R7_hinge_curv` | cov0.08 / sp3 | 0.02871 | 0.00686 |
+| `R7_grain` | cov0.08 / sp3 | 0.02548 | 0.00000 |
 
-**Conclusions, stated plainly.**
+This five-fold screen ranks by local worst-rule mean DTI, not chance lift. It shows
+that no R7 family beats the topo baseline on this historical protocol. Results remain
+local catalogue-recovery measurements; the newer 18-fold R8 comparison is reported
+separately. No private-test conclusion follows.
 
-1. **No R7 hypothesis beats the analytic baselines that already existed.** The
-   pre-measurement ranking put R7-1 (cross-gradient edge) first; it measures
-   0.93-0.96 worst-rule lift, i.e. it does not even reach chance. R7-4
-   (consensus) and R7-5 (structural grain) are worse still.
-2. **`BASE_topo_ridge` remains the single best honest detector** at 1.06
-   worst-rule lift, and it is the same detector that led every prior run. Nothing
-   measured in this session displaces it.
-3. **The honest ceiling is low.** The best honest candidate is 1.06x chance on
-   the worst rule. Every prior submission that scores above 0.15 on the public
-   column does so by leaking the catalogue itself (see the `PRIOR_*` rows:
-   2.56x-5.04x, all excluded). The measured gap between "what the data supports"
-   and "what the leaderboard rewards" is the central finding of this project.
-4. **`R6_transt` is the only detector with a genuinely large fold-specific
-   signal** (4.42x on the strike-class fold with 5,735 withheld pixels). That
-   fold is the smallest of the ten, so the number is the least statistically
-   reliable in the table; it is reported, not shipped.
-5. **Stage 2** re-scored the ten best stage-1 `R6_transt` configurations on all
-   ten folds: mean lift 1.30, min 0.07, max 4.42. The mean is above chance, the
-   spread is not.
+## H-S supervised baseline check (historical local DTI; 2026-09-29)
 
-## H-S empirical verdict (measured 2026-09-29, `reports/holdout_supervised.json`)
+H-S is a logistic-regression model on 57 features (19 supplied bands × value,
+3×3 mean, and 9×9 mean), trained separately on each fold's visible catalogue.
+The historical run excludes the 5-pixel withheld halo from training context. Its
+stored chance/lift fields used the full valid-grid area rather than each fold's
+eligible `eval_mask`; those chance comparisons are withdrawn. Raw per-row DTI,
+precision, and recall remain local measurements.
 
-H-S is the first **supervised** detector in this repository: L2-regularised
-logistic regression on 57 features (19 official bands x {value, 3x3 mean, 9x9
-mean}), trained per fold on the VISIBLE catalogue only, with a 5-px dilation of
-the withheld halo excluded from the training set so no withheld geometry can
-leak through a 9x9 context mean. 40 epochs of Adam, 400,000 subsampled
-negatives, inverse-frequency positive weighting.
+At the historical cov0.08/sp3 setting across five folds, H-S mean DTI was **0.04669**
+(worst-rule mean **0.03267**); `BASE_topo_ridge` on the same folds and setting scored
+**0.09946** (worst-rule mean **0.08216**). This supports only the local statement
+that this version of H-S underperformed that local topo configuration.
 
-| family | best config per fold | mean lift range over folds | verdict |
-|---|---|---|---|
-| `HS_supervised` | cov0.08 / sp3 on every fold | **0.21 - 0.75** | **below chance on every fold** |
-| `BASE_topo_ridge` (same run, same folds) | cov0.05-0.08 / sp3 | 1.06 - 1.17 | reference |
-
-**Top learned feature weights (fold `random_0`)** — physically sensible:
-
-| rank | feature | weight |
-|---|---|---|
-| 1 | `det_elev` 9x9 mean | +1.1735 |
-| 2 | `det_elev` value | -0.8712 |
-| 3 | `det_elev` 3x3 mean | -0.6117 |
-| 4 | `geod_shearrate` 3x3 mean | +0.4462 |
-| 5 | `geod_2ndinv` 9x9 mean | -0.4148 |
-| 6 | `geod_shearrate` 9x9 mean | +0.4095 |
-| 7 | `geod_shearrate` value | +0.3906 |
-| 8 | `geod_2ndinv` value | -0.3678 |
-| 9 | `iso_grav_anom_vg` 9x9 mean | +0.3583 |
-| 10 | `rtp` 9x9 mean | +0.3413 |
-
-Detrended elevation dominates, then geodetic strain, then gravity and
-radiometrics. The model is learning real structure.
-
-**Why it nevertheless fails the holdout — measured, not guessed.** Of H-S's
-predicted pixels, **12.4 % lie within 300 m of the VISIBLE catalogue**, against
-**5.9-6.5 %** for every analytic detector measured in the same run; and only
-**37.0 %** of H-S's pixels are more than 3 km from the visible catalogue, against
-**52.3-54.1 %** for the analytic detectors. The organizers confirmed, verbatim,
-that "the buffer does not apply to known faults" and that "a predicted pixel that
-is near a known fault trace but far from a new-fault ground truth pixel will be
-fully penalized" (forum 11516 post 4). H-S puts twice as much of its mass in
-exactly the region that carries full FP_w penalty and no possible credit.
-
-**Generalisation.** A supervised model trained on a 1.18 %-positive catalogue on
-a 3 GB box reproduces the catalogue's own neighbourhood, and the metric
-deliberately refuses to reward that neighbourhood. This is not a tuning problem;
-it is a mismatch between the training objective (reproduce the catalogue) and
-the scoring objective (find faults the catalogue does not already contain). Any
-supervised approach here must be trained on a target that excludes the mapped
-neighbourhood — a hard-negative-mining or one-class formulation — not on the
-catalogue raster directly.
+The highest-magnitude coefficients in the `random_0` fit were associated with
+`det_elev` context, strain, gravity, and RTP. These are fitted weights from one
+training split, not independent evidence that those bands encode fault structure.
+The measured tendency of H-S predictions to cluster near visible catalogue
+geometry is a useful false-positive diagnostic, but does not reveal private-test
+scores or establish why it underperformed. Any later supervised approach requires
+its own visible-only training, leakage checks, and multi-rule confirmation DTI.
 
 ---
 
-## R8 — five NEW geothermal-vent-targeted hypotheses (2026-09-30)
+## R8 — five exploratory detector hypotheses motivated by geothermal literature (2026-09-30)
 
-**Premise.** Hidden geothermal vents in the Great Basin do **not** sit on
-single, long, scarp-bound fault traces. They sit at **intersections,
-step-overs, accommodation zones and horse-tailing terminations where fracture
-density and permeability are highest** and where hot upflow can reach the
-surface through breccia-dominated fracture networks
+**Research motivation, not a claim about the test distribution.** Some geothermal
+systems in the cited Great Basin literature are associated with fault steps,
+intersections, accommodation zones, and fractured conduits. That does not establish
+that the competition's uncaptured faults or undisclosed final labels are concentrated
+there, nor that a line-intersection raster identifies vents or permeability. The
+organizers have not disclosed the test-source mix. R8's terrain, hydrology, gravity,
+and magnetic transforms are hypotheses to test against local holdout evidence.
 
 * Faulds et al. 2013 structural inventory
   ([dataset 1148722](https://www.osti.gov/dataexplorer/biblio/dataset/1148722)):
@@ -581,12 +572,12 @@ surface through breccia-dominated fracture networks
   conductivity). Hidden systems are defined as those *\"where the permeability
   and fluids are not apparent at the surface\"*.
 
-H-A..H-E / R6 / R7 all predict *lines*. None predicts the *point* where lines
-meet, and none uses hydrology or illumination-invariant geomorphology — yet
-the literature says the point is the vent, and hydrology is the only signal
-that survives burial beneath basin fill. R8 fills exactly those gaps. All five
-use the 19 official bands only (no external data), so all are validatable
-today on the hide-and-recover holdout.
+H-A..H-E / R6 / R7 largely propose line-like evidence; R8 adds point-density,
+hydrology, and terrain transforms. Literature motivates these as possible
+permeability or concealed-structure proxies, but it does not establish that a
+particular signal identifies a fault or vent in this survey. R8 uses the supplied
+feature bands and can be tested on local catalogue holdouts; that test remains a
+proxy and does not validate performance on undisclosed new-fault labels.
 
 ### R8-1a · Topographic openness / sky-view factor for subtle scarps
 
@@ -595,22 +586,23 @@ today on the hide-and-recover holdout.
   `atan((elev_neighbor - elev_center)/distance)` within 5 px (500 m); positive
   openness = `90° - mean(max_slope)`; edge is Hessian ridge + NMS of
   `|∇ openness|`. Implementation: `gems.detectors.topographic_openness`.
-* **Physical signature:** illumination-invariant horizon geometry. A decimetre
-  intrabasin scarp on a flat playa produces a strong openness edge while
-  `det_elev_slope` is near zero; hillshade/slope miss it because they depend
-  on illumination/slope direction. Openness is the standard BRIDGE/3DEP lidar
-  subtle-scarp operator (Yokoyama et al.).
-* **Why it catches a fault missing from the catalogue:** USGS QFaults is
-  compiled from scarps visible in imagery/topography. Intrabasin Lahontan scarps
-  are <30 cm on flat ground (flat_pct <45% slope) and are not visible without
-  detrending and without an illumination-invariant measure. This is the dominant
-  hidden-fault habitat in the Lahontan basin per GDR 1391 basin analysis.
+* **Physical signature (hypothesis):** horizon-angle variations may highlight
+  some landform edges independently of hillshade illumination. The supplied
+  elevation grid is 100 m; it cannot establish decimetre-scale scarp resolution,
+  and ridges, drainage, erosion, or interpolation may create similar edges.
+* **Why it might find a missing fault:** subtle intrabasin relief can be hard to
+  distinguish from playa texture. An illumination-invariant horizon transform
+  may complement slope-based screening, but performance depends on data
+  resolution, noise, and geomorphic setting; it is not guaranteed to recover
+  buried or sub-resolution faults.
 * **How it differs:** BASE_topo_ridge uses Hessian ridge on `det_elev_slope`;
   R6_shore uses Laplacian curvature gated to flat with shoreline continuity.
-  Openness uses horizon angle, not derivative, and is orthogonal to both.
-* **Expected DTI gain:** Medium. **Cost:** Low (~20 s). **Measured:** at
-  cov0.05/sp3 worst 1.054 mean 1.092, essentially **tied** with topo (1.055);
-  on the concealed flat subset the edge case collapses (0.30) — honest.
+  Openness uses horizon angle, not derivative.
+* **Expected DTI impact:** unknown; rank is qualitative, not a score forecast.
+  **Cost:** Low (~20 s). In the older five-fold raw-DTI comparison at cov0.05/sp3,
+  openness mean DTI was 0.07807 versus 0.07844 for topo. Those are small local
+  catalogue-recovery measurements, not hidden-test results. The old lift-over-chance
+  values are withdrawn because that report used a mismatched chance domain.
 
 ### R8-1b · Multi-scale Topographic Position Index (TPI) for intrabasin scarps
 
@@ -618,16 +610,18 @@ today on the hide-and-recover holdout.
 * **Transform:** TPI = elev - mean(elev in window) at radii 3, 6, 12 px
   (300 m / 600 m / 1.2 km); gradient magnitude of TPI → ridge → NMS;
   stack across scales. Implementation: `gems.detectors.tpi_multiscale`.
-* **Physical signature:** elevation residual. At a fault scarp TPI crosses zero
-  with high gradient; multi-scale captures both short (300 m) and broad
-  (1.2 km) fault-related topography.
-* **Why it catches a missing fault:** same habitat as openness, but TPI is used
-  in INGENIOUS/BRIDGE 3DEP analysis as a complementary operator.
+* **Physical signature (hypothesis):** local elevation residuals may emphasize
+  some ridges or breaks at more than one window scale; their association with
+  faults is not unique and no sub-pixel relief is resolved by the 100 m grid.
+* **Why it could help:** a residual transform might add terrain context to
+  slope/horizon edges, but it remains topographic and could recover the same
+  non-fault landforms or known catalogue geometry.
 * **How it differs:** openness uses horizon geometry; TPI uses elevation minus
   neighbourhood mean — different geomorphic operator; BASE uses curvature of
   slope.
-* **Expected DTI gain:** Medium-Low. **Cost:** Low (~12 s). **Measured:**
-  worst 0.88 mean 0.996 at cov0.05 — below chance, not shipped standalone.
+* **Expected DTI impact:** unknown. **Cost:** Low (~12 s). In the older five-fold
+  raw-DTI comparison at cov0.05/sp3, mean DTI was 0.06922 (topo 0.07844). This is a
+  local result, not a calibrated chance comparison or private-test estimate.
 
 ### R8-2 · Fault-controlled drainage deflection (hydrologic lineament)
 
@@ -638,23 +632,22 @@ today on the hide-and-recover holdout.
   (45th pct) → directional coherence 12 px. Falls back to a wetness proxy
   `log(1+10/(slope+0.5))` if numba unavailable.
   Implementation: `gems.detectors.flow_accumulation_anomaly`.
-* **Physical signature:** hydrologic discontinuity. Even where vertical offset
-  is sub-resolution, a buried fault ponds, truncates or deflects the very low-
-  gradient drainage network on a playa; flow accumulation shows a linear
-  deficit/excess where channels are truncated. This is a classic blind-fault
-  indicator in basin fill and is part of BRIDGE lidar work.
-* **Why it catches a missing fault:** intrabasin faults in Lahontan lake beds
-  have no range-front scarp but do perturb the drainage network; QFaults does
-  not use hydrology. Only flat ground is gated (where drainage is most
-  sensitive), so it cannot fire on range fronts already mapped.
-* **How it differs:** **no prior detector uses hydrology**; all are potential-
-  field or topographic derivative operators. This is the first hydrologic
-  detector in the repo.
-* **Expected DTI gain:** Medium (high on concealed). **Cost:** Medium (~12 s
-  with numba, else proxy). **Measured:** worst 0.978 mean 1.026 at cov0.05;
-  on the **concealed flat subset** worst 1.337 mean 1.49 — the **only
-  detector in the repo that beats chance on the concealed subset at that
-  coverage**, which is exactly the hidden-vent population.
+* **Physical signature (hypothesis):** drainage deflection or accumulation
+  anomalies may mark a structure that changes near-surface flow. Lithology,
+  climate, DEM artefacts, and anthropogenic drainage can produce similar
+  patterns; a lineament is not by itself evidence of a fault.
+* **Why it might find a missing fault:** if a mapped or buried structure
+  influences drainage, a hydrologic transform may add evidence distinct from
+  topographic slope or potential-field gradients. The flat-ground gate is a
+  modeling choice to test, not proof that the hidden targets occupy playas.
+* **How it differs:** this is the first explicit hydrology transform in the
+  repository's detector register.
+* **Expected DTI impact:** unknown. **Cost:** Medium (~12 s with numba; fallback
+  behavior should be checked). In the older five-fold raw-DTI comparison at
+  cov0.05/sp3, mean DTI was 0.07319 (topo 0.07844); this does not show an overall
+  gain. The old lift fields are withdrawn because their chance denominator did not
+  use the fold-specific eligible area. The low-slope slice is a robustness test,
+  not the undisclosed new-fault population.
 
 ### R8-3 · Isostatic coherence breakdown (buried fault-bounded basin)
 
@@ -663,20 +656,19 @@ today on the hide-and-recover holdout.
   Gaussian-weighted means (σ=6 px ≈600 m): `r = cov(g,t)/[σ(g)σ(t)]`;
   breakdown = `1 - |r|`; modulated by joint gradient strength; ridge-thin.
   Implementation: `gems.detectors.isostatic_coherence_breakdown`.
-* **Physical signature:** decorrelation of two fields that should correlate.
-  In isostatically compensated terrain, detrended elevation and isostatic
-  gravity correlate at long wavelength (basin fill vs range). A fault-bounded
-  basin or buried fault that offsets basement creates density contrast without
-  matching topography (or vice versa) → decorrelation. Classic hidden-basin
-  detector used in INGENIOUS/BRIDGE basin geometry work.
-* **Why it catches a missing fault:** buried normal fault under basin fill
-  offsets basement (gravity) but has no scarp (topo); QFaults is blind.
+* **Physical signature (hypothesis):** local gravity/topography decorrelation
+  could indicate a subsurface or lithologic mismatch beneath subdued relief.
+  Density contrasts, regional compensation, processing, and scale differences
+  can also produce decorrelation; it is not a fault-specific signature.
+* **Why it could help:** a buried structural boundary may lack a clear surface
+  scarp, so comparing fields may add a different clue. The data alone do not
+  show that a missing fault is present or that the catalogue is blind to it.
 * **How it differs:** H-C/R6-3/R7-2 detect gradient magnitude of depth_to_base
   or grav+mag; R7-1 needs *parallel* gradients; this needs *decorrelation* of
   amplitudes — orthogonal.
-* **Expected DTI gain:** Low-Medium. **Cost:** Low (~17 s). **Measured:**
-  worst 0.449 mean 0.58 — below chance standalone, but as a *secondary* in
-  the R8 ensemble it adds orthogonal buried-basin evidence.
+* **Expected DTI impact:** unknown. **Cost:** Low (~17 s). In the older five-fold
+  raw-DTI comparison at cov0.05/sp3, mean DTI was 0.03143 (topo 0.07844). The
+  current R8 union comparison also did not establish a positive ensemble contribution.
 
 ### R8-4 · Magnetic remanence divergence (RTP vs TMI/mag_anom mismatch)
 
@@ -684,20 +676,19 @@ today on the hide-and-recover holdout.
 * **Transform:** `| robust_norm(rtp) - robust_norm(tmi) |` and same vs
   `mag_anom`; max; gradient → ridge. Implementation:
   `gems.detectors.remanence_divergence`.
-* **Physical signature:** RTP assumes induced magnetization (field parallel to
-  present geomagnetic field). Where remanent magnetization is significant
-  (e.g., across a fault juxtaposing Quaternary volcanics with remanence),
-  RTP mispositions anomalies relative to TMI/mag_anom. The divergence field
-  magnitude highlights contacts with remanence, often fault-bounded lithologic
-  boundaries (INGENIOUS Q volcanics layer).
-* **Why it catches a missing fault:** remanent offset is not a topographic or
-  single-field edge; invisible to worms/TDR. Yet Great Basin faults frequently
-  juxtapose volcanics with remanence.
+* **Physical signature (hypothesis):** disagreement among RTP, TMI, and
+  magnetic-anomaly transforms may reflect remanence, processing, or scaling
+  differences and could highlight lithologic contacts. Such a mismatch is not
+  itself evidence of a fault or of remanence.
+* **Why it could help:** some lithologic boundaries may coincide with uncaptured
+  faults and may be weak in topography, but no retrieved layer establishes that
+  a particular mismatch is fault-related or absent from the catalogue.
 * **How it differs:** H-A worms and H-B TDR operate on one field; R7-1 needs
   *parallel* gradients; remanence needs *position mismatch*, i.e. anti-
   correlation between fields derived from the same measurement.
-* **Expected DTI gain:** Low-Medium. **Cost:** Low (~18 s). **Measured:**
-  worst 0.475 mean 0.925 — below chance.
+* **Expected DTI impact:** unknown. **Cost:** Low (~18 s). In the older five-fold
+  raw-DTI comparison at cov0.05/sp3, mean DTI was 0.04408 (topo 0.07844); this
+  detector did not outperform the local comparator in that screen.
 
 ### R8-5 · Fault-intersection density as geothermal permeability proxy
 
@@ -708,44 +699,72 @@ today on the hide-and-recover holdout.
   σ=6 px (600 m permeability halo) → `robust_norm_nonzero` → multiply by
   faint ridge skeleton to keep linear context. Implementation:
   `gems.detectors.intersection_permeability`.
-* **Physical signature:** junction density. Geothermal upflow is at
-  intersections/step-overs/accommodation zones, not on single traces — the
-  *point* not the line is the vent (Faulds 2013; BRIDGE). High intersection
-  density = high fracture permeability = vent proxy. This is the only detector
-  that predicts where *lines meet*.
-* **Why it catches a fault missing from the catalogue:** many hidden vents sit
-  at intersections of short, discontinuous splay faults that individually are
-  below mapping threshold but jointly generate a permeability node; the
-  intersection is mappable even when each segment is not.
-* **How it differs:** every prior detector is a *line* detector; this is the
-  first *secondary* detector and the first to target structural permeability.
-  No prior code computes intersections.
-* **Expected DTI gain:** Medium but coverage-dependent. **Cost:** Low (~5 s).
-  **Measured:** worst 0.28 mean 0.62 at cov0.05 (needs lower coverage tuning;
-  at cov 0.01 worst 0.26). As a *component* of R8 ensemble (1% coverage) it
-  adds vent-focused permeability that no other map provides.
+* **Physical signature (hypothesis):** some fault intersections, step-overs,
+  and accommodation zones may provide connected fracture permeability, as
+  discussed in the cited geothermal literature. Many mapped intersections may
+  be sealed, inactive, or products of map geometry; an intersection is not a
+  vent label.
+* **Why it might help:** if a missing fault is part of a permeable, connected
+  structure, a junction-density feature could prioritize a different geometry
+  from single-line detectors. It does not itself predict a missing fault trace
+  and may add substantial false-positive area.
+* **How it differs:** the repository had no explicit pairwise ridge-intersection
+  density layer before this transform; its novelty is a point-density proxy.
+* **Expected DTI impact:** unknown. **Cost:** Low (~5 s). In the older five-fold
+  raw-DTI comparison at cov0.05/sp3, mean DTI was 0.02709 (topo 0.07844). The
+  current visible-only ensemble comparison did not show a positive contribution
+  from the full R8 union; a vent-specific benefit is unverified.
 
-### R8 ranking (measured 2026-09-30, holdout worst-rule)
+### R8 individual-detector screen (historical five-fold local DTI, not chance lift)
 
-| rank | hypothesis | worst 0.05/sp3 | concealed | blind spot | cost | novelty | verdict |
-|---|---|---|---|---|---|---|---|
-| 1 | **R8-1a openness** | **1.054** | 0.30 | intrabasin flat scarp | Low | complete (horizon vs slope) | tied with topo on isolated; flat-gated complementary |
-| 2 | **R8-2 flow** | 0.978 | **1.49** | hydrologic truncation in playa | Medium | complete (first hydrology) | only detector beating chance on concealed flat — hidden-vent winner |
-| 3 | **R8-1b TPI** | 0.88 | 0.07 | same as openness, alternative operator | Low | partial (shares layer) | below chance, not shipped standalone |
-| 4 | **R8-4 remanence** | 0.475 | 0.28 | volcanics juxtaposition | Low | complete (divergence) | below chance, niche |
-| 5 | **R8-3 isocoherence** | 0.449 | 0.42 | buried basin decorrelation | Low | complete (correlation) | below chance standalone, orthogonal evidence |
-| 6 | **R8-5 intersections** | 0.28 | 0.07 | vent permeability node | Low | complete (point vs line) | poor as standalone map, but as 1% R8-ensemble component it contributes vent-specific density that no line map captures |
+The older `reports/holdout_r8_quick.json` records direct DTI, precision, and recall
+for five catalogue holdout folds at cov0.05/sp3. The following are unweighted means
+across those five folds; “minimum” is the lowest single-fold DTI, not a worst-rule
+mean. They are not private-test estimates and are not the newer 18-fold confirmation
+summary. The companion `reports/r8_validation.json` lift/chance calculations are
+withdrawn: they used the full valid-grid area rather than each fold's eligible domain.
 
-**Ensemble verdict:** No single R8 detector beats `BASE_topo_ridge` (1.055 worst)
-on the isolated-system hide-and-recover holdout. The honest ceiling remains
-low (≈5% over chance) for isolated, unmapped systems — which is the result.
-On the **concealed flat subset** (the hidden-vent analogue), `R8_flow` is the
-only detector >1 (1.34–1.69 across coverages). The shipped R8 ensemble
-therefore hedges: openness+TPI+flow capture flat-ground hidden scarps/hydrology,
-isocoherence/remanence add buried-basin/volcanic evidence, intersections add
-vent permeability nodes, and tip rays/horsetails cover the organizer-named
-extensions/splays/corrections that *do* have high precision (37%). Validated
-on both regimes at once (see `reports/holdout_r8_quick.json`).
+| detector | mean DTI | min single-fold DTI | mean weighted precision | mean weighted recall | mean predicted support (px) | local observation |
+|---|---:|---:|---:|---:|---:|---|
+| `BASE_topo_ridge` | 0.07844 | 0.03852 | 0.02052 | 0.28519 | 185,351 | reference for this older screen |
+| R8-1a openness | 0.07807 | 0.03883 | 0.02029 | 0.29074 | 190,830 | near tie on these five folds |
+| R8-1b TPI | 0.06922 | 0.04362 | 0.01859 | 0.23544 | 163,796 | below the local topo mean |
+| R8-2 flow | 0.07319 | 0.03715 | 0.01896 | 0.27563 | 193,181 | below the local topo mean |
+| R8-3 isocoherence | 0.03143 | 0.02564 | 0.01240 | 0.05470 | 56,577 | low support and DTI in this screen |
+| R8-4 remanence | 0.04408 | 0.02589 | 0.01936 | 0.06990 | 44,525 | low recall in this screen |
+| R8-5 intersections | 0.02709 | 0.01376 | 0.01339 | 0.03893 | 36,384 | low DTI in this screen |
+
+These are detector-level historical measurements only. They do not show that the
+features identify hidden faults or geothermal vents, and do not validate the R8 union.
+
+### R8 ensemble: visible-only, whole-system and segment proxy evaluation
+
+A new, targeted comparison is recorded in
+`reports/holdout_candidate_r8_2026-09-30.json`. It evaluates the R8 recipe by
+rebuilding its catalogue-derived tip rays and horsetail features from each fold's
+**visible catalogue only**; the archived full-catalogue TIFF is not scored
+because that would leak withheld geometry. The test has 15 whole-system folds
+(three replicates across random, short, isolated, strike-class, and dense rules)
+plus three raw 8-connected raster-segment folds. Each targets about 25% hidden
+catalogue mass, uses a 5-pixel (500 m) feature buffer, applies the exact
+visible-fault mask, and computes DTI on withheld truth only. The low-slope slice
+is reported as a stress test.
+
+On the held-back confirmation folds, `BASE_topo_ridge|cov0.05|sp3` had
+worst-rule mean DTI **0.08687** and mean DTI **0.09763** (mean weighted
+precision 0.0276; recall 0.2874; effective support about 3.62% of the fold
+evaluation domain). The R8 current union had worst-rule mean DTI **0.05584**
+and mean DTI **0.06615** (precision 0.0161; recall 0.3292; support about
+7.16%). The R8 recipe therefore traded more recall and substantially more
+support for lower precision, and it did **not** beat this local baseline.
+
+None of the predeclared R8 variants tested—reduced or increased component
+coverage, spacing 1/2/3, dropping catalogue geometry or topography, two-vote
+fusion, or one-pixel widening—beat the baseline on the confirmation summary.
+Widening increased support but reduced DTI; the vote rule retained more
+precision than the union but lost too much recall. These are local catalogue
+holdout results, not estimates of the private test or final label set. **No R8
+artifact is cleared for a submission slot.**
 
 ### What still needs external data (named, checked, not proposed as viable today)
 
@@ -758,3 +777,27 @@ on both regimes at once (see `reports/holdout_r8_quick.json`).
 * **Age/slip-rate-stratified holdout** — Quaternary Faults v2.zip (5.85 MB,
   GDR 1391, carries ages and slip rates) — needed to replace the strike-class
   proxy now used. Same status.
+
+---
+
+## Fresh external-data candidate screen (2026-09-30)
+
+A separate, ranked screen of four narrowly novel data/transform combinations is
+recorded in [`knowledge/05_hypothesis_screen_2026-09-30.md`](05_hypothesis_screen_2026-09-30.md).
+It compares each proposal against the reviewed repositories 13–17, records official
+source links and the extent of availability checks, and separates research priority
+from viability. **None is currently approved as viable or evaluated on the prescribed
+holdout.** No new submission is authorized by that screen.
+
+### Scope correction for historical chance ratios
+
+Chance/lift ratios in several historical hide-and-recover reports used the full
+valid-grid area even though candidate predictions were restricted to a smaller
+fold-specific `eval_mask`. Those candidate ratios and conclusions based on them are
+withdrawn; they are not salvaged merely because withheld truth was known. The revised
+summaries rank by direct local DTI. The optional corrected random-control comparison
+uses each fold's eligible-domain size and known truth, but is an approximate same-run
+sanity check that does not encode the exact spatial arrangement of the mask; it is not
+a candidate-ranking metric, submission gate, or public/private baseline. The separate
+public chance calculation that inferred hidden `|G|` from leaderboard scores is also
+withdrawn; see [I-9 in `knowledge/02_irregularities.md`](02_irregularities.md).

@@ -1,16 +1,17 @@
-"""Hide-and-recover holdout.
+"""Construct local proxy folds by hiding parts of the known fault catalogue.
 
-The real distribution shift in this competition is **unmapped faults among
-mapped ones**, not new geography. The submission grid, the training features and
-both test chunks all share one region. So the honest validation question is:
+The competition target is expert-labelled new-fault truth, which is not
+available for local validation. Withholding known catalogue traces therefore
+tests one useful but incomplete question:
 
-    "If a real fault system were missing from the USGS/INGENIOUS catalogue,
-     would our detector find it using only the rest of the catalogue?"
+    "If a known fault system or raster segment were hidden, how well would the
+     detector recover it using only the remaining visible catalogue?"
 
-That is exactly reproducible with the data we have. Withhold whole fault
-segments/systems, rebuild every catalogue-derived feature from what remains,
-mask the remaining catalogue pixel-exactly (as the organizers do), and score
-DTI on the withheld pixels alone.
+This is not a recreation of the undisclosed test distribution. Build folds by
+withholding whole segments/systems with a buffer, rebuild catalogue-derived
+features from the visible catalogue only, apply the pixel-exact visible-fault
+mask, and score only the withheld truth. Report results across several rules and
+keep all transfer-to-test claims explicitly tentative.
 
 Withholding rules implemented (a candidate that wins under only one is fragile):
   random     - uniformly sampled systems

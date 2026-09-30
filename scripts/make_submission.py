@@ -1,24 +1,26 @@
 #!/usr/bin/env python3
-"""Build a competition-ready submission GeoTIFF.
+"""Build a locally format-checked prediction artifact; this does not clear upload.
 
 Usage
 -----
     python scripts/make_submission.py --recipe best
     python scripts/make_submission.py --detector FUSION_rankmean --coverage 0.05 --spacing 3
 
-The recipe `best` reads reports/holdout_results.json and uses the configuration
-with the highest MINIMUM DTI across withholding rules (not the highest mean) —
-a candidate that wins under only one rule is fragile and must not be shipped.
+The legacy recipe `best` reads reports/holdout_results.json and selects by
+minimum DTI across its stored withholding rules (not the highest mean). It is
+not automatically updated from newer holdouts and is not an upload gate; every
+artifact remains NOT_CLEARED until current paired direct-DTI confirmation.
 
 Outputs, into docs/downloads/:
-    <name>.tif           NaN outside the data bounds (matches the official template)
-    <name>_allfinite.tif zeros outside the bounds (for validators that reject NaN)
-    <name>.zip           zipped .tif, also accepted by the submission form
-    <name>.json          provenance + the exact note to paste into the form
+    <name>.tif           NaN outside the data bounds (per official format text)
+    <name>_allfinite.tif zero-filled diagnostic twin; not assumed NoData-equivalent
+    <name>.zip           zip of the official-format NaN-outside .tif
+    <name>.json          provenance + a descriptive note for the form
 """
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import shutil
 import sys
@@ -33,12 +35,92 @@ from scipy import ndimage as ndi
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 from gems import detectors as D                 # noqa: E402
-from gems.rio import validate_submission, write_submission  # noqa: E402
+from gems.rio import read_band, validate_submission, write_submission  # noqa: E402
 
 DER = ROOT / "data" / "derived"
 
 OUT = ROOT / "docs" / "downloads"
 REP = ROOT / "reports"
+
+
+def prediction_identity(values: np.ndarray, valid_mask: np.ndarray) -> dict:
+    """Hash canonical scored-grid pixels and positive support, ignoring NoData form."""
+    a = np.asarray(values, dtype=np.float32)
+    valid = np.asarray(valid_mask, dtype=bool)
+    if a.shape != valid.shape:
+        raise ValueError(f"prediction/mask shape mismatch: {a.shape} vs {valid.shape}")
+    canonical = np.where(np.isfinite(a), a, 0.0)
+    canonical = np.where(valid, canonical, 0.0).astype("<f4", copy=False)
+    canonical[canonical == 0] = 0.0  # normalize negative zero before hashing
+    support = (canonical > 0) & valid
+    pixel_hash = hashlib.sha256(np.ascontiguousarray(canonical).tobytes()).hexdigest()
+    support_hash = hashlib.sha256(
+        str(support.shape).encode("ascii")
+        + np.packbits(support.astype(np.uint8), bitorder="little").tobytes()
+    ).hexdigest()
+    return {
+        "canonical_pixel_sha256": pixel_hash,
+        "positive_support_sha256": support_hash,
+        "positive_pixels": int(support.sum()),
+        "identity_scope": "float32 scored-grid values; NaN and outside-footprint cells canonicalized to zero",
+    }
+
+
+def check_existing_prediction_identity(values: np.ndarray,
+                                       valid_mask: np.ndarray) -> dict:
+    """Fail closed on unreadable archives or exact pixel duplicates.
+
+    Compare both named downloads and historical scored TIFFs. NaN-outside and
+    finite-zero twins normalize to the same canonical scored-grid identity.
+    """
+    candidate = prediction_identity(values, valid_mask)
+    exact_matches = []
+    same_support = []
+    checked = []
+    directories = [OUT, ROOT / "data" / "scored"]
+    paths = sorted({p for directory in directories if directory.exists()
+                    for p in directory.rglob("*.tif") if p.is_file()})
+
+    def display_path(path: Path) -> str:
+        resolved = path.resolve()
+        try:
+            return str(resolved.relative_to(ROOT))
+        except ValueError:
+            return str(resolved)
+
+    for path in paths:
+        try:
+            existing = read_band(path)
+        except Exception as exc:
+            raise RuntimeError(
+                f"Cannot verify prediction identity against existing raster {path}: {exc}"
+            ) from exc
+        if existing.shape != valid_mask.shape:
+            continue
+        identity = prediction_identity(existing, valid_mask)
+        label = display_path(path)
+        checked.append(label)
+        if identity["canonical_pixel_sha256"] == candidate["canonical_pixel_sha256"]:
+            exact_matches.append(label)
+        elif identity["positive_support_sha256"] == candidate["positive_support_sha256"]:
+            same_support.append(label)
+    if exact_matches:
+        raise FileExistsError(
+            "Prediction identity check failed: canonical scored-grid pixels are "
+            "identical to existing artifact(s): " + ", ".join(exact_matches)
+        )
+    if same_support:
+        print("WARNING: candidate support matches existing artifact(s) but pixel "
+              "values differ: " + ", ".join(same_support))
+    return {
+        **candidate,
+        "exact_duplicate_matches": exact_matches,
+        "same_support_different_values": same_support,
+        "existing_rasters_checked": checked,
+        "score_uniqueness_claim": (
+            "None. Different prediction maps can still round to the same score."
+        ),
+    }
 
 
 def pick_best_recipe() -> tuple[str, float, int, dict]:
@@ -75,18 +157,14 @@ def build_r6_ensemble(reach: int = 20, spacing: int = 3,
                       transt_cov: float = 0.01, tdr_cov: float = 0.01,
                       shore_cov: float = 0.005, cond_cov: float = 0.005,
                       include_catalogue: bool = True) -> tuple[np.ndarray, np.ndarray, dict]:
-    """R6 ensemble: tip rays + horsetail + topo + gravterm + transt + tdr + shore + condbase.
+    """Exploratory R6 union of catalogue geometry, terrain, and field transforms.
 
-    Designed to improve worst-rule lift over BASE_topo_ridge alone:
-    - topo_ridge remains strongest on random/short
-    - transt improves isolated/dense
-    - gravterm improves random/short/oriented
-    - tdr adds orthogonal magnetic edge
-    - shore/condbase target intrabasin blind spots (low precision but high recall for missing types)
-    - extension rays + horsetail target organizer-named tip extensions, relay ramps, horsetails
-      (holdout with system grouping underestimates them, but they are explicitly in test label set)
-
-    All components decimated 1-per-spacing x spacing to enforce metric geometry rule.
+    The components represent testable physical hypotheses, not validated fault
+    labels. Prior detector-level scores were measured under older local protocols;
+    this recipe has not been cleared by the current visible-only confirmation
+    comparison. Grid thinning reduces support but does not guarantee a minimum
+    separation or optimal DTI. The effect of predictions on masked known pixels
+    on nearby truth credit remains unresolved (knowledge/02 Q-1).
     """
     valid = np.load(DER / "_valid.npy")
     known = np.load(DER / "_known.npy")
@@ -187,9 +265,10 @@ def build_r6_ensemble(reach: int = 20, spacing: int = 3,
 def build_composite_plus(reach: int = 20, spacing: int = 3, fill_cov: float = 0.05,
                          horse_gap: int = 20, horse_splay: int = 12,
                          include_catalogue: bool = True) -> tuple[np.ndarray, np.ndarray, dict]:
-    """Improved hedge: tip rays + horsetail splay + topo fill + catalogue.
+    """Exploratory union of tip-ray, horsetail, and topographic candidate layers.
 
-    Keeps high-precision tip extensions (rays + horse) and adds topo fill for isolated.
+    Earlier tip-regime measurements are local proxies and do not validate this
+    combined map under the current visible-only confirmation protocol.
     """
     valid = np.load(DER / "_valid.npy")
     known = np.load(DER / "_known.npy")
@@ -247,13 +326,13 @@ def build_composite_plus(reach: int = 20, spacing: int = 3, fill_cov: float = 0.
 
 def build_composite(reach: int, spacing: int, fill_cov: float,
                     include_catalogue: bool) -> tuple[np.ndarray, np.ndarray, dict]:
-    """The validated hedge: tip-extension rays + broad fill + the catalogue.
+    """Historical tip-ray plus topographic-fill recipe.
 
-    Selected by scripts/validate_composite.py on TWO holdout regimes at once,
-    because the real label set is a mixture of them in unknown proportion:
-      * tip-extension regime  -> 2.11x chance
-      * isolated-system regime -> 0.96x chance (i.e. no worse than random)
-    Ranked by the geometric mean of lift over chance across regimes.
+    Its earlier two-regime direct-DTI results are from an older, limited local
+    protocol and do not estimate the private test or confer current clearance.
+    The former chance/lift figures are withdrawn because they used a mismatched
+    evaluation-domain denominator. Re-run the current visible-only multi-rule
+    holdout before use.
     """
     valid = np.load(DER / "_valid.npy")
     known = np.load(DER / "_known.npy")
@@ -290,8 +369,7 @@ def build_composite(reach: int, spacing: int, fill_cov: float,
         "n_predicted_px": int((pred > 0).sum()),
         "pct_of_valid": round(100.0 * float((pred > 0).sum()) / n_valid, 4),
         "max_value": float(pred.max()), "min_value": float(pred.min()),
-        "validated_lift_tip_regime": 2.11,
-        "validated_lift_isolated_regime": 0.96,
+        "historical_chance_lift_status": "WITHDRAWN_DOMAIN_MISMATCH"
     }
     return pred, valid, stats
 
@@ -301,32 +379,18 @@ def build_ranked_union(reach: int = 20, spacing: int = 3, budget_cov: float = 0.
                        include_catalogue: bool = True,
                        priorities: dict[str, float] | None = None
                        ) -> tuple[np.ndarray, np.ndarray, dict]:
-    """GLOBAL priority-union of every detector, then ONE global decimation.
+    """Build an experimental priority-weighted union and thin it on a grid.
 
-    Why this is a different recipe and not a re-run
-    ----------------------------------------------
-    Every earlier recipe (`composite`, `composite_plus`, `r6`) unions several
-    components and then decimates each component SEPARATELY. That leaves pixels
-    from different components within 3 px of each other, and `TP_w` takes a MAX
-    over the 300 m neighbourhood -- so those pixels add false-positive mass and
-    earn nothing. The metric's geometry rule is a statement about the FINAL map,
-    not about each component.
+    Detector weights come from historical local worst-rule DTI summaries; they
+    are not hidden-test estimates and do not clear this recipe for upload. Taking
+    a pixelwise maximum prevents a pixel from being counted twice, but nearby
+    distinct pixels from different sources can still add support. Grid thinning
+    selects at most one point per tile; it does not guarantee a minimum distance
+    across tile boundaries or universal metric optimality.
 
-    This recipe therefore:
-      1. scores every candidate source on a common [0, 1] priority scale, where
-         the priority of a source is its measured lift-over-chance on the
-         hide-and-recover holdout (worst-rule, so a source that only wins under
-         one rule is demoted rather than dropped);
-      2. takes the pixel-wise MAXIMUM of those priority maps, so a pixel covered
-         by several sources inherits the highest one;
-      3. thresholds the priority map at a single pixel BUDGET (a fraction of the
-         valid footprint), which is the only free parameter left;
-      4. decimates ONCE, globally, one pixel per spacing x spacing tile, ranked by
-         the priority map -- so no two predicted pixels are within `spacing` of
-         each other anywhere on the map.
-
-    The catalogue is added last and is score-neutral under the organizers'
-    pixel-exact mask (forum 11516 posts 2 and 4).
+    The exact known-catalogue mask is applied only as locally directed by
+    organizer guidance. Whether predictions on those masked pixels can contribute
+    TP credit to nearby new truth remains unresolved (knowledge/02 Q-1).
     """
     valid = np.load(DER / "_valid.npy")
     known = np.load(DER / "_known.npy")
@@ -338,7 +402,8 @@ def build_ranked_union(reach: int = 20, spacing: int = 3, budget_cov: float = 0.
 
     score = np.zeros(valid.shape, dtype=np.float32)
     used = {}
-    # catalogue-derived sources first: they carry the only measured lift > 1
+    # Catalogue-derived sources are prioritized for historical hypothesis coverage;
+    # this ordering is not a measured holdout advantage or submission clearance.
     rays = D.extension_rays(known, reach_px=reach)
     for name, pr in sorted(priorities.items(), key=lambda kv: -kv[1]):
         if name == "extension_rays":
@@ -394,10 +459,11 @@ def build_ranked_union(reach: int = 20, spacing: int = 3, budget_cov: float = 0.
 
 
 def load_priorities() -> dict[str, float]:
-    """Detector priority = worst-rule lift over chance, from the holdout verdict.
+    """Exploratory source weights from worst-rule local DTI summaries.
 
-    Sources are capped at 1.0 so that a source with no measured lift contributes
-    no priority of its own but can still inherit a higher one from a neighbour.
+    These historical weights do not clear a candidate for submission. Chance
+    ratios are not used here; all shortlisted maps still require comparison on
+    current confirmation folds before any upload.
     """
     import json as _json
     pri: dict[str, float] = {"extension_rays": 1.0, "horsetail_splay": 1.0}
@@ -409,24 +475,20 @@ def load_priorities() -> dict[str, float]:
             d = _json.loads(p.read_text())
         except Exception:
             continue
-        # A family is ranked by its BEST configuration's worst-rule lift: the
-        # sweep varies coverage and spacing, and one bad configuration must not
-        # demote the whole family. Priorities are then rescaled so the best
-        # family gets 1.0 and the rest keep their RELATIVE ordering -- capping
-        # at 1.0 would flatten every family that is within measurement noise of
-        # the leader into the same priority.
+        # Use each detector family's best local worst-rule DTI summary, but
+        # treat these historical proxy weights as exploratory—not as clearance.
         best: dict[str, float] = {}
         for row in d.get("table", []):
             fam = row.get("family", "")
-            lift = row.get("worst_rule_lift")
-            if lift is None or fam in ("prior_submission", "control",
-                                       "control_random"):
+            score = row.get("worst_rule_mean_dti")
+            if score is None or fam in ("prior_submission", "control",
+                                        "control_random"):
                 continue
-            best[fam] = max(best.get(fam, 0.0), float(lift))
+            best[fam] = max(best.get(fam, 0.0), float(score))
         if best:
             top = max(best.values())
-            for fam, lift in best.items():
-                pri[fam] = float(min(max(lift, 0.0) / max(top, 1e-9), 1.0))
+            for fam, score in best.items():
+                pri[fam] = float(min(max(score, 0.0) / max(top, 1e-9), 1.0))
         break
     return pri
 
@@ -436,29 +498,20 @@ def build_r8_ensemble(reach: int = 20, spacing: int = 3,
                       reman_cov: float = 0.005, inter_cov: float = 0.01,
                       topo_cov: float = 0.03,
                       include_catalogue: bool = True) -> tuple[np.ndarray, np.ndarray, dict]:
-    """R8 ensemble: geothermal-vent-targeted union of the five new R8 detectors
-    plus the best honest baseline.
+    """Build an exploratory union of R8 layers and the topographic baseline.
 
-    Why this composition:
-      - openness / TPI: subtle intrabasin scarps on flat Lahontan lake beds
-        (zero scarp relief, detected via sky-view / TPI not slope) – the
-        dominant hidden-fault habitat per INGENIOUS/BRIDGE basin analysis.
-      - flow accumulation anomaly: hydrologic lineament where drainages are
-        truncated/ponded by a buried fault – orthogonal to every potential-field
-        detector and the only hydrology-based detector in the repo.
-      - isostatic coherence breakdown: gravity-topo decorrelation = fault-bounded
-        buried basin, a buried-structure detector orthogonal to gradient magnitude.
-      - remanence divergence: RTP vs TMI/mag_anom mismatch across fault-juxtaposed
-        volcanics – captures remanent-magnetization contacts invisible to single-field
-        worms/TDR.
-      - intersection density: fault-junction permeability halo (600 m) where
-        geothermal upflow is highest (Faulds et al. 2013; BRIDGE). This is the
-        ONLY secondary detector that predicts *points* not lines.
-      - topo ridge fill: still the best worst-rule lifter (1.055x) for recall on
-        short/random isolated withholds – kept as the safety net, but trimmed.
+    The components represent testable hypotheses: openness/TPI for subtle
+    terrain edges, flow accumulation for drainage anomalies, gravity/topography
+    coherence, magnetic remanence divergence, intersection density, and a
+    topographic ridge baseline. Literature motivates some mechanisms but does
+    not validate fault detection, geothermal targeting, or score contribution.
+    The 2026-09-30 per-fold recipe comparison is recorded separately in
+    reports/holdout_candidate_r8_2026-09-30.json.
 
-    All components are decimated 1-per-spacing to obey the metric geometry rule
-    (TP_w max over 300 m). Catalogue pixels are added last (masked, score-neutral).
+    Grid decimation reduces local redundancy; it does not guarantee a universal
+    minimum separation or positive marginal DTI. Catalogue pixels are included
+    only per organizer guidance that the exact known-fault pixels are masked;
+    their effect on nearby truth credit remains documented as an assumption.
     """
     valid = np.load(DER / "_valid.npy")
     known = np.load(DER / "_known.npy")
@@ -624,10 +677,10 @@ def main() -> None:
                                                shore_cov=0.005, cond_cov=0.005,
                                                include_catalogue=not a.no_catalogue)
         det = "r6-ensemble"
-        note_bits = (f"R6 ensemble: tip-rays {reach*100}m + horse splay + topo 3% + gravterm 1% + transt 1% + tdr 1% + shore 0.5% + cond 0.5%, decimated 1-per-{sp}px")
-        prov = {"selected_by": "holdout worst-rule lift + geological blind-spot targeting",
+        note_bits = (f"Exploratory R6 union: tip rays {reach*100}m + horsetail + topo/gravity/strain/magnetic/conductivity layers; one candidate selected per {sp}x{sp}-pixel grid tile")
+        prov = {"selected_by": "historical local detector measurements; current full-union clearance not established",
                 "detectors": ["extension_rays", "horsetail_splay", "BASE_topo_ridge", "R6_gravterm", "R6_transt", "HB_tdr_rtp", "R6_shore", "R6_condbase"],
-                "objective": "maximize worst-rule lift while covering organizer-named tip extensions, relay ramps, intrabasin scarps, buried steps"}
+                "objective": "explore tip geometry, terrain, gravity, magnetic, and conductivity hypotheses; no hidden-test performance claim"}
     elif a.recipe == "r8":
         sp = a.spacing or 3
         reach = a.reach if a.reach != 10 else 20
@@ -639,11 +692,11 @@ def main() -> None:
                                                topo_cov=0.03,
                                                include_catalogue=not a.no_catalogue)
         det = "r8-ensemble"
-        note_bits = (f"R8 geothermal-vent ensemble: tip-rays {reach*100}m + horse splay + openness 2% + TPI 1% + flow 2% + isocoherence 0.5% + remanence 0.5% + intersections 1% + topo 3%, decimated 1-per-{sp}px, hidden-vent focus")
-        prov = {"selected_by": "holdout worst-rule + concealed-subset + geothermal permeability literature (Faulds/BRIDGE/INGENIOUS)",
+        note_bits = (f"Exploratory R8 union: {reach*100}m tip rays, horsetail, openness 2%, TPI 1%, flow 2%, isocoherence 0.5%, remanence 0.5%, intersections 1%, topo 3%; one candidate selected per {sp}x{sp}-pixel grid tile; not submission-cleared")
+        prov = {"selected_by": "exploratory synthesis of detector hypotheses; the ensemble was not validated as a whole when this artifact was generated",
                 "detectors": ["extension_rays", "horsetail_splay", "R8_openness", "R8_tpi", "R8_flow", "R8_isocoherence", "R8_remanence", "R8_intersections", "BASE_topo_ridge"],
-                "objective": "maximize worst-rule lift (intersections/flow for vent permeability) while covering organizer-named extensions/splays/corrections + hidden intrabasin vents",
-                "geothermal_basis": "fault intersections/step-overs/accommodation zones = highest permeability (Faulds 2013, BRIDGE SAND2025-01826); hidden systems have no surface scarp so need openness/TPI/flow/hydrology not slope"}
+                "objective": "test a broad union of mapped-fault geometry, terrain, hydrology, gravity, and magnetic hypotheses; not a hidden-test performance claim",
+                "geothermal_basis": "the literature motivates these as permeability and concealed-structure hypotheses; this does not validate their spatial coverage or scoring contribution in this competition"}
     elif a.recipe == "ranked":
         sp = a.spacing or 3
         reach = a.reach if a.reach != 10 else 20
@@ -656,12 +709,10 @@ def main() -> None:
         top = sorted(pri.items(), key=lambda kv: -kv[1])[:6]
         note_bits = (f"global priority-union of "
                      f"{', '.join(f'{k} {v:.2f}x' for k, v in top)}; "
-                     f"budget {a.budget*100:g}% then ONE global 1-per-{sp}px "
-                     f"decimation")
-        prov = {"selected_by": "worst-rule lift over chance per source, "
-                               "then a single global decimation",
-                "objective": "no two predicted pixels within "
-                             f"{sp*100} m anywhere on the map",
+                     f"budget {a.budget*100:g}% then global {sp}x{sp}-pixel "
+                     f"grid thinning")
+        prov = {"selected_by": "exploratory weights from historical local worst-rule DTI summaries; not submission clearance",
+                "objective": "test a global weighted detector union; grid thinning is not a guaranteed minimum separation or DTI optimum",
                 "priorities": {k: round(v, 4) for k, v in top}}
     elif a.recipe == "composite_plus":
         sp = a.spacing or 3
@@ -671,24 +722,19 @@ def main() -> None:
                                                   horse_gap=20, horse_splay=12,
                                                   include_catalogue=not a.no_catalogue)
         det = "composite-plus"
-        note_bits = (f"tip-rays {reach*100}m + horse splay gap20 splay12 + topo-ridge fill {a.fill*100:g}%, decimated 1-per-{sp}px")
-        prov = {"selected_by": "holdout worst-rule + tip-extension high precision",
-                "objective": "hedge: high-precision tip extensions (37% precision) + topo fill for isolated, decimated",
-                "lift_tip_extension_regime": 2.11,
-                "lift_isolated_system_regime": 0.96}
+        note_bits = (f"tip rays {reach*100}m + horsetail + topo-ridge fill {a.fill*100:g}%; grid-thinning parameter {sp}px; exploratory and not submission-cleared")
+        prov = {"selected_by": "historical recipe; not cleared under the latest direct-DTI holdout",
+                "objective": "exploratory tip geometry plus topographic fill; former chance/lift figures are withdrawn due domain mismatch"}
     elif a.recipe == "composite":
         sp = a.spacing or 3
         print(f"recipe: composite reach={a.reach} spacing={sp} fill={a.fill}")
         pred, valid, stats = build_composite(a.reach, sp, a.fill,
                                              not a.no_catalogue)
         det = "composite"
-        note_bits = (f"tip-extension rays reach {a.reach*100}m decimated 1-per-"
-                     f"{sp}px + topo-ridge fill {a.fill*100:g}%")
-        prov = {"selected_by": "scripts/validate_composite.py",
-                "objective": "geometric mean of lift-over-chance across two "
-                             "holdout regimes",
-                "lift_tip_extension_regime": 2.11,
-                "lift_isolated_system_regime": 0.96}
+        note_bits = (f"historical tip-extension rays reach {a.reach*100}m; grid-thinning parameter {sp}px; "
+                     f"topo-ridge fill {a.fill*100:g}%; not submission-cleared")
+        prov = {"selected_by": "historical scripts/validate_composite.py local comparison",
+                "objective": "previous two-regime proxy results are not private-test performance and do not confer current submission clearance"}
     else:
         det, cov, sp, prov = pick_best_recipe()
         print(f"recipe: detector={det} coverage={cov} spacing={sp}")
@@ -697,7 +743,19 @@ def main() -> None:
 
     stamp = time.strftime("%Y%m%dT%H%M%SZ", time.gmtime())
     name = a.name or f"13gems-{det.lower().replace('_','-')}-{stamp}"
+    if not name or Path(name).name != name or name in {".", ".."}:
+        raise ValueError("--name must be a plain, non-empty filename stem")
     OUT.mkdir(parents=True, exist_ok=True)
+    reserved = [OUT / f"{name}.tif", OUT / f"{name}_allfinite.tif",
+                OUT / f"{name}.zip", OUT / f"{name}.json"]
+    collisions = [str(path) for path in reserved if path.exists()]
+    if collisions:
+        raise FileExistsError(
+            "Submission names are immutable and must be unique; already exists: "
+            + ", ".join(collisions)
+        )
+
+    identity = check_existing_prediction_identity(pred, valid)
 
     tif = write_submission(OUT / f"{name}.tif", pred, valid, outside_value=None)
     fin = write_submission(OUT / f"{name}_allfinite.tif", pred, valid,
@@ -705,31 +763,54 @@ def main() -> None:
 
     reports = {}
     ok = True
-    for label, path, allow_nan in (("nan_outside", tif, True),
-                                   ("all_finite", fin, False)):
-        r = validate_submission(path, allow_nan=allow_nan)
-        reports[label] = {"ok": r.ok, "errors": r.errors,
-                          "warnings": r.warnings, "stats": r.stats}
+    for label, path, allow_nan, require_nodata in (
+        ("nan_outside", tif, True, True),
+        ("all_finite_diagnostic", fin, False, False),
+    ):
+        r = validate_submission(
+            path, allow_nan=allow_nan, valid_mask=valid,
+            require_nodata_outside=require_nodata,
+        )
+        official_format_conformant = bool(
+            r.ok and r.stats.get("outside_nodata_ok", True)
+        )
+        reports[label] = {
+            "ok": r.ok,
+            "official_format_conformant": official_format_conformant,
+            "errors": r.errors,
+            "warnings": r.warnings,
+            "stats": r.stats,
+        }
         print(f"\n[{label}] " + r.render())
         ok &= r.ok
+        if label == "nan_outside":
+            ok &= official_format_conformant
     if not ok:
-        raise SystemExit("VALIDATION FAILED - nothing released")
+        raise SystemExit("OFFICIAL-FORMAT VALIDATION FAILED - nothing released")
 
-    # DrivenData's upload validator has rejected our NaN-outside TIFF with
-    # "Predicted values must be in range [0, 1]". Package the all-finite
-    # (zero outside footprint) variant by default; it still has exact grid
-    # metadata and all pixel values in [0, 1].
+    # The official problem page requires null/NaN outside the data bounds.
+    # Keep zero-fill only as a separate diagnostic; it is not declared
+    # equivalent to NoData and must not silently become the primary artifact.
     with zipfile.ZipFile(OUT / f"{name}.zip", "w", zipfile.ZIP_DEFLATED) as z:
-        z.write(fin, arcname=f"{name}.tif")
+        z.write(tif, arcname=f"{name}.tif")
 
     note = (note_bits + ", binary 0/1"
             + (", catalogue included (masked at scoring)"
-               if not a.no_catalogue else ""))
+               if not a.no_catalogue else "")
+            + "; generated for review only, NOT CLEARED by format/identity checks")
 
     prov_out = {
         "name": name, "generated_utc": stamp, "note_for_submission_form": note,
         "recipe_selection": prov or {"mode": "manual override"},
         "map_stats": stats, "validation": reports,
+        "artifact_status": "REVIEW_ONLY_NOT_CLEARED",
+        "submission_clearance": {
+            "status": "NOT_CLEARED",
+            "reason": "Format validation does not establish a DTI gain. Re-run the current paired direct-DTI multi-rule holdout against the latest local best before considering an upload.",
+            "private_test_claim": False,
+            "upload_allowed": False,
+        },
+        "prediction_identity": identity,
         "metric_facts": {
             "DTI_is_distance_weighted_F2": True,
             "marginal_precision_needed_to_help": "0.2 x current DTI",
@@ -740,16 +821,14 @@ def main() -> None:
     }
     (OUT / f"{name}.json").write_text(json.dumps(prov_out, indent=2))
 
-    # Primary download must be all-finite (0 outside) to pass DrivenData's
-    # "Predicted values must be in range [0, 1]" check which rejects NaN.
-    # NaN-outside variant is kept as latest_nan.tif for reference; the
-    # all-finite twin is score-neutral per forum 11516 and is the safe default.
+    # The official problem page specifies null/NaN outside the data bounds.
+    # Keep that variant primary; zero-fill is diagnostic only because scoring
+    # equivalence and remote acceptance have not been established.
+    shutil.copyfile(OUT / f"{name}.tif", OUT / f"latest.tif")
     shutil.copyfile(OUT / f"{name}.tif", OUT / f"latest_nan.tif")
-    shutil.copyfile(OUT / f"{name}_allfinite.tif", OUT / f"latest.tif")
     shutil.copyfile(OUT / f"{name}_allfinite.tif", OUT / f"latest_allfinite.tif")
-    # zip should contain the finite version (also valid: outside null or nan)
     with zipfile.ZipFile(OUT / f"latest.zip", "w", zipfile.ZIP_DEFLATED) as z:
-        z.write(OUT / f"{name}_allfinite.tif", arcname=f"{name}_allfinite.tif")
+        z.write(OUT / f"{name}.tif", arcname=f"{name}.tif")
     shutil.copyfile(OUT / f"{name}.json", OUT / f"latest.json")
     # also keep original zip for backwards compat
     shutil.copyfile(OUT / f"{name}.zip", OUT / f"latest_nan.zip")

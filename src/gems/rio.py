@@ -1,8 +1,10 @@
-"""Raster I/O plus a strict, submission-blocking validator.
+"""Raster I/O plus strict local checks for the competition GeoTIFF format.
 
-The validator exists because a submission built by an earlier session was
-rejected by DrivenData with `Predicted values must be in range [0, 1]`.
-Nothing leaves this repo as a submission unless `validate_submission` passes.
+A historical remote rejection reported `Predicted values must be in range
+[0, 1]`, but the exact file and cause are not established. This validator
+checks the stated grid, dtype, band count, value range, and (when supplied) the
+valid-footprint NoData convention. It does not reproduce DrivenData's remote
+validator or establish score/performance equivalence.
 """
 from __future__ import annotations
 
@@ -61,7 +63,9 @@ class ValidationReport:
 
 
 def validate_submission(path: str | Path,
-                        allow_nan: bool = True) -> ValidationReport:
+                        allow_nan: bool = True,
+                        valid_mask: np.ndarray | None = None,
+                        require_nodata_outside: bool = False) -> ValidationReport:
     """Check a GeoTIFF against every stated submission requirement.
 
     Official requirements (problem description → Submission format):
@@ -70,8 +74,12 @@ def validate_submission(path: str | Path,
       * same bounds; data outside the bounds null or nan
       * a single float32 band with values between 0 and 1
 
-    `allow_nan=False` additionally requires every in-footprint cell to be
-    finite, which is the safe mode for the DrivenData range validator.
+    `allow_nan=False` requires every stored value to be finite. When a
+    `valid_mask` is supplied, the validator also checks that predictions inside
+    the footprint are finite. `require_nodata_outside=True` requires NaN outside
+    that footprint, following the official submission-format text; finite zero
+    fill can be checked separately as a diagnostic but is not treated as
+    equivalent to NoData.
     """
     errors: list[str] = []
     warnings: list[str] = []
@@ -102,11 +110,45 @@ def validate_submission(path: str | Path,
         a = src.read(1)
 
     finite = np.isfinite(a)
-    n_nan = int(np.isnan(a).sum())
+    nan_mask = np.isnan(a)
+    n_nan = int(nan_mask.sum())
     n_inf = int(np.isinf(a).sum())
     stats["n_finite"] = int(finite.sum())
     stats["n_nan"] = n_nan
     stats["n_inf"] = n_inf
+
+    if valid_mask is not None:
+        valid_mask = np.asarray(valid_mask, dtype=bool)
+        if valid_mask.shape != a.shape:
+            errors.append(
+                f"valid-mask shape must match raster {a.shape}; got {valid_mask.shape}"
+            )
+        else:
+            n_inside = int(valid_mask.sum())
+            n_outside = int(valid_mask.size - n_inside)
+            n_nan_inside = int((nan_mask & valid_mask).sum())
+            n_finite_outside = int((finite & ~valid_mask).sum())
+            n_nan_outside = int((nan_mask & ~valid_mask).sum())
+            stats["n_valid_footprint"] = n_inside
+            stats["n_nan_inside_footprint"] = n_nan_inside
+            stats["n_finite_outside_footprint"] = n_finite_outside
+            stats["n_nan_outside_footprint"] = n_nan_outside
+            stats["outside_nodata_ok"] = (n_finite_outside == 0)
+            if n_nan_inside:
+                errors.append(
+                    f"{n_nan_inside} NaN values inside the valid footprint"
+                )
+            if n_finite_outside:
+                message = (
+                    f"{n_finite_outside} finite values outside the valid footprint; "
+                    "official format requires null/NaN outside bounds"
+                )
+                if require_nodata_outside:
+                    errors.append(message)
+                else:
+                    warnings.append(message + "; zero-fill is diagnostic only")
+            if n_outside == 0:
+                stats["outside_nodata_ok"] = True
 
     if n_inf:
         errors.append(f"{n_inf} infinite values present; must be finite or nan")
@@ -114,9 +156,9 @@ def validate_submission(path: str | Path,
         errors.append(f"{n_nan} NaN values present but allow_nan=False")
     if allow_nan and n_nan:
         warnings.append(
-            f"{n_nan} NaN cells. Official format permits nan OUTSIDE the data "
-            "bounds, but some validators reject nan. An all-finite twin is "
-            "written alongside every submission for exactly this reason.")
+            f"{n_nan} NaN cells. The official format requires null/NaN outside "
+            "the data bounds; verify their location against the supplied footprint "
+            "and record the official form's response before upload.")
 
     if finite.any():
         lo, hi = float(a[finite].min()), float(a[finite].max())
