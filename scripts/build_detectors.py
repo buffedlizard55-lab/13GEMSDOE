@@ -143,6 +143,63 @@ def main() -> None:
          "R6-1 horsetail splay / relay-ramp (full catalogue version for submission): connects step-overs and fans at tips",
          ["existing_faults (catalogue geometry)"])
 
+    # ---- R7-1 cross-gradient structural edge (two physics, one geometry) ---
+    step("R7_crossgrad",
+         lambda: D.cross_gradient_edge(band("iso_grav_anom"), band("rtp")),
+         "R7-1 cross-gradient edge: gravity and RTP-magnetic horizontal "
+         "gradients must be strong AND parallel, at 0/1/3 km continuation",
+         ["iso_grav_anom", "rtp"])
+
+    # ---- R7-2 basement hinge / flexure (second derivative, not step) --------
+    step("R7_hinge_curv",
+         lambda: D.basement_hinge_curvature(band("depth_to_base_surf"),
+                                            band("det_elev_slope")),
+         "R7-2 maximum-curvature (Laplacian) hinge lines of the conductive-base "
+         "surface, flat-ground and anti-topographic gated",
+         ["depth_to_base_surf", "det_elev_slope"])
+
+    # ---- R7-3 seismicity-gated structural lineaments ------------------------
+    # base maps are re-read here so the gate is applied to the *cached* versions
+    def _seis_cross():
+        base = np.load(OUTDIR / "R7_crossgrad.npy")
+        return D.seismicity_gate(base, band("ieq_n100a15"), band("deq_n100a15"))
+    step("R7_seis_cross", _seis_cross,
+         "R7-3 cross-gradient edges gated to active seismic corridors "
+         "(ieq_n100a15 and deq_n100a15)",
+         ["R7_crossgrad", "ieq_n100a15", "deq_n100a15"])
+
+    def _seis_grav():
+        base = np.load(OUTDIR / "R6_gravterm.npy")
+        return D.seismicity_gate(base, band("ieq_n100a15"), band("deq_n100a15"))
+    step("R7_seis_grav", _seis_grav,
+         "R7-3 gravity-gradient termination rays gated to active seismic corridors",
+         ["R6_gravterm", "ieq_n100a15", "deq_n100a15"])
+
+    # ---- R7-4 multi-band edge consensus (N-of-5 within 300 m) ---------------
+    def _consensus(n_min):
+        bs = [band(c) for c in ("rtp", "iso_grav_anom", "cond_surf",
+                                "depth_to_base_surf", "tmi")]
+        return D.edge_consensus(bs, n_min=n_min, corridor_px=3)
+    step("R7_consensus3", lambda: _consensus(3),
+         "R7-4 N-of-5 edge consensus: rtp, gravity, conductivity, "
+         "depth-to-base and TMI must each show an edge within 300 m",
+         ["rtp", "iso_grav_anom", "cond_surf", "depth_to_base_surf", "tmi"])
+    step("R7_consensus4", lambda: _consensus(4),
+         "R7-4 stricter N-of-5 edge consensus (4 of 5)",
+         ["rtp", "iso_grav_anom", "cond_surf", "depth_to_base_surf", "tmi"])
+
+    # ---- R7-5 regional structural grain (full-catalogue submission version) -
+    # WARNING: catalogue-dependent. This is the SUBMISSION version only; the
+    # holdout rebuilds it per fold from the VISIBLE catalogue (run_holdout3.py).
+    def _grain_full():
+        known = np.load(OUTDIR / "_known.npy")
+        return D.structural_grain(band("rtp"), known)
+    step("R7_grain_full", _grain_full,
+         "R7-5 regional structural-grain coherence on RTP where the catalogue "
+         "is silent (FULL-catalogue version -- submission only, do not sweep "
+         "this on the holdout; run_holdout3.py rebuilds it per fold)",
+         ["rtp", "existing_faults (catalogue geometry)"])
+
     # ---- baseline the team has already relied on ---------------------------
     step("BASE_topo_ridge",
          lambda: D.robust_norm(D.nms_thin(

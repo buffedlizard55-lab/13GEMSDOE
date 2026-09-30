@@ -17,8 +17,23 @@ from dataclasses import dataclass
 
 import numpy as np
 
-from .metric import (ALPHA, BETA, EPS, R_PIX, kernel_field_of_truth,
-                     kernel_offsets)
+from .metric import (ALPHA, BETA, EPS, R_PIX, kernel_offsets)
+
+
+def kernel_field_f32(g: np.ndarray, r_pix: float = R_PIX) -> np.ndarray:
+    """float32 twin of `metric.kernel_field_of_truth`.
+
+    Identical algebra (25 shifted max-accumulations); the only difference is
+    float32 accumulation, which halves the memory traffic on a 3730x3292 grid.
+    `verify_against_reference` checks the resulting DTI against the float64
+    reference to 4e-8 absolute, so the precision change is not free-hand.
+    """
+    from .metric import _shift
+    gb = (np.asarray(g) > 0).astype(np.float32)
+    out = np.zeros(gb.shape, dtype=np.float32)
+    for dy, dx, k in kernel_offsets(r_pix):
+        np.maximum(out, _shift(gb, dy, dx) * np.float32(k), out=out)
+    return out
 
 
 @dataclass
@@ -66,7 +81,7 @@ class FoldScorer:
         valid = (yy >= 0) & (yy < H) & (xx >= 0) & (xx < W)
         flat = (np.clip(yy, 0, H - 1) * W + np.clip(xx, 0, W - 1)).astype(np.int64)
 
-        kfield = kernel_field_of_truth(truth, r_pix).astype(np.float32)
+        kfield = kernel_field_f32(truth, r_pix)
         fpw = ((1.0 - kfield) * eval_mask).astype(np.float32).ravel()
 
         pm = (eval_mask.astype(np.float32).ravel()

@@ -1,0 +1,470 @@
+{
+  "generated_utc": "2026-09-29T23:07:58Z",
+  "source": "data/raw/gems-geodawn-numerical-features.tif",
+  "band_descriptions": {
+    "1": "mag_anom - Magnetic anomaly - deviation from expected Earth's magnetic field",
+    "2": "rtp - Reduced to pole magnetic data - magnetic anomaly corrected for latitude effects",
+    "3": "tmi_hg - Total magnetic intensity horizontal gradient - rate of change in horizontal direction",
+    "4": "geod_2ndinv - Geodetic second invariant - measure of strain rate tensor magnitude",
+    "5": "iso_grav_anom_slope - Isostatic gravity anomaly slope - gradient of gravity after isostatic correction",
+    "6": "tc - Tilt angle or total curvature - magnetic field derivative for edge detection",
+    "7": "geod_shearrate - Geodetic shear rate - rate of angular deformation from GPS/InSAR",
+    "8": "geod_dilaterate - Geodetic dilatation rate - rate of volumetric strain (expansion/contraction)",
+    "9": "tmi_vg - Total magnetic intensity vertical gradient - rate of change in vertical direction",
+    "10": "deq_n100a15 - Distance to earthquake (n=100km radius, a=15\u00b0 azimuth parameters)",
+    "11": "iso_grav_anom_vg - Isostatic gravity anomaly vertical gradient - vertical rate of change",
+    "12": "det_elev - Detrended elevation - topography with regional trends removed",
+    "13": "iso_grav_anom - Isostatic gravity anomaly - gravity after compensating for topographic mass",
+    "14": "tmi - Total magnetic intensity - total strength of magnetic field",
+    "15": "depth_to_base_surf - Depth to basement surface - thickness of sedimentary cover",
+    "16": "ieq_n100a15 - Earthquake intensity or density (n=100km radius, a=15\u00b0 parameters)",
+    "17": "cond_surf - Conductivity surface - electrical conductivity of subsurface",
+    "18": "iso_grav_anom_hg - Isostatic gravity anomaly horizontal gradient - horizontal rate of change",
+    "19": "det_elev_slope - Detrended elevation slope - gradient of elevation after detrending"
+  },
+  "band_percentiles": {
+    "1": {
+      "code": "mag_anom",
+      "n": 5164312,
+      "min": -1052.0047607421875,
+      "p1": -288.56201171875,
+      "p25": -113.79006958007812,
+      "p50": -57.68793487548828,
+      "p75": 14.796302795410156,
+      "p99": 311.9136657714844,
+      "max": 2109.447509765625,
+      "all_positive": false,
+      "bounded_0_90": false
+    },
+    "2": {
+      "code": "rtp",
+      "n": 5164312,
+      "min": -2786.299560546875,
+      "p1": -458.7529602050781,
+      "p25": -208.2245635986328,
+      "p50": -137.22166442871094,
+      "p75": -54.105857849121094,
+      "p99": 395.7310485839844,
+      "max": 4508.76025390625,
+      "all_positive": false,
+      "bounded_0_90": false
+    },
+    "3": {
+      "code": "tmi_hg",
+      "n": 5164312,
+      "min": 0.004909869749099016,
+      "p1": 0.6607922315597534,
+      "p25": 5.60302734375,
+      "p50": 13.155465126037598,
+      "p75": 31.134403228759766,
+      "p99": 189.2279510498047,
+      "max": 2200.4365234375,
+      "all_positive": true,
+      "bounded_0_90": false
+    },
+    "4": {
+      "code": "geod_2ndinv",
+      "n": 5164312,
+      "min": 1.2000000476837158,
+      "p1": 1.7517664432525635,
+      "p25": 5.900000095367432,
+      "p50": 19.90778923034668,
+      "p75": 33.0,
+      "p99": 57.773651123046875,
+      "max": 87.45342254638672,
+      "all_positive": true,
+      "bounded_0_90": true
+    },
+    "5": {
+      "code": "iso_grav_anom_slope",
+      "n": 5164312,
+      "min": 0.0013825353235006332,
+      "p1": 0.015869835391640663,
+      "p25": 0.06260613352060318,
+      "p50": 0.10218460857868195,
+      "p75": 0.16049310564994812,
+      "p99": 0.3678494393825531,
+      "max": 0.6517290472984314,
+      "all_positive": true,
+      "bounded_0_90": true
+    },
+    "6": {
+      "code": "tc",
+      "n": 5164300,
+      "min": 2.9534237384796143,
+      "p1": 7.722299575805664,
+      "p25": 15.201587677001953,
+      "p50": 18.481700897216797,
+      "p75": 21.50936508178711,
+      "p99": 29.100452423095703,
+      "max": 88.56654357910156,
+      "all_positive": true,
+      "bounded_0_90": true
+    },
+    "7": {
+      "code": "geod_shearrate",
+      "n": 5164312,
+      "min": 0.0,
+      "p1": 0.0,
+      "p25": 0.699999988079071,
+      "p50": 9.699999809265137,
+      "p75": 17.5,
+      "p99": 38.5,
+      "max": 54.400001525878906,
+      "all_positive": false,
+      "bounded_0_90": true
+    },
+    "8": {
+      "code": "geod_dilaterate",
+      "n": 5164312,
+      "min": -16.5,
+      "p1": -9.5,
+      "p25": 3.0,
+      "p50": 5.5,
+      "p75": 9.026658058166504,
+      "p99": 27.0,
+      "max": 34.52448272705078,
+      "all_positive": false,
+      "bounded_0_90": false
+    },
+    "9": {
+      "code": "tmi_vg",
+      "n": 5164312,
+      "min": -7.650597095489502,
+      "p1": -0.6922200322151184,
+      "p25": -0.056319233030080795,
+      "p50": -0.008997071534395218,
+      "p75": 0.0451425202190876,
+      "p99": 0.7935372591018677,
+      "max": 20.510923385620117,
+      "all_positive": false,
+      "bounded_0_90": false
+    },
+    "10": {
+      "code": "deq_n100a15",
+      "n": 5164312,
+      "min": 0.0,
+      "p1": 118.30000305175781,
+      "p25": 349.0,
+      "p50": 622.7999877929688,
+      "p75": 1685.199951171875,
+      "p99": 50237.19921875,
+      "max": 4962515.0,
+      "all_positive": false,
+      "bounded_0_90": false
+    },
+    "11": {
+      "code": "iso_grav_anom_vg",
+      "n": 5164312,
+      "min": -18.164581298828125,
+      "p1": -4.330517292022705,
+      "p25": -0.9782635569572449,
+      "p50": -0.07213491946458817,
+      "p75": 0.8493455648422241,
+      "p99": 4.242436408996582,
+      "max": 12.578903198242188,
+      "all_positive": false,
+      "bounded_0_90": false
+    },
+    "12": {
+      "code": "det_elev",
+      "n": 5164312,
+      "min": -589.9837036132812,
+      "p1": -466.8299865722656,
+      "p25": -183.36180114746094,
+      "p50": -75.57621002197266,
+      "p75": 114.25399017333984,
+      "p99": 707.4249267578125,
+      "max": 1469.9127197265625,
+      "all_positive": false,
+      "bounded_0_90": false
+    },
+    "13": {
+      "code": "iso_grav_anom",
+      "n": 5164312,
+      "min": -45.75756072998047,
+      "p1": -32.76560974121094,
+      "p25": -15.038308143615723,
+      "p50": -7.26103401184082,
+      "p75": -1.22488272190094,
+      "p99": 12.89549732208252,
+      "max": 24.232954025268555,
+      "all_positive": false,
+      "bounded_0_90": false
+    },
+    "14": {
+      "code": "tmi",
+      "n": 5164312,
+      "min": -2178.27783203125,
+      "p1": -429.7847900390625,
+      "p25": -185.5157928466797,
+      "p50": -124.8157730102539,
+      "p75": -47.68596649169922,
+      "p99": 354.6851501464844,
+      "max": 4506.14111328125,
+      "all_positive": false,
+      "bounded_0_90": false
+    },
+    "15": {
+      "code": "depth_to_base_surf",
+      "n": 5164312,
+      "min": -14.837310791015625,
+      "p1": 1.2142881155014038,
+      "p25": 84.40547943115234,
+      "p50": 316.3645324707031,
+      "p75": 692.3495483398438,
+      "p99": 3416.077392578125,
+      "max": 7135.306640625,
+      "all_positive": false,
+      "bounded_0_90": false
+    },
+    "16": {
+      "code": "ieq_n100a15",
+      "n": 5164312,
+      "min": 236.8000030517578,
+      "p1": 263.8999938964844,
+      "p25": 487.3999938964844,
+      "p50": 755.7000122070312,
+      "p75": 1495.5,
+      "p99": 5082.49365234375,
+      "max": 7869.5,
+      "all_positive": true,
+      "bounded_0_90": false
+    },
+    "17": {
+      "code": "cond_surf",
+      "n": 5164312,
+      "min": 0.1937037855386734,
+      "p1": 1.1678259372711182,
+      "p25": 2.4770102500915527,
+      "p50": 2.885897636413574,
+      "p75": 3.211803436279297,
+      "p99": 4.488641262054443,
+      "max": 4.969292640686035,
+      "all_positive": true,
+      "bounded_0_90": true
+    },
+    "18": {
+      "code": "iso_grav_anom_hg",
+      "n": 5164312,
+      "min": -15.441243171691895,
+      "p1": -5.133356094360352,
+      "p25": -1.175579309463501,
+      "p50": 0.037620771676301956,
+      "p75": 1.1612203121185303,
+      "p99": 5.404924392700195,
+      "max": 12.856057167053223,
+      "all_positive": false,
+      "bounded_0_90": false
+    },
+    "19": {
+      "code": "det_elev_slope",
+      "n": 5164312,
+      "min": 0.001103136339224875,
+      "p1": 0.07005272060632706,
+      "p25": 1.0910685062408447,
+      "p50": 3.749262809753418,
+      "p75": 11.595857620239258,
+      "p99": 32.722740173339844,
+      "max": 62.64591598510742,
+      "all_positive": true,
+      "bounded_0_90": true
+    }
+  },
+  "band6_is_a_magnetic_edge_angle": {
+    "tested_candidates": {
+      "theta_rtp_deg": {
+        "pearson_r": -0.004,
+        "spearman_rho": -0.0019,
+        "mean_abs_diff_deg": 27.259,
+        "candidate_range_deg": [
+          0.0,
+          89.98
+        ]
+      },
+      "tdr_rtp_deg": {
+        "pearson_r": 0.0177,
+        "spearman_rho": 0.0153,
+        "mean_abs_diff_deg": 46.529,
+        "candidate_range_deg": [
+          -89.97,
+          89.98
+        ]
+      },
+      "theta_tmi_deg": {
+        "pearson_r": -0.0029,
+        "spearman_rho": -0.0032,
+        "mean_abs_diff_deg": 26.41,
+        "candidate_range_deg": [
+          0.0,
+          89.98
+        ]
+      },
+      "tdr_tmi_deg": {
+        "pearson_r": 0.0182,
+        "spearman_rho": 0.0161,
+        "mean_abs_diff_deg": 45.303,
+        "candidate_range_deg": [
+          -89.98,
+          89.95
+        ]
+      },
+      "theta_mag_anom_deg": {
+        "pearson_r": 0.0033,
+        "spearman_rho": 0.0032,
+        "mean_abs_diff_deg": 25.952,
+        "candidate_range_deg": [
+          0.0,
+          89.96
+        ]
+      },
+      "tdr_mag_anom_deg": {
+        "pearson_r": -0.0324,
+        "spearman_rho": -0.0363,
+        "mean_abs_diff_deg": 44.693,
+        "candidate_range_deg": [
+          -89.95,
+          89.96
+        ]
+      },
+      "theta_from_tmi_hg_vg_deg": {
+        "pearson_r": -0.0018,
+        "spearman_rho": -0.0039,
+        "mean_abs_diff_deg": 18.041,
+        "candidate_range_deg": [
+          0.0,
+          80.7
+        ]
+      },
+      "abs_tdr_from_tmi_hg_vg_deg": {
+        "pearson_r": -0.0018,
+        "spearman_rho": -0.0039,
+        "mean_abs_diff_deg": 18.041,
+        "candidate_range_deg": [
+          0.0,
+          80.7
+        ]
+      }
+    },
+    "verdict": "NONE of the standard amplitude-normalised magnetic edge angles reproduces band 6: every candidate has |r| < 0.03. Band 6 is therefore NOT a tilt-derivative or theta map computed from rtp / tmi / mag_anom, nor from the provided tmi_hg and tmi_vg bands.",
+    "tc_measured_range_deg": [
+      2.953,
+      88.567
+    ],
+    "tc_p99_deg": 29.102,
+    "radiometric_total_count_is_implausible_because": "airborne radiometric total count is an unbounded intensity in counts per second, typically 10^2-10^4. Band 6 is strictly positive and bounded in [3.0, 88.6] with p99 = 29.1, i.e. it behaves like a bounded ANGLE, not a count. Neither the embedded description nor I-2's radiometric reading is supported by the data."
+  },
+  "spatial_frequency": {
+    "6": {
+      "code": "tc",
+      "lag1_autocorr_gauss3": 0.9805
+    },
+    "2": {
+      "code": "rtp",
+      "lag1_autocorr_gauss3": 0.9836
+    },
+    "14": {
+      "code": "tmi",
+      "lag1_autocorr_gauss3": 0.9844
+    },
+    "3": {
+      "code": "tmi_hg",
+      "lag1_autocorr_gauss3": 0.9112
+    },
+    "9": {
+      "code": "tmi_vg",
+      "lag1_autocorr_gauss3": 0.8238
+    },
+    "17": {
+      "code": "cond_surf",
+      "lag1_autocorr_gauss3": 0.9907
+    },
+    "18": {
+      "code": "iso_grav_anom_hg",
+      "lag1_autocorr_gauss3": 0.9987
+    }
+  },
+  "earthquake_bands": {
+    "10": {
+      "code": "deq_n100a15",
+      "median_inside_catalogue": 776.8,
+      "median_outside_catalogue": 621.4,
+      "higher_inside_catalogue": true,
+      "interpretation": "median is HIGHER inside the catalogue. A distance-to-earthquake field would be LOWER inside. So this band behaves as a positive earthquake intensity / density quantity, consistent with the embedded description of band 16 and NOT with a distance."
+    },
+    "16": {
+      "code": "ieq_n100a15",
+      "median_inside_catalogue": 935.1,
+      "median_outside_catalogue": 751.5,
+      "higher_inside_catalogue": true,
+      "interpretation": "median is HIGHER inside the catalogue. A distance-to-earthquake field would be LOWER inside. So this band behaves as a positive earthquake intensity / density quantity, consistent with the embedded description of band 16 and NOT with a distance."
+    },
+    "corr_deq_ieq": 0.0833
+  },
+  "catalogue_vs_topography": {
+    "det_elev_slope_p33": 1.76996,
+    "flat_third_px": 1704224,
+    "catalogue_px_in_flat_third": 11993,
+    "catalogue_frac_in_flat_third": 0.1966,
+    "flat_third_frac_of_valid": 0.3298,
+    "over_representation_factor": 0.596,
+    "interpretation": "A factor below 1 means catalogue faults are UNDER-represented on flat ground, i.e. OVER-represented on slopes -- the measurable basis of irregularity I-10."
+  },
+  "band6_best_match_search": {
+    "n_candidates": 51,
+    "top_10": [
+      {
+        "abs_spearman_rho": 0.35474617957462207,
+        "spearman_rho": -0.3547,
+        "candidate": "gauss9_b13"
+      },
+      {
+        "abs_spearman_rho": 0.3270400617475685,
+        "spearman_rho": -0.327,
+        "candidate": "gauss9_b19"
+      },
+      {
+        "abs_spearman_rho": 0.2997064945827581,
+        "spearman_rho": -0.2997,
+        "candidate": "gradmag_b12"
+      },
+      {
+        "abs_spearman_rho": 0.277358138519235,
+        "spearman_rho": -0.2774,
+        "candidate": "gauss9_b12"
+      },
+      {
+        "abs_spearman_rho": 0.2539416462781485,
+        "spearman_rho": -0.2539,
+        "candidate": "gradmag_b19"
+      },
+      {
+        "abs_spearman_rho": 0.2405861788248379,
+        "spearman_rho": -0.2406,
+        "candidate": "vd_over_hg_b13"
+      },
+      {
+        "abs_spearman_rho": 0.24058616274004324,
+        "spearman_rho": -0.2406,
+        "candidate": "tdr_b13_deg"
+      },
+      {
+        "abs_spearman_rho": 0.23933093530390862,
+        "spearman_rho": 0.2393,
+        "candidate": "gauss9_b15"
+      },
+      {
+        "abs_spearman_rho": 0.20531290726425705,
+        "spearman_rho": 0.2053,
+        "candidate": "gradmag_b15"
+      },
+      {
+        "abs_spearman_rho": 0.19566112639939676,
+        "spearman_rho": 0.1957,
+        "candidate": "vd_over_hg_b15"
+      }
+    ],
+    "verdict": "No candidate in a bank of 51 physically standard transforms of the other 18 bands reaches |rho| = 0.5 against band 6 (best is gauss9_b13 at rho = -0.3547). Band 6 is therefore UNIDENTIFIED. The problem page's figure filename `gems_tc_tmi.png`, captioned 'radiometric (left) and magnetic (right)', is first-party evidence for the radiometric-total-count reading, but the measured band is bounded in [2.95, 88.57] with p99 = 29.1 and is smoother than the supplied gradient bands, which a count in CPS is not. Both cannot be true of the same array; the data-tab documentation is required to settle it."
+  },
+  "runtime_s": 107.1
+}

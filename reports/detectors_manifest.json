@@ -26,35 +26,35 @@
       "bands": [
         "rtp"
       ],
-      "seconds": 20.1
+      "seconds": 24.5
     },
     "HA_worms_grav": {
       "description": "same worming operator on the isostatic gravity anomaly",
       "bands": [
         "iso_grav_anom"
       ],
-      "seconds": 20.3
+      "seconds": 23.3
     },
     "HB_tdr_rtp": {
       "description": "tilt-derivative zero-contour steepness on RTP magnetics",
       "bands": [
         "rtp"
       ],
-      "seconds": 5.6
+      "seconds": 5.7
     },
     "HB_tdr_grav": {
       "description": "tilt-derivative zero-contour steepness on isostatic gravity",
       "bands": [
         "iso_grav_anom"
       ],
-      "seconds": 5.2
+      "seconds": 6.2
     },
     "HB_theta_rtp": {
       "description": "theta map (acos(THDR/AS)) on RTP magnetics",
       "bands": [
         "rtp"
       ],
-      "seconds": 4.9
+      "seconds": 5.7
     },
     "HC_hinge": {
       "description": "linear steps in depth-to-conductive-base restricted to topographically flat ground (buried structures only)",
@@ -62,7 +62,7 @@
         "depth_to_base_surf",
         "det_elev_slope"
       ],
-      "seconds": 8.5
+      "seconds": 9.5
     },
     "HD_strain_raw": {
       "description": "geodetic 2nd invariant minus earthquake density (fault-density term is added per holdout fold from the VISIBLE catalogue only)",
@@ -70,21 +70,21 @@
         "geod_2ndinv",
         "ieq_n100a15"
       ],
-      "seconds": 8.0
+      "seconds": 9.5
     },
     "HE_lin_tc": {
       "description": "oriented matched-filter lineaments in band `tc` (GeoDAWN radiometric total count - see irregularity I-2)",
       "bands": [
         "tc"
       ],
-      "seconds": 6.2
+      "seconds": 6.8
     },
     "HE_lin_cond": {
       "description": "oriented matched-filter lineaments in surface conductivity",
       "bands": [
         "cond_surf"
       ],
-      "seconds": 6.2
+      "seconds": 6.7
     },
     "R6_shore": {
       "description": "R6-2 paleo-shoreline / lacustrine terrace scarp: curvature ridge on detrended elev gated to flat playa/lake beds",
@@ -92,7 +92,7 @@
         "det_elev",
         "det_elev_slope"
       ],
-      "seconds": 12.2
+      "seconds": 13.5
     },
     "R6_condbase": {
       "description": "R6-3 conductive-base step: product of depth-to-base and cond gradients, oriented-filtered, anti-topo gated",
@@ -101,7 +101,7 @@
         "cond_surf",
         "det_elev_slope"
       ],
-      "seconds": 16.8
+      "seconds": 18.7
     },
     "R6_gravterm": {
       "description": "R6-4 gravity-gradient termination/intersection: where hg ridge terminates, emit continuation",
@@ -110,7 +110,7 @@
         "iso_grav_anom_vg",
         "iso_grav_anom"
       ],
-      "seconds": 112.6
+      "seconds": 146.3
     },
     "R6_transt": {
       "description": "R6-5 transtensional coupling: shear * positive dilatation * 2nd invariant localized by gravity gradient",
@@ -120,29 +120,93 @@
         "geod_2ndinv",
         "iso_grav_anom_hg"
       ],
-      "seconds": 17.9
+      "seconds": 20.1
     },
     "R6_horse_full": {
       "description": "R6-1 horsetail splay / relay-ramp (full catalogue version for submission): connects step-overs and fans at tips",
       "bands": [
         "existing_faults (catalogue geometry)"
       ],
-      "seconds": 6.6
+      "seconds": 9.4
+    },
+    "R7_crossgrad": {
+      "description": "R7-1 cross-gradient edge: gravity and RTP-magnetic horizontal gradients must be strong AND parallel, at 0/1/3 km continuation",
+      "bands": [
+        "iso_grav_anom",
+        "rtp"
+      ],
+      "seconds": 20.9
+    },
+    "R7_hinge_curv": {
+      "description": "R7-2 maximum-curvature (Laplacian) hinge lines of the conductive-base surface, flat-ground and anti-topographic gated",
+      "bands": [
+        "depth_to_base_surf",
+        "det_elev_slope"
+      ],
+      "seconds": 14.6
+    },
+    "R7_seis_cross": {
+      "description": "R7-3 cross-gradient edges gated to active seismic corridors (ieq_n100a15 and deq_n100a15)",
+      "bands": [
+        "R7_crossgrad",
+        "ieq_n100a15",
+        "deq_n100a15"
+      ],
+      "seconds": 9.3
+    },
+    "R7_seis_grav": {
+      "description": "R7-3 gravity-gradient termination rays gated to active seismic corridors",
+      "bands": [
+        "R6_gravterm",
+        "ieq_n100a15",
+        "deq_n100a15"
+      ],
+      "seconds": 9.5
+    },
+    "R7_consensus3": {
+      "description": "R7-4 N-of-5 edge consensus: rtp, gravity, conductivity, depth-to-base and TMI must each show an edge within 300 m",
+      "bands": [
+        "rtp",
+        "iso_grav_anom",
+        "cond_surf",
+        "depth_to_base_surf",
+        "tmi"
+      ],
+      "seconds": 21.9
+    },
+    "R7_consensus4": {
+      "description": "R7-4 stricter N-of-5 edge consensus (4 of 5)",
+      "bands": [
+        "rtp",
+        "iso_grav_anom",
+        "cond_surf",
+        "depth_to_base_surf",
+        "tmi"
+      ],
+      "seconds": 22.2
+    },
+    "R7_grain_full": {
+      "description": "R7-5 regional structural-grain coherence on RTP where the catalogue is silent (FULL-catalogue version -- submission only, do not sweep this on the holdout; run_holdout3.py rebuilds it per fold)",
+      "bands": [
+        "rtp",
+        "existing_faults (catalogue geometry)"
+      ],
+      "seconds": 11.6
     },
     "BASE_topo_ridge": {
       "description": "BASELINE: topographic scarp/ridge detector on detrended-elevation slope - the family this team has already submitted repeatedly",
       "bands": [
         "det_elev_slope"
       ],
-      "seconds": 4.4
+      "seconds": 4.9
     },
     "BASE_tmi_hg": {
       "description": "BASELINE: single-scale horizontal-gradient ridge on the provided TMI horizontal gradient band",
       "bands": [
         "tmi_hg"
       ],
-      "seconds": 4.0
+      "seconds": 4.7
     }
   },
-  "total_seconds": 259.8
+  "total_seconds": 425.5
 }

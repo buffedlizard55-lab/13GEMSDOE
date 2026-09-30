@@ -12,6 +12,7 @@ sweep actually ran.
 """
 from __future__ import annotations
 
+import argparse
 import json
 import sys
 from collections import defaultdict
@@ -27,7 +28,11 @@ REP = ROOT / "reports"
 
 
 def main() -> None:
-    d = json.loads((REP / "holdout_v2.json").read_text())
+    ap = argparse.ArgumentParser(description=__doc__)
+    ap.add_argument("--input", default="holdout_v2.json")
+    ap.add_argument("--output", default="holdout_verdict.json")
+    a = ap.parse_args()
+    d = json.loads((REP / a.input).read_text())
     res = d["results"]
     n_valid = d["grid"]["valid_px"]
     hidden_by_fold = {f["name"]: f["n_hidden"] for f in d["folds"]}
@@ -117,20 +122,26 @@ def main() -> None:
               f"lift={t['mean_lift']:.2f} worst={t['worst_rule_lift']:.2f} "
               f"concealed={lc}  px={t['median_px']:,}")
 
+    # The concealed subset is the honest tie-breaker: catalogue faults are
+    # 1.7x over-represented on slopes (irregularity I-11), so a detector that
+    # only wins on the full withheld set is winning on the catalogue's own bias.
+    n_concealed = sum(1 for r in res if "dti_concealed" in r)
     verdict = {
+        "input": a.input,
         "calibration_of_closed_form_chance": calib,
         "best_honest_candidate": honest[0]["tag"] if honest else None,
         "best_worst_rule_lift": (round(honest[0]["worst_rule_lift"], 4)
                                  if honest else None),
         "any_honest_candidate_beats_chance_by_20pct":
             bool(honest and honest[0]["worst_rule_lift"] >= 1.2),
+        "concealed_subset_rows": n_concealed,
         "leaked_priors_excluded_from_verdict": [
             {"tag": t["tag"], "lift": round(t["mean_lift"], 2),
              "reason": "built using the full catalogue incl. withheld segments"}
             for t in table if t["family"] == "prior_submission"][:3],
         "table": table,
     }
-    (REP / "holdout_verdict.json").write_text(json.dumps(verdict, indent=2))
+    (REP / a.output).write_text(json.dumps(verdict, indent=2))
 
     print("\n=== VERDICT (leaked prior submissions excluded) ===")
     b = honest[0]
@@ -143,7 +154,7 @@ def main() -> None:
     else:
         print(f"  {b['tag']} beats chance by {b['worst_rule_lift']:.2f}x "
               "under EVERY withholding rule.")
-    print(f"  wrote {REP/'holdout_verdict.json'}")
+    print(f"  wrote {REP/a.output}")
 
 
 if __name__ == "__main__":

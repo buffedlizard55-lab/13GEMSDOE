@@ -41,7 +41,15 @@ def fill_nan_nearest(a: np.ndarray) -> np.ndarray:
 
 def robust_norm(a: np.ndarray, mask: np.ndarray | None = None,
                 lo: float = 1.0, hi: float = 99.0) -> np.ndarray:
-    """Percentile-clipped rescale to [0,1]; NaN-safe."""
+    """Percentile-clipped rescale to [0,1]; NaN-safe.
+
+    WARNING (measured, 2026-09-29): on a SPARSE field -- one where more than
+    `hi`% of the grid is exactly zero -- the p1 and p99 quantiles are both 0.0,
+    `p99 <= p1`, and this function silently returns an ALL-ZERO array. That is
+    what happened to `extension_rays` (0.1 % nonzero) and to `HC_hinge` inside
+    `scripts/validate_ranked.py`, which erased the recipe's highest-priority
+    component without any error. Use `robust_norm_nonzero` for sparse fields.
+    """
     a = np.asarray(a, dtype=np.float32)
     sel = np.isfinite(a) if mask is None else (np.isfinite(a) & mask)
     if not sel.any():
@@ -51,6 +59,28 @@ def robust_norm(a: np.ndarray, mask: np.ndarray | None = None,
         return np.zeros_like(a)
     out = (a - p1) / (p99 - p1)
     return np.clip(np.nan_to_num(out, nan=0.0), 0.0, 1.0).astype(np.float32)
+
+
+def robust_norm_nonzero(a: np.ndarray, lo: float = 5.0,
+                        hi: float = 99.0) -> np.ndarray:
+    """Rescale a SPARSE field using only its nonzero values; zeros stay zero.
+
+    `robust_norm` collapses any field that is more than `hi`% zeros, because its
+    p1 and p99 quantiles then coincide at 0.0. This variant computes the
+    percentiles over the nonzero support only, so the support is preserved and
+    only its magnitude is rescaled. NaN-safe; returns zeros if the field is
+    entirely zero or entirely NaN.
+    """
+    a = np.asarray(a, dtype=np.float32)
+    nz = np.isfinite(a) & (a != 0)
+    if not nz.any():
+        return np.zeros_like(a)
+    p1, p99 = np.percentile(a[nz], [lo, hi])
+    if not (p99 > p1):
+        return np.where(nz, 1.0, 0.0).astype(np.float32)
+    out = np.zeros_like(a)
+    out[nz] = np.clip((a[nz] - p1) / (p99 - p1), 0.0, 1.0)
+    return out.astype(np.float32)
 
 
 def _pad_reflect(a: np.ndarray, frac: float = 0.12) -> tuple[np.ndarray, tuple]:
@@ -179,16 +209,29 @@ def decimate_grid(mask: np.ndarray, score: np.ndarray, spacing: int) -> np.ndarr
         return mask
     H, W = mask.shape
     ph, pw = (-H) % spacing, (-W) % spacing
-    sc = np.where(mask, np.asarray(score, dtype=np.float32), -np.inf)
-    sc = np.pad(sc, ((0, ph), (0, pw)), constant_values=-np.inf)
+    sc = np.where(mask, np.asarray(score, dtype=np.float32),
+                  np.float32(-np.inf))
+    if ph or pw:
+        sc = np.pad(sc, ((0, ph), (0, pw)), constant_values=-np.inf)
     bh, bw = sc.shape[0] // spacing, sc.shape[1] // spacing
-    blocks = sc.reshape(bh, spacing, bw, spacing).transpose(0, 2, 1, 3)
-    blocks = blocks.reshape(bh, bw, spacing * spacing)
-    arg = blocks.argmax(axis=2)
-    keep_ok = np.isfinite(blocks.max(axis=2))
-    by, bx = np.nonzero(keep_ok)
-    ys = by * spacing + arg[by, bx] // spacing
-    xs = bx * spacing + arg[by, bx] % spacing
+    # Strided views instead of a materialised (bh, bw, sp*sp) block tensor: on
+    # the 3730x3292 grid the block tensor plus its int64 argmax costs ~350 MB of
+    # transient memory, which is enough to OOM-kill the holdout sweep on a 3 GB
+    # box. The views cost nothing, and the row-major strict-">" comparison
+    # reproduces numpy's argmax first-maximum tie-breaking exactly.
+    best = np.full((bh, bw), -np.inf, dtype=np.float32)
+    idx = np.zeros((bh, bw), dtype=np.int8)
+    for j in range(spacing):
+        for i in range(spacing):
+            v = sc[j::spacing, i::spacing]
+            take = v > best
+            if take.any():
+                best = np.where(take, v, best)
+                idx = np.where(take, np.int8(j * spacing + i), idx)
+    keep = np.isfinite(best)
+    by, bx = np.nonzero(keep)
+    ys = by * spacing + (idx[by, bx].astype(np.int64) // spacing)
+    xs = bx * spacing + (idx[by, bx].astype(np.int64) % spacing)
     out = np.zeros((H + ph, W + pw), dtype=bool)
     out[ys, xs] = True
     return out[:H, :W]
@@ -739,4 +782,275 @@ def transtensional_coupling(shear_rate: np.ndarray, dilate_rate: np.ndarray,
     out = robust_norm(out)
     # oriented lineament on top to make it trace-like
     out = directional_lineaments(out, sigma=1.2, n_theta=12, length=15)
+    return out.astype(np.float32)
+
+
+# ===========================================================================
+# R7 -- five NEW hypotheses (2026-09-29, session 2).
+#
+# Design constraint: every one of them must attack a blind spot that the
+# existing H-A..H-E / R6-1..R6-5 detectors do NOT already attack, and must be
+# checkable against a physical argument rather than a curve fit. All run on the
+# 19 official bands only, so all are validatable on the hide-and-recover
+# holdout today. None of them reads the fault catalogue except where the
+# catalogue is used as an explicit *negative* prior (R7-5), in which case the
+# catalogue term is rebuilt per fold from the VISIBLE catalogue only.
+# ===========================================================================
+
+# ---------------------------------------------------------------------------
+# R7-1 -- Cross-gradient structural edge (two independent physics, one geometry)
+# ---------------------------------------------------------------------------
+def cross_gradient_edge(grav: np.ndarray, mag: np.ndarray,
+                        heights_m=(0, 1000, 3000), sigma: float = 1.2,
+                        min_align: float = 0.55) -> np.ndarray:
+    """Edges where gravity and magnetics have STRONG, PARALLEL horizontal gradients.
+
+    Layers: `iso_grav_anom` (13) + `rtp` (2).
+
+    Physical signature: the *cross-gradient* condition. Gravity measures density
+    and magnetics measures susceptibility -- two independent physical
+    properties. A structure that is real produces a lateral contrast in BOTH,
+    and because a fault contact is a single geometric surface the two horizontal
+    gradient vectors point the same way. Non-structural gradients (survey
+    artefacts, sedimentary texture, cultural noise, remanence) produce edges in
+    one field only, or in both fields pointing different ways. Requiring
+    coincidence between two independent measurements is therefore a *precision*
+    filter that says nothing about surface expression at all.
+
+    Multi-height: evaluated at 0 / 1 / 3 km of upward continuation so the edge
+    must persist, which removes the shallowest, least reliable gradients.
+
+    Why it catches a fault MISSING from the catalogue: a buried fault that
+    offsets magnetic basement produces a susceptibility edge and a density edge
+    with no surface scarp, so it cannot be in a scarp-derived catalogue. It is
+    still an edge in both potential fields.
+
+    How it differs from everything already in this repo: H-A worms each field
+    separately and never compares them; H-B runs TDR on one field at a time;
+    R6-3 requires depth_to_base and cond_surf to agree, which is a different
+    pair and a different condition (product of amplitudes, not alignment of
+    directions). Cross-gradient *directional coincidence* is new here.
+    """
+    acc = np.zeros(grav.shape, dtype=np.float32)
+    wsum = 0.0
+    for h in heights_m:
+        g = upward_continue(grav, h) if h > 0 else fill_nan_nearest(grav)
+        b = upward_continue(mag, h) if h > 0 else fill_nan_nearest(mag)
+        gx, gy = horizontal_gradients(g)
+        bx, by = horizontal_gradients(b)
+        gm = np.hypot(gx, gy) + 1e-12
+        bm = np.hypot(bx, by) + 1e-12
+        cosang = np.clip((gx * bx + gy * by) / (gm * bm), -1.0, 1.0)
+        align = np.clip((cosang - min_align) / (1.0 - min_align), 0.0, 1.0)
+        # both fields must be strong: the MINIMUM is the gate, not the mean
+        both = np.minimum(robust_norm(gm), robust_norm(bm))
+        score = align * both
+        st, ori = ridge_strength(score, sigma=sigma)
+        crest = nms_thin(st, ori)
+        w = 1.0 + h / 3000.0
+        acc += w * robust_norm(crest)
+        wsum += w
+        del g, b, gx, gy, bx, by, gm, bm, cosang, align, both, score, st, ori, crest
+    return (acc / max(wsum, 1e-9)).astype(np.float32)
+
+
+# ---------------------------------------------------------------------------
+# R7-2 -- Basement hinge / flexure line (second derivative, not step)
+# ---------------------------------------------------------------------------
+def basement_hinge_curvature(depth_to_base: np.ndarray,
+                             det_elev_slope: np.ndarray,
+                             sigma: float = 2.0, flat_pct: float = 55.0
+                             ) -> np.ndarray:
+    """MAXIMUM-CURVATURE lines of the conductive-base surface, on flat ground.
+
+    Layers: `depth_to_base_surf` (15), `det_elev_slope` (19).
+
+    Physical signature: the Laplacian (second derivative) of basement depth,
+    ridge-thinned. H-C/R6-3 detect a *step* in basement depth (first-derivative
+    maximum). A listric normal fault, a monocline hinge and a drag-folded
+    margin put their largest signal at the **hinge** -- the locus of maximum
+    curvature, in the middle of the flexure rather than at its edge. Curvature
+    therefore targets a different and, in extensional basins, very common
+    structural style from the step detectors.
+
+    Anti-topographic and flat-ground gates are retained: a hinge with surface
+    relief is already mapped, so the detector is only allowed to fire where a
+    scarp-derived catalogue is structurally blind.
+
+    How it differs from H-C / R6-3: different derivative order (2nd vs 1st), and
+    it deliberately does NOT require a conductivity contrast, so it fires on
+    flexures that are invisible in `cond_surf`.
+    """
+    d = fill_nan_nearest(depth_to_base)
+    lap = ndi.gaussian_laplace(d, sigma=sigma)
+    st, ori = ridge_strength(np.abs(lap), sigma=sigma)
+    crest = nms_thin(st, ori)
+    slope = fill_nan_nearest(det_elev_slope)
+    thr = np.percentile(slope[np.isfinite(slope)], flat_pct)
+    flat = ndi.gaussian_filter((slope <= thr).astype(np.float32), 3.0)
+    topo_st, _ = ridge_strength(slope, sigma=1.5)
+    anti_topo = ndi.gaussian_filter(1.0 - robust_norm(topo_st), 2.0)
+    out = robust_norm(crest) * flat * anti_topo
+    out = directional_lineaments(out, sigma=1.2, n_theta=12, length=15)
+    return out.astype(np.float32)
+
+
+# ---------------------------------------------------------------------------
+# R7-3 -- Seismicity-gated structural lineaments
+# ---------------------------------------------------------------------------
+def seismicity_gate(structural: np.ndarray, eq_intensity: np.ndarray,
+                    eq_distance: np.ndarray | None = None,
+                    smooth: float = 8.0, gate_floor: float = 0.25
+                    ) -> np.ndarray:
+    """Keep only the structural lineaments that sit in an active seismic corridor.
+
+    Layers: any sharp structural map + `ieq_n100a15` (16) and optionally
+    `deq_n100a15` (10).
+
+    Physical signature: a fault that is *currently slipping* must produce
+    earthquakes. The USGS/INGENIOUS compilation is a *Quaternary surface-
+    evidence* database: an active fault with no recognised scarp -- or one that
+    has never been trenched -- is absent from it while still being a fault.
+    Seismicity is an independent observation of exactly the population the
+    catalogue misses, so a lineament inside a seismic corridor is far more
+    likely to be a real active fault than the same lineament in a quiet area.
+
+    Measured on this data (2026-09-29): both `ieq` and `deq` have HIGHER medians
+    inside catalogue pixels than outside (ieq 935 vs 751; deq 777 vs 621), so
+    they behave as positive earthquake-intensity/density quantities rather than
+    distances, and they are near-uncorrelated with each other (r = 0.083). That
+    is what makes them usable as two gates rather than one duplicated signal.
+
+    How it differs from H-D: H-D *subtracts* earthquake density from a strain
+    budget (a deficit argument). This is a positive gate applied to a SHARP
+    detector, and it uses `ieq` as evidence FOR a fault rather than against it.
+    R6-5 uses strain coupling, not seismicity.
+    """
+    s = robust_norm(ndi.gaussian_filter(fill_nan_nearest(structural), 1.0))
+    e = robust_norm(ndi.gaussian_filter(fill_nan_nearest(eq_intensity), smooth))
+    gate = gate_floor + (1.0 - gate_floor) * e
+    if eq_distance is not None:
+        # deq behaves like a distance-like quantity: small values are close
+        d = fill_nan_nearest(eq_distance)
+        dn = 1.0 - robust_norm(ndi.gaussian_filter(d, smooth))
+        gate = gate * (gate_floor + (1.0 - gate_floor) * dn)
+        del d, dn
+    out = s * gate
+    return out.astype(np.float32)
+
+
+# ---------------------------------------------------------------------------
+# R7-4 -- Multi-band edge consensus (N-of-M physical agreement within 300 m)
+# ---------------------------------------------------------------------------
+def edge_consensus(bands: list[np.ndarray], n_min: int = 3,
+                   corridor_px: int = 3, edge_pct: float = 90.0,
+                   sigma: float = 1.0) -> np.ndarray:
+    """Pixels where >= n_min INDEPENDENT physical measurements show an edge nearby.
+
+    Layers (caller-chosen from the 19-band official stack): `rtp` (2),
+    `iso_grav_anom` (13), `cond_surf` (17), `depth_to_base_surf` (15), `tmi` (14).
+
+    Physical signature: an N-of-M vote. A fault juxtaposes rock of different
+    susceptibility, density, conductivity and burial depth at the same place, so
+    it moves FIVE independent physical quantities at once. Survey noise,
+    remanence, cultural signal and sedimentary texture move one or two. The vote
+    is therefore a *joint* detector whose false-positive structure is completely
+    different from any single-band detector's.
+
+    `corridor_px = 3` is deliberate and is not a free parameter: it is the
+    metric's own 300 m tolerance, so two edges count as "the same edge" only
+    within the distance the scorer itself treats as a hit.
+
+    Why it catches a fault missing from the catalogue: it never looks at
+    topography, so nothing about it is correlated with how the catalogue was
+    compiled.
+
+    How it differs from everything in this repo: every existing detector is
+    single-band (H-A, H-B, H-C, R6-2, R6-4..R6-5) or a pair product (R6-3). An
+    N-of-M consensus over five independent measurements, with the tolerance
+    tied to the scorer's own kernel, is new here.
+    """
+    edges = []
+    for a in bands:
+        g = ndi.gaussian_filter(fill_nan_nearest(a), sigma)
+        e = horizontal_gradient_mag(g)
+        en = robust_norm(e)
+        thr = np.percentile(en[np.isfinite(en)], edge_pct)
+        edges.append((en > thr).astype(np.float32))
+        del g, e, en
+    st = ndi.generate_binary_structure(2, 2)
+    votes = np.zeros(bands[0].shape, dtype=np.float32)
+    for m in edges:
+        d = ndi.binary_dilation(m > 0, structure=st,
+                                iterations=corridor_px).astype(np.float32)
+        votes += d
+        del d
+    out = np.where(votes >= n_min, votes / float(len(edges)), 0.0)
+    return out.astype(np.float32)
+
+
+# ---------------------------------------------------------------------------
+# R7-5 -- Regional structural grain where the catalogue is silent
+# ---------------------------------------------------------------------------
+def structural_grain(field: np.ndarray, visible_catalogue: np.ndarray,
+                     sigma: float = 6.0, coherence_pct: float = 60.0,
+                     blind_pct: float = 70.0, thin: bool = True
+                     ) -> np.ndarray:
+    """Coherent km-scale structural grain that the catalogue does not explain.
+
+    Layers: `rtp` (2) [or any potential field] + `existing_faults` geometry.
+    The catalogue term is rebuilt per holdout fold from the VISIBLE catalogue
+    only, so no withheld information can leak.
+
+    Physical signature: the *structure tensor* of the edge-orientation field.
+    A fault SYSTEM imposes one preferred orientation over kilometres; isolated
+    artefacts do not. Tensor coherence (lambda1-lambda2)/(lambda1+lambda2) is
+    high only where the orientation field is locally single-valued.
+
+    Why it catches faults missing from the catalogue: the organizers define
+    "new fault" to include "newly mapped geometry of an existing fault system"
+    -- extensions, splays and PARALLEL STRANDS. A parallel strand is, by
+    construction, at the same orientation as the mapped system and within a few
+    km of it: it is invisible to any single-edge detector (and to a human
+    mapper scanning imagery) yet it IS a coherent extension of the regional
+    grain. Gating on *catalogue silence* rather than on distance to the
+    catalogue is what makes this different from the halo controls.
+
+    How it differs from everything in this repo: H-A/H-B/R6-4 detect edges;
+    R6-1/R6-2 detect specific morphologies. Nothing computes a regional
+    orientation-coherence field, and nothing uses "the catalogue fails to
+    explain the observed grain" as a detection criterion.
+    """
+    f = fill_nan_nearest(field)
+    gx, gy = horizontal_gradients(f)
+    theta = 0.5 * np.arctan2(gy, gx)          # gradient direction
+    c2 = np.cos(2 * theta).astype(np.float32)
+    s2 = np.sin(2 * theta).astype(np.float32)
+    wgt = robust_norm(np.hypot(gx, gy))       # only trust strong edges
+    Jxx = ndi.gaussian_filter(c2 * c2 * wgt, sigma)
+    Jxy = ndi.gaussian_filter(c2 * s2 * wgt, sigma)
+    Jyy = ndi.gaussian_filter(s2 * s2 * wgt, sigma)
+    tr = Jxx + Jyy + 1e-12
+    det = Jxx * Jyy - Jxy * Jxy
+    disc = np.sqrt(np.maximum(0.25 * tr * tr - det, 0.0))
+    lam1 = 0.5 * tr + disc
+    lam2 = 0.5 * tr - disc
+    coherence = np.clip((lam1 - lam2) / tr, 0.0, 1.0).astype(np.float32)
+    ang = 0.5 * np.arctan2(2 * Jxy, Jxx - Jyy).astype(np.float32)
+
+    # catalogue blindness: smoothed VISIBLE-catalogue density, inverted
+    cat = ndi.gaussian_filter(visible_catalogue.astype(np.float32), sigma * 4.0)
+    blind = 1.0 - robust_norm(cat)
+
+    coh = robust_norm(coherence)
+    coh_thr = np.percentile(coh[np.isfinite(coh)], coherence_pct)
+    blind_thr = np.percentile(blind[np.isfinite(blind)], blind_pct)
+    sel = (coh >= coh_thr) & (blind >= blind_thr)
+
+    if thin:
+        st, _ = ridge_strength(coh * blind * sel.astype(np.float32), sigma=1.2)
+        crest = nms_thin(st, ang)
+        out = robust_norm(crest)
+    else:
+        out = coh * blind * sel.astype(np.float32)
     return out.astype(np.float32)

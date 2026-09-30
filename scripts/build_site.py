@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import html
 import json
+import sys
 import time
 from collections import defaultdict
 from pathlib import Path
@@ -16,6 +17,8 @@ from pathlib import Path
 import numpy as np
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "scripts"))
+from chance_baseline import dti_chance          # noqa: E402
 REP = ROOT / "reports"
 DOCS = ROOT / "docs"
 DL = DOCS / "downloads"
@@ -143,8 +146,11 @@ def build_index() -> str:
     n_pass = sum(1 for c in checks.values() if c["pass"])
     lead_best = 0.3168
     chance = load("chance_baseline.json", {})
-    verdict = load("holdout_verdict.json", {})
+    verdict = (load("holdout_verdict_v3.json")
+               or load("holdout_verdict.json", {}))
     comp = load("composite_validation.json", {})
+    sup = load("holdout_supervised.json")
+    band = load("band_audit.json")
 
     # holdout headline
     hold_html = "<p class='small'>Holdout not yet run.</p>"
@@ -257,10 +263,14 @@ def build_index() -> str:
     <div class="panel"><h3 style="margin-top:0">Isolated unmapped systems
       <span class="tag t-bad">nothing works</span></h3>
       <p class="small">Withhold whole fault systems plus a 500 m buffer. Best honest
-      candidate reaches <b>{best_lift}× chance</b>. Every new hypothesis — worms, tilt
-      derivative, basement hinge, radiometric lineaments — lands <i>below</i> chance.
+      candidate reaches <b>{best_lift}× chance</b>. Every hypothesis — worms, tilt
+      derivative, basement hinge, cross-gradient fusion, N-of-5 consensus, and the
+      supervised classifier — lands within a few percent of chance.
       Finding a completely unmapped, isolated fault from geophysics alone is, on this
-      evidence, not something we can currently do.</p></div>
+      evidence, not something we can currently do. The ranking is also <b>inverted</b>
+      on the concealed subset (irregularity I-11): catalogue faults are 1.7×
+      over-represented on slopes, so a detector that wins on the full withheld set is
+      partly winning on the catalogue's own bias.</p></div>
     <div class="panel"><h3 style="margin-top:0">Extensions &amp; corrections
       <span class="tag t-ok">16× chance</span></h3>
       <p class="small">Hide the terminal 20–30% of every mapped segment — the regime the
@@ -391,7 +401,10 @@ def build_exec() -> str:
 def build_evidence() -> str:
     audit = load("metric_audit.json", {})
     fx = load("scored_forensics.json", {})
-    hold = load("holdout_results.json")
+    hold = (load("holdout_v3.json") or load("holdout_results.json"))
+    verdict3 = (load("holdout_verdict_v3.json")
+                or load("holdout_verdict.json", {}))
+    band = load("band_audit.json")
 
     crows = "".join(
         f"<tr><td class='mono'>{e(k)}</td>"
@@ -422,32 +435,77 @@ def build_evidence() -> str:
     hold_block = "<p class='small'>Holdout not yet run.</p>"
     if hold:
         res = hold["results"]
-        fam = defaultdict(lambda: defaultdict(list))
+        n_valid = hold["grid"]["valid_px"]
+        leaked = {"prior_submission"}
+        # One row per (family, configuration). lift is against the closed-form
+        # chance DTI AT THAT ROW'S OWN predicted-pixel count, so a configuration
+        # that predicts more pixels is not flattered by it.
+        per = defaultdict(lambda: {"dti": defaultdict(list),
+                                   "lift": defaultdict(list),
+                                   "px": []})
         for r in res:
             key = r["family"].replace("STAGE2:", "")
-            fam[key][r["rule"]].append(r["dti"])
-        rows = []
-        for f, rules in fam.items():
-            rm = {k: float(np.mean(v)) for k, v in rules.items()}
-            rows.append((max(rm.values()), min(rm.values()), f, rm))
-        rows.sort(reverse=True)
-        allrules = sorted({r for _, _, _, rm in rows for r in rm})
+            tag = r["tag"]
+            g = r.get("n_hidden") or 0
+            c = dti_chance(r["n_pred_px"], g, n_valid) if g else 0.0
+            if c <= 0:
+                continue
+            a = per[(key, tag)]
+            a["dti"][r["rule"]].append(r["dti"])
+            a["lift"][r["rule"]].append(r["dti"] / c)
+            a["px"].append(r["n_pred_px"])
+        # best configuration per family = the one with the best WORST-RULE lift,
+        # which is the same rule reports/holdout_verdict_v3.json applies
+        best_of_family = {}
+        for (fam, tag), a in per.items():
+            rl = {k: float(np.mean(v)) for k, v in a["lift"].items()}
+            w = min(rl.values())
+            cur = best_of_family.get(fam)
+            if cur is None or w > cur[0]:
+                best_of_family[fam] = (w, tag, a, rl)
+        rows = sorted(((v[0], k, v[1], v[2], v[3]) for k, v in
+                       best_of_family.items()), reverse=True)
+        allrules = sorted({r for _, _, _, a, _ in rows for r in a["dti"]})
         head = "".join(f"<th class='num'>{e(r)}</th>" for r in allrules)
         trs = ""
-        for best, worst, f, rm in rows:
-            cells = "".join(
-                f"<td class='num'>{rm[r]:.4f}</td>" if r in rm else "<td class='num'>–</td>"
-                for r in allrules)
-            trs += (f"<tr><td class='mono'>{e(f)}</td>"
-                    f"<td class='num'><b>{worst:.4f}</b></td>{cells}</tr>")
+        for w, fam, tag, a, rl in rows:
+            cells = ""
+            for r in allrules:
+                if r not in a["dti"]:
+                    cells += "<td class='num'>–</td>"
+                else:
+                    cells += (f"<td class='num'>{a['dti'][r][0]:.4f}"
+                              f"<br><span class='small'>{rl[r]:.2f}×</span></td>")
+            badge = ("<span class='tag t-bad'>leaked</span> "
+                     if fam in leaked else "")
+            trs += (f"<tr><td class='mono'>{badge}{e(fam)}<br>"
+                    f"<span class='small'>{e(tag)}</span></td>"
+                    f"<td class='num'><b>{w:.2f}×</b><br>"
+                    f"<span class='small'>{int(np.median(a['px'])):,} px</span>"
+                    f"</td>{cells}</tr>")
         fold_info = ", ".join(
             f"{f['name']} ({f['n_hidden']:,} px)" for f in hold["folds"][:6])
         hold_block = f"""
   <p class="small">{len(hold['folds'])} folds, {hold['grid']['known_fault_px']:,}
   catalogue pixels, 25% of fault mass withheld per fold with a 5-px buffer.
-  Folds include: {e(fold_info)}…</p>
-  <div class="scroll"><table><thead><tr><th>detector family</th>
-  <th class="num">worst rule</th>{head}</tr></thead><tbody>{trs}</tbody></table></div>"""
+  Folds include: {e(fold_info)}… Each cell is the <b>DTI of that family's best
+  configuration</b> — chosen by worst-rule lift, the same rule
+  <code>reports/holdout_verdict_v3.json</code> applies — with its
+  <b>lift over chance</b> beneath it. Chance is the closed-form DTI at that
+  configuration's own predicted-pixel count, so a configuration that predicts
+  more pixels is not flattered by it. <b>A family below 1.00× is doing worse
+  than a random map of the same size.</b> Rows marked <i>leaked</i> are prior
+  submissions that contain the catalogue itself and are excluded from every
+  conclusion.</p>
+  <div class="scroll"><table><thead><tr><th>detector family<br>best config</th>
+  <th class="num">worst-rule lift</th>{head}</tr></thead><tbody>{trs}</tbody></table></div>"""
+    if band:
+        bm = band.get("band6_best_match_search", {})
+        n_cand = bm.get("n_candidates", 0)
+        best_rho = max((abs(x["spearman_rho"])
+                        for x in bm.get("top_10", [])), default=0.0)
+    else:
+        n_cand, best_rho = 0, 0.0
 
     body = f"""
 <section>
@@ -553,10 +611,17 @@ DTI  = 0.6028 → 0.60  ✓</code></pre>
       distinct accounts. The rules require a single entry, cap submissions at three per
       week, and require eligibility certification under penalty of perjury.</p></div>
     <div class="panel"><h3 style="margin-top:0"><span class="tag t-warn">🟠 I-2</span>
-      Band 6 <code>tc</code> is probably radiometric Total Count</h3>
+      Band 6 <code>tc</code> is <b>UNIDENTIFIED</b></h3>
       <p class="small">Its embedded description says “Tilt angle <i>or</i> total
-      curvature”. GeoDAWN is officially a “lidar, magnetic, and radiometric” survey and the
-      problem page figure shows “total radiometric counts per second”.</p></div>
+      curvature”. The problem page's figure is <code>gems_tc_tmi.png</code>, captioned
+      “radiometric (left) and magnetic (right)” — first-party evidence for the
+      radiometric-total-count reading. But the measured band is bounded in
+      [2.95°, 88.57°] with p99 = 29.1°, is smoother than the supplied gradient bands,
+      and matches <b>none</b> of 8 standard magnetic edge angles (all |r| &lt; 0.04) nor
+      any of {n_cand} transforms of the other 18 bands (best |ρ| = {best_rho:.2f}). A
+      count in CPS is not bounded at 88. Both readings cannot be true of the same array;
+      the data-tab documentation is required to settle it.
+      Measured by <code>scripts/audit_bands.py</code>.</p></div>
     <div class="panel"><h3 style="margin-top:0"><span class="tag t-warn">🟡 I-6</span>
       The target moved</h3>
       <p class="small">The brief says 0.3049 is top. As fetched today it is
@@ -576,13 +641,18 @@ def build_hypotheses() -> str:
         note = ('<p class="small">Full write-up with references: '
                 '<a href="https://github.com/buffedlizard55-lab/13GEMSDOE/blob/main/'
                 'knowledge/03_hypotheses.md">knowledge/03_hypotheses.md</a>.</p>')
-    hold = load("holdout_results.json")
     perf = {}
-    if hold:
+    for src in ("holdout_v3.json", "holdout_supervised.json",
+                "holdout_results.json"):
+        hold = load(src)
+        if not hold:
+            continue
         agg = defaultdict(lambda: defaultdict(list))
         for r in hold["results"]:
             agg[r["family"].replace("STAGE2:", "")][r["rule"]].append(r["dti"])
         for f, rules in agg.items():
+            if f in perf:
+                continue
             rm = {k: float(np.mean(v)) for k, v in rules.items()}
             perf[f] = (min(rm.values()), max(rm.values()))
 
@@ -672,6 +742,99 @@ def build_hypotheses() -> str:
          "Transtensional jogs are prime geothermal (high permeability) but subtle/no scarp because extension distributed. Strain smooth needs sharp multiplier.",
          "HD used deficit; this uses product coupling as positive evidence.",
          "Low on random, High on isolated", "Medium"),
+        ("R7-1", "Cross-gradient structural edge (two physics, one geometry)",
+         "R7_crossgrad",
+         "iso_grav_anom (13), rtp (2)",
+         "At 0/1/3 km continuation, require the gravity and magnetic horizontal "
+         "gradients to be strong AND parallel (cosine of included angle), then "
+         "ridge-thin and stack by height.",
+         "Gravity measures density and magnetics susceptibility — two independent "
+         "properties. A real fault contact produces a lateral contrast in BOTH with "
+         "the gradient vectors pointing the same way; artefacts, remanence and "
+         "sedimentary texture produce an edge in one field only. Directional "
+         "coincidence between two independent measurements is a precision filter that "
+         "never looks at topography, so it is blind to how the catalogue was compiled.",
+         "H-A worms each field separately and never compares them; H-B runs TDR on one "
+         "field at a time; R6-3 requires depth_to_base and cond_surf to agree, which is "
+         "a different pair and a different condition (product of amplitudes, not "
+         "alignment of directions).",
+         "Medium", "Low"),
+        ("R7-2", "Basement hinge / flexure line (second derivative, not step)",
+         "R7_hinge_curv",
+         "depth_to_base_surf (15), det_elev_slope (19)",
+         "Laplacian (second derivative) of basement depth, Hessian-ridge thinned, "
+         "gated to flat ground and anti-topographic, then directional coherence.",
+         "A listric normal fault, monocline hinge or drag-folded margin puts its "
+         "largest signal at the HINGE — the maximum-curvature locus, in the middle of "
+         "the flexure rather than at its edge. The flat/anti-topographic gates mean it "
+         "can only fire where a scarp-derived catalogue is structurally blind.",
+         "Different derivative order from H-C and R6-3 (2nd vs 1st), and it "
+         "deliberately does not require a conductivity contrast, so it fires on "
+         "flexures that are invisible in cond_surf.",
+         "Medium", "Low"),
+        ("R7-3", "Seismicity-gated structural lineaments", "R7_seis_cross / R7_seis_grav",
+         "R7_crossgrad or R6_gravterm + ieq_n100a15 (16), deq_n100a15 (10)",
+         "Multiply the sharp structural score by a smoothed earthquake "
+         "intensity/density gate (and by 1 − normalised deq).",
+         "A fault that is currently slipping must produce earthquakes. QFaults is a "
+         "Quaternary surface-evidence database, so an active fault with no recognised "
+         "scarp is absent from it while still being a fault. Seismicity observes "
+         "exactly the population the catalogue misses. Measured: both earthquake bands "
+         "have higher medians inside catalogue pixels than outside, so they are "
+         "density-like, and they are near-uncorrelated with each other (r = 0.083).",
+         "H-D SUBTRACTS earthquake density from a strain budget (a deficit argument). "
+         "This is a positive gate on a SHARP detector, using seismicity as evidence FOR "
+         "a fault. R6-5 uses strain coupling, not seismicity.",
+         "Low-Medium", "Low"),
+        ("R7-4", "Multi-band edge consensus (N-of-5 within 300 m)",
+         "R7_consensus3 / R7_consensus4",
+         "rtp (2), iso_grav_anom (13), cond_surf (17), depth_to_base_surf (15), tmi (14)",
+         "Threshold each band's own gradient magnitude at its 90th percentile, dilate "
+         "each binary edge by 3 px = 300 m, and require N of the five to agree.",
+         "A fault juxtaposes rock of different susceptibility, density, conductivity "
+         "and burial depth at the same place, so it moves FIVE independent physical "
+         "quantities at once; noise moves one or two. 3 px is not a free parameter — it "
+         "is the scorer's own tolerance, so two edges count as the same edge only "
+         "within the distance the metric itself treats as a hit.",
+         "Every existing detector is single-band or a pair product (R6-3). An N-of-M "
+         "consensus over five independent measurements, with the tolerance tied to the "
+         "scorer's kernel, is new.",
+         "Medium", "Low"),
+        ("R7-5", "Regional structural grain where the catalogue is silent",
+         "R7_grain (per fold) / R7_grain_full",
+         "rtp (2) + existing_faults geometry (visible catalogue per fold)",
+         "Structure tensor of the gradient-orientation field; coherence "
+         "(λ1−λ2)/(λ1+λ2); inverted smoothed visible-catalogue density as a blindness "
+         "gate; thin along the principal grain direction.",
+         "A fault SYSTEM imposes one preferred orientation over kilometres. The "
+         "organizers' definition of “new fault” explicitly includes parallel strands "
+         "and newly mapped geometry of an existing system — a parallel strand is at the "
+         "same orientation as the mapped system and within a few km of it, so it is "
+         "invisible to any single-edge detector and to a mapper scanning imagery, yet "
+         "it is a coherent extension of the regional grain.",
+         "Nothing here computes a regional orientation-coherence field, and nothing "
+         "uses “the catalogue fails to explain the observed grain” as a detection "
+         "criterion. Known weakness: with the FULL catalogue the blindness gate leaves "
+         "only 1,748 of 5,167,373 pixels (0.034%), so the submission-side version is "
+         "effectively empty — only the per-fold version is measurable.",
+         "Unknown, probably low", "Medium"),
+        ("H-S", "Supervised logistic classifier on multi-scale band context",
+         "HS_supervised",
+         "all 19 official bands",
+         "L2-regularised logistic regression on 57 features: the band value, its 3×3 "
+         "mean (150 m) and its 9×9 mean (450 m), trained per fold on the VISIBLE "
+         "catalogue only.",
+         "This is the only hypothesis here that LEARNS. Every other detector is a "
+         "hand-written transform; a classifier can weight the 19 bands against each "
+         "other and can pick up combinations no single transform expresses. It is also "
+         "the approach the organizers' own reference solution takes (a U-Net), which "
+         "this repo had never attempted.",
+         "Nothing in this repo was trained on the labels before. The classifier is "
+         "re-trained for every holdout fold from that fold's visible catalogue, so the "
+         "withheld segments are never training labels. Disclosed residual leakage: the "
+         "9×9 context mean of a training pixel can reach 4 px into the 5 px withheld "
+         "buffer.",
+         "Medium", "Medium (first supervised model)"),
     ]
     rows = ""
     for hid, title, det, layers, sig, why, diff, gain, cost in H:
