@@ -10,35 +10,57 @@
   <nav class="site"><a href="index.html" class="on">Submit</a><a href="executive_summary.html" class="">How to submit</a><a href="evidence.html" class="">Evidence</a><a href="hypotheses.html" class="">Hypotheses</a><a href="sources.html" class="">Sources</a></nav>
 </div></header>
 <div class="hero"><div class="wrap">
-  <h1>Current R8 candidate: <span class="tag t-bad">NOT_CLEARED</span></h1>
-  <p class="sub">Do <b>not</b> spend a submission slot on this artifact. A per-fold,
-  visible-catalogue reconstruction of its recipe lost to the topographic baseline in
-  the local confirmation holdout. These are catalogue-recovery proxy results, not
-  private-test performance. The archived map is available only for review.</p>
+  <h1>Submission download — <span class="tag t-info">BEST LOCAL HOLDOUT REFERENCE</span></h1>
+  <p class="sub">This file is the <b>current local holdout reference recipe</b>
+  (<code>topo_05_sp3</code>): the configuration that re-confirmed as the local best in the
+  paired, predeclared R9 validation — no tested variant beat it. It passes the repository's
+  official-format checks (single-band float32; EPSG:32611; 3730×3292; 100 m; finite values in
+  [0,1] inside the survey footprint; null/NaN outside). <b>These are local
+  catalogue-recovery results, not a predicted leaderboard score</b>, and remote acceptance
+  is unverified until the form scores it.</p>
   <div class="dl">
     <div class="row">
-      <a class="btn" href="downloads/13gems-r8-ensemble-20260930T014614Z.tif" download>⬇ Download archived R8 raster — review only, NOT CLEARED</a>
-      <a class="btn ghost" href="downloads/13gems-r8-ensemble-20260930T014614Z.zip" download>⬇ NaN-outside ZIP — review only</a>
+      <a class="btn" href="downloads/13gems-toporef-holdoutref.tif" download>⬇ Download submission GeoTIFF (13gems-toporef-holdoutref.tif)</a>
+      <a class="btn ghost" href="downloads/13gems-toporef-holdoutref.zip" download>⬇ ZIP (same single GeoTIFF)</a>
     </div>
-    <p class="small">The all-finite twin (<a href="downloads/13gems-r8-ensemble-20260930T014614Z_allfinite.tif">diagnostic only</a>)
-    has finite zeros outside the footprint and is not treated as official-format equivalent.</p>
-    <p class="small"><b>Candidate note (provenance only; not an upload recommendation):</b>
-    <code>Exploratory R8 union: 2 km tip rays + horsetail; openness 2%, TPI 1%, flow 2%, isocoherence 0.5%, remanence 0.5%, intersections 1%, topo 3%; 1-per-3-px thinning; binary. Rebuilt local visible-only holdout did not beat BASE_topo_ridge; not submission-cleared.</code></p>
+    <table class="small" style="margin-top:10px">
+      <tr><td><b>File to submit</b></td><td class="mono">13gems-toporef-holdoutref.tif &nbsp;<span class="small">(or the .zip — it contains exactly this one GeoTIFF)</span></td></tr>
+      <tr><td><b>Note (optional)</b></td><td class="mono">BASE_topo_ridge top-5% of valid, decimate_grid 3px (300 m), binary, catalogue included (masked at scoring); local holdout reference recipe, NOT a private-test claim</td></tr>
+    </table>
+    <p class="small">Fallback if the form repeats a range error:
+    <a href="downloads/13gems-toporef-holdoutref_allfinite.tif">13gems-toporef-holdoutref_allfinite.tif</a> — identical predictions,
+    finite 0.0 outside the survey footprint instead of NaN. Record which file the
+    form accepted. See the
+    <a href="executive_summary.html#if-the-form-says-predicted-values-must-be-in-range-01">triage table</a>.</p>
     <div class="meta"><b>Local format:</b> NaN-outside file passes local format checks
-    against the supplied footprint (single-band float32; EPSG:32611; 3730×3292;
-    100 m; finite in-footprint values in [0,1]; null/NaN outside). Remote acceptance
-    remains unverified. No candidate is submission-cleared.</div>
-    <p><a class="btn ghost" href="executive_summary.html">Submission workflow and clearance gate</a>
-    <a href="evidence.html">Metric, forensics, and local holdout details</a></p>
+    against the supplied footprint.</div>
+    <p><a class="btn ghost" href="executive_summary.html">Exactly how to submit (5 steps)</a>
+    <a href="evidence.html">Metric, holdout evidence, and verdicts</a></p>
   </div>
 </div></div>
 <main class="wrap">
 <section>
-  <h2>Current decision: hold submission</h2>
-  <p class="lede">The R8 union increases local recall but adds too much low-precision
-  support: it did not beat the topo baseline in the separate confirmation folds.
-  The comparison is a local known-catalogue hide-and-recover experiment, not an
-  estimate of public or private leaderboard performance.</p>
+  <h2>Current decision: hold the reference; every challenger lost</h2>
+  <p class="lede">Three new geological hypotheses (R9: strike-aligned gap completion,
+  epicentral-alignment lineaments, parallel-offset corrections) were implemented and
+  tested under a predeclared, paired protocol against the reference recipe. All of them
+  lost; the R8 union had already lost the same way. The downloadable artifact therefore
+  remains the reference recipe itself.</p>
+  <div class="scroll"><table><thead><tr><th>R9 candidate (confirmation folds)</th>
+  <th class="num">worst-rule mean DTI</th><th class="num">mean DTI</th>
+  <th class="num">mean weighted precision</th><th class="num">mean weighted recall</th>
+  <th class="num">ΔDTI vs reference</th><th>predeclared verdict</th></tr></thead>
+  <tbody><tr><td><b>BASE_topo_ridge · 5% · spacing 3 (reference)</b></td><td class='num'>0.08687</td><td class='num'>0.09763</td><td class='num'>0.02761</td><td class='num'>0.28743</td><td class='num'>—</td><td>reference (reproduced exactly)</td></tr><tr><td><b>topo05_corr_sp3</b></td><td class='num'>0.08686</td><td class='num'>0.09762</td><td class='num'>0.02761</td><td class='num'>0.28743</td><td class='num'>-0.00001</td><td>LOSES (confirmation rule-means won: 0/6)</td></tr><tr><td><b>topo05_gapS_sp3</b></td><td class='num'>0.08686</td><td class='num'>0.09762</td><td class='num'>0.02761</td><td class='num'>0.28743</td><td class='num'>-0.00001</td><td>LOSES (confirmation rule-means won: 0/6)</td></tr><tr><td><b>topo05_eq15_sp3</b></td><td class='num'>0.08457</td><td class='num'>0.09550</td><td class='num'>0.02640</td><td class='num'>0.29828</td><td class='num'>-0.00213</td><td>LOSES (confirmation rule-means won: 0/6)</td></tr><tr><td><b>topo05_gapL_sp3</b></td><td class='num'>0.06288</td><td class='num'>0.07192</td><td class='num'>0.01782</td><td class='num'>0.32695</td><td class='num'>-0.02571</td><td>LOSES (confirmation rule-means won: 0/6)</td></tr><tr><td><b>topo08_gapL_sp3</b></td><td class='num'>0.05298</td><td class='num'>0.06098</td><td class='num'>0.01425</td><td class='num'>0.37387</td><td class='num'>-0.03665</td><td>LOSES (confirmation rule-means won: 0/6)</td></tr><tr><td><b>topo08_gapL_eq15_sp3</b></td><td class='num'>0.05284</td><td class='num'>0.06085</td><td class='num'>0.01418</td><td class='num'>0.37974</td><td class='num'>-0.03678</td><td>LOSES (confirmation rule-means won: 0/6)</td></tr><tr><td><b>topo08_all_sp3</b></td><td class='num'>0.05284</td><td class='num'>0.06085</td><td class='num'>0.01418</td><td class='num'>0.37974</td><td class='num'>-0.03678</td><td>LOSES (confirmation rule-means won: 0/6)</td></tr></tbody></table></div>
+  <p class="small">Protocol regression check: PASS — the reference row reproduces the archived R8-run per-fold DTI values exactly. Loose gap-fill added
+  ~145,600 px per fold for ΔDTI −0.026 — its marginal weighted precision sat below the
+  metric's own <code>0.2 × DTI</code> inclusion bar (audit A5), measured rather than
+  asserted. Strict gap-close (+32 px) and corrections (+26 px) were near no-ops.
+  Epicentral alignment (+16,590 px) cost −0.002. Full rows:
+  <code>reports/holdout_r9_2026-09-30.json</code>.</p>
+</section>
+
+<section>
+  <h2>The same story from the previous round (R8)</h2>
   <div class="scroll"><table><thead><tr><th>recipe</th><th>worst-rule mean DTI</th>
   <th>mean DTI</th><th>mean weighted precision</th><th>mean weighted recall</th>
   <th>mean effective positive support in eval domain</th></tr></thead>
@@ -68,13 +90,30 @@
   <div class="grid g4">
     <div class="kpi ok"><div class="v">12/12</div><div class="l">metric audit checks passed</div></div>
     <div class="kpi warn"><div class="v">0</div><div class="l">local TIFFs tied to verified per-submission public scores</div></div>
-    <div class="kpi bad"><div class="v">4</div><div class="l">fresh external-data hypotheses screened; none validated</div></div>
+    <div class="kpi bad"><div class="v">3 / 3</div><div class="l">new R9 hypotheses measured on the holdout — all LOSE</div></div>
     <div class="kpi warn"><div class="v">0.3168</div><div class="l">leader&#x27;s account-level best (snapshot 2026-09-30)</div></div>
   </div>
   <p class="small">DTI algebra and the official worked example pass the local audit.
   Historical equal rounded score labels are not evidence of identical maps or a score
   receipt. Exact file, canonical pixel, effective-support, and unmasked-support
   comparisons are recorded separately in <code>reports/scored_forensics.json</code>.</p>
+</section>
+
+<section>
+  <h2>Why the team kept scoring 0.1563 — status of that question</h2>
+  <div class="callout warn">
+    <p><b>Unresolved as a score question, settled as a file question.</b> The two
+    archived files carrying 0.1563 labels (<code>gemsdoe1_ens12</code> and
+    <code>gems8_apex</code>) are <b>different maps</b>: different bytes, different
+    canonical pixels, support IoU 0.067. Equal rounded labels therefore cannot indicate
+    copied work, and the official leaderboard column is an account-level best, not a
+    per-submission receipt. Measured details:
+    <code>reports/scored_forensics.json</code>; irregularity I-3. The productive
+    response is the one taken here: generate structurally different candidates
+    (catalogue-geometry, potential-field, terrain, hydrologic, seismicity, supervised,
+    and now trace-completion families) and gate them on the paired holdout before any
+    upload.</p>
+  </div>
 </section>
 
 <section>
@@ -92,27 +131,30 @@
 </section>
 
 <section>
-  <h2>Four new research directions — not yet viable or validated</h2>
-  <p class="lede">The 2026-09-30 screen ranks event-level ComCat focal-plane coherence,
-  repeated Landsat thermal/moisture residuals, groundwater-head compartments, and
-  cross-depth MT conductor edges. Official-source availability checks are partial;
-  none is implemented or evaluated on the prescribed holdout. These ranks are
-  qualitative research priorities, not DTI forecasts.</p>
+  <h2>Research directions still open</h2>
+  <p class="lede">Three internal-data hypotheses (R9) were implemented and measured this
+  round — all lost (see the table above). Four external-data directions remain ranked
+  for research but are not yet viable because their official data are not staged:
+  event-level ComCat focal-plane coherence, repeated Landsat thermal/moisture residuals,
+  groundwater-head compartments, and cross-depth MT conductor edges. Availability checks
+  are recorded per source.</p>
   <p><a class="btn ghost" href="hypotheses.html">Read the ranked hypothesis review</a>
   <a href="https://github.com/buffedlizard55-lab/13GEMSDOE/blob/main/knowledge/05_hypothesis_screen_2026-09-30.md">Sources, data checks, and prior-art comparisons</a></p>
 </section>
 
 <section>
   <div class="callout bad">
-    <p style="margin:0"><strong>Submission gate:</strong> no current candidate has
-    cleared the latest local holdout. Do not treat format validation, geological
-    rationale, an old chance ratio, or a rounded public score label as clearance.</p>
+    <p style="margin:0"><strong>Submission gate:</strong> the shipped download is the
+    local holdout <i>reference</i> — the best available recipe under the charter gate —
+    not a candidate that beat it. No challenger has cleared the gate this round. Treat
+    any upload of this file as the weekly baseline receipt, and spend the remaining
+    slots only on recipes that first beat it on the paired holdout.</p>
   </div>
 </section></main>
 <footer class="site"><div class="wrap">
   <p><strong>13GEMSDOE</strong> — working repository for the
   <a href="https://www.drivendata.org/competitions/306/competition-doe-gems/">DOE GEMS Prize Challenge</a>.
-  Page generated 2026-09-30 18:51 UTC from <code>reports/*.json</code>.</p>
+  Page generated 2026-09-30 19:51 UTC from <code>reports/*.json</code>.</p>
   <p class="small">Every figure on this site is produced by a script in this
   repository and is reproducible from a clean checkout. Claims that could not be
   verified against an official source are listed as irregularities rather than

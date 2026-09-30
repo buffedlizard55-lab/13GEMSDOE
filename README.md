@@ -11,35 +11,51 @@
 
 ---
 
-## Latest review — 2026-09-30
+## Latest review — 2026-09-30, session 3 (R9)
 
-The checkout started without competition rasters; this session staged the
-team's public-repository mirrors (not verified first-party data), rebuilt the
-detectors, and reran the targeted R8 holdout. The local topo comparator still
-beat R8, so no submission was cleared. The latest code review also found and
-fixed two fail-open edges: serialization
-no longer clips out-of-range probabilities silently, and zero coverage can no
-longer accidentally select the full ranking. Regression tests are in
-[`tests/test_rio.py`](tests/test_rio.py). Full findings, source links, three-pass
-review, and blockers are in
-[`reports/repository_review_2026-09-30.md`](reports/repository_review_2026-09-30.md).
+Three new geological hypotheses were implemented, predeclared, and measured on the
+paired holdout this session — none beat the local best, so the reference recipe was
+shipped as the primary downloadable artifact instead.
+
+* **R9-1 strike-aligned gap completion** (`strike_gap_close`): strict variant is
+  inert (+32 px/fold, exact tie); the loose variant adds ~145,600 px/fold for
+  **ΔDTI −0.0257** — its marginal weighted precision sat below the metric's own
+  `0.2 × DTI` inclusion bar (audit A5), so the loss was predicted by the audited
+  algebra and then measured.
+* **R9-2 epicentral-alignment lineaments** (`eq_lineaments`, bands 16+10):
+  +16,590 px/fold for ΔDTI −0.0021. The first detector whose primary signal is
+  the seismicity fields themselves.
+* **R9-3 parallel-offset "correction" edges** (`parallel_offset_correction`):
+  near no-op (+26 px/fold) — the physics-gated corridor conjunction almost never
+  fires; recorded as a negative result, not evidence about the hidden truth.
+
+All three **LOSE** under the predeclared rule
+([`reports/holdout_r9_2026-09-30.json`](reports/holdout_r9_2026-09-30.json));
+the protocol regression check passed (the reference row reproduces the archived
+per-fold DTI values exactly). No submission slot was spent. The downloadable
+artifact is now **`13gems-toporef-holdoutref.tif`** — the exact `topo_05_sp3`
+reference configuration (BASE_topo_ridge top-5 %, 300 m grid decimation, binary,
+catalogue included), format-validated, duplicate-checked against all eight
+archived historical maps, with the form's name and note printed on the front
+page and a triage table for the historical
+“Predicted values must be in range [0, 1]” rejection
+([irregularity I-8](knowledge/02_irregularities.md)).
 
 The official leaderboard fetched on 2026-09-30 showed DARD 0.3168 (#1) and
 alexoktaba 0.3042 (#2), not the prompt's 0.3049. These are account-level best
-public scores, not receipts for our local TIFFs. Do not upload the current R8
-artifact: it is still **NOT_CLEARED** by the local holdout report.
+public scores, not receipts for our local TIFFs.
 
 ## The 60-second orientation
 
 | Question | Answer | Where |
 |---|---|---|
 | What is the metric, really? | A **distance-weighted F2 score**. `DTI = 1/(0.2/P + 0.8/R)`. Proved, not asserted. | [`reports/metric_audit.json`](reports/metric_audit.json) |
-| Why do historical files carry the same 0.1563 label? | **Unresolved.** The official leaderboard shows account-level best-public scores, not per-submission receipts; no local TIFF is currently linked to a verified public score. Rounded score equality is not map identity. | [Irregularity I‑3](knowledge/02_irregularities.md) |
+| Why do historical files carry the same 0.1563 label? | **Unresolved as a score question; settled as a file question.** The two 0.1563-labelled files are different maps (support IoU 0.067); the leaderboard column is an account-level best, not a per-file receipt. Rounded score equality is not map identity and not evidence of copying. | [Irregularity I‑3](knowledge/02_irregularities.md) · [`reports/scored_forensics.json`](reports/scored_forensics.json) |
 | Can public scores be compared with the local chance baseline? | **No.** Public inference from account-best scores is withdrawn. `dti_chance()` is retained only for an approximate same-run random-control sanity check with known local truth and the eligible fold domain. | [Irregularity I‑9](knowledge/02_irregularities.md) |
-| What should a submission look like? | Use the exact marginal rule `ΔTP_w/(ΔTP_w+ΔFP_w) > 0.2 × DTI` for the same evaluation set; select cutoff, coverage, spacing, and fusion on the holdout rather than from unverified public labels. | [`knowledge/01_verified_facts.md` §2.1](knowledge/01_verified_facts.md) |
-| How do we check an idea before a submission slot? | Use whole-system and segment hide-and-recover folds with buffers, visible-catalogue-only feature construction, an exact known-fault mask, withheld-truth-only DTI, and multiple rules. The low-slope slice is a stress test—not hidden-test ground truth. | [`src/gems/holdout.py`](src/gems/holdout.py) |
-| Is the current downloadable artifact cleared to submit? | **No.** The archived R8 recipe underperformed the local baseline in the visible-only confirmation folds; its download is retained for review, not recommended for an upload. | [`reports/holdout_candidate_r8_2026-09-30.json`](reports/holdout_candidate_r8_2026-09-30.json) |
-| How do I actually submit? | Follow the front-page gate and format checklist; use no slot until the candidate beats the local holdout best under multiple rules. | [Executive summary](docs/executive_summary.html) |
+| What should a submission look like? | Use the exact marginal rule `ΔTP_w/(ΔTP_w+ΔFP_w) > 0.2 × DTI` for the same evaluation set; select cutoff, coverage, spacing, and fusion on the holdout rather than from unverified public labels. R9 measured the rule: mass below the bar loses exactly as the algebra says. | [`knowledge/01_verified_facts.md` §2.1](knowledge/01_verified_facts.md) |
+| How do we check an idea before a submission slot? | Use whole-system and segment hide-and-recover folds with buffers, visible-catalogue-only feature construction, an exact known-fault mask, withheld-truth-only DTI, and multiple rules. The low-slope slice is a stress test—not hidden-test ground truth. | [`src/gems/holdout.py`](src/gems/holdout.py) · [`reports/holdout_r9_2026-09-30.json`](reports/holdout_r9_2026-09-30.json) |
+| Is the current downloadable artifact cleared to submit? | It **is the current local holdout reference** (`topo_05_sp3`) — the best available recipe under the gate — labelled `BEST_LOCAL_REFERENCE_NOT_PRIVATE_TEST_CLAIM`. No challenger (R8 or R9) has beaten it. | [`reports/latest_submission.json`](reports/latest_submission.json) |
+| How do I actually submit? | Download the front-page GeoTIFF, paste the printed name and note into the form, and follow the five steps (including the [0, 1]-error triage path). | [Executive summary](docs/executive_summary.html) |
 
 ---
 
@@ -95,6 +111,8 @@ scripts/
   run_holdout.py          the v1 sweep
   run_holdout2.py         the v2 sweep (concealed subset, grid decimation)
   run_holdout3.py         the v3 sweep: R7 detectors + per-fold catalogue rebuild
+  validate_ensemble_holdout.py  R8 recipe vs baseline (visible-only, paired)
+  validate_r9_holdout.py  paired predeclared validation of the R9 hypotheses
   summarize_holdout.py    direct-DTI ranking; local random-control sanity check only
   validate_composite.py   two-regime validation of the shipped hedge
   make_submission.py      build + identity-check + format-validate; never grants score clearance
@@ -153,16 +171,17 @@ under this protocol only; they do not predict the undisclosed target. The archiv
 full-catalogue raster is not itself holdout-scored because that would leak its
 catalogue-derived tip/horsetail geometry.
 
-**Submission decision:** the R8 artifact is **not cleared for an upload**. Its
-NaN-outside GeoTIFF passes local grid, CRS, affine transform, dtype, band-count,
-range, and footprint-NoData checks against the supplied mask. The zero-filled
-all-finite twin passes local range checks but has finite values outside the
-footprint, so it is **not treated as official-format equivalent**. The prior
-remote “range” rejection remains unexplained; server acceptance is unverified.
-No submission slot was used, and no new prediction artifact was generated in
-this review. Historical file notes/scores are not public score receipts. The
-official account-level leaderboard snapshot is DARD 0.3168 / alexoktaba 0.3042
-as of 2026-09-30; neither value is tied to a local TIFF.
+**Submission decision (2026-09-30, session 3):** the primary downloadable artifact is
+`13gems-toporef-holdoutref` — the reference recipe itself (`BASE_topo_ridge` top-5 %,
+`decimate_grid` spacing 3, binary, catalogue included). It is labelled
+`BEST_LOCAL_REFERENCE_NOT_PRIVATE_TEST_CLAIM`: local proxy evidence only, remote
+acceptance unverified. Its NaN-outside GeoTIFF passes local grid, CRS, affine
+transform, dtype, band-count, range, and footprint-NoData checks, and its
+platform-check simulation documents how masked vs naive raw readers see the file.
+The archived R8 artifact remains on disk as a demoted, NOT_CLEARED comparator.
+Historical file notes/scores are not public score receipts. The official
+account-level leaderboard snapshot is DARD 0.3168 / alexoktaba 0.3042 as of
+2026-09-30; neither value is tied to a local TIFF.
 
 ---
 
@@ -196,13 +215,18 @@ text requires; an all-finite zero-fill twin is diagnostic only and is **not** tr
 as format-equivalent. Local checks do not prove remote acceptance. The historical
 server-side range rejection remains unexplained.
 
-**A unique, format-valid GeoTIFF is not a cleared candidate.** Every artifact built
-by the script is marked `NOT_CLEARED` until it beats the current best under paired
-direct-DTI multi-rule confirmation. Check `submission_clearance` and the latest
-visible-only holdout report before using a submission slot. At this review, the R8
-recipe is `NOT_CLEARED`; the legacy `--recipe best` selector reads
-`reports/holdout_results.json` and is not automatically updated by
-`validate_ensemble_holdout.py`.
+**A unique, format-valid GeoTIFF is not automatically a *beating* candidate.** Every
+artifact built by the script carries an explicit clearance field. The current
+`--recipe topo_ref` artifact is the holdout reference itself and is labelled
+`BEST_LOCAL_REFERENCE_NOT_PRIVATE_TEST_CLAIM`; anything built from an untested recipe
+is marked `NOT_CLEARED` until it beats the reference under paired direct-DTI
+multi-rule confirmation. Check `submission_clearance` and the latest holdout report
+before using a submission slot. The writer rejects invalid predictions before opening
+an output file; it does not clip bad values or silently turn in-footprint NaNs into
+zeros. The primary GeoTIFF and ZIP use NaN outside the footprint, as the official
+format text requires and as the official sample's own structure uses; an all-finite
+zero-fill twin is shipped as the documented fallback if the form repeats its historical
+range error (see the executive summary's triage table).
 
 ---
 

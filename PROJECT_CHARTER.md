@@ -22,6 +22,13 @@ verified against a local GeoTIFF; historical 0.1563 labels remain
 unattributed. See [`reports/leaderboard_snapshot_2026-09-30.json`](reports/leaderboard_snapshot_2026-09-30.json)
 and irregularities I-3/I-9.
 
+**Session-3 state (2026-09-30).** Three new R9 hypotheses (gap completion,
+epicentral alignment, parallel-offset corrections) were implemented and
+measured on the paired holdout — all LOST; the reference recipe `topo_05_sp3`
+stands and is shipped as the primary downloadable artifact
+(`13gems-toporef-holdoutref`), labelled BEST_LOCAL_REFERENCE_NOT_PRIVATE_TEST_CLAIM.
+Report: [`reports/holdout_r9_2026-09-30.json`](reports/holdout_r9_2026-09-30.json).
+
 ## 2. The product
 
 A system that **removes manual checking** and keeps an **up-to-date feed**:

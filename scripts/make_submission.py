@@ -657,11 +657,82 @@ def build(detector: str, coverage: float, spacing: int,
     return pred, valid, stats
 
 
+def build_topo_ref(coverage: float = 0.05, spacing: int = 3,
+                   include_catalogue: bool = True
+                   ) -> tuple[np.ndarray, np.ndarray, dict]:
+    """Build the CURRENT LOCAL HOLDOUT REFERENCE recipe on the full grid.
+
+    This is the exact `topo_05_sp3` configuration that the paired R9
+    validation (reports/holdout_r9_2026-09-30.json) re-confirmed as the local
+    best under the predeclared worst-rule rule, and that the R8 comparison
+    (reports/holdout_candidate_r8_2026-09-30.json) used as its comparator:
+
+      * BASE_topo_ridge score (input-derived: detrended-elevation slope ridge,
+        cached in data/derived; contains no catalogue information),
+      * top `coverage` of the valid footprint, selected only on
+        valid & ~known & finite pixels (known pixels are masked at scoring),
+      * `gems.detectors.decimate_grid` at `spacing` px -- the same decimation
+        operator used in the holdout (NOT decimate_along_strike),
+      * binary output, because DTI(c*p) strictly increases in c (audit A6).
+
+    Selection-domain note: the holdout selects each fold's top-k inside that
+    fold's eval_mask; the full-grid artifact selects on the whole valid
+    footprint with known pixels excluded. This is the submission-side
+    analogue, not a claim of per-fold identity.
+    """
+    if not np.isfinite(coverage) or not 0.0 < coverage <= 1.0:
+        raise ValueError(f"coverage must be in (0, 1]; got {coverage}")
+    if spacing < 1:
+        raise ValueError(f"spacing must be a positive integer; got {spacing}")
+
+    valid = np.load(DER / "_valid.npy").astype(bool)
+    known = np.load(DER / "_known.npy").astype(bool)
+    if valid.shape != EXPECTED_SHAPE or known.shape != EXPECTED_SHAPE:
+        raise ValueError("cached valid/known masks do not match the official grid")
+    n_valid = int(valid.sum())
+
+    score = np.load(DER / "BASE_topo_ridge.npy")
+    if score.shape != EXPECTED_SHAPE:
+        raise ValueError(f"BASE_topo_ridge has wrong shape: {score.shape}")
+    allowed = valid & ~known & np.isfinite(score)
+    n = int(coverage * n_valid)
+    flat = np.where(allowed, score, -np.inf).ravel()
+    if n <= 0 or not np.isfinite(flat).any():
+        raise ValueError("no eligible pixels for topo_ref")
+    idx = np.argpartition(flat, -n)[-n:]
+    mask = np.zeros(flat.size, dtype=bool)
+    mask[idx] = True
+    mask = mask.reshape(score.shape)
+    n_before = int(mask.sum())
+    if spacing > 1:
+        mask = D.decimate_grid(mask, score, spacing)
+
+    pred = mask.astype(np.float32)
+    if include_catalogue:
+        # Score-neutral per forum 11516 post 2 ("it should not matter whether
+        # these known faults are included with predictions or not"); retained
+        # so Phase-2 expert reviewers see complete fault systems in context.
+        pred = np.maximum(pred, known.astype(np.float32))
+
+    stats = {
+        "recipe": "topo_ref",
+        "detector": "BASE_topo_ridge", "coverage_target": coverage,
+        "line_spacing_px": spacing, "decimation": "decimate_grid",
+        "include_known_catalogue": include_catalogue,
+        "n_selected_before_decimation": n_before,
+        "n_new_prediction_px": int(mask.sum()),
+        "n_predicted_px": int((pred > 0).sum()),
+        "pct_of_valid": round(100.0 * float((pred > 0).sum()) / n_valid, 4),
+        "max_value": float(pred.max()), "min_value": float(pred.min()),
+    }
+    return pred, valid, stats
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--recipe", default="composite",
                     choices=["composite", "composite_plus", "best", "r6", "r8",
-                             "ranked"])
+                             "ranked", "topo_ref"])
     ap.add_argument("--budget", type=float, default=0.06,
                     help="ranked recipe: fraction of the valid footprint to "
                          "predict, before global decimation")
@@ -683,7 +754,43 @@ def main() -> None:
         ap.error("--budget must be in [0, 1]")
 
     prov: dict = {}
-    if a.detector:
+    clearance_override: dict | None = None
+    if a.recipe == "topo_ref":
+        cov = 0.05 if a.coverage is None else a.coverage
+        if not np.isfinite(cov) or not 0.0 < cov <= 1.0:
+            ap.error("--coverage must be in (0, 1]")
+        sp = a.spacing or 3
+        print(f"recipe: topo_ref coverage={cov} spacing={sp} (decimate_grid)")
+        pred, valid, stats = build_topo_ref(coverage=cov, spacing=sp,
+                                            include_catalogue=not a.no_catalogue)
+        det = "topo-ref"
+        note_bits = (f"BASE_topo_ridge top-{cov*100:g}% of valid, decimate_grid "
+                     f"{sp}px (300 m), binary, catalogue included (masked at "
+                     f"scoring)")
+        prov = {
+            "selected_by": ("re-confirmed local best under the predeclared "
+                            "paired worst-rule decision rule; see "
+                            "reports/holdout_r9_2026-09-30.json (protocol "
+                            "regression check PASS) and "
+                            "reports/holdout_candidate_r8_2026-09-30.json"),
+            "detectors": ["BASE_topo_ridge"],
+            "objective": ("ship the exact local holdout reference configuration "
+                          "as the primary review artifact; no hidden-test "
+                          "performance claim"),
+        }
+        clearance_override = {
+            "status": "BEST_LOCAL_REFERENCE_NOT_PRIVATE_TEST_CLAIM",
+            "reason": ("This artifact implements topo_05_sp3, the current local "
+                       "holdout best (confirmation worst-rule mean DTI 0.08687, "
+                       "mean 0.09763). That is a catalogue hide-and-recover "
+                       "proxy, NOT a private-test estimate; remote acceptance "
+                       "is unverified. No R9 variant beat it, so it remains the "
+                       "best available candidate under the charter gate."),
+            "holdout_report": "reports/holdout_r9_2026-09-30.json",
+            "private_test_claim": False,
+            "upload_allowed": True,
+        }
+    elif a.detector:
         cov = 0.05 if a.coverage is None else a.coverage
         if not np.isfinite(cov) or not 0.0 < cov <= 1.0:
             ap.error("--coverage must be in (0, 1]")
@@ -823,17 +930,22 @@ def main() -> None:
     with zipfile.ZipFile(OUT / f"{name}.zip", "w", zipfile.ZIP_DEFLATED) as z:
         z.write(tif, arcname=f"{name}.tif")
 
-    note = (note_bits + ", binary 0/1"
-            + (", catalogue included (masked at scoring)"
-               if not a.no_catalogue else "")
-            + "; generated for review only, NOT CLEARED by format/identity checks")
+    note = (note_bits
+            + ("" if clearance_override else
+               (", binary 0/1"
+                + (", catalogue included (masked at scoring)"
+                   if not a.no_catalogue else "")))
+            + ("; local holdout reference recipe, NOT a private-test claim"
+               if clearance_override else
+               "; generated for review only, NOT CLEARED by format/identity checks"))
 
     prov_out = {
         "name": name, "generated_utc": stamp, "note_for_submission_form": note,
         "recipe_selection": prov or {"mode": "manual override"},
         "map_stats": stats, "validation": reports,
-        "artifact_status": "REVIEW_ONLY_NOT_CLEARED",
-        "submission_clearance": {
+        "artifact_status": ("BEST_LOCAL_REFERENCE_LOCAL_PROXY_ONLY"
+                            if clearance_override else "REVIEW_ONLY_NOT_CLEARED"),
+        "submission_clearance": clearance_override or {
             "status": "NOT_CLEARED",
             "reason": "Format validation does not establish a DTI gain. Re-run the current paired direct-DTI multi-rule holdout against the latest local best before considering an upload.",
             "private_test_claim": False,
@@ -848,6 +960,39 @@ def main() -> None:
         "official_format_source":
             "https://www.drivendata.org/competitions/306/competition-doe-gems/page/967/",
     }
+    (OUT / f"{name}.json").write_text(json.dumps(prov_out, indent=2))
+
+    # --- simulated platform checks (diagnostic for the historical remote
+    # "Predicted values must be in range [0, 1]" rejection; NOT proof of
+    # remote acceptance) -----------------------------------------------
+    import rasterio as _rio
+    with _rio.open(tif) as src:
+        raw = src.read(1)
+        masked = src.read(1, masked=True)
+        nodata_tag = None if src.nodata is None else str(src.nodata)
+    sim = {
+        "nan_outside_variant": {
+            "nodata_tag": nodata_tag,
+            "n_nan_raw": int(np.isnan(raw).sum()),
+            "n_nan_inside_footprint": int((np.isnan(raw) & valid).sum()),
+            "raw_all_in_[0,1]_naive": bool(np.all((raw >= 0) & (raw <= 1))),
+            "raw_finite_minmax": [float(np.nanmin(raw)), float(np.nanmax(raw))],
+            "masked_min": float(masked.min()) if masked.count() else None,
+            "masked_max": float(masked.max()) if masked.count() else None,
+            "note": ("a validator that reads the raw array WITHOUT honouring "
+                     "the NoData tag and tests all(v>=0 & v<=1) will reject ANY "
+                     "NaN-outside file, including the official sample "
+                     "submission's structure; a masked read passes. If the "
+                     "form repeats the range error on this file, upload "
+                     f"{name}_allfinite.tif next and record both responses."),
+        },
+        "all_finite_variant": {
+            "n_nan_raw": 0,
+            "raw_all_in_[0,1]_naive": True,
+            "note": "passes a naive raw range check; outside-footprint cells are 0.0",
+        },
+    }
+    prov_out["platform_check_simulation"] = sim
     (OUT / f"{name}.json").write_text(json.dumps(prov_out, indent=2))
 
     # The official problem page specifies null/NaN outside the data bounds.

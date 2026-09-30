@@ -105,6 +105,29 @@ DTI  = 0.6028 → 0.60  ✓</code></pre>
 </section>
 
 <section>
+  <h2>3b · R9 paired validation — three new hypotheses, one predeclared verdict each</h2>
+  <p class="lede">Same folds, same buffer, same scorer, same tune/confirm split as the
+  R8 comparison. The reference is re-scored in the same run, so every delta is paired.
+  H9 = strike-aligned gap completion; H10 = epicentral-alignment lineaments;
+  H11 = parallel-offset correction edges.</p>
+  
+  <p class="small"><b>R9 protocol regression check:</b>
+  PASS — the reference row reproduces the archived per-fold DTI values exactly (18 folds compared).
+  Predeclared decision rule and all 144 scored rows:
+  <code>reports/holdout_r9_2026-09-30.json</code>.</p>
+  <div class="scroll"><table><thead><tr><th>R9 candidate</th>
+  <th class="num">worst-rule mean DTI</th><th class="num">mean DTI</th>
+  <th class="num">ΔDTI vs ref</th><th class="num">W/T/L</th><th>verdict</th>
+  <th class='num'>random</th><th class='num'>short</th><th class='num'>isolated</th><th class='num'>oriented</th><th class='num'>dense</th><th class='num'>segment_random</th></tr></thead><tbody><tr><td>BASE_topo_ridge · 5% · sp3 — REFERENCE</td><td class='num'>0.0869</td><td class='num'>0.0976</td><td class='num'>—</td><td class='num'>—</td><td>reference</td><td class='num'>0.0916</td><td class='num'>0.0876</td><td class='num'>0.0909</td><td class='num'>0.1271</td><td class='num'>0.1018</td><td class='num'>0.0869</td></tr><tr><td>H9 strict gap-close (min_side 2)</td><td class='num'>0.0869</td><td class='num'>0.0976</td><td class='num'>-0.00001</td><td class='num'>0/0/12</td><td>LOSES (confirmation rule-means won: 0/6)</td><td class='num'>0.0916</td><td class='num'>0.0876</td><td class='num'>0.0909</td><td class='num'>0.1270</td><td class='num'>0.1017</td><td class='num'>0.0869</td></tr><tr><td>H11 parallel-offset corrections</td><td class='num'>0.0869</td><td class='num'>0.0976</td><td class='num'>-0.00001</td><td class='num'>0/0/12</td><td>LOSES (confirmation rule-means won: 0/6)</td><td class='num'>0.0916</td><td class='num'>0.0876</td><td class='num'>0.0909</td><td class='num'>0.1271</td><td class='num'>0.1017</td><td class='num'>0.0869</td></tr><tr><td>H10 epicentral alignment (1.5%)</td><td class='num'>0.0846</td><td class='num'>0.0955</td><td class='num'>-0.00213</td><td class='num'>0/0/12</td><td>LOSES (confirmation rule-means won: 0/6)</td><td class='num'>0.0891</td><td class='num'>0.0869</td><td class='num'>0.0890</td><td class='num'>0.1247</td><td class='num'>0.0987</td><td class='num'>0.0846</td></tr><tr><td>H9 loose gap-close (min_side 1)</td><td class='num'>0.0629</td><td class='num'>0.0719</td><td class='num'>-0.02571</td><td class='num'>0/0/12</td><td>LOSES (confirmation rule-means won: 0/6)</td><td class='num'>0.0659</td><td class='num'>0.0634</td><td class='num'>0.0655</td><td class='num'>0.0988</td><td class='num'>0.0750</td><td class='num'>0.0629</td></tr><tr><td>topo 8% + loose gap-close</td><td class='num'>0.0530</td><td class='num'>0.0610</td><td class='num'>-0.03665</td><td class='num'>0/0/12</td><td>LOSES (confirmation rule-means won: 0/6)</td><td class='num'>0.0540</td><td class='num'>0.0546</td><td class='num'>0.0542</td><td class='num'>0.0848</td><td class='num'>0.0652</td><td class='num'>0.0530</td></tr><tr><td>topo 8% + loose gaps + epicentral</td><td class='num'>0.0528</td><td class='num'>0.0609</td><td class='num'>-0.03678</td><td class='num'>0/0/12</td><td>LOSES (confirmation rule-means won: 0/6)</td><td class='num'>0.0539</td><td class='num'>0.0545</td><td class='num'>0.0541</td><td class='num'>0.0848</td><td class='num'>0.0649</td><td class='num'>0.0528</td></tr><tr><td>topo 8% + loose gaps + epicentral + corrections</td><td class='num'>0.0528</td><td class='num'>0.0608</td><td class='num'>-0.03678</td><td class='num'>0/0/12</td><td>LOSES (confirmation rule-means won: 0/6)</td><td class='num'>0.0539</td><td class='num'>0.0545</td><td class='num'>0.0541</td><td class='num'>0.0848</td><td class='num'>0.0649</td><td class='num'>0.0528</td></tr></tbody></table></div>
+  <p class="small"><b>Metric reading (audit A5):</b> the loose gap-fill added a mean of
+  145,608 evaluation pixels per fold and lost 0.0257 mean DTI — its marginal weighted
+  precision was below the <code>0.2 × DTI</code> inclusion bar, so the metric itself
+  predicted the loss. The strict gap-close (+32 px) and the corrections detector
+  (+26 px) changed nothing measurably; the epicentral alignment (+16,590 px) cost
+  −0.0021. None is fragile-or-better: all LOSE under the predeclared rule.</p>
+</section>
+
+<section>
   <h2>4 · Verified organizer statements</h2>
   <div class="panel">
     <p><b>chrisk-dd (DrivenData Staff), Sep 21 —</b>
@@ -167,7 +190,7 @@ DTI  = 0.6028 → 0.60  ✓</code></pre>
 <footer class="site"><div class="wrap">
   <p><strong>13GEMSDOE</strong> — working repository for the
   <a href="https://www.drivendata.org/competitions/306/competition-doe-gems/">DOE GEMS Prize Challenge</a>.
-  Page generated 2026-09-30 18:51 UTC from <code>reports/*.json</code>.</p>
+  Page generated 2026-09-30 19:51 UTC from <code>reports/*.json</code>.</p>
   <p class="small">Every figure on this site is produced by a script in this
   repository and is reproducible from a clean checkout. Claims that could not be
   verified against an official source are listed as irregularities rather than
