@@ -14,13 +14,12 @@
 <section>
   <h2>Submission workflow — the five steps, in order</h2>
   <div class="callout">
-    <p style="margin:0"><b>Current artifact: <code>13gems-toporef-holdoutref.tif</code></b> —
-    status <b>BEST_LOCAL_REFERENCE_NOT_PRIVATE_TEST_CLAIM</b>. It implements the local holdout reference recipe
-    (the best available under the charter gate; a catalogue hide-and-recover proxy,
-    not a predicted leaderboard score). This artifact implements topo_05_sp3, the current local holdout best (confirmation worst-rule mean DTI 0.08687, mean 0.09763). That is a catalogue hide-and-recover proxy, NOT a private-test estimate; remote acceptance is unverified. No R9 variant beat it, so it remains the best available candidate under the charter gate.
+    <p style="margin:0"><b>Current artifact: <code>13gems-r11-greedy-mp.tif</code></b> —
+    status <b>CLEARED_LOCAL_HOLDOUT_WIN_NOT_PRIVATE_TEST_CLAIM</b> (a catalogue hide-and-recover proxy result, not a
+    predicted leaderboard score). greedy_r11 beat the in-run topo_05_sp3 reference on tune and confirmation worst-rule-mean DTI, won 6/6 confirmation rule means and 18/18 paired folds; gain exceeds 10x rebuild drift (I-15). Catalogue hide-and-recover proxy only.
     Download it from the <a href="index.html">front page</a> or directly
-    <a href="downloads/13gems-toporef-holdoutref.tif">here</a>. Full comparison:
-    <a href="https://github.com/buffedlizard55-lab/13GEMSDOE/blob/main/reports/holdout_r10_2026-09-30.json">R10 holdout report</a> (R9:
+    <a href="downloads/13gems-r11-greedy-mp.tif">here</a>. Full comparison:
+    <a href="https://github.com/buffedlizard55-lab/13GEMSDOE/blob/main/reports/holdout_r11_2026-09-30.json">R11 holdout report</a> (R9:
     <a href="https://github.com/buffedlizard55-lab/13GEMSDOE/blob/main/reports/holdout_r9_2026-09-30.json">here</a>).</p>
   </div>
   <ol class="steps">
@@ -60,10 +59,10 @@
       click <b>Submit file</b> and fill the form exactly like this:</p>
       <table class="small">
         <tr><td><b>File to submit</b></td>
-            <td>choose <code>13gems-toporef-holdoutref.tif</code> (single-band GeoTIFF), or
-                <code>13gems-toporef-holdoutref.zip</code> (a .zip containing that one GeoTIFF)</td></tr>
+            <td>choose <code>13gems-r11-greedy-mp.tif</code> (single-band GeoTIFF), or
+                <code>13gems-r11-greedy-mp.zip</code> (a .zip containing that one GeoTIFF)</td></tr>
         <tr><td><b>Note (optional)</b></td>
-            <td class="mono">BASE_topo_ridge top-5% of valid, decimate_grid 3px (300 m), binary, catalogue included (masked at scoring); local holdout reference recipe, NOT a private-test claim</td></tr>
+            <td class="mono">R11-4 greedy marginal-precision: topo top-5% sp3 + R10_vent@0.25%+R8_tpi@0.25%+R10_dzt_field@0.25% (each &gt;300 m from prior), binary, catalogue included; R11 holdout WIN vs topo_05_sp3 (18/18 folds), NOT a private-test claim</td></tr>
       </table>
       <p class="small">The note must identify what was actually generated and must not
       claim hidden-test performance or unsupported geothermal certainty. Submitting the
@@ -97,7 +96,7 @@
       records both readings of the shipped file: a masked read passes ([0.0, 1.0]);
       the naive raw test fails on NaN alone.</td>
       <td>Upload the <b>all-finite twin</b>
-      <a href="downloads/13gems-toporef-holdoutref_allfinite.tif"><code>13gems-toporef-holdoutref_allfinite.tif</code></a> — same predictions,
+      <a href="downloads/13gems-r11-greedy-mp_allfinite.tif"><code>13gems-r11-greedy-mp_allfinite.tif</code></a> — same predictions,
       0.0 instead of NaN outside the footprint, so it passes even a naive raw range
       test. Record in the ledger which variant the form accepted.</td></tr>
   <tr><td><b>A stale file from an older repository.</b> Earlier team sites (GEMSDOE,
@@ -150,7 +149,7 @@
 <footer class="site"><div class="wrap">
   <p><strong>13GEMSDOE</strong> — working repository for the
   <a href="https://www.drivendata.org/competitions/306/competition-doe-gems/">DOE GEMS Prize Challenge</a>.
-  Page generated 2026-09-30 21:10 UTC from <code>reports/*.json</code>.</p>
+  Page generated 2026-09-30 22:24 UTC from <code>reports/*.json</code>.</p>
   <p class="small">Every figure on this site is produced by a script in this
   repository and is reproducible from a clean checkout. Claims that could not be
   verified against an official source are listed as irregularities rather than

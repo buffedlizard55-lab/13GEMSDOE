@@ -1,25 +1,53 @@
 {
-  "name": "13gems-toporef-holdoutref",
-  "generated_utc": "20260930T195117Z",
-  "note_for_submission_form": "BASE_topo_ridge top-5% of valid, decimate_grid 3px (300 m), binary, catalogue included (masked at scoring); local holdout reference recipe, NOT a private-test claim",
+  "name": "13gems-r11-greedy-mp",
+  "generated_utc": "20260930T221740Z",
+  "note_for_submission_form": "R11-4 greedy marginal-precision: topo top-5% sp3 + R10_vent@0.25%+R8_tpi@0.25%+R10_dzt_field@0.25% (each >300 m from prior), binary, catalogue included; R11 holdout WIN vs topo_05_sp3 (18/18 folds), NOT a private-test claim",
   "recipe_selection": {
-    "selected_by": "re-confirmed local best under the predeclared paired worst-rule decision rule; see reports/holdout_r9_2026-09-30.json (protocol regression check PASS) and reports/holdout_candidate_r8_2026-09-30.json",
-    "detectors": [
-      "BASE_topo_ridge"
-    ],
-    "objective": "ship the exact local holdout reference configuration as the primary review artifact; no hidden-test performance claim"
+    "selected_by": "predeclared R11 holdout WIN: WINS (confirmation rule-means won: 6/6)",
+    "holdout_report": "reports/holdout_r11_2026-09-30.json",
+    "confirm_worst_rule_mean": {
+      "topo_05_sp3": 0.08693835,
+      "greedy_r11": 0.09174650000000001
+    }
   },
   "map_stats": {
-    "recipe": "topo_ref",
-    "detector": "BASE_topo_ridge",
-    "coverage_target": 0.05,
-    "line_spacing_px": 3,
-    "decimation": "decimate_grid",
+    "recipe": "greedy_r11",
+    "base": {
+      "recipe": "topo_ref",
+      "detector": "BASE_topo_ridge",
+      "coverage_target": 0.05,
+      "line_spacing_px": 3,
+      "decimation": "decimate_grid",
+      "include_known_catalogue": false,
+      "n_selected_before_decimation": 258368,
+      "n_new_prediction_px": 185505,
+      "n_predicted_px": 185505,
+      "pct_of_valid": 3.5899,
+      "max_value": 1.0,
+      "min_value": 0.0
+    },
+    "greedy_steps": [
+      {
+        "map": "R10_vent",
+        "coverage": 0.0025,
+        "n_added_px": 7433
+      },
+      {
+        "map": "R8_tpi",
+        "coverage": 0.0025,
+        "n_added_px": 10801
+      },
+      {
+        "map": "R10_dzt_field",
+        "coverage": 0.0025,
+        "n_added_px": 8126
+      }
+    ],
+    "exclude_px": 3,
     "include_known_catalogue": true,
-    "n_selected_before_decimation": 258368,
-    "n_new_prediction_px": 185481,
-    "n_predicted_px": 246469,
-    "pct_of_valid": 4.7697,
+    "n_new_prediction_px": 211865,
+    "n_predicted_px": 272853,
+    "pct_of_valid": 5.2803,
     "max_value": 1.0,
     "min_value": 0.0
   },
@@ -59,8 +87,8 @@
         "outside_nodata_ok": true,
         "min": 0.0,
         "max": 1.0,
-        "sum": 246469.0,
-        "n_gt0": 246469
+        "sum": 272853.0,
+        "n_gt0": 272853
       }
     },
     "all_finite_diagnostic": {
@@ -98,23 +126,23 @@
         "outside_nodata_ok": false,
         "min": 0.0,
         "max": 1.0,
-        "sum": 246469.0,
-        "n_gt0": 246469
+        "sum": 272853.0,
+        "n_gt0": 272853
       }
     }
   },
-  "artifact_status": "BEST_LOCAL_REFERENCE_LOCAL_PROXY_ONLY",
+  "artifact_status": "CLEARED_LOCAL_HOLDOUT_WIN_NOT_PRIVATE_TEST_CLAIM",
   "submission_clearance": {
-    "status": "BEST_LOCAL_REFERENCE_NOT_PRIVATE_TEST_CLAIM",
-    "reason": "This artifact implements topo_05_sp3, the current local holdout best (confirmation worst-rule mean DTI 0.08687, mean 0.09763). That is a catalogue hide-and-recover proxy, NOT a private-test estimate; remote acceptance is unverified. No R9 variant beat it, so it remains the best available candidate under the charter gate.",
-    "holdout_report": "reports/holdout_r9_2026-09-30.json",
+    "status": "CLEARED_LOCAL_HOLDOUT_WIN_NOT_PRIVATE_TEST_CLAIM",
+    "reason": "greedy_r11 beat the in-run topo_05_sp3 reference on tune and confirmation worst-rule-mean DTI, won 6/6 confirmation rule means and 18/18 paired folds; gain exceeds 10x rebuild drift (I-15). Catalogue hide-and-recover proxy only.",
+    "holdout_report": "reports/holdout_r11_2026-09-30.json",
     "private_test_claim": false,
     "upload_allowed": true
   },
   "prediction_identity": {
-    "canonical_pixel_sha256": "5748a1e3bd894f02fa845579355dde766f1dc370a912e3fcc027a3e79792240d",
-    "positive_support_sha256": "3f01c3960346b5cd3a165030b02ee61b7eb12eb1001bdc8581e548bd2b02af96",
-    "positive_pixels": 246469,
+    "canonical_pixel_sha256": "cf97395b64fa8ce4c5e07ed3a9f33c2be357556ea419fc0758190adbecbe55ca",
+    "positive_support_sha256": "d173c0eb2005c497b3773bd21807692785d62b07ad9ea24128a7973c37fa2f2b",
+    "positive_pixels": 272853,
     "identity_scope": "float32 scored-grid values; NaN and outside-footprint cells canonicalized to zero",
     "exact_duplicate_matches": [],
     "same_support_different_values": [],
@@ -136,7 +164,12 @@
       "docs/downloads/13gems-r6-ensemble-20260929T182914Z.tif",
       "docs/downloads/13gems-r6-ensemble-20260929T182914Z_allfinite.tif",
       "docs/downloads/13gems-r8-ensemble-20260930T014614Z.tif",
-      "docs/downloads/13gems-r8-ensemble-20260930T014614Z_allfinite.tif"
+      "docs/downloads/13gems-r8-ensemble-20260930T014614Z_allfinite.tif",
+      "docs/downloads/13gems-toporef-holdoutref.tif",
+      "docs/downloads/13gems-toporef-holdoutref_allfinite.tif",
+      "docs/downloads/latest.tif",
+      "docs/downloads/latest_allfinite.tif",
+      "docs/downloads/latest_nan.tif"
     ],
     "score_uniqueness_claim": "None. Different prediction maps can still round to the same score."
   },
@@ -158,7 +191,7 @@
       ],
       "masked_min": 0.0,
       "masked_max": 1.0,
-      "note": "a validator that reads the raw array WITHOUT honouring the NoData tag and tests all(v>=0 & v<=1) will reject ANY NaN-outside file, including the official sample submission's structure; a masked read passes. If the form repeats the range error on this file, upload 13gems-toporef-holdoutref_allfinite.tif next and record both responses."
+      "note": "a validator that reads the raw array WITHOUT honouring the NoData tag and tests all(v>=0 & v<=1) will reject ANY NaN-outside file, including the official sample submission's structure; a masked read passes. If the form repeats the range error on this file, upload 13gems-r11-greedy-mp_allfinite.tif next and record both responses."
     },
     "all_finite_variant": {
       "n_nan_raw": 0,

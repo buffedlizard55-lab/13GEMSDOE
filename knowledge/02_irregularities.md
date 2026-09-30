@@ -486,3 +486,29 @@ either run rests on tie order.
 if a configuration needs it, ship the tie diagnostics with the row or discard the
 row. `scripts/validate_r10_holdout.py` and `scripts/validate_r10b_holdout.py`
 both enforce the reporting half of this rule.
+
+## I-15 🟡 (new, 2026-09-30 session 5) — detector caches are not bit-reproducible across sessions
+
+**Observed.** After `scripts/build_detectors.py` was re-run in a fresh sandbox
+(numpy 2.4.6, scipy 1.17.1, rasterio 1.4.4), the unmodified
+`scripts/validate_r10b_holdout.py` **failed its own protocol regression check**: the
+reference `topo_05_sp3` reproduced the archived per-fold DTI only to within 1.45e-4
+absolute (≤ 0.17 % relative; first folds: 0.0886693 vs 0.0886799, 0.0939307 vs
+0.0939276). Earlier sessions never pinned library versions or recorded hashes of the
+cached `.npy` maps, so the exact archived numbers cannot be regenerated.
+
+**Action taken.** `scripts/validate_r11_holdout.py` reports the per-fold drift,
+the library versions and the sha256 of `BASE_topo_ridge.npy`; it judges every
+candidate against the **in-run** reference, and a WIN additionally requires the paired
+confirmation gain to exceed 10× the largest drift. The tolerance change was recorded
+in `knowledge/07_r11_hypotheses.md` before the verdict was read.
+**Still open.** Pin versions (`requirements.txt`) and store map hashes in
+`reports/detectors_manifest.json` on the next rebuild.
+
+## I-16 🟡 (new, 2026-09-30 session 5) — the local win is measured on catalogue recovery, not on new faults
+
+`greedy_r11` beats the reference 18/18 on hide-and-recover folds, but those folds
+hide **known** faults (I-10). The public score of the uploaded file is the only
+independent check. Record it in `reports/leaderboard_ledger.csv`; if it does not
+exceed the group's best public score (0.1563), the proxy/leaderboard gap, not the
+recipe, becomes the top research priority.
