@@ -111,8 +111,10 @@ def main() -> int:
 
     # archived R11 recipe must match the register's hardcoded copy
     r11 = json.loads((ROOT / "reports" / "holdout_r11_2026-09-30.json").read_text())
-    archived = [(s["map"], s["coverage"]) for s in r11["greedy_recipe"]]
-    if [(m, c) for m, c in archived] != GREEDY_R11_RECIPE:
+    archived = [(s[0], s[1]) for s in r11["greedy_recipe"]]
+    if len(archived) != len(GREEDY_R11_RECIPE) or any(
+            m != m2 or abs(c - c2) > 1e-12
+            for (m, c), (m2, c2) in zip(archived, GREEDY_R11_RECIPE)):
         raise SystemExit(f"archived greedy_r11 recipe {archived} != register "
                          f"{GREEDY_R11_RECIPE} - update the register first")
 
@@ -228,12 +230,20 @@ def main() -> int:
         configs["greedy_r12"] = [("far", s, c) for s, c in recipe]
 
     rows = []
+    ref_diag = None
     for n in list(state):
         st = ensure(n)
         f = st["fold"]
+        if ref_diag is None:
+            # every config starts from the same reference block, so its
+            # top-k tie diagnostics belong on every row (summarize() takes a
+            # max over them; an empty dict would crash it)
+            _, ref_diag = rankers["BASE_topo_ridge"].topk(
+                f.eval_mask, int(BASE_COVERAGE * n_valid))
         for cname, steps in configs.items():
             m = st["ref"].copy()
             diag_sink.clear()
+            diag_sink.append((f"BASE_topo_ridge@{BASE_COVERAGE}", ref_diag))
             for kind, stem, cov in steps:
                 if kind == "hyst":
                     m = hysteresis_block(m, f.eval_mask, rankers["BASE_topo_ridge"],

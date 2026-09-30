@@ -50,7 +50,7 @@ def page(active: str, title: str, body: str, hero: str = "") -> str:
 <html lang="en"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>{e(title)} — 13GEMSDOE</title>
-<meta name="description" content="GEMS Prize Challenge: audited scoring metric, local hide-and-recover evidence, and a review-only artifact that has not cleared submission holdout.">
+<meta name="description" content="GEMS Prize Challenge: download the current submission GeoTIFF from the front page, plus the audited scoring metric, holdout evidence, and the recorded DrivenData form responses behind it.">
 <link rel="stylesheet" href="assets/style.css">
 </head><body>
 <header class="site"><div class="wrap">
@@ -332,7 +332,83 @@ def build_index() -> str:
         f"{p['best']['cov']*100:g}% — marginal precision {p['best']['marginal_precision']:.4f} "
         f"vs bar 0.2×DTI = {p['bar_0.2xDTI']:.4f} → <b>{'ACCEPT' if p['accepted'] else 'STOP'}</b></li>"
         for p in r11.get("greedy_path_tune_only", []))
+    # ---- R12 session block (holdout_r12_2026-09-30.json) ------------------
+    r12 = load("holdout_r12_2026-09-30.json", {}) or {}
+    r12_html = ""
+    if r12:
+        ts12 = r12.get("tune_summary", {})
+        cs12 = r12.get("confirmation_summary", {})
+        order12 = ["topo_05_sp3", "greedy_r11", "greedy_r12",
+                   "topo05_plus_basinmag0001_sp3", "hyst_add005",
+                   "hyst_add010", "hyst_add020"]
+        r12_rows = ""
+        for cfg in order12:
+            if cfg not in cs12:
+                continue
+            t, c = ts12.get(cfg, {}), cs12[cfg]
+            label = {"topo_05_sp3": "BASE_topo_ridge · 5% · spacing 3 (reference)",
+                     "greedy_r11": "greedy_r11 (reference to beat — SHIPPED)",
+                     "greedy_r12": "greedy_r12 (finer-step greedy, selected on tune)",
+                     "topo05_plus_basinmag0001_sp3":
+                         "basin magnetics @0.10% (true support — R11-2 retest)",
+                     "hyst_add005": "hysteresis crest continuation, +0.5%",
+                     "hyst_add010": "hysteresis crest continuation, +1.0%",
+                     "hyst_add020": "hysteresis crest continuation, +2.0%",
+                     }.get(cfg, cfg)
+            verdict = ("reference" if cfg == "topo_05_sp3"
+                       else ("reference — still the best known recipe"
+                             if cfg == "greedy_r11" else
+                             r12.get("verdict_predeclared", {}).get(cfg, "")))
+            r12_rows += (f"<tr><td><b>{e(label)}</b></td>"
+                         f"<td class='num'>{t.get('dti_worst_rule_mean', 0):.5f}</td>"
+                         f"<td class='num'>{c.get('dti_worst_rule_mean', 0):.5f}</td>"
+                         f"<td class='num'>{c.get('precision_w_mean', 0):.4f}</td>"
+                         f"<td class='num'>{c.get('recall_w_mean', 0):.4f}</td>"
+                         f"<td class='num'>{c.get('predicted_eval_px_mean', 0):,.0f}</td>"
+                         f"<td>{e(verdict)}</td></tr>")
+        paired12 = r12.get("paired_vs_greedy_r11", {})
+        drift12 = r12.get("protocol_regression_check", {}).get("max_abs_deviation")
+        r12_html = f"""
+<section>
+  <h2>Session 6 (R12): the gate held — download encoding fixed, artifact unchanged</h2>
+  <p class="lede">Three new hypotheses were predeclared before any fold was scored
+  (<code>knowledge/08_r12_hypotheses.md</code>): <b>hysteresis crest continuation</b>
+  (the repo's first connectivity transform — Canny-style two-threshold linking on the
+  ridge-strength field), a <b>finer-step greedy</b> over a widened 12-map pool
+  (0.10% blocks, ≤ 6 steps), and the <b>basin-magnetics retest</b> at its true
+  support (resolving R11-2's I-14 invalid measurement). <b>None beat
+  <code>greedy_r11</code></b>, so no submission slot was spent and the shipped
+  artifact is unchanged — now served in its all-finite, form-verified encoding.</p>
+  <div class="grid g4">
+    <div class="kpi ok"><div class="v">0.0</div><div class="l">protocol-regression drift this session (pinned versions close I-15)</div></div>
+    <div class="kpi bad"><div class="v">0 / 5</div><div class="l">R12 challengers that beat greedy_r11</div></div>
+    <div class="kpi bad"><div class="v">0 / 18</div><div class="l">paired folds won by the best R12 challenger vs greedy_r11</div></div>
+    <div class="kpi ok"><div class="v">0</div><div class="l">submission slots spent</div></div>
+  </div>
+  <div class="scroll"><table><thead><tr><th>R12 configuration</th>
+    <th class="num">tune worst-rule DTI</th><th class="num">confirm worst-rule DTI</th>
+    <th class="num">P_w</th><th class="num">R_w</th>
+    <th class="num">predicted px</th><th>predeclared verdict</th></tr></thead>
+    <tbody>{r12_rows}</tbody></table></div>
+  <p class="small">The hysteresis dose-response is clean: every added budget loses,
+  and loses more as the budget grows (confirm worst-rule
+  {cs12.get('hyst_add005', {}).get('dti_worst_rule_mean', 0):.5f} →
+  {cs12.get('hyst_add010', {}).get('dti_worst_rule_mean', 0):.5f} →
+  {cs12.get('hyst_add020', {}).get('dti_worst_rule_mean', 0):.5f}) — recall rises to
+  {cs12.get('hyst_add020', {}).get('recall_w_mean', 0):.4f} while marginal weighted
+  precision stays below the metric's <code>0.2 × DTI</code> inclusion bar: I-13
+  again, now for the connectivity transform. The finer greedy found the
+  highest-precision block ever measured (<code>R10_vent@0.10%</code>, pooled
+  marginal precision 0.03236) but its frozen one-block recipe is a strict subset of
+  R11's assembly — <b>precision above the bar is necessary; accepted mass must
+  still move the worst rule.</b> Paired folds vs <code>greedy_r11</code>:
+  {paired12.get('selected_beats_greedy_r11', 0)}/{paired12.get('n_folds', 18)};
+  drift {drift12 if drift12 is not None else 'n/a'}.
+  Report: <code>reports/holdout_r12_2026-09-30.json</code>.</p>
+</section>"""
+
     body = f"""
+{r12_html}
 <section>
   <h2>Session 5 (R11): first holdout WIN — greedy marginal-precision assembly</h2>
   <p class="lede">R8–R10b showed 24 challengers losing because the pixels they added sat
@@ -459,7 +535,7 @@ def build_index() -> str:
     {kpi(f"{n_pass}/{len(checks)}", "metric audit checks passed", "ok")}
     {kpi("0", "local TIFFs tied to verified per-submission public scores", "warn")}
     {kpi("3 / 3", "new R9 hypotheses measured on the holdout — all LOSE", "bad")}
-    {kpi("24 / 24", "challengers across R8 · R9 · R10 · R10b that failed the gate", "bad")}
+    {kpi("29 / 29", "challengers across R8 · R9 · R10 · R10b · R12 that failed the gate", "bad")}
     {kpi(f"{top_score:.4f}" if isinstance(top_score, (int, float)) else "n/a",
          "leader's account-level best (snapshot 2026-09-30)", "warn")}
   </div>

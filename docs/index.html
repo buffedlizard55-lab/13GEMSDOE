@@ -2,7 +2,7 @@
 <html lang="en"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Submission status — 13GEMSDOE</title>
-<meta name="description" content="GEMS Prize Challenge: audited scoring metric, local hide-and-recover evidence, and a review-only artifact that has not cleared submission holdout.">
+<meta name="description" content="GEMS Prize Challenge: download the current submission GeoTIFF from the front page, plus the audited scoring metric, holdout evidence, and the recorded DrivenData form responses behind it.">
 <link rel="stylesheet" href="assets/style.css">
 </head><body>
 <header class="site"><div class="wrap">
@@ -45,6 +45,44 @@
   </div>
 </div></div>
 <main class="wrap">
+
+<section>
+  <h2>Session 6 (R12): the gate held — download encoding fixed, artifact unchanged</h2>
+  <p class="lede">Three new hypotheses were predeclared before any fold was scored
+  (<code>knowledge/08_r12_hypotheses.md</code>): <b>hysteresis crest continuation</b>
+  (the repo's first connectivity transform — Canny-style two-threshold linking on the
+  ridge-strength field), a <b>finer-step greedy</b> over a widened 12-map pool
+  (0.10% blocks, ≤ 6 steps), and the <b>basin-magnetics retest</b> at its true
+  support (resolving R11-2's I-14 invalid measurement). <b>None beat
+  <code>greedy_r11</code></b>, so no submission slot was spent and the shipped
+  artifact is unchanged — now served in its all-finite, form-verified encoding.</p>
+  <div class="grid g4">
+    <div class="kpi ok"><div class="v">0.0</div><div class="l">protocol-regression drift this session (pinned versions close I-15)</div></div>
+    <div class="kpi bad"><div class="v">0 / 5</div><div class="l">R12 challengers that beat greedy_r11</div></div>
+    <div class="kpi bad"><div class="v">0 / 18</div><div class="l">paired folds won by the best R12 challenger vs greedy_r11</div></div>
+    <div class="kpi ok"><div class="v">0</div><div class="l">submission slots spent</div></div>
+  </div>
+  <div class="scroll"><table><thead><tr><th>R12 configuration</th>
+    <th class="num">tune worst-rule DTI</th><th class="num">confirm worst-rule DTI</th>
+    <th class="num">P_w</th><th class="num">R_w</th>
+    <th class="num">predicted px</th><th>predeclared verdict</th></tr></thead>
+    <tbody><tr><td><b>BASE_topo_ridge · 5% · spacing 3 (reference)</b></td><td class='num'>0.03852</td><td class='num'>0.08687</td><td class='num'>0.0276</td><td class='num'>0.2874</td><td class='num'>185,290</td><td>reference</td></tr><tr><td><b>greedy_r11 (reference to beat — SHIPPED)</b></td><td class='num'>0.03992</td><td class='num'>0.09168</td><td class='num'>0.0282</td><td class='num'>0.3358</td><td class='num'>211,621</td><td>reference — still the best known recipe</td></tr><tr><td><b>greedy_r12 (finer-step greedy, selected on tune)</b></td><td class='num'>0.03864</td><td class='num'>0.08824</td><td class='num'>0.0279</td><td class='num'>0.2954</td><td class='num'>188,481</td><td>LOSES (confirmation rule-means won: 0/6)</td></tr><tr><td><b>basin magnetics @0.10% (true support — R11-2 retest)</b></td><td class='num'>0.03829</td><td class='num'>0.08623</td><td class='num'>0.0272</td><td class='num'>0.2906</td><td class='num'>190,567</td><td></td></tr><tr><td><b>hysteresis crest continuation, +0.5%</b></td><td class='num'>0.03539</td><td class='num'>0.08219</td><td class='num'>0.0253</td><td class='num'>0.2995</td><td class='num'>211,126</td><td></td></tr><tr><td><b>hysteresis crest continuation, +1.0%</b></td><td class='num'>0.03395</td><td class='num'>0.07909</td><td class='num'>0.0238</td><td class='num'>0.3154</td><td class='num'>236,963</td><td></td></tr><tr><td><b>hysteresis crest continuation, +2.0%</b></td><td class='num'>0.03041</td><td class='num'>0.07354</td><td class='num'>0.0214</td><td class='num'>0.3453</td><td class='num'>288,637</td><td></td></tr></tbody></table></div>
+  <p class="small">The hysteresis dose-response is clean: every added budget loses,
+  and loses more as the budget grows (confirm worst-rule
+  0.08219 →
+  0.07909 →
+  0.07354) — recall rises to
+  0.3453 while marginal weighted
+  precision stays below the metric's <code>0.2 × DTI</code> inclusion bar: I-13
+  again, now for the connectivity transform. The finer greedy found the
+  highest-precision block ever measured (<code>R10_vent@0.10%</code>, pooled
+  marginal precision 0.03236) but its frozen one-block recipe is a strict subset of
+  R11's assembly — <b>precision above the bar is necessary; accepted mass must
+  still move the worst rule.</b> Paired folds vs <code>greedy_r11</code>:
+  0/18;
+  drift 0.0.
+  Report: <code>reports/holdout_r12_2026-09-30.json</code>.</p>
+</section>
 <section>
   <h2>Session 5 (R11): first holdout WIN — greedy marginal-precision assembly</h2>
   <p class="lede">R8–R10b showed 24 challengers losing because the pixels they added sat
@@ -219,7 +257,7 @@
     <div class="kpi ok"><div class="v">12/12</div><div class="l">metric audit checks passed</div></div>
     <div class="kpi warn"><div class="v">0</div><div class="l">local TIFFs tied to verified per-submission public scores</div></div>
     <div class="kpi bad"><div class="v">3 / 3</div><div class="l">new R9 hypotheses measured on the holdout — all LOSE</div></div>
-    <div class="kpi bad"><div class="v">24 / 24</div><div class="l">challengers across R8 · R9 · R10 · R10b that failed the gate</div></div>
+    <div class="kpi bad"><div class="v">29 / 29</div><div class="l">challengers across R8 · R9 · R10 · R10b · R12 that failed the gate</div></div>
     <div class="kpi warn"><div class="v">0.3168</div><div class="l">leader&#x27;s account-level best (snapshot 2026-09-30)</div></div>
   </div>
   <p class="small">DTI algebra and the official worked example pass the local audit.
@@ -287,7 +325,7 @@
 <footer class="site"><div class="wrap">
   <p><strong>13GEMSDOE</strong> — working repository for the
   <a href="https://www.drivendata.org/competitions/306/competition-doe-gems/">DOE GEMS Prize Challenge</a>.
-  Page generated 2026-09-30 23:30 UTC from <code>reports/*.json</code>.</p>
+  Page generated 2026-09-30 23:49 UTC from <code>reports/*.json</code>.</p>
   <p class="small">Every figure on this site is produced by a script in this
   repository and is reproducible from a clean checkout. Claims that could not be
   verified against an official source are listed as irregularities rather than

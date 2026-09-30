@@ -1,5 +1,5 @@
 {
-  "generated_utc": "2026-09-30T21:53:48Z",
+  "generated_utc": "2026-09-30T23:38:57Z",
   "inputs": {
     "lidar": {
       "file": "lidar_scarp_features_u8.tif",
@@ -149,5 +149,5 @@
       "max": 0.9536334276199341
     }
   },
-  "total_seconds": 54.6
+  "total_seconds": 44.7
 }

@@ -14,21 +14,79 @@ https://buffedlizard55-lab.github.io/13GEMSDOE/
 
 ---
 
-## Latest review — 2026-09-30, session 5 (R11: first holdout WIN)
+## Latest review — 2026-09-30, session 6 (R12: the gate held; download encoding FIXED)
 
-**Download:** [`docs/downloads/13gems-r11-greedy-mp.tif`](docs/downloads/13gems-r11-greedy-mp.tif)
-(zip: `13gems-r11-greedy-mp.zip`; range-error fallback: `13gems-r11-greedy-mp_allfinite.tif`).
-Form name `13gems-r11-greedy-mp`; the note is printed on the
-[site front page](https://buffedlizard55-lab.github.io/13GEMSDOE/docs/) and in
-[`reports/latest_submission.json`](reports/latest_submission.json).
+**Working download, at the very top of the site.** The team uploaded the
+NaN-outside primary `13gems-r11-greedy-mp.tif` and the DrivenData form rejected it
+with **“Predicted values must be in range [0, 1]”** — the first platform response
+recorded against a known file from this repository. Evidence log:
+[`reports/form_responses.json`](reports/form_responses.json). The predeclared I-8
+triage step 2 was executed the same day and made the **default**: the front page's
+first button now serves the **all-finite** encoding —
+[`docs/downloads/13gems-r11-greedy-mp_allfinite.tif`](docs/downloads/13gems-r11-greedy-mp_allfinite.tif)
+— byte-verified in-workspace (0 NaN, every cell in [0, 1], exactly 0.0 outside the
+survey footprint, in-footprint pixels identical to the NaN variant, EPSG:32611,
+3730×3292, single-band float32). Zero-fill outside the footprint is score-neutral
+for a binary map (0 is a non-prediction; TP_w and FP_w unchanged under any scorer).
+Both .zip files now wrap the finite file. `scripts/make_submission.py` writes this
+policy for every future build (`{name}.tif` all-finite; `{name}_nanoutside.tif`
+record-only). Flip record:
+[`reports/primary_flip_2026-09-30.json`](reports/primary_flip_2026-09-30.json).
 
-**Why the group kept getting 0.1563.** Settled as far as public data allows (I-3): the GEMSDOE1 and
-8GEMSDOE 0.1563-labelled files are *different* maps (positive-support IoU 0.0670,
-re-measured this session from `data/scored/`); the 5GEMSDOE file that produced its 0.1563
-is **not mirrored** in any pinned source, so it cannot be compared (flagged). And the leaderboard column
-is an **account-level best**, not a per-file receipt — a new file that scores lower leaves
-the displayed value unchanged. Every earlier recipe was also a variant of the same
-topographic-crest idea. The new recipe is a different *mechanism*, not a re-tuning.
+**Irregularity I-8 partially resolved, new flag.** NaN-outside files from this
+group *were* accepted and scored earlier — the pindrop trio recorded by sha256
+prefixes `f347b70daa` / `37f9d5b855` / `4e03fc9705`, each re-verified this session
+against the archived bytes in `data/scored/` — so the platform's range validation
+**changed or is inconsistent**. That behaviour is external and cannot be observed
+from here; flagged for review in
+[`knowledge/02_irregularities.md`](knowledge/02_irregularities.md) (I-8) and
+[`reports/form_responses.json`](reports/form_responses.json). Every future form
+response must be appended there, and the receipt to `reports/leaderboard_ledger.csv`.
+
+**R12: three new hypotheses predeclared before any fold was scored**
+([`knowledge/08_r12_hypotheses.md`](knowledge/08_r12_hypotheses.md)) —
+R12-1 *hysteresis crest continuation* (Canny-style two-threshold linking on the
+`BASE_topo_ridge` ridge-strength field — the repo's first connectivity transform),
+R12-2 *finer-step greedy over a widened 12-map pool* (0.10 % blocks, ≤ 6 steps),
+R12-3 *basin-floor magnetics retested at its true support* (resolves R11-2's I-14
+invalid measurement). Euler depth-to-source was declared and **deferred**, not run.
+
+**Result: the gate held — nothing beat `greedy_r11`, so no slot was spent and the
+artifact is unchanged.** Protocol regression check PASSED with **zero** drift (the
+pinned `requirements.txt` versions eliminated I-15 this session). Challengers
+(confirmation worst-rule-mean DTI): `greedy_r12` 0.08824 (**LOSES**, 0/18 paired
+folds), `basinmag0001` 0.08623 (LOSES — first *valid* R11-2 measurement),
+`hyst_add005/010/020` 0.08219 / 0.07909 / 0.07354 (LOSE with a clean dose-response
+— recall rises to 0.3453 while marginal weighted precision stays below the metric's
+`0.2 × DTI` inclusion bar). `greedy_r12`'s step 1 found the highest-precision block
+ever measured (`R10_vent@0.10 %`, pooled marginal precision 0.0324) but the frozen
+one-block recipe is a strict subset of R11's assembly — precision above the bar is
+necessary, accepted mass must still move the worst rule.
+Report: [`reports/holdout_r12_2026-09-30.json`](reports/holdout_r12_2026-09-30.json).
+
+**Leaderboard (official public page, re-fetched 2026-09-30):** DARD 0.3168 (#1),
+alexoktaba 0.3042 (#2), joeyfezster 0.2919 (#3) —
+[`reports/leaderboard_snapshot_2026-09-30.json`](reports/leaderboard_snapshot_2026-09-30.json).
+Account-level bests, not receipts.
+
+### Next steps (ranked)
+1. **Upload the all-finite `13gems-r11-greedy-mp_allfinite.tif`** (or the .zip),
+   with the printed name/note; append the form response to
+   `reports/form_responses.json` and the score to `reports/leaderboard_ledger.csv`.
+2. **New physics, not finer re-cuts** (R12's closing finding): candidates that can
+   reach neighbourhoods the ridge family never touches — R12-4 Euler
+   depth-to-source clusters (declared, deferred), per-domain budgets, and
+   R11-3 GDR-1391 paleo-geothermal halos (need egress to
+   [gdr.openei.org/submissions/1391](https://gdr.openei.org/submissions/1391)).
+3. **Full 30-stem pool greedy** on a larger-RAM runner (I-17: this sandbox's 3 GB
+   caps the in-memory pool at 12 ranked maps).
+4. **Hysteresis inside the greedy**, not beside it: R12-1's linked pixels are only
+   admissible through the marginal-precision gate (per-block), never as a flat
+   budget add-on — the only lesson consistent with both R11 and R12.
+5. Store map sha256 in `reports/detectors_manifest.json` (closes I-15 bookkeeping
+   now that builds reproduce exactly).
+
+### Previous review — 2026-09-30, session 5 (R11: first holdout WIN)
 
 **R11-4 greedy marginal-precision assembly — WINS** (predeclared in
 [`knowledge/07_r11_hypotheses.md`](knowledge/07_r11_hypotheses.md) before any fold was
@@ -40,23 +98,13 @@ Confirmation worst-rule-mean DTI **0.09175 vs 0.08694** (+5.9 % mean), 6/6 rule 
 **18/18 paired folds**. First recipe in 25 challengers (R8–R11) to clear the gate.
 Report: [`reports/holdout_r11_2026-09-30.json`](reports/holdout_r11_2026-09-30.json).
 
-**Flags for review.** I-15: rebuilt detector caches reproduce archived reference DTI only
-to ≤ 0.17 % (unpinned library versions) — verdicts are now paired in-run and the gain had
-to beat 10× drift; versions pinned in `requirements.txt`. I-16: the win is on hidden
-*known* faults; the public score is the real test. R11-2 (basin magnetics) is **invalid**,
-not lost (I-14 under-support). Still no DrivenData credentials here: the upload is a
+**Flags for review (from session 5).** I-15: rebuilt detector caches reproduced archived
+reference DTI only to ≤ 0.17 % (unpinned library versions) — verdicts are paired in-run and
+the gain had to beat 10× drift; versions pinned in `requirements.txt` (this session the
+drift measured exactly 0.0). I-16: the win is on hidden *known* faults; the public score is
+the real test. R11-2 (basin magnetics) was invalid at R11 coverages (I-14) — retested
+validly in R12 (LOSES; see above). Still no DrivenData credentials here: the upload is a
 manual step (see the executive summary).
-
-### Next steps (ranked)
-1. **Upload `13gems-r11-greedy-mp.tif`** and log the score in `reports/leaderboard_ledger.csv`.
-2. **R11-2 retest** at ≤ 0.14 % (its support) — predeclared.
-3. **R12-1 greedy with a wider pool / finer steps** (0.1 % blocks, all catalogue-free maps
-   incl. R7/R8 families) — same gate, tune-only selection.
-4. **R12-2 per-region budget** — run the greedy separately per structural domain so the
-   bar is applied where the fault density differs.
-5. R11-1 basement-depth steps and R11-3 GDR-1391 paleo-geothermal halos (need egress to
-   [gdr.openei.org/submissions/1391](https://gdr.openei.org/submissions/1391)).
-6. Store map sha256 in `reports/detectors_manifest.json` (closes I-15).
 
 ### Previous review — 2026-09-30, session 4 (R10 / R10b: official external data)
 
@@ -170,10 +218,11 @@ public scores, not receipts for our local TIFFs.
 | Can public scores be compared with the local chance baseline? | **No.** Public inference from account-best scores is withdrawn. `dti_chance()` is retained only for an approximate same-run random-control sanity check with known local truth and the eligible fold domain. | [Irregularity I‑9](knowledge/02_irregularities.md) |
 | What should a submission look like? | Use the exact marginal rule `ΔTP_w/(ΔTP_w+ΔFP_w) > 0.2 × DTI` for the same evaluation set; select cutoff, coverage, spacing, and fusion on the holdout rather than from unverified public labels. R9 measured the rule: mass below the bar loses exactly as the algebra says. | [`knowledge/01_verified_facts.md` §2.1](knowledge/01_verified_facts.md) |
 | How do we check an idea before a submission slot? | Use whole-system and segment hide-and-recover folds with buffers, visible-catalogue-only feature construction, an exact known-fault mask, withheld-truth-only DTI, and multiple rules. The low-slope slice is a stress test—not hidden-test ground truth. | [`src/gems/holdout.py`](src/gems/holdout.py) · [`reports/holdout_r9_2026-09-30.json`](reports/holdout_r9_2026-09-30.json) |
-| Is the current downloadable artifact cleared to submit? | It **is the current local holdout reference** (`topo_05_sp3`) — the best available recipe under the gate — labelled `BEST_LOCAL_REFERENCE_NOT_PRIVATE_TEST_CLAIM`. No challenger (R8, R9, R10 or R10b) has beaten it. | [`reports/latest_submission.json`](reports/latest_submission.json) |
+| Is the current downloadable artifact cleared to submit? | **Yes, under the predeclared local gate** — `greedy_r11` beat the reference on tune and confirmation worst-rule-mean DTI (18/18 paired folds), labelled `CLEARED_LOCAL_HOLDOUT_WIN_NOT_PRIVATE_TEST_CLAIM`. No challenger since (R12: 5 configurations) has beaten it. It is a catalogue hide-and-recover proxy, **not** a predicted leaderboard score. | [`reports/latest_submission.json`](reports/latest_submission.json) · [`reports/holdout_r11_2026-09-30.json`](reports/holdout_r11_2026-09-30.json) |
+| Which file encoding should be uploaded? | The **all-finite** one (front-page primary button): every cell in [0,1], 0.0 outside the footprint — passes strict and naive validators, score-neutral for a binary map. The form **rejected** the null/NaN-outside encoding on 2026-09-30; earlier it had accepted it. Validator behaviour flagged as changed/inconsistent. | [`reports/form_responses.json`](reports/form_responses.json) · [I-8](knowledge/02_irregularities.md) |
 | Do the free official USGS products help? | **Measured: not on Phase-1 DTI.** Six hash-verified products, four predeclared hypotheses, 24 challenger configurations — all lose to `topo_05_sp3`. They beat every provided band on AUC and still fail the metric's marginal-precision bar. Their remaining value is Phase-2 defensibility. | [I-13](knowledge/02_irregularities.md) · [`reports/holdout_r10_2026-09-30.json`](reports/holdout_r10_2026-09-30.json) |
 | What is band 6 (`tc`)? | **Radiometric total count**, measured against the official USGS grid (ρ 0.99998, R² 0.9980, slope 1.007, closure vs K+Th+U ρ 0.9958). The embedded "tilt angle or total curvature" description is wrong. | [`reports/band6_identity.json`](reports/band6_identity.json) · [I-2](knowledge/02_irregularities.md) |
-| How do I actually submit? | Download the front-page GeoTIFF, paste the printed name and note into the form, and follow the five steps (including the [0, 1]-error triage path). | [Executive summary](docs/executive_summary.html) |
+| How do I actually submit? | Click the front page's first button (all-finite GeoTIFF), paste the printed name and note into the form, and follow the five steps (including the recorded-response triage path). | [Executive summary](docs/executive_summary.html) · [`reports/form_responses.json`](reports/form_responses.json) |
 
 ---
 
@@ -211,11 +260,13 @@ holdout; do not assume a universal 300 m decimation.
 PROJECT_CHARTER.md        standing brief — read first, every session
 knowledge/
   01_verified_facts.md    every fact with the official URL it came from
-  02_irregularities.md    things that are wrong or unverifiable, with actions (I-1..I-14)
+  02_irregularities.md    things that are wrong or unverifiable, with actions (I-1..I-17)
   03_hypotheses.md        candidate geological hypotheses, ranked
   04_geothermal_vents.md  vent science from official sources (contrarian, cited)
   05_hypothesis_screen_2026-09-30.md   screened-out candidates and why
   06_r10_hypotheses.md    R10/R10b predeclared register, decision rule, results
+  07_r11_hypotheses.md    R11 predeclared register (greedy marginal-precision WIN)
+  08_r12_hypotheses.md    R12 predeclared register (hysteresis / finer greedy / basin retest)
 src/gems/
   metric.py               the official DTI, transcribed and audited
   fastscore.py            exact fast scorer (verified == metric.py)
@@ -233,6 +284,9 @@ scripts/
   build_external_detectors.py  the eight R10 maps + per-map AUC/top-5% manifest
   validate_r10_holdout.py      predeclared paired validation of the four R10 hypotheses
   validate_r10b_holdout.py     predeclared refinement round: low-coverage unions + rank fusion
+  validate_r11_holdout.py      predeclared R11 validation (greedy marginal-precision WIN)
+  validate_r12_holdout.py      predeclared R12 validation (hysteresis / finer greedy / basin)
+  flip_primary_encoding.py     one-time recorded flip: all-finite becomes the upload default
   audit_metric.py         proves the four results above
   audit_bands.py          measures what the 19 bands actually are; tests I-2
   analyze_scored.py       file/pixel identity and support for historical TIFFs; score labels unverified
@@ -247,6 +301,9 @@ scripts/
   validate_composite.py   two-regime validation of the shipped hedge
   make_submission.py      build + identity-check + format-validate; never grants score clearance
 reports/                  machine-readable evidence for every claim
+  form_responses.json     append-only log of DrivenData form responses (encoding evidence)
+  primary_flip_2026-09-30.json   byte-level record of the all-finite primary flip
+  leaderboard_snapshot_2026-09-30.json  official public leaderboard snapshot (re-fetched)
 docs/                     generated GitHub Pages site (`scripts/build_site.py`), served at /docs/
 ```
 
@@ -350,6 +407,8 @@ pip install numpy scipy rasterio
 .venv/bin/python scripts/build_external_detectors.py   # the eight R10 maps (~45 s)
 .venv/bin/python scripts/validate_r10_holdout.py    # predeclared R10 validation (~90 s)
 .venv/bin/python scripts/validate_r10b_holdout.py   # predeclared R10b refinement (~66 s)
+.venv/bin/python scripts/validate_r11_holdout.py    # predeclared R11 validation (~300 s)
+.venv/bin/python scripts/validate_r12_holdout.py    # predeclared R12 validation (~215 s)
 .venv/bin/python scripts/run_holdout3.py      # historical full sweep (~82 min, 3 GB RAM)
 .venv/bin/python scripts/validate_ensemble_holdout.py # targeted visible-only ensemble holdout
 .venv/bin/python scripts/make_submission.py --recipe best
