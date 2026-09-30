@@ -88,6 +88,8 @@ def validate_submission(path: str | Path,
     with rasterio.open(path) as src:
         stats["driver"] = src.driver
         stats["shape"] = list(src.shape)
+        if src.driver != "GTiff":
+            errors.append(f"must be a GeoTIFF; got driver {src.driver}")
         stats["count"] = src.count
         stats["dtype"] = src.dtypes[0]
         stats["crs"] = str(src.crs)
@@ -188,17 +190,44 @@ def write_submission(path: str | Path, values: np.ndarray,
                      outside_value: float | None = None) -> Path:
     """Write a compliant single-band float32 GeoTIFF.
 
-    `outside_value=None` writes NaN outside the footprint (mirrors the official
-    template). `outside_value=0.0` writes an all-finite raster.
+    Fail closed rather than clipping invalid probabilities: silently clipping
+    would change the submitted map and could hide the source of the remote
+    ``Predicted values must be in range [0, 1]`` rejection. Predictions must be
+    finite and in [0, 1] throughout the scored footprint. NaN outside the
+    footprint is written when ``outside_value=None`` (the official template
+    convention); ``outside_value=0.0`` is a diagnostic all-finite variant.
     """
     path = Path(path)
-    path.parent.mkdir(parents=True, exist_ok=True)
+    values = np.asarray(values)
+    valid = np.asarray(valid_mask, dtype=bool)
+    if values.ndim != 2 or values.shape != EXPECTED_SHAPE:
+        raise ValueError(
+            f"prediction shape must be {EXPECTED_SHAPE}; got {values.shape}"
+        )
+    if valid.shape != EXPECTED_SHAPE:
+        raise ValueError(
+            f"valid-mask shape must be {EXPECTED_SHAPE}; got {valid.shape}"
+        )
+    if not valid.any():
+        raise ValueError("valid footprint is empty")
+    if outside_value is not None and (
+        not np.isfinite(outside_value) or outside_value < 0 or outside_value > 1
+    ):
+        raise ValueError("outside_value must be None or a finite value in [0, 1]")
 
-    out = np.asarray(values, dtype=np.float64)
-    out = np.where(np.isfinite(out), out, 0.0)
-    out = np.clip(out, 0.0, 1.0).astype(np.float32)
+    scored = np.asarray(values[valid], dtype=np.float64)
+    if not np.isfinite(scored).all():
+        raise ValueError("predictions inside the valid footprint must all be finite")
+    lo, hi = float(scored.min()), float(scored.max())
+    if lo < 0.0 or hi > 1.0:
+        raise ValueError(
+            f"predictions inside the valid footprint must lie in [0, 1]; got [{lo}, {hi}]"
+        )
+
+    path.parent.mkdir(parents=True, exist_ok=True)
+    out = np.asarray(values, dtype=np.float32)
     fill = np.float32(np.nan) if outside_value is None else np.float32(outside_value)
-    out = np.where(valid_mask, out, fill).astype(np.float32)
+    out = np.where(valid, out, fill).astype(np.float32)
 
     profile = {
         "driver": "GTiff", "height": EXPECTED_SHAPE[0], "width": EXPECTED_SHAPE[1],
