@@ -12,16 +12,16 @@
 
 <main class="wrap">
 <section>
-  <h2>Submission workflow — clearance comes before upload</h2>
-  <div class="callout bad">
-    <p style="margin:0"><b>Current status: NOT_CLEARED.</b> The archived full-catalogue raster is not scored directly because its catalogue-derived tip/horsetail features would leak holdout truth. A per-fold rebuild using visible catalogue was tested; it did not beat the local BASE_topo_ridge comparator on the confirmation folds.
-    The archived artifact <a href="downloads/13gems-r8-ensemble-20260930T014614Z.tif"><code>13gems-r8-ensemble-20260930T014614Z.tif</code></a>
-    is retained for review only; do not upload it. The full local proxy comparison is
-    <a href="https://github.com/buffedlizard55-lab/13GEMSDOE/blob/main/reports/holdout_candidate_r8_2026-09-30.json">here</a>. A format-valid GeoTIFF is not evidence that
-    its predictions improve DTI.</p>
+  <h2>Submission workflow — the five steps, in order</h2>
+  <div class="callout">
+    <p style="margin:0"><b>Current artifact: <code>13gems-toporef-holdoutref.tif</code></b> —
+    status <b>BEST_LOCAL_REFERENCE_NOT_PRIVATE_TEST_CLAIM</b>. It implements the local holdout reference recipe
+    (the best available under the charter gate; a catalogue hide-and-recover proxy,
+    not a predicted leaderboard score). This artifact implements topo_05_sp3, the current local holdout best (confirmation worst-rule mean DTI 0.08687, mean 0.09763). That is a catalogue hide-and-recover proxy, NOT a private-test estimate; remote acceptance is unverified. No R9 variant beat it, so it remains the best available candidate under the charter gate.
+    Download it from the <a href="index.html">front page</a> or directly
+    <a href="downloads/13gems-toporef-holdoutref.tif">here</a>. Full comparison:
+    <a href="https://github.com/buffedlizard55-lab/13GEMSDOE/blob/main/reports/holdout_r9_2026-09-30.json">R9 holdout report</a>.</p>
   </div>
-  <p class="lede">When a candidate eventually clears the holdout, follow these steps.
-  The current R8 artifact has <b>not</b> cleared them.</p>
   <ol class="steps">
     <li><h4>1. Validate the candidate on the local holdout</h4>
       <p>Use whole-system and raw-segment hide-and-recover folds with buffers,
@@ -31,7 +31,8 @@
       The low-slope-third slice is a robustness stress test, not a hidden-test analogue.</p>
       <p class="small">Do not spend a weekly submission slot unless the candidate beats
       the current holdout best under more than one rule and improves the confirmation
-      summary—not only a tuning fold or a qualitative geological rationale.</p></li>
+      summary—not only a tuning fold or a qualitative geological rationale. This round's
+      three R9 challengers all failed that gate (see the front-page table).</p></li>
 
     <li><h4>2. Check map identity before proposing an upload</h4>
       <p>Compare the complete raster and effective/chargeable positive support with all
@@ -40,34 +41,78 @@
       neither outcome can be inferred from filenames or account-level leaderboard values.</p>
       <p class="small">Use a new immutable file stem and note. The generator refuses a
       stem collision. Never promise a unique score: distinct maps can round to the same
-      score.</p></li>
+      score. This round's artifact was checked against all eight archived historical
+      maps — no exact-duplicate match.</p></li>
 
     <li><h4>3. Validate official GeoTIFF format</h4>
       <p>Check one float32 band, EPSG:32611, 100 m resolution, 3730×3292 shape,
       exact affine transform, finite in-footprint values in [0,1], and null/NaN outside
-      the valid footprint. The source page specifies null/NaN outside data bounds.</p>
-      <p class="small">Local checks establish only conformance to the checked fields;
-      they do not establish remote acceptance. The earlier server-side “[0,1]” rejection
-      remains unexplained. A zero-filled outside-footprint twin is diagnostic only.</p></li>
+      the valid footprint. The source page specifies null/NaN outside data bounds.
+      The current artifact passes all of these checks locally; the recorded validation
+      is in <code>reports/latest_submission.json</code>.</p></li>
 
-    <li><h4>4. Prepare the uniquely named raster and truthful note</h4>
-      <p>After the holdout gate, run <code>.venv/bin/python scripts/make_submission.py</code>
-      with the chosen recipe and an unused <code>--name</code>. Inspect the generated
-      JSON provenance, local validation report, output TIFF, ZIP contents, and form note.
-      The note must identify what was actually generated and must not claim hidden-test
-      performance or unsupported geothermal certainty.</p></li>
+    <li><h4>4. Fill the DrivenData form</h4>
+      <p>On the
+      <a href="https://www.drivendata.org/competitions/306/competition-doe-gems/submissions/">official submissions page</a>,
+      click <b>Submit file</b> and fill the form exactly like this:</p>
+      <table class="small">
+        <tr><td><b>File to submit</b></td>
+            <td>choose <code>13gems-toporef-holdoutref.tif</code> (single-band GeoTIFF), or
+                <code>13gems-toporef-holdoutref.zip</code> (a .zip containing that one GeoTIFF)</td></tr>
+        <tr><td><b>Note (optional)</b></td>
+            <td class="mono">BASE_topo_ridge top-5% of valid, decimate_grid 3px (300 m), binary, catalogue included (masked at scoring); local holdout reference recipe, NOT a private-test claim</td></tr>
+      </table>
+      <p class="small">The note must identify what was actually generated and must not
+      claim hidden-test performance or unsupported geothermal certainty. Submitting the
+      <i>same file twice</i> wastes a slot; the generator blocks byte-identical reuse.</p></li>
 
-    <li><h4>5. Upload only after clearance, then record the receipt</h4>
-      <p>Use the
-      <a href="https://www.drivendata.org/competitions/306/competition-doe-gems/submissions/">official submissions page</a>
-      and select the validated named GeoTIFF (or ZIP only if it contains that one TIFF).
-      The competition allows three submissions per week per the
+    <li><h4>5. Upload, then record the receipt</h4>
+      <p>The competition allows three submissions per week per the
       <a href="https://docs.nlr.gov/docs/fy26osti/96647.pdf">Official Rules §3.2</a>.</p>
       <p>After scoring, record the authenticated per-submission score and submission ID
       in <code>reports/leaderboard_ledger.csv</code>, tied to the exact file checksum.
       The account-level “Best public DW-Tversky” leaderboard value is not a receipt for
       that upload.</p></li>
   </ol>
+</section>
+
+<section id="if-the-form-says-predicted-values-must-be-in-range-01">
+  <h2>If the form says “Predicted values must be in range [0, 1]”</h2>
+  <p class="lede">This exact rejection was received once on an earlier team upload. It has
+  <b>never been reproduced from any file published by this repository</b> — every artifact
+  here is gated so that all in-footprint values are finite and inside [0, 1] before it
+  becomes downloadable. The two plausible causes, and what to do:</p>
+  <div class="scroll"><table><thead><tr><th>possible cause</th><th>evidence</th>
+  <th>what to do</th></tr></thead><tbody>
+  <tr><td><b>NaN read as out-of-range.</b> The official format requires null/NaN outside
+      the survey footprint. A validator that reads the raw array <i>without</i> honouring
+      the NoData tag and tests <code>all(0 ≤ v ≤ 1)</code> would reject <i>any</i>
+      NaN-outside file — including the official sample submission's own structure
+      (float32, NoData=NaN, finite values only inside the footprint; measured on our
+      pinned mirror, blob <code>7d865a99…</code>).</td>
+      <td><code>reports/latest_submission.json → platform_check_simulation</code>
+      records both readings of the shipped file: a masked read passes ([0.0, 1.0]);
+      the naive raw test fails on NaN alone.</td>
+      <td>Upload the <b>all-finite twin</b>
+      <a href="downloads/13gems-toporef-holdoutref_allfinite.tif"><code>13gems-toporef-holdoutref_allfinite.tif</code></a> — same predictions,
+      0.0 instead of NaN outside the footprint, so it passes even a naive raw range
+      test. Record in the ledger which variant the form accepted.</td></tr>
+  <tr><td><b>A stale file from an older repository.</b> Earlier team sites (GEMSDOE,
+      6GEMSDOE, 12GEMSDOE …) shipped their own generators; sibling-repo reviews traced
+      two concrete historical bugs: NaN cells <i>inside</i> the footprint
+      (6GEMSDOE PR #6) and the float32 nodata sentinel −3.4028e38 leaking into
+      predictions (12GEMSDOE PR #8). Either would trip a range check.</td>
+      <td>Those repositories' own PR records. No file downloadable from this site
+      reproduces the error: the <code>validate_submission</code> gate refuses to
+      release an invalid file.</td>
+      <td>Always download from <i>this</i> site's front page (file names start with
+      <code>13gems-</code>), never reuse older downloads. The stem of the file you
+      choose must match <code>reports/latest_submission.json → name</code>.</td></tr>
+  </tbody></table></div>
+  <p class="small">If the all-finite twin <i>also</i> fails, stop spending slots and
+  capture the response: that would be the first evidence that neither NoData encoding
+  is the issue, and the next suspects are the ZIP wrapper or CRS/transform. Local
+  checks cannot prove remote acceptance — only the recorded form response can.</p>
 </section>
 
 <section>
@@ -81,7 +126,7 @@
     </ul>
     <p class="small">Official source:
     <a href="https://www.drivendata.org/competitions/306/competition-doe-gems/page/967/">DrivenData problem description → Submission format</a>.
-    The NaN-outside archived R8 file passes the repository's local grid/range/footprint
+    The shipped NaN-outside file passes the repository's local grid/range/footprint
     checks; that does not clear its prediction map or verify server acceptance.</p>
   </div>
 </section>
@@ -94,14 +139,15 @@
   penalized. These are reasons to test plausible detectors locally, not permission to
   treat catalogue hide-and-recover results as a reconstruction of the undisclosed
   test distribution.</p>
-  <p>Keep the scientific rationale and the scoring evidence separate. The current
-  R8 union has higher proxy recall but lower weighted precision and DTI than the topo
-  baseline in confirmation folds; its download is not recommended for an upload.</p>
+  <p>Keep the scientific rationale and the scoring evidence separate. Every challenger
+  tested so far (R8 ensemble, R9 gap-completion, epicentral alignment, parallel-offset
+  corrections) raised recall but lost DTI against the reference in confirmation folds —
+  which is exactly why none of them replaced the shipped reference recipe.</p>
 </section></main>
 <footer class="site"><div class="wrap">
   <p><strong>13GEMSDOE</strong> — working repository for the
   <a href="https://www.drivendata.org/competitions/306/competition-doe-gems/">DOE GEMS Prize Challenge</a>.
-  Page generated 2026-09-30 18:51 UTC from <code>reports/*.json</code>.</p>
+  Page generated 2026-09-30 19:51 UTC from <code>reports/*.json</code>.</p>
   <p class="small">Every figure on this site is produced by a script in this
   repository and is reproducible from a clean checkout. Claims that could not be
   verified against an official source are listed as irregularities rather than

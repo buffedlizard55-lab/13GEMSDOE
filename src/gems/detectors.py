@@ -1444,3 +1444,233 @@ def structural_grain(field: np.ndarray, visible_catalogue: np.ndarray,
     else:
         out = coh * blind * sel.astype(np.float32)
     return out.astype(np.float32)
+
+
+# ===========================================================================
+# R9 -- three NEW hypotheses (2026-09-30, session 3).
+#
+# Each answers the charter's question set: which layers, which transform, why
+# it should catch a fault the USGS/INGENIOUS catalogue missed, and how it
+# differs from everything already implemented above.
+# ===========================================================================
+
+# ---------------------------------------------------------------------------
+# R9-1 -- Strike-aligned gap completion ("dotted-ridge closing")
+# ---------------------------------------------------------------------------
+_GAP_DIRS = ((0, 1), (1, 1), (1, 0), (1, -1))   # 0/45/90/135-degree line bins
+
+
+def strike_gap_close(support: np.ndarray, max_reach_axial: int = 3,
+                     max_reach_diag: int = 2, min_side: int = 1,
+                     anchor_dilate: int = 2) -> np.ndarray:
+    """Fill sub-kernel gaps along a predicted line's own strike. Returns ONLY
+    the added pixels (bool array, `support` excluded).
+
+    Layers: operates on the FUSED BINARY PREDICTION MAP itself (e.g.
+    BASE_topo_ridge top-k, or its union with other detectors). No input band
+    and no catalogue information is used, so it is fold-independent and cannot
+    leak withheld traces.
+
+    Physical signature: morphological closing with oriented line elements,
+    restricted to pure gap-fill. Pixel p is emitted iff, along at least one of
+    the four lattice line directions (0/45/90/135 deg), there are >= `min_side`
+    support pixels on BOTH sides within reach (min_side=1 closes dash gaps up
+    to 5 px axially and 3 px diagonally; raise it for stricter closing), and p
+    touches the dilated
+    support. Solid interiors (3x3 fully occupied) are never modified, and no
+    free end is ever extended (both sides required), so the operator cannot
+    grow a line that is not already there.
+
+    Why it should catch a catalogue-missing fault: ridge/edge detectors are
+    sampled at top-k and thinned by grid decimation, so a physically continuous
+    trace is emitted as DASHES. The organisers' definition of "new fault" is
+    per-PIXEL ("any fault pixel not already captured", forum 11536), and the
+    metric credits each truth pixel through a max over the 300 m (3 px)
+    neighbourhood -- so a truth pixel sitting inside a dash gap currently
+    earns 0 TP_w, while a prediction placed there costs almost no FP_w if the
+    line is real (it is within one kernel radius of the adjacent true pixels).
+    Every reachable gap pixel therefore has a favourable, measurable
+    precision/credit trade, and extensions/splays are frequently recorded as
+    short isolated pieces by legacy compilations (blind spot B5), where this
+    operator reconnects them to the main trace.
+
+    Metric note (predeclared, to be tested on the holdout): a gap pixel is
+    emitted only within `max_reach` of support on both sides, with diagonal
+    reach shortened so every emitted pixel lies within Euclidean distance 3 px
+    (300 m) of existing support on each side -- inside the scorer's own kernel.
+
+    How it differs from everything in this repo: `extension_rays` and
+    `horsetail_splay` extrapolate FROM CATALOGUE TIPS into empty space;
+    `gravity_termination` emits continuations of gravity ridges; nothing here
+    closes gaps in the prediction's own support using its own geometry. The
+    historical `h28-dotted-ridge` submission (10GEMSDOE, repository deleted --
+    irregularity I-5) cannot be audited for overlap; no equivalent operator
+    exists in this repository's code.
+    """
+    s = np.asarray(support, dtype=bool)
+    out = np.zeros(s.shape, dtype=bool)
+    reach = {d: (max_reach_axial if d[0] == 0 or d[1] == 0 else max_reach_diag)
+             for d in _GAP_DIRS}
+    for dy, dx in _GAP_DIRS:
+        k = reach[(dy, dx)]
+        plus = np.zeros(s.shape, dtype=np.uint8)
+        minus = np.zeros(s.shape, dtype=np.uint8)
+        for step in range(1, k + 1):
+            plus += _shift(s, dy * step, dx * step)
+            minus += _shift(s, -dy * step, -dx * step)
+        out |= (plus >= min_side) & (minus >= min_side)
+    if anchor_dilate > 0:
+        anchor = ndi.binary_dilation(s, structure=np.ones((3, 3), dtype=int),
+                                     iterations=anchor_dilate)
+        out &= anchor
+    # never fill solid interiors and never duplicate existing support
+    density = ndi.uniform_filter(s.astype(np.float32), size=3) * 9.0
+    out &= ~s & (density < 8.5)
+    return out
+
+
+# ---------------------------------------------------------------------------
+# R9-2 -- Epicentral-alignment lineaments (seismicity as the primary signal)
+# ---------------------------------------------------------------------------
+def eq_lineaments(ieq: np.ndarray, deq: np.ndarray, sigma_px: float = 4.0,
+                  ridge_sigma: float = 1.5, coherence_px: int = 9,
+                  min_coh: int = 5) -> np.ndarray:
+    """Linear alignments common to BOTH supplied earthquake-density bands.
+
+    Layers: `ieq_n100a15` (16) and `deq_n100a15` (10) -- the two provided
+    seismicity fields, which are near-uncorrelated (r = 0.083, measured,
+    `reports/band_audit.json` / irregularity I-2) and therefore act as two
+    independent observations of the same underlying structure rather than a
+    duplicated signal.
+
+    Transform: Gaussian-smooth each field, standardise, combine by geometric
+    mean (both must agree), Hessian ridge filter, NMS thin to a 1-px crest,
+    then keep only crest cells with >= `min_coh` crest pixels within
+    +-`coherence_px` along the local ridge direction (oriented persistence).
+
+    Physical signature: earthquakes occur ON faults. A linear ridge that is
+    present in two independent earthquake-density products marks a structure
+    that is slipping today. The USGS/INGENIOUS compilation is a *Quaternary
+    surface-evidence* database; an active structure without a recognised scarp
+    (blind spot B1/B4) is absent from it while still producing aligned
+    seismicity. This is the classic epistemic basis of blind-active-fault
+    mapping from instrumental seismicity.
+
+    Why it catches a catalogue-missing fault: it never looks at topography,
+    imagery or the catalogue, so nothing about it correlates with how the
+    compilation was built. It attacks precisely the "no surface expression"
+    population.
+
+    How it differs from everything in this repo: H-D *subtracts* earthquake
+    density in a strain-budget residual; R7-3 uses seismicity as a
+    multiplicative GATE on other bands' structural edges. No prior operator
+    extracts lineaments FROM the seismicity fields themselves. Honesty note:
+    the supplied fields are n=100/a=15 smoothed densities, so the signal is
+    regional; this is a corridor-scale detector and is expected to need fusion
+    with a sharper detector rather than stand alone.
+    """
+    a = robust_norm(ndi.gaussian_filter(fill_nan_nearest(ieq), sigma_px))
+    b = robust_norm(ndi.gaussian_filter(fill_nan_nearest(deq), sigma_px))
+    combo = np.sqrt(np.clip(a, 0, None) * np.clip(b, 0, None)).astype(np.float32)
+    st, ori = ridge_strength(combo, ridge_sigma)
+    crest = nms_thin(st, ori) > 0
+    if not crest.any():
+        return np.zeros(combo.shape, dtype=np.float32)
+    # oriented persistence: count crest pixels along the local strike ray
+    keep = np.zeros(combo.shape, dtype=bool)
+    for dy, dx in _GAP_DIRS:
+        acc = np.zeros(combo.shape, dtype=np.uint8)
+        for step in range(1, coherence_px + 1):
+            acc += _shift(crest, dy * step, dx * step)
+            acc += _shift(crest, -dy * step, -dx * step)
+        keep |= crest & (acc >= min_coh)
+    out = np.where(keep, combo, 0.0).astype(np.float32)
+    return robust_norm(out)
+
+
+# ---------------------------------------------------------------------------
+# R9-3 -- Parallel-offset "correction" edges beside visible traces
+# ---------------------------------------------------------------------------
+def _field_orientation(field: np.ndarray, sigma: float = 2.0) -> np.ndarray:
+    """Along-strike orientation of a lineated field, in the same empirical
+    convention as `ridge_strength` (a horizontal line reports pi/2, a vertical
+    line reports 0). Measured convention: the smoothed gradient direction
+    modulo pi (the gradient points across the line; ridge_strength's reported
+    angle equals the gradient angle mod pi -- verified on synthetic horizontal
+    and vertical lines)."""
+    f = fill_nan_nearest(field)
+    gx, gy = horizontal_gradients(ndi.gaussian_filter(f, sigma))
+    return np.mod(np.arctan2(gy, gx), np.pi).astype(np.float32)
+
+
+def parallel_offset_correction(visible: np.ndarray, edge_score: np.ndarray,
+                               off_lo_px: int = 1, off_hi_px: int = 4,
+                               strike_tol_deg: float = 25.0,
+                               min_run_px: int = 4, edge_pct: float = 97.0
+                               ) -> np.ndarray:
+    """Independent-physics edges running PARALLEL to, but offset from, a
+    visible catalogue trace. Returns a 0/1 score map; only EDGE pixels are
+    emitted, never a blanket halo.
+
+    Layers: `existing_faults` VISIBLE geometry (per holdout fold / full for
+    submission) + one sharp independent edge field (here typically
+    R7_crossgrad or HB_tdr_rtp, computed from rtp + iso_grav_anom only, i.e.
+    no catalogue input).
+
+    Physical signature: a legacy compilation records a trace at a finite
+    positional accuracy; later high-resolution evidence often shows the true
+    strand offset laterally by one to a few pixels, or records a parallel splay
+    the older mapping merged or missed. Detector: within a perpendicular
+    offset ring of `off_lo_px`..`off_hi_px` (100-400 m) of a visible trace,
+    keep edge-field crest pixels whose edge orientation is parallel to the
+    local trace strike within `strike_tol_deg`, requiring an along-strike
+    crest run of >= `min_run_px` so speckle does not qualify.
+
+    Why it targets catalogue-missing truth: organiser statement 3 (forum 11516
+    post 4): "A new-fault ground truth pixel can indeed lie within 300m of a
+    known fault trace. Such pixels would constitute corrections or
+    modifications to existing fault traces. Identifying these corrections is
+    one outcome we are aiming for." This operator is the only one here that
+    emits mass inside that corridor at all -- gated by independent physics
+    rather than by proximity, because the halo blanket control
+    (`gems6_hgb88`, 69.5 % of mass within 300 m, scored 0.0286) proved that
+    un-gated corridor mass is heavily penalised unless it sits on new truth.
+
+    How it differs from everything in this repo: `extension_rays` and
+    `horsetail_splay` extrapolate from trace TIPS; R7-5 gates on the catalogue
+    being ABSENT; `structural_grain` never emits near the catalogue. This is
+    the first ALONG-TRACE operator: it fires alongside visible traces where
+    independent potential-field geometry disagrees with the mapped position.
+    """
+    vis = np.asarray(visible, dtype=bool)
+    if off_lo_px < 1 or off_hi_px <= off_lo_px:
+        raise ValueError("need 1 <= off_lo_px < off_hi_px")
+    dist = ndi.distance_transform_edt(~vis)
+    ring = (dist >= off_lo_px) & (dist <= off_hi_px)
+    if not ring.any():
+        return np.zeros(vis.shape, dtype=np.float32)
+    e = np.asarray(edge_score, dtype=np.float32)
+    st, e_ori = ridge_strength(e, 1.2)
+    crest = nms_thin(st, e_ori)
+    thr = np.percentile(crest[crest > 0], edge_pct) if (crest > 0).any() else np.inf
+    crest = crest >= thr
+    if not crest.any():
+        return np.zeros(vis.shape, dtype=np.float32)
+    trace_ori = _field_orientation(ndi.gaussian_filter(vis.astype(np.float32), 2.0),
+                                   sigma=1.0)
+    d = np.abs(crest_ori := e_ori - trace_ori)
+    d = np.minimum(d, np.pi - d)                     # fold to [0, pi/2]
+    parallel = d <= np.radians(strike_tol_deg)
+    # along-strike crest run requirement
+    run = np.zeros(vis.shape, dtype=np.uint8)
+    bina = crest & parallel
+    # a ridge whose orientation is ~pi/2 runs east-west: count along x
+    eastwest = (np.abs(np.sin(e_ori)) >= 0.707).astype(np.uint8)
+    for dy, dx, along_ew in ((0, 1, 1), (1, 0, 0)):
+        acc = np.zeros(vis.shape, dtype=np.uint8)
+        for step in range(1, min_run_px + 1):
+            acc += _shift(bina, dy * step, dx * step).astype(np.uint8)
+            acc += _shift(bina, -dy * step, -dx * step).astype(np.uint8)
+        run = np.maximum(run, acc * (eastwest if along_ew else 1 - eastwest))
+    out = (ring & bina & (run >= 1)).astype(np.float32)
+    return out

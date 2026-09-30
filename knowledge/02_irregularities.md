@@ -208,7 +208,7 @@ also employs the geology experts who labelled the new faults
 
 ---
 
-## I‑8 🟠 UNRESOLVED — the rejected file's remote validation cause is unknown
+## I‑8 🟠 UNRESOLVED (narrowed 2026-09-30) — the rejected file's remote validation cause is unknown, but the candidate encodings are now characterised
 
 The reported rejection message is `Predicted values must be in range [0, 1]`.
 It does not identify whether the remote validator saw a finite out-of-range value,
@@ -216,11 +216,31 @@ NaN/NoData, or another issue. `src/gems/rio.py::validate_submission` checks the
 repository's local grid, dtype, band-count, NoData, and range rules; it does not
 reproduce the remote validator.
 
-The official problem page permits null/NaN outside the data bounds. The all-finite
-variant writes zero outside the valid mask; no cited organizer statement establishes
-that zero-fill is scoring-equivalent or accepted by the remote form. Retain both
-variants for diagnosis, inspect each submitted file's stored values and NoData tag,
-and record the official form's response before claiming a cause or fix.
+**What is now measured (2026-09-30 session 3):**
+
+1. The current primary artifact (`13gems-toporef-holdoutref.tif`) has **zero NaN
+   inside the footprint, zero finite values outside it, and in-footprint range
+   exactly [0, 1]**. It structurally matches the official sample submission mirror
+   (float32, NoData tag `nan`, finite values only inside the footprint).
+2. `reports/latest_submission.json → platform_check_simulation` records both
+   readings: a NoData-honouring (masked) read passes [0.0, 1.0]; a naive raw
+   `all(0 ≤ v ≤ 1)` test fails **on the NaN cells alone** — and would equally fail
+   the official sample's structure. So "NaN-outside" cannot be declared the cause:
+   if the remote validator used a naive raw test, it would reject the organizers'
+   own sample format.
+3. Sibling repositories traced two concrete historical bugs that *would* trip a
+   range check on their own files: NaN cells inside the footprint (6GEMSDOE PR #6)
+   and the float32 nodata sentinel −3.4028e38 leaking into predictions
+   (12GEMSDOE PR #8). No file currently published by 13GEMSDOE reproduces either.
+   The earlier claim (16GEMSDOE, flag F13) that the error could not be reproduced
+   from any published file is consistent with our files.
+
+**Action.** Triage path, in order, recording each response in
+`reports/leaderboard_ledger.csv`: (1) upload the NaN-outside primary; (2) if the
+range error repeats, upload the all-finite twin (0.0 outside the footprint) — same
+predictions, passes a naive raw range test; (3) if both fail, stop spending slots
+and capture the exact response (next suspects: ZIP wrapper, CRS/transform). Do not
+claim a cause or fix until a form response is recorded against a file checksum.
 
 ---
 

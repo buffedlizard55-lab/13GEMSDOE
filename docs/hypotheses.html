@@ -188,7 +188,28 @@
           <td class="small">A dense intersection of candidate edges could mark a structurally complex zone, but it is only an intersection of detector outputs—not confirmed faults, fracture permeability, or a geothermal upflow measurement. Edge density and correlated false positives are major risks.</td>
           <td class="small">Adds a secondary density transform over existing candidate ridge maps rather than a new physical observation. Its apparent novelty is computational; it does not independently validate the input lineaments.</td>
           <td><span class="tag t-info">qualitative: Unknown marginal DTI; current R8 union is below the local topo baseline</span><br>
-              <span class="tag t-mut">cost Low-to-medium (threshold sensitivity)</span></td></tr></tbody></table></div>
+              <span class="tag t-mut">cost Low-to-medium (threshold sensitivity)</span></td></tr><tr>
+          <td><b>R9-1</b><br><span class="small">Strike-aligned gap completion (“dotted-ridge closing”) — MEASURED</span><br><span class='tag t-info'>worst-rule DTI 0.0629 · mean DTI 0.0719</span><br><span class='small'>R9 paired confirmation DTI (predeclared rule: LOSES)</span></td>
+          <td class="small mono">the fused binary prediction map itself (no band, no catalogue)</td>
+          <td class="small">Oriented morphological closing restricted to pure gap-fill: pixel p emitted iff ≥1 support pixel lies on BOTH sides of p along one of four lattice line directions within reach (axial 3 px, diagonal 2 px), p touches dilated support, and p is not in a solid interior.</td>
+          <td class="small">Top-k + grid decimation emits physically continuous traces as DASHES; “new fault” is defined per PIXEL and each truth pixel is credited through a 300 m max, so a truth pixel inside a dash gap currently earns 0 TP_w while a prediction there costs almost no FP_w if the line is real.</td>
+          <td class="small">extension_rays/horsetail extrapolate FROM CATALOGUE TIPS; gravity_termination continues gravity ridges; no prior operator closes gaps in the prediction's own support from its own geometry.</td>
+          <td><span class="tag t-info">qualitative: MEASURED: LOSES (loose −0.0257 mean DTI, +145.6k px/fold; strict +32 px, tie)</span><br>
+              <span class="tag t-mut">cost Low</span></td></tr><tr>
+          <td><b>R9-2</b><br><span class="small">Epicentral-alignment lineaments — MEASURED</span><br><span class='tag t-info'>worst-rule DTI 0.0846 · mean DTI 0.0955</span><br><span class='small'>R9 paired confirmation DTI (predeclared rule: LOSES)</span></td>
+          <td class="small mono">ieq_n100a15 (16), deq_n100a15 (10)</td>
+          <td class="small">Smooth both earthquake-density bands, standardise, geometric mean (both must agree), Hessian ridge, NMS crest, keep crest cells with oriented persistence ≥5 crest px within ±9.</td>
+          <td class="small">Earthquakes occur ON faults; the catalogue is a surface-evidence compilation, so an active structure with no recognised scarp is absent from it while still producing aligned seismicity in two near-uncorrelated fields (r = 0.083).</td>
+          <td class="small">H-D subtracts seismicity in a deficit residual; R7-3 uses it as a multiplicative gate on OTHER bands' edges. No prior operator extracts lineaments FROM the seismicity fields.</td>
+          <td><span class="tag t-info">qualitative: MEASURED: LOSES (−0.0021 mean DTI at +16,590 px/fold)</span><br>
+              <span class="tag t-mut">cost Low</span></td></tr><tr>
+          <td><b>R9-3</b><br><span class="small">Parallel-offset “correction” edges — MEASURED</span><br><span class='tag t-info'>worst-rule DTI 0.0869 · mean DTI 0.0976</span><br><span class='small'>R9 paired confirmation DTI (predeclared rule: LOSES)</span></td>
+          <td class="small mono">visible catalogue (per fold) + R7_crossgrad edge field (rtp + iso_grav_anom)</td>
+          <td class="small">Within a 1–4 px perpendicular ring of a visible trace, keep independent-field crest pixels whose orientation is parallel to the local trace strike (≤25°) with an along-strike crest run ≥4 px. Emits EDGE pixels only, never a blanket halo.</td>
+          <td class="small">Organizer statement 3 names corrections/modifications within 300 m of known traces as target truth. A laterally offset high-quality potential-field edge beside a coarse legacy trace is exactly “newly mapped geometry”.</td>
+          <td class="small">extension_rays/horsetail fire at trace TIPS; R7-5 gates on catalogue ABSENCE; structural_grain never emits near the catalogue. This is the only ALONG-TRACE operator.</td>
+          <td><span class="tag t-info">qualitative: MEASURED: LOSES as a no-op (+26 px/fold, Δ −0.00001); the gate is too strict on this data</span><br>
+              <span class="tag t-mut">cost Medium</span></td></tr></tbody></table></div>
 </section>
 
 
@@ -252,7 +273,7 @@
 <footer class="site"><div class="wrap">
   <p><strong>13GEMSDOE</strong> — working repository for the
   <a href="https://www.drivendata.org/competitions/306/competition-doe-gems/">DOE GEMS Prize Challenge</a>.
-  Page generated 2026-09-30 18:51 UTC from <code>reports/*.json</code>.</p>
+  Page generated 2026-09-30 19:51 UTC from <code>reports/*.json</code>.</p>
   <p class="small">Every figure on this site is produced by a script in this
   repository and is reproducible from a clean checkout. Claims that could not be
   verified against an official source are listed as irregularities rather than

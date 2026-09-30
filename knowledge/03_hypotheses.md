@@ -274,6 +274,53 @@ See `reports/holdout_candidate_r8_2026-09-30.json`. No map is cleared for an upl
 
 ---
 
+## R9 — Three new hypotheses implemented and MEASURED (2026-09-30, session 3)
+
+All three were implemented in `src/gems/detectors.py` and validated with a
+predeclared, paired protocol (`scripts/validate_r9_holdout.py`): identical folds,
+buffer, scorer, and tune/confirm split to the R8 comparison; the reference
+`topo_05_sp3` is re-scored in the same run and **reproduces the archived per-fold
+DTI values exactly** (protocol regression check PASS). Report:
+`reports/holdout_r9_2026-09-30.json`. Predeclared verdict rule: WIN requires
+beating the reference on tune AND confirmation worst-rule-mean DTI and not losing
+more than 2 of 6 confirmation rule-means.
+
+### R9-1 · Strike-aligned gap completion ("dotted-ridge closing") — LOSES
+* **Layers:** the fused binary prediction map only (no band, no catalogue) — fold-independent by construction.
+* **Transform:** `gems.detectors.strike_gap_close` — oriented closing (4 lattice directions), pure gap-fill: both-sides support requirement, anchor and solid-interior gates; axial reach 3 px, diagonal 2 px so every filled pixel is within the scorer's 300 m kernel of support on each side.
+* **Why catalogue-missing:** per-pixel "new fault" definition + 300 m max kernel means a truth pixel inside a dash gap earns 0 TP_w, while a prediction there costs ≈0 FP_w if the line is real; legacy compilations record extensions/splays as short pieces (B5).
+* **Measured outcome:** strict variant (min_side=2) adds only ~32 px/fold → exact tie (Δ −0.00001). Loose variant (min_side=1) adds ~145,608 px/fold, recall 0.2874→0.3269, precision 0.0276→0.0178, ΔDTI −0.0257 (0 wins / 12 folds). **The metric's own A5 rule predicted this: the added mass's marginal weighted precision was below 0.2 × DTI.** The decimation gaps are earning their keep — on this holdout, a ridge dash gap is usually NOT a concealed continuation.
+* **Differs from prior work:** first operator that modifies the prediction's own support using its own geometry (rays/splays extrapolate from catalogue tips; nothing here reads the catalogue).
+
+### R9-2 · Epicentral-alignment lineaments — LOSES
+* **Layers:** `ieq_n100a15` (16) + `deq_n100a15` (10), near-uncorrelated (r = 0.083).
+* **Transform:** `gems.detectors.eq_lineaments` — smooth, standardise, geometric mean, Hessian ridge, NMS crest, oriented-persistence gate (≥5 crest px within ±9 px along strike). Cached as `R9_eq_align.npy` (input-derived).
+* **Why catalogue-missing:** active structures slip and produce earthquakes with no scarp (B1/B4); seismicity is independent of how a surface-evidence compilation was built.
+* **Measured outcome:** at 1.5% coverage, +16,590 px/fold, ΔDTI −0.0021, 0/12 wins. Precision fell 0.0276→0.0264 while recall rose 0.2874→0.2983 — marginal precision just under the inclusion bar. Honest note from the design stage held: the supplied bands are smoothed densities, so this is a corridor-scale signal, not a trace.
+* **Differs from prior work:** first detector whose PRIMARY signal is the seismicity fields themselves (H-D subtracts them; R7-3 gates other bands by them).
+
+### R9-3 · Parallel-offset "correction" edges — LOSES (as a no-op)
+* **Layers:** per-fold VISIBLE catalogue + `R7_crossgrad` edge field (rtp + iso_grav_anom; no catalogue input).
+* **Transform:** `gems.detectors.parallel_offset_correction` — within a 1–4 px perpendicular ring of a visible trace, keep cross-gradient crest pixels parallel to local trace strike (≤25°) with an along-strike run ≥4 px; emits edge pixels only.
+* **Why catalogue-missing:** organizer statement 3 (forum 11516 post 4): new-fault truth within 300 m of known traces = "corrections or modifications"; a laterally offset strong edge beside a coarse legacy trace is exactly that. The halo blanket control (`gems6_hgb88`, 0.0286) shows un-gated corridor mass is penalised — hence the physics gate.
+* **Measured outcome:** ~26 px/fold, Δ −0.00001 — the conjunction (p97 crest ∧ ring ∧ parallel ∧ run) almost never fires on this grid. Recorded as a negative result: the operator as parameterized is a no-op, NOT evidence that corrections are absent from the hidden truth.
+* **Differs from prior work:** first ALONG-TRACE operator (tips are R6-1/R6-2 territory; R7-5 gates on catalogue absence).
+
+### R9 ranking (post-measurement; replaces the pre-implementation research order)
+
+| rank | hypothesis | measured ΔDTI (confirm) | verdict | cost |
+|---|---|---|---|---|
+| 1 | R9-2 epicentral alignment | −0.0021 | LOSES (closest; the only challenger whose marginal precision is near the bar) | Low |
+| 2 | R9-1 gap closing (strict) | −0.00001 (tie, +32 px) | LOSES (inert) | Low |
+| 3 | R9-3 parallel-offset corrections | −0.00001 (tie, +26 px) | LOSES (inert as parameterized) | Medium |
+| — | R9-1 gap closing (loose) | −0.0257 | LOSES badly (A5-predicted) | Low |
+
+**Decision:** the reference recipe `topo_05_sp3` remains the local best and is shipped
+as the primary downloadable artifact (`13gems-toporef-holdoutref`); no submission slot
+is spent on any R9 idea. The R8 archive stays demoted.
+
+---
+
 ## Hypotheses that need external data (named, checked, and *not* proposed as viable today)
 
 **H‑F · Paleo-hydrothermal deposit alignment.** Sinter and tufa deposits mark

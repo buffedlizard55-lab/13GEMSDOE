@@ -1,77 +1,27 @@
 {
-  "name": "13gems-r8-ensemble-20260930T014614Z",
-  "generated_utc": "20260930T014614Z",
-  "note_for_submission_form": "Exploratory R8 union: 2 km tip rays + horsetail; openness 2%, TPI 1%, flow 2%, isocoherence 0.5%, remanence 0.5%, intersections 1%, topo 3%; 1-per-3-px thinning; binary. Rebuilt local visible-only holdout did not beat BASE_topo_ridge; not submission-cleared.",
+  "name": "13gems-toporef-holdoutref",
+  "generated_utc": "20260930T195117Z",
+  "note_for_submission_form": "BASE_topo_ridge top-5% of valid, decimate_grid 3px (300 m), binary, catalogue included (masked at scoring); local holdout reference recipe, NOT a private-test claim",
   "recipe_selection": {
-    "selected_by": "Exploratory synthesis of detector hypotheses; the full ensemble was not tested when this raster was created.",
+    "selected_by": "re-confirmed local best under the predeclared paired worst-rule decision rule; see reports/holdout_r9_2026-09-30.json (protocol regression check PASS) and reports/holdout_candidate_r8_2026-09-30.json",
     "detectors": [
-      "extension_rays",
-      "horsetail_splay",
-      "R8_openness",
-      "R8_tpi",
-      "R8_flow",
-      "R8_isocoherence",
-      "R8_remanence",
-      "R8_intersections",
       "BASE_topo_ridge"
     ],
-    "objective": "Test a broad union of fault-tip geometry, terrain, hydrology, gravity, and magnetic hypotheses; no hidden-test performance claim.",
-    "geothermal_basis": "Literature motivates these layers as permeability or concealed-structure hypotheses; their local holdout contribution must be measured and is not assumed."
+    "objective": "ship the exact local holdout reference configuration as the primary review artifact; no hidden-test performance claim"
   },
   "map_stats": {
-    "recipe": "r8_ensemble",
-    "tip_ray_reach_px": 20,
-    "tip_ray_reach_m": 2000,
-    "decimation_spacing_px": 3,
-    "coverages": {
-      "R8_openness": 0.02,
-      "R8_tpi": 0.01,
-      "R8_flow": 0.02,
-      "R8_isocoherence": 0.005,
-      "R8_remanence": 0.005,
-      "R8_intersections": 0.01,
-      "BASE_topo_ridge": 0.03
-    },
-    "n_px_per_detector": {
-      "R8_openness": {
-        "coverage_target": 0.02,
-        "n_px_after_decimation": 76588
-      },
-      "R8_tpi": {
-        "coverage_target": 0.01,
-        "n_px_after_decimation": 45235
-      },
-      "R8_flow": {
-        "coverage_target": 0.02,
-        "n_px_after_decimation": 79707
-      },
-      "R8_isocoherence": {
-        "coverage_target": 0.005,
-        "n_px_after_decimation": 9785
-      },
-      "R8_remanence": {
-        "coverage_target": 0.005,
-        "n_px_after_decimation": 7259
-      },
-      "R8_intersections": {
-        "coverage_target": 0.01,
-        "n_px_after_decimation": 7836
-      },
-      "BASE_topo_ridge": {
-        "coverage_target": 0.03,
-        "n_px_after_decimation": 110647
-      }
-    },
-    "n_tip_ray_px_before_decimation": 89026,
-    "n_tip_ray_px": 36478,
-    "n_horse_px_before_decimation": 248458,
-    "n_horse_px": 69170,
-    "n_union_new_px": 391691,
-    "n_predicted_px": 452679,
-    "pct_of_valid": 8.7603,
+    "recipe": "topo_ref",
+    "detector": "BASE_topo_ridge",
+    "coverage_target": 0.05,
+    "line_spacing_px": 3,
+    "decimation": "decimate_grid",
+    "include_known_catalogue": true,
+    "n_selected_before_decimation": 258368,
+    "n_new_prediction_px": 185481,
+    "n_predicted_px": 246469,
+    "pct_of_valid": 4.7697,
     "max_value": 1.0,
-    "min_value": 0.0,
-    "include_known_catalogue": true
+    "min_value": 0.0
   },
   "validation": {
     "nan_outside": {
@@ -109,8 +59,8 @@
         "outside_nodata_ok": true,
         "min": 0.0,
         "max": 1.0,
-        "sum": 452679.0,
-        "n_gt0": 452679
+        "sum": 246469.0,
+        "n_gt0": 246469
       }
     },
     "all_finite_diagnostic": {
@@ -148,10 +98,47 @@
         "outside_nodata_ok": false,
         "min": 0.0,
         "max": 1.0,
-        "sum": 452679.0,
-        "n_gt0": 452679
+        "sum": 246469.0,
+        "n_gt0": 246469
       }
     }
+  },
+  "artifact_status": "BEST_LOCAL_REFERENCE_LOCAL_PROXY_ONLY",
+  "submission_clearance": {
+    "status": "BEST_LOCAL_REFERENCE_NOT_PRIVATE_TEST_CLAIM",
+    "reason": "This artifact implements topo_05_sp3, the current local holdout best (confirmation worst-rule mean DTI 0.08687, mean 0.09763). That is a catalogue hide-and-recover proxy, NOT a private-test estimate; remote acceptance is unverified. No R9 variant beat it, so it remains the best available candidate under the charter gate.",
+    "holdout_report": "reports/holdout_r9_2026-09-30.json",
+    "private_test_claim": false,
+    "upload_allowed": true
+  },
+  "prediction_identity": {
+    "canonical_pixel_sha256": "5748a1e3bd894f02fa845579355dde766f1dc370a912e3fcc027a3e79792240d",
+    "positive_support_sha256": "3f01c3960346b5cd3a165030b02ee61b7eb12eb1001bdc8581e548bd2b02af96",
+    "positive_pixels": 246469,
+    "identity_scope": "float32 scored-grid values; NaN and outside-footprint cells canonicalized to zero",
+    "exact_duplicate_matches": [],
+    "same_support_different_values": [],
+    "existing_rasters_checked": [
+      "data/scored/gems3_pindrop_discovery_LB0.0830.tif",
+      "data/scored/gems3_pindrop_nodes_LB0.1193.tif",
+      "data/scored/gems3_pindrop_ridge_LB0.1152.tif",
+      "data/scored/gems6_hgb88_LB0.0286.tif",
+      "data/scored/gems7_halo15_LB0.1461.tif",
+      "data/scored/gems8_apex_LB0.1563.tif",
+      "data/scored/gemsdoe1_ens12_LB0.1563.tif",
+      "data/scored/gemsdoe2_dualunion_LB0.1560.tif",
+      "docs/downloads/13gems-composite-20260928T040920Z.tif",
+      "docs/downloads/13gems-composite-20260928T040920Z_allfinite.tif",
+      "docs/downloads/13gems-composite-20260929T183221Z.tif",
+      "docs/downloads/13gems-composite-20260929T183221Z_allfinite.tif",
+      "docs/downloads/13gems-composite-plus-20260929T183249Z.tif",
+      "docs/downloads/13gems-composite-plus-20260929T183249Z_allfinite.tif",
+      "docs/downloads/13gems-r6-ensemble-20260929T182914Z.tif",
+      "docs/downloads/13gems-r6-ensemble-20260929T182914Z_allfinite.tif",
+      "docs/downloads/13gems-r8-ensemble-20260930T014614Z.tif",
+      "docs/downloads/13gems-r8-ensemble-20260930T014614Z_allfinite.tif"
+    ],
+    "score_uniqueness_claim": "None. Different prediction maps can still round to the same score."
   },
   "metric_facts": {
     "DTI_is_distance_weighted_F2": true,
@@ -159,16 +146,24 @@
     "binary_is_optimal": "DTI(c*p) strictly increases in c"
   },
   "official_format_source": "https://www.drivendata.org/competitions/306/competition-doe-gems/page/967/",
-  "validation_scope": {
-    "checked_utc": "2026-09-30",
-    "checks": "GeoTIFF grid, CRS, affine transform, dtype, band count, finite in-footprint values, range, and outside-footprint NoData against the supplied valid mask.",
-    "remote_acceptance": "UNKNOWN; the historical remote range rejection does not identify the cause.",
-    "no_data_decision": "NaN-outside follows the official format text. Zero-fill is retained as a diagnostic only and is not treated as equivalent."
-  },
-  "submission_clearance": {
-    "status": "NOT_CLEARED",
-    "reason": "The archived full-catalogue raster is not scored directly because its catalogue-derived tip/horsetail features would leak holdout truth. A per-fold rebuild using visible catalogue was tested; it did not beat the local BASE_topo_ridge comparator on the confirmation folds.",
-    "holdout_report": "reports/holdout_candidate_r8_2026-09-30.json",
-    "private_test_claim": false
+  "platform_check_simulation": {
+    "nan_outside_variant": {
+      "nodata_tag": "nan",
+      "n_nan_raw": 7111787,
+      "n_nan_inside_footprint": 0,
+      "raw_all_in_[0,1]_naive": false,
+      "raw_finite_minmax": [
+        0.0,
+        1.0
+      ],
+      "masked_min": 0.0,
+      "masked_max": 1.0,
+      "note": "a validator that reads the raw array WITHOUT honouring the NoData tag and tests all(v>=0 & v<=1) will reject ANY NaN-outside file, including the official sample submission's structure; a masked read passes. If the form repeats the range error on this file, upload 13gems-toporef-holdoutref_allfinite.tif next and record both responses."
+    },
+    "all_finite_variant": {
+      "n_nan_raw": 0,
+      "raw_all_in_[0,1]_naive": true,
+      "note": "passes a naive raw range check; outside-footprint cells are 0.0"
+    }
   }
 }
