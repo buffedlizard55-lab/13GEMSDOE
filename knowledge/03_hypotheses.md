@@ -292,3 +292,257 @@ not comparable to the leaderboard (different label set, different
 **L‑4 — 3 GB RAM / 2 cores.** Rules out training a deep segmentation model here.
 Every detector in this repo is analytic and CPU-cheap by necessity. A GPU box
 would allow a U-Net on the residual of these detectors.
+
+---
+
+## R7 — five NEW hypotheses (2026-09-29, session 2)
+
+**Premise.** Everything above (H-A..H-E, R6-1..R6-5) attacks *edges* or
+*specific morphologies* in a **single** physical field, or uses the catalogue
+geometrically. The five hypotheses below attack the blind spot from three
+directions that were not represented at all:
+
+* combining **two independent physics** on the same geometry (R7-1),
+* using a **different derivative order** on an existing layer (R7-2),
+* using an **independent observation of fault activity** rather than of fault
+  geometry (R7-3),
+* requiring **N-of-M physical agreement** instead of one field's opinion
+  (R7-4),
+* detecting a **system-level property** (regional orientation coherence) rather
+  than a pixel-level edge (R7-5).
+
+All five are implemented in `src/gems/detectors.py`, cached by
+`scripts/build_detectors.py`, and evaluated by `scripts/run_holdout3.py` under
+five withholding rules plus the concealed subset.
+
+### R7-1 · Cross-gradient structural edge
+
+* **Layers:** `iso_grav_anom` (13) + `rtp` (2).
+* **Transform:** at 0 / 1 / 3 km of upward continuation, compute both fields'
+  horizontal gradients, their cosine of included angle, and gate on
+  `min(norm|∇g|, norm|∇b|)` × clipped alignment; Hessian-ridge thin to 1 px;
+  stack height-weighted. Implementation: `gems.detectors.cross_gradient_edge`.
+* **Physical signature:** gravity measures density, magnetics measures
+  susceptibility — two independent properties. A real structure produces a
+  lateral contrast in **both**, and because a fault contact is one geometric
+  surface the two gradient vectors point the **same way**. Non-structural
+  gradients (artefacts, sedimentary texture, cultural noise, remanence) produce
+  an edge in one field only, or in both pointing different ways. Directional
+  coincidence between two independent measurements is a precision filter that
+  says nothing about surface expression.
+* **Why it catches a fault missing from the catalogue:** a buried fault that
+  offsets magnetic basement makes a susceptibility edge *and* a density edge
+  with no scarp, so it cannot be in a scarp-derived catalogue.
+* **How it differs from this repo:** H-A worms each field separately and never
+  compares them; H-B runs TDR on one field at a time; R6-3 requires
+  `depth_to_base` and `cond_surf` to agree, which is a different pair and a
+  different condition (product of amplitudes, not alignment of directions).
+* **Expected DTI gain:** Medium. **Cost:** Low (~21 s).
+
+### R7-2 · Basement hinge / flexure line (second derivative, not step)
+
+* **Layers:** `depth_to_base_surf` (15), `det_elev_slope` (19).
+* **Transform:** Laplacian of basement depth → Hessian ridge → NMS → flat-ground
+  and anti-topographic gates → directional coherence.
+  Implementation: `gems.detectors.basement_hinge_curvature`.
+* **Physical signature:** the **maximum-curvature locus** of the conductive-base
+  surface. H-C and R6-3 detect a *step* (first-derivative maximum). A listric
+  normal fault, a monocline hinge and a drag-folded margin put their largest
+  signal at the **hinge**, in the middle of the flexure rather than at its edge.
+* **Why it catches a fault missing from the catalogue:** the flat-ground and
+  anti-topographic gates mean it can only fire where a scarp-derived catalogue
+  is structurally blind.
+* **How it differs:** different derivative order from H-C/R6-3, and it
+  deliberately does **not** require a conductivity contrast, so it fires on
+  flexures invisible in `cond_surf`.
+* **Expected DTI gain:** Medium. **Cost:** Low (~21 s).
+
+### R7-3 · Seismicity-gated structural lineaments
+
+* **Layers:** a sharp structural map + `ieq_n100a15` (16) + `deq_n100a15` (10).
+* **Transform:** `robust_norm(structural)` × `(floor + (1−floor)·norm(Gauss(ieq)))`
+  × the same for `1 − norm(deq)`. Implementation:
+  `gems.detectors.seismicity_gate`; instantiated as `R7_seis_cross` (on R7-1)
+  and `R7_seis_grav` (on R6-4).
+* **Physical signature:** a fault that is *currently slipping* must produce
+  earthquakes. The USGS/INGENIOUS compilation is a Quaternary surface-evidence
+  database, so an active fault with no recognised scarp is absent from it while
+  still being a fault. Seismicity is an independent observation of exactly the
+  population the catalogue misses.
+* **Measured support for the layer choice** (`scripts/audit_bands.py`): both
+  `ieq` and `deq` have **higher** medians inside catalogue pixels than outside
+  (935 vs 751 and 777 vs 621), so they behave as positive density/intensity
+  quantities rather than distances — and they are near-uncorrelated with each
+  other (r = 0.083), which is what makes them two usable gates rather than one
+  duplicated signal.
+* **How it differs from H-D:** H-D *subtracts* earthquake density from a strain
+  budget (a deficit argument) and uses it as a smooth multiplier. This is a
+  positive gate on a **sharp** detector, using `ieq` as evidence **for** a
+  fault. R6-5 uses strain coupling, not seismicity.
+* **Expected DTI gain:** Low-Medium. **Cost:** Low (~10 s).
+
+### R7-4 · Multi-band edge consensus (N-of-5 within 300 m)
+
+* **Layers:** `rtp` (2), `iso_grav_anom` (13), `cond_surf` (17),
+  `depth_to_base_surf` (15), `tmi` (14).
+* **Transform:** threshold each band's own gradient magnitude at its 90th
+  percentile, dilate each binary edge by **3 px = 300 m**, and vote.
+  Implementation: `gems.detectors.edge_consensus`; instantiated as
+  `R7_consensus3` (3 of 5) and `R7_consensus4` (4 of 5).
+* **Physical signature:** a fault juxtaposes rock of different susceptibility,
+  density, conductivity and burial depth at the same place, so it moves **five
+  independent physical quantities at once**. Noise, remanence and cultural
+  signal move one or two. The vote is a joint detector whose false-positive
+  structure is unlike any single-band detector's.
+* **Why 3 px is not a free parameter:** it is the scorer's own 300 m tolerance,
+  so two edges count as "the same edge" only within the distance the metric
+  itself treats as a hit.
+* **How it differs:** every existing detector is single-band, or a pair product
+  (R6-3). An N-of-M consensus over five independent measurements is new.
+* **Expected DTI gain:** Medium (precision-weighted). **Cost:** Low (~22 s).
+
+### R7-5 · Regional structural grain where the catalogue is silent
+
+* **Layers:** `rtp` (2) + `existing_faults` geometry, with the catalogue term
+  rebuilt **per holdout fold from the visible catalogue only**.
+* **Transform:** structure tensor of the gradient-orientation field;
+  coherence `(λ1−λ2)/(λ1+λ2)`; inverted smoothed visible-catalogue density as a
+  blindness gate; thin along the principal grain direction.
+  Implementation: `gems.detectors.structural_grain`.
+* **Physical signature:** a fault **system** imposes one preferred orientation
+  over kilometres; isolated artefacts do not. Tensor coherence is high only
+  where the orientation field is locally single-valued.
+* **Why it catches faults missing from the catalogue:** the organizers define
+  "new fault" to include "newly mapped geometry of an existing fault system" —
+  extensions, splays and **parallel strands**. A parallel strand is at the same
+  orientation as the mapped system and within a few km of it, so it is invisible
+  to any single-edge detector and to a human mapper scanning imagery, yet it is
+  a coherent extension of the regional grain. Gating on **catalogue silence**
+  rather than distance to the catalogue is what distinguishes this from the halo
+  controls.
+* **How it differs:** nothing in this repo computes a regional
+  orientation-coherence field, and nothing uses "the catalogue fails to explain
+  the observed grain" as a detection criterion.
+* **Known weakness, stated up front:** with the **full** catalogue the blindness
+  gate leaves only **1,748** of 5,167,373 valid pixels (0.034 %) — the
+  submission-side version is effectively empty (irregularity I-12). Only the
+  per-fold version is measurable.
+* **Expected DTI gain:** Unknown / probably low. **Cost:** Medium (~22 s).
+
+### R7 ranking (before measurement)
+
+| rank | hypothesis | expected DTI gain | cost | blind spot | novelty vs this repo |
+|---|---|---|---|---|---|
+| 1 | **R7-1** cross-gradient edge | Medium | Low | buried, no scarp | complete (two-field directional coincidence) |
+| 2 | **R7-4** edge consensus N-of-5 | Medium | Low | any, precision-weighted | complete (N-of-M joint detection) |
+| 3 | **R7-3** seismicity gate | Low-Medium | Low | active but scarp-less | complete (positive seismicity gate) |
+| 4 | **R7-2** basement curvature hinge | Medium | Low | flexure/hinge | partial (new derivative order on a used layer) |
+| 5 | **R7-5** structural grain | Unknown, probably low | Medium | parallel strands, systems | complete (system-level property) |
+
+Empirical holdout results supersede this ranking — see
+`reports/holdout_v3.json` and `reports/holdout_verdict_v3.json`.
+
+---
+
+## R7 empirical verdict (measured 2026-09-29, `reports/holdout_v3.json`)
+
+Protocol: whole fault systems withheld with a 500 m buffer, 10 folds across 5
+withholding rules (random / short / isolated / strike-class / dense), visible
+catalogue masked pixel-exactly, DTI scored on the withheld pixels only, against
+the **closed-form chance DTI at the actual predicted-pixel count** and 30
+coverage-matched random controls (median relative error 1.1 %). Catalogue-derived
+detectors (`HD_strain`, `R7_grain`) were rebuilt per fold from the VISIBLE
+catalogue only, so no withheld geometry is used to build the detector. Runtime
+4,911 s.
+
+`lift` = candidate DTI / chance DTI at the same pixel count on the same fold.
+`worst` = the worst of the five withholding rules, which is the number the
+shipping rule uses.
+
+| rank | family | best config | mean lift | **worst-rule lift** | concealed lift | verdict |
+|---|---|---|---|---|---|---|
+| 1 | `BASE_topo_ridge` | cov0.05 / sp3 | 1.09 | **1.06** | 0.51 | still the best honest detector in the repo |
+| 2 | `R7_seis_cross` | cov0.005 / sp3 | 1.20 | 0.97 | 0.45 | best mean lift, but below chance on the worst rule |
+| 3 | `BASE_tmi_hg` | cov0.05 / sp3 | 1.02 | 0.98 | 0.95 | unchanged |
+| 4 | `R7_crossgrad` | cov0.08 / sp3 | 0.96 | 0.93 | 0.94 | **R7-1 does not beat its own inputs** |
+| 5 | `R6_gravterm` | cov0.005 / sp3 | 1.00 | 0.90 | 1.31 | best concealed lift of any non-prior (1.31) |
+| 6 | `R7_seis_grav` | cov0.01 / sp3 | 1.12 | 0.86 | 0.64 | below chance |
+| 7 | `HB_theta_rtp` / `HB_tdr_rtp` | cov0.01 / 0.08 | 0.89 / 0.94 | 0.80 / 0.80 | 0.76 / 0.64 | below chance |
+| 8 | `R6_transt` | cov0.08 / sp3 | 1.26 | 0.60 | 0.53 | huge variance: 4.42x on `strike_60_120`, 0.46x on `random_0` |
+| 9 | `R7_consensus4` / `R7_consensus3` | cov0.03 / sp3 | 0.82 / 0.77 | 0.45 / 0.44 | 0.76 / 0.74 | consensus of mediocre detectors is worse than the best member |
+| 10 | `HD_strain` | cov0.08 / sp3 | 0.74 | 0.19 | 0.61 | below chance |
+| 11 | `R7_hinge_curv` | cov0.08 / sp3 | 0.47 | 0.20 | 1.20 | dead |
+| 12 | `R7_grain` | cov0.005 / sp1 | 0.15 | 0.00 | 0.05 | dead (see I-12) |
+
+**Conclusions, stated plainly.**
+
+1. **No R7 hypothesis beats the analytic baselines that already existed.** The
+   pre-measurement ranking put R7-1 (cross-gradient edge) first; it measures
+   0.93-0.96 worst-rule lift, i.e. it does not even reach chance. R7-4
+   (consensus) and R7-5 (structural grain) are worse still.
+2. **`BASE_topo_ridge` remains the single best honest detector** at 1.06
+   worst-rule lift, and it is the same detector that led every prior run. Nothing
+   measured in this session displaces it.
+3. **The honest ceiling is low.** The best honest candidate is 1.06x chance on
+   the worst rule. Every prior submission that scores above 0.15 on the public
+   column does so by leaking the catalogue itself (see the `PRIOR_*` rows:
+   2.56x-5.04x, all excluded). The measured gap between "what the data supports"
+   and "what the leaderboard rewards" is the central finding of this project.
+4. **`R6_transt` is the only detector with a genuinely large fold-specific
+   signal** (4.42x on the strike-class fold with 5,735 withheld pixels). That
+   fold is the smallest of the ten, so the number is the least statistically
+   reliable in the table; it is reported, not shipped.
+5. **Stage 2** re-scored the ten best stage-1 `R6_transt` configurations on all
+   ten folds: mean lift 1.30, min 0.07, max 4.42. The mean is above chance, the
+   spread is not.
+
+## H-S empirical verdict (measured 2026-09-29, `reports/holdout_supervised.json`)
+
+H-S is the first **supervised** detector in this repository: L2-regularised
+logistic regression on 57 features (19 official bands x {value, 3x3 mean, 9x9
+mean}), trained per fold on the VISIBLE catalogue only, with a 5-px dilation of
+the withheld halo excluded from the training set so no withheld geometry can
+leak through a 9x9 context mean. 40 epochs of Adam, 400,000 subsampled
+negatives, inverse-frequency positive weighting.
+
+| family | best config per fold | mean lift range over folds | verdict |
+|---|---|---|---|
+| `HS_supervised` | cov0.08 / sp3 on every fold | **0.21 - 0.75** | **below chance on every fold** |
+| `BASE_topo_ridge` (same run, same folds) | cov0.05-0.08 / sp3 | 1.06 - 1.17 | reference |
+
+**Top learned feature weights (fold `random_0`)** — physically sensible:
+
+| rank | feature | weight |
+|---|---|---|
+| 1 | `det_elev` 9x9 mean | +1.1735 |
+| 2 | `det_elev` value | -0.8712 |
+| 3 | `det_elev` 3x3 mean | -0.6117 |
+| 4 | `geod_shearrate` 3x3 mean | +0.4462 |
+| 5 | `geod_2ndinv` 9x9 mean | -0.4148 |
+| 6 | `geod_shearrate` 9x9 mean | +0.4095 |
+| 7 | `geod_shearrate` value | +0.3906 |
+| 8 | `geod_2ndinv` value | -0.3678 |
+| 9 | `iso_grav_anom_vg` 9x9 mean | +0.3583 |
+| 10 | `rtp` 9x9 mean | +0.3413 |
+
+Detrended elevation dominates, then geodetic strain, then gravity and
+radiometrics. The model is learning real structure.
+
+**Why it nevertheless fails the holdout — measured, not guessed.** Of H-S's
+predicted pixels, **12.4 % lie within 300 m of the VISIBLE catalogue**, against
+**5.9-6.5 %** for every analytic detector measured in the same run; and only
+**37.0 %** of H-S's pixels are more than 3 km from the visible catalogue, against
+**52.3-54.1 %** for the analytic detectors. The organizers confirmed, verbatim,
+that "the buffer does not apply to known faults" and that "a predicted pixel that
+is near a known fault trace but far from a new-fault ground truth pixel will be
+fully penalized" (forum 11516 post 4). H-S puts twice as much of its mass in
+exactly the region that carries full FP_w penalty and no possible credit.
+
+**Generalisation.** A supervised model trained on a 1.18 %-positive catalogue on
+a 3 GB box reproduces the catalogue's own neighbourhood, and the metric
+deliberately refuses to reward that neighbourhood. This is not a tuning problem;
+it is a mismatch between the training objective (reproduce the catalogue) and
+the scoring objective (find faults the catalogue does not already contain). Any
+supervised approach here must be trained on a target that excludes the mapped
+neighbourhood — a hard-negative-mining or one-class formulation — not on the
+catalogue raster directly.

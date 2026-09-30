@@ -1,0 +1,9 @@
+submission_id,file_sha256,recipe,coverage_pct,spacing_px,note_for_form,public_LB_reported,per_submission_score,score_source,verified,notes
+gemsdoe1_ens12_LB0.1563,,ens12,3.35,3,,0.1563,UNKNOWN,"user-reported",NO,"score is the account BEST PUBLIC column, not this file's score; forensics in reports/scored_forensics.json"
+gems8_apex_LB0.1563,,apex,4.06,3,,0.1563,UNKNOWN,"user-reported",NO,"90.8% of predicted mass within 300m of the known catalogue; inconsistent with 0.1563 under the organizers' fully-penalized rule"
+gemsdoe2_dualunion_LB0.1560,,dualunion,3.55,3,,0.1560,UNKNOWN,"user-reported",NO,"support IoU 0.94 with gemsdoe1_ens12 -- this pair IS near-duplicate work"
+gems7_halo15_LB0.1461,,halo15,11.73,3,,0.1461,UNKNOWN,"user-reported",NO,"reported score matches leaderboard account wbg1 (irregularity I-4)"
+gems3_pindrop_nodes_LB0.1193,,pindrop_nodes,3.00,3,,0.1193,UNKNOWN,"user-reported",NO,"reported score matches leaderboard account smrtdoog5 (irregularity I-4)"
+gems3_pindrop_ridge_LB0.1152,,pindrop_ridge,3.00,3,,0.1152,UNKNOWN,"user-reported",NO,
+gems3_pindrop_discovery_LB0.0830,,pindrop_discovery,3.00,3,,0.0830,UNKNOWN,"user-reported",NO,
+gems6_hgb88_LB0.0286,,hgb88,3.00,3,,0.0286,UNKNOWN,"user-reported",NO,"69.5% catalogue echo; 0.21x chance -- catalogue echo is actively harmful"

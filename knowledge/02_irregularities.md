@@ -46,7 +46,7 @@ mislabelled, or the official sample is not what the page describes.
 
 ---
 
-## I‑2 🟠 Band descriptions in the feature GeoTIFF look machine-written, and band 6 is probably mislabelled
+## I‑2 🟠 Band descriptions in the feature GeoTIFF look machine-written, and band 6 is still UNIDENTIFIED — the "radiometric total count" reading is now **disproved**
 
 **Measured.** The 19 band descriptions embedded in
 `gems-geodawn-numerical-features.tif` contain hedged, non-geophysical phrasing:
@@ -60,31 +60,76 @@ mislabelled, or the official sample is not what the page describes.
 
 Real geophysical metadata does not say "or".
 
-**Why band 6 almost certainly is NOT a tilt angle.** Three independent official
-statements:
+**What the earlier session claimed, and why it was wrong.** The previous
+revision of this file asserted "with high confidence" that band 6 is the
+**radiometric total count**. That was an inference from two true facts — that
+GeoDAWN is officially *"a high-resolution lidar, magnetic, and radiometric
+study"* ([Official Rules §2](https://docs.nlr.gov/docs/fy26osti/96647.pdf)) and
+that the problem page's figure shows *"total radiometric counts per second"* —
+plus the observation that "tc" is the standard abbreviation for Total Count.
+**It was never tested against the raster.** `scripts/audit_bands.py` now tests
+it, and the raster contradicts it:
 
-1. The official rules describe GeoDAWN as "a high-resolution **lidar, magnetic,
-   and radiometric** study" — [Official Rules §2](https://docs.nlr.gov/docs/fy26osti/96647.pdf).
-2. The problem page's own figure caption reads *"the **total radiometric counts
-   per second** (left) and total magnetic intensity (right)"* —
-   [problem description](https://www.drivendata.org/competitions/306/competition-doe-gems/page/967/).
-3. The official feature list names every magnetic derivative explicitly (RTP,
-   TMI, TMI vertical slope, TMI horizontal slope, magnetic source depth). A
-   tilt angle is not among them; a radiometric channel is shown in the figure
-   but is otherwise unnamed in the list.
+1. **Band 6 is bounded in [2.953, 88.567] degrees with p99 = 29.10.** Airborne
+   radiometric total count is an unbounded intensity in counts per second,
+   typically 10²–10⁴. A band that never exceeds 88.6 and whose 99th percentile
+   is 29.1 is not a count.
+2. **Band 6 is smoother than the fields it would have to be derived from.**
+   Lag‑1 autocorrelation after a 3‑px Gaussian blur: `tc` 0.9805, `rtp` 0.9836,
+   `tmi` 0.9844, `tmi_hg` 0.9112, `tmi_vg` 0.8238. A "magnetic field derivative
+   for edge detection" must be noisier than the field it differentiates; band 6
+   is smoother than both supplied gradient bands.
+3. **It is not any standard amplitude‑normalised magnetic edge angle either.**
+   All eight candidates were computed and correlated against band 6
+   (`reports/band_audit.json`): theta from `rtp` r = −0.0040, TDR from `rtp`
+   r = +0.0177, theta from `tmi` r = −0.0029, TDR from `tmi` r = +0.0182, theta
+   from `mag_anom` r = +0.0033, TDR from `mag_anom` r = −0.0324, theta from the
+   supplied `tmi_hg`/`tmi_vg` r = −0.0018, |TDR| from the same r = −0.0018.
+   Mean absolute differences are 18–47 degrees. **No candidate reproduces it.**
 
-`tc` is the standard abbreviation for **Total Count** in airborne radiometrics.
-So band 6 is, with high confidence, the **radiometric total count** — an
-entirely different physical quantity from a magnetic tilt angle.
+**Consequence for the code.** `HE_lin_tc` is built on the assumption that band 6
+is a radiometric channel. That assumption is **disproved**, so `HE_lin_tc` must
+be treated as an *unlabelled-input* lineament detector, not a radiometric one.
+Its holdout numbers are still valid measurements of a detector; the geological
+story attached to them is not.
 
-**Consequence.** If earlier sessions treated band 6 as a magnetic edge
-transform, its geological interpretation was wrong. Radiometrics measures
-near-surface K/U/Th — it responds to **lithology, alteration and soil/
-groundwater chemistry**, which is exactly the "fault visible without relief"
-channel that hypothesis **H‑E** targets.
+**Second, separate question — settled.** Are bands 10 and 16 distances or
+densities? Measured: median of `deq` inside catalogue pixels 776.8 vs 621.4
+outside; `ieq` 935.1 vs 751.5 outside. Both are **higher** inside the catalogue,
+so both behave as positive earthquake **intensity/density** quantities, not
+distances. `HD_strain`'s use of `ieq` as a density is therefore **correct** —
+no inversion bug. The two bands are near‑uncorrelated with each other
+(r = 0.083), which is what makes them usable as two independent gates in R7‑3
+rather than one duplicated signal.
 
-**Action.** Confirm against the official data-tab documentation (needs login).
-Until then, `HE_lin_tc` is reported as "band `tc`", not as "radiometrics".
+**Action.** Confirm against the official data‑tab documentation (needs a
+DrivenData login). Until then, band 6 is reported as **UNIDENTIFIED** and no
+geological interpretation is attached to it.
+
+**Addendum 2026‑09‑29 — the 51‑candidate best‑match search (`reports/band_audit.json`, 107 s).**
+Rather than keep guessing, `scripts/audit_bands.py` now builds a bank of 51
+physically standard transforms of the other 18 bands — gradient magnitude,
+Gaussian Laplacian, 9‑px Gaussian, theta, TDR and vertical‑over‑horizontal
+gradient over bands 1, 2, 12, 13, 14, 15, 17 and 19, plus theta / TDR /
+vd‑over‑hg from the supplied `tmi_hg`/`tmi_vg` pair — and correlates every one
+against band 6 with Spearman rho. **The best is `gauss9_b13` at rho = −0.3547**;
+next are `gauss9_b19` −0.3270 and `gradmag_b12` −0.2997. Nothing reaches
+|rho| = 0.5. Band 6 is therefore **UNIDENTIFIED by measurement**, on both sides:
+
+* **For the radiometric reading (first‑party):** the problem page's figure asset
+  is named `gems_tc_tmi.png` and is captioned "radiometric (left) and magnetic
+  (right)", and the page's own feature list names no tilt angle and no total
+  curvature — [problem description](https://www.drivendata.org/competitions/306/competition-doe-gems/page/967/).
+* **Against it (measured):** the array is strictly bounded in [2.953, 88.567]
+  with p50 18.48 and p99 29.10, and is smoother than every supplied gradient
+  band. A count in CPS is neither bounded at 88 nor smooth.
+
+Both cannot be true of the same array. The two hypotheses are **not** in
+conflict with each other — they are in conflict with each other's evidence, and
+only the data‑tab documentation can settle it. **No code change is warranted**:
+`HE_lin_tc` is already treated as an unlabelled‑input lineament detector, and its
+holdout numbers (0.39–0.67 worst‑rule lift) are recorded as a measurement of
+that detector, not as a radiometric hypothesis.
 
 ---
 
@@ -315,3 +360,57 @@ measurable.
 
 **Action.** `scripts/run_holdout2.py` reports both. Any future candidate must be
 reported on the concealed subset as well as the full withheld set.
+
+---
+
+## I-11 (new, 2026-09-29 session 2) — the hide-and-recover holdout is *structurally* biased against the hypotheses that matter
+
+**Measured** (`scripts/audit_bands.py`, section "catalogue vs topography").
+
+The withheld pixels in every fold are **catalogue** faults. Only **19.7 %** of
+catalogue pixels fall in the flattest third of the survey area, while that
+flattest third is **33.0 %** of the valid footprint — an over-representation
+factor of **0.596**. Catalogue faults are therefore ~1.7x *over*-represented on
+slopes and correspondingly under-represented on flat ground.
+
+A Quaternary fault catalogue is compiled largely from topographic scarp
+expression, so this is not a surprise; but it means the holdout's ground truth
+is enriched in exactly the signature a topographic detector finds, and depleted
+in exactly the signature the competition is asking for.
+
+**Consequence.** `dti` on the full withheld set rewards topographic detectors for
+the wrong reason. `dti_concealed` (the withheld pixels in the flattest third)
+is the honest number, and it is reported beside every candidate in
+`reports/holdout_v3.json`. On that subset the topographic baseline collapses to
+**0.51x chance** while the topography-independent detectors are roughly flat —
+so the ranking on the full withheld set is close to inverted on the concealed
+subset. **Any candidate must be judged on both.**
+
+**Action.** No candidate is promoted on `dti` alone. `scripts/run_holdout3.py`
+writes both, and the verdict uses the concealed subset as a tie-breaker.
+
+---
+
+## I-12 (new, 2026-09-29 session 2) — three detectors were never validatable, and one was leaking
+
+**Measured** by inspection of `scripts/run_holdout2.py` against
+`scripts/build_detectors.py`.
+
+1. **`R6_horse_full` was swept as if it were a physical detector.** It is built
+   by `horsetail_splay(known, ...)` from the **full** catalogue, including the
+   segments each fold withholds. Any holdout score it produced was leakage, not
+   skill. `scripts/run_holdout3.py` now refuses to sweep any detector whose name
+   ends in `_full` and rebuilds the catalogue-dependent ones per fold from the
+   VISIBLE catalogue only.
+2. **`HD_strain` was cached globally** even though its fault-density term is
+   catalogue-derived. Same class of leak, smaller magnitude. Now rebuilt per fold.
+3. **`R7_grain_full` produces only 1,748 non-zero pixels** out of 5,167,373
+   valid (0.034 %). With the full catalogue there is almost nowhere left that
+   qualifies as "catalogue-blind", so the submission-side version of R7-5 is
+   effectively empty. The per-fold version has a smaller catalogue to be blind
+   to and is the only version worth measuring. **Flagged: do not ship
+   `R7_grain_full` in a submission expecting it to contribute.**
+
+**Action.** Fixed in code; recorded here because the earlier
+`reports/holdout_v2.json` and `reports/holdout_verdict.json` numbers for these
+families are not trustworthy.

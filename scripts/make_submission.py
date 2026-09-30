@@ -296,6 +296,140 @@ def build_composite(reach: int, spacing: int, fill_cov: float,
     return pred, valid, stats
 
 
+
+def build_ranked_union(reach: int = 20, spacing: int = 3, budget_cov: float = 0.06,
+                       include_catalogue: bool = True,
+                       priorities: dict[str, float] | None = None
+                       ) -> tuple[np.ndarray, np.ndarray, dict]:
+    """GLOBAL priority-union of every detector, then ONE global decimation.
+
+    Why this is a different recipe and not a re-run
+    ----------------------------------------------
+    Every earlier recipe (`composite`, `composite_plus`, `r6`) unions several
+    components and then decimates each component SEPARATELY. That leaves pixels
+    from different components within 3 px of each other, and `TP_w` takes a MAX
+    over the 300 m neighbourhood -- so those pixels add false-positive mass and
+    earn nothing. The metric's geometry rule is a statement about the FINAL map,
+    not about each component.
+
+    This recipe therefore:
+      1. scores every candidate source on a common [0, 1] priority scale, where
+         the priority of a source is its measured lift-over-chance on the
+         hide-and-recover holdout (worst-rule, so a source that only wins under
+         one rule is demoted rather than dropped);
+      2. takes the pixel-wise MAXIMUM of those priority maps, so a pixel covered
+         by several sources inherits the highest one;
+      3. thresholds the priority map at a single pixel BUDGET (a fraction of the
+         valid footprint), which is the only free parameter left;
+      4. decimates ONCE, globally, one pixel per spacing x spacing tile, ranked by
+         the priority map -- so no two predicted pixels are within `spacing` of
+         each other anywhere on the map.
+
+    The catalogue is added last and is score-neutral under the organizers'
+    pixel-exact mask (forum 11516 posts 2 and 4).
+    """
+    valid = np.load(DER / "_valid.npy")
+    known = np.load(DER / "_known.npy")
+    n_valid = int(valid.sum())
+    allowed = valid & ~known
+
+    if priorities is None:
+        priorities = load_priorities()
+
+    score = np.zeros(valid.shape, dtype=np.float32)
+    used = {}
+    # catalogue-derived sources first: they carry the only measured lift > 1
+    rays = D.extension_rays(known, reach_px=reach)
+    for name, pr in sorted(priorities.items(), key=lambda kv: -kv[1]):
+        if name == "extension_rays":
+            src = rays
+        elif name == "horsetail_splay":
+            src = D.horsetail_splay(known, max_gap_px=20, splay_len_px=12)
+        else:
+            p = DER / f"{name}.npy"
+            if not p.exists():
+                continue
+            src = np.load(p)
+        # robust_norm_nonzero, NOT robust_norm: robust_norm silently returns an
+        # all-zero array for any field more than 99% zeros, which would erase
+        # extension_rays (0.1% nonzero) and HC_hinge (0.98% nonzero) from the
+        # union. Measured in scripts/validate_ranked.py; see the
+        # normalisation_note in reports/ranked_ab.json.
+        m = np.where(allowed, D.robust_norm_nonzero(src) * pr, 0.0)
+        np.maximum(score, m, out=score)
+        used[name] = {"priority": round(float(pr), 4),
+                      "n_px_above_zero": int((m > 0).sum())}
+        del src, m
+
+    n_budget = int(budget_cov * n_valid)
+    flat = np.where(allowed, score, -np.inf).ravel()
+    n_budget = min(n_budget, int(np.isfinite(flat).sum()))
+    if n_budget <= 0:
+        raise SystemExit("empty budget")
+    thr = np.partition(flat, -n_budget)[-n_budget]
+    mask = (score >= max(thr, 0.0)) & allowed
+    n_before = int(mask.sum())
+    if spacing > 1:
+        mask = D.decimate_grid(mask, score, spacing)
+
+    pred = mask.astype(np.float32)
+    if include_catalogue:
+        pred = np.maximum(pred, known.astype(np.float32))
+
+    stats = {
+        "recipe": "ranked_union",
+        "tip_ray_reach_px": reach, "tip_ray_reach_m": reach * 100,
+        "budget_coverage": budget_cov, "n_budget_px": n_budget,
+        "n_px_before_global_decimation": n_before,
+        "decimation_spacing_px": spacing,
+        "global_decimation": True,
+        "sources": used,
+        "n_predicted_px": int((pred > 0).sum()),
+        "pct_of_valid": round(100.0 * float((pred > 0).sum()) / n_valid, 4),
+        "n_new_prediction_px": int(mask.sum()),
+        "max_value": float(pred.max()), "min_value": float(pred.min()),
+        "include_known_catalogue": include_catalogue,
+    }
+    return pred, valid, stats
+
+
+def load_priorities() -> dict[str, float]:
+    """Detector priority = worst-rule lift over chance, from the holdout verdict.
+
+    Sources are capped at 1.0 so that a source with no measured lift contributes
+    no priority of its own but can still inherit a higher one from a neighbour.
+    """
+    import json as _json
+    pri: dict[str, float] = {"extension_rays": 1.0, "horsetail_splay": 1.0}
+    for name in ("holdout_verdict_v3.json", "holdout_verdict.json"):
+        p = REP / name
+        if not p.exists():
+            continue
+        try:
+            d = _json.loads(p.read_text())
+        except Exception:
+            continue
+        # A family is ranked by its BEST configuration's worst-rule lift: the
+        # sweep varies coverage and spacing, and one bad configuration must not
+        # demote the whole family. Priorities are then rescaled so the best
+        # family gets 1.0 and the rest keep their RELATIVE ordering -- capping
+        # at 1.0 would flatten every family that is within measurement noise of
+        # the leader into the same priority.
+        best: dict[str, float] = {}
+        for row in d.get("table", []):
+            fam = row.get("family", "")
+            lift = row.get("worst_rule_lift")
+            if lift is None or fam in ("prior_submission", "control",
+                                       "control_random"):
+                continue
+            best[fam] = max(best.get(fam, 0.0), float(lift))
+        if best:
+            top = max(best.values())
+            for fam, lift in best.items():
+                pri[fam] = float(min(max(lift, 0.0) / max(top, 1e-9), 1.0))
+        break
+    return pri
+
 def build(detector: str, coverage: float, spacing: int,
           include_catalogue: bool) -> tuple[np.ndarray, np.ndarray, dict]:
     valid = np.load(DER / "_valid.npy")
@@ -344,7 +478,11 @@ def build(detector: str, coverage: float, spacing: int,
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--recipe", default="composite",
-                    choices=["composite", "composite_plus", "best", "r6"])
+                    choices=["composite", "composite_plus", "best", "r6",
+                             "ranked"])
+    ap.add_argument("--budget", type=float, default=0.06,
+                    help="ranked recipe: fraction of the valid footprint to "
+                         "predict, before global decimation")
     ap.add_argument("--reach", type=int, default=10)
     ap.add_argument("--fill", type=float, default=0.05)
     ap.add_argument("--detector")
@@ -374,6 +512,25 @@ def main() -> None:
         prov = {"selected_by": "holdout worst-rule lift + geological blind-spot targeting",
                 "detectors": ["extension_rays", "horsetail_splay", "BASE_topo_ridge", "R6_gravterm", "R6_transt", "HB_tdr_rtp", "R6_shore", "R6_condbase"],
                 "objective": "maximize worst-rule lift while covering organizer-named tip extensions, relay ramps, intrabasin scarps, buried steps"}
+    elif a.recipe == "ranked":
+        sp = a.spacing or 3
+        reach = a.reach if a.reach != 10 else 20
+        print(f"recipe: ranked-union budget={a.budget} spacing={sp} reach={reach}")
+        pred, valid, stats = build_ranked_union(reach=reach, spacing=sp,
+                                                budget_cov=a.budget,
+                                                include_catalogue=not a.no_catalogue)
+        det = "ranked-union"
+        pri = load_priorities()
+        top = sorted(pri.items(), key=lambda kv: -kv[1])[:6]
+        note_bits = (f"global priority-union of "
+                     f"{', '.join(f'{k} {v:.2f}x' for k, v in top)}; "
+                     f"budget {a.budget*100:g}% then ONE global 1-per-{sp}px "
+                     f"decimation")
+        prov = {"selected_by": "worst-rule lift over chance per source, "
+                               "then a single global decimation",
+                "objective": "no two predicted pixels within "
+                             f"{sp*100} m anywhere on the map",
+                "priorities": {k: round(v, 4) for k, v in top}}
     elif a.recipe == "composite_plus":
         sp = a.spacing or 3
         reach = a.reach if a.reach != 10 else 20

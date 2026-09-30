@@ -1,9 +1,32 @@
 # Verified fact base — GEMS Prize Challenge
 
-**Verification date: 2026-09-28.** Every line below was fetched from the named
-official URL during this session. Anything I could **not** verify is in
+**Verification date: 2026-09-28, re-verified line by line 2026-09-29.** Every
+line below was fetched from the named official URL during those sessions.
+Anything I could **not** verify is in
 [`02_irregularities.md`](02_irregularities.md) and is explicitly marked
 `UNVERIFIED`. Nothing here is recalled from memory.
+
+### Re-verification record, 2026-09-29
+
+| Source | Fetched | Result |
+|---|---|---|
+| [problem description](https://www.drivendata.org/competitions/306/competition-doe-gems/page/967/) (both chunks) | ✅ | Metric formulas, α=0.2/β=0.8, R=300 m=3 px, worked example `TP_w 3.00 / FP_w 1.89 / FN_w 2.00 → 0.60`, and all four submission-format bullets confirmed **verbatim**. |
+| [thread 11516 post 2](https://community.drivendata.org/t/scoring-clarification-are-known-usgs-ingenious-faults-masked-when-scoring-and-are-they-in-the-final-round-label-set/11516/2) | ✅ | Quote matches the transcript word for word. |
+| [thread 11516 post 4](https://community.drivendata.org/t/scoring-clarification-are-known-usgs-ingenious-faults-masked-when-scoring-and-are-they-in-the-final-round-label-set/11516/4) | ✅ | All three numbered answers match word for word. Post 4 is by `chrisk-dd`, dated Sep 21. |
+| [thread 11536](https://community.drivendata.org/t/where-do-you-draw-the-line/11536) | ✅ | "new fault" = "any fault pixel not already captured by USGS/INGENIOUS" … "can include newly mapped geometry of an existing fault system" — verbatim. |
+| [thread 11527 post 7](https://community.drivendata.org/t/how-were-the-new-test-faults-identified-data-sources-and-fault-types/11527/7) | ✅ | "We're not sharing details about the data sources, fault types, or coverage behind the test faults beyond what's in the problem description." — verbatim. |
+
+**New in this re-verification, and it changes a conclusion.** The problem page's
+provided-features figure is served as
+`https://drivendata-public-assets.s3.amazonaws.com/gems_tc_tmi.png` and is
+captioned *"A visualization of some of the GeoDAWN features: radiometric (left)
+and magnetic (right) data."* The filename pairs `tc` with `tmi` under the label
+"radiometric and magnetic", which is **first-party evidence that `tc` denotes the
+radiometric total count**. The same page's feature list, however, names every
+magnetic derivative explicitly (RTP, TMI, TMI vertical slope, TMI horizontal
+slope, top-of-crustal magnetic source depth) and does **not** name a tilt angle
+or a total curvature. See irregularity I-2 for the measured contradiction and
+for why band 6 is now reported as UNIDENTIFIED rather than as either reading.
 
 ---
 
@@ -163,6 +186,49 @@ worst of eight. See `reports/scored_forensics.json`.
 | 17 | `cond_surf` | "surface conductivity" ✅ |
 | 18 | `iso_grav_anom_hg` | gravity derivative |
 | 19 | `det_elev_slope` | "slope of detrended elevation" ✅ |
+
+---
+
+### 4.2 Submission format — verified verbatim, 2026-09-29
+
+Four bullets, quoted exactly from
+[problem description → Submission format](https://www.drivendata.org/competitions/306/competition-doe-gems/page/967/):
+
+1. "Your submission is in the same projected coordinate reference system as the
+   training data (projected coordinate system for UTM zone 11N, EPSG 32611)"
+2. "Your submission is at the same resolution as the training data (100m)"
+3. "Your submission has the same bounds as the training data, and data outside
+   the bounds is null or nan."
+4. "Your submission contains a single layer with datatype of 32-bit float
+   (`float32`) with values between 0 and 1 indicating the confidence or
+   probability of fault presence, with higher values indicating higher
+   probability."
+
+Plus: *"A sample submission that predicts total fault absence is provided for
+your reference on the data download page."* — the sentence that makes
+irregularity I-1 decisive.
+
+### 4.3 Provided-feature list — verified verbatim, 2026-09-29
+
+The official list from the same page:
+
+* "Surface conductivity and depth to conductive base surface"
+* "Detrended elevation and the slope of detrended elevation"
+* "Dilatation rate, shear strain rate, and the second invariant of the strain
+  rate tensor"
+* "Isostatic gravity anomaly and the slope of the isostatic gravity anomaly"
+* "Magnetics including reduced-to-pole magnetic anomaly, total magnetic
+  intensity, the vertical and horizontal slope of total magnetic intensity, and
+  the top-of-crustal magnetic source depth estimate"
+* "Density of earthquakes"
+
+**Mapping to the 19 bands** (measured, `scripts/audit_bands.py`): the six bullets
+account for 16 of the 19 bands. The three not named in any bullet are band 1
+`mag_anom` (the base magnetic anomaly, i.e. the input to the RTP/TMI
+derivatives), band 11 `iso_grav_anom_vg` and band 18 `iso_grav_anom_hg` (the
+vertical and horizontal derivatives of the isostatic gravity anomaly), and band
+6 `tc`. **No bullet names a tilt angle or a total curvature.** That is the
+official basis for doubting band 6's embedded description.
 
 ---
 
