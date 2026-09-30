@@ -200,6 +200,27 @@ def main() -> None:
          "this on the holdout; run_holdout3.py rebuilds it per fold)",
          ["rtp", "existing_faults (catalogue geometry)"])
 
+    # ---- R8-1 topographic openness (subtle scarp, flat ground) ------------
+    step("R8_openness",
+         lambda: D.topographic_openness(band("det_elev"), radius_px=5),
+         "R8-1 openness / sky-view factor for subtle scarps on flat basin floors (illumination-invariant horizon angle, detrended elev)",
+         ["det_elev"])
+    step("R8_tpi",
+         lambda: D.tpi_multiscale(band("det_elev"), radii=(3, 6, 12)),
+         "R8-1b multi-scale TPI (ridge/valley residual on det_elev at 300m/600m/1.2km) for intrabasin scarps",
+         ["det_elev"])
+    step("R8_flow",
+         lambda: D.flow_accumulation_anomaly(band("det_elev"), band("det_elev_slope"), flat_pct=45.0),
+         "R8-2 fault-controlled drainage deflection: D8 flow accumulation anomaly gated to flat ground (hydrologic lineament)",
+         ["det_elev", "det_elev_slope"])
+    step("R8_isocoherence",
+         lambda: D.isostatic_coherence_breakdown(band("iso_grav_anom"), band("det_elev"), window_sigma=6.0),
+         "R8-3 isostatic coherence breakdown: windowed gravity-topography decorrelation = buried fault-bounded basin (windowed Pearson r)",
+         ["iso_grav_anom", "det_elev"])
+    step("R8_remanence",
+         lambda: D.remanence_divergence(band("rtp"), band("tmi"), band("mag_anom")),
+         "R8-4 magnetic remanence divergence: RTP vs TMI/mag_anom mismatch (remanent vs induced) highlights fault-juxtaposed volcanics",
+         ["rtp", "tmi", "mag_anom"])
     # ---- baseline the team has already relied on ---------------------------
     step("BASE_topo_ridge",
          lambda: D.robust_norm(D.nms_thin(
@@ -212,6 +233,23 @@ def main() -> None:
              *D.ridge_strength(D.robust_norm(band("tmi_hg")), 1.5))),
          "BASELINE: single-scale horizontal-gradient ridge on the provided "
          "TMI horizontal gradient band", ["tmi_hg"])
+    # ---- R8-5 intersection density (secondary, after primaries cached) -----
+    def _inter_perm():
+        maps = []
+        for name in ("BASE_topo_ridge", "HA_worms_rtp", "R7_crossgrad", "R8_isocoherence"):
+            p = OUTDIR / f"{name}.npy"
+            if p.exists():
+                maps.append(np.load(p))
+        # fallback: if too few, add R8_openness
+        if len(maps) < 2:
+            for name in ("R8_openness", "R8_tpi"):
+                p = OUTDIR / f"{name}.npy"
+                if p.exists():
+                    maps.append(np.load(p))
+        return D.intersection_permeability(*maps, sigma=6.0) if len(maps) >= 2 else np.zeros(maps[0].shape, dtype=np.float32) if maps else np.zeros((3730,3292), dtype=np.float32)
+    step("R8_intersections", _inter_perm,
+         "R8-5 fault-intersection density: pairwise intersections of topographic, magnetic worm, cross-gradient & isocoherence ridges, 600m gaussian permeability halo (geothermal vent proxy)",
+         ["BASE_topo_ridge", "HA_worms_rtp", "R7_crossgrad", "R8_isocoherence"])
 
     (ROOT / "reports").mkdir(exist_ok=True)
     (ROOT / "reports" / "detectors_manifest.json").write_text(

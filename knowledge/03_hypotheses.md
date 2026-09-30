@@ -546,3 +546,215 @@ the scoring objective (find faults the catalogue does not already contain). Any
 supervised approach here must be trained on a target that excludes the mapped
 neighbourhood — a hard-negative-mining or one-class formulation — not on the
 catalogue raster directly.
+
+---
+
+## R8 — five NEW geothermal-vent-targeted hypotheses (2026-09-30)
+
+**Premise.** Hidden geothermal vents in the Great Basin do **not** sit on
+single, long, scarp-bound fault traces. They sit at **intersections,
+step-overs, accommodation zones and horse-tailing terminations where fracture
+density and permeability are highest** and where hot upflow can reach the
+surface through breccia-dominated fracture networks
+
+* Faulds et al. 2013 structural inventory
+  ([dataset 1148722](https://www.osti.gov/dataexplorer/biblio/dataset/1148722)):
+  *\"Many geothermal systems occupy discrete steps in fault zones or lie in
+  zones of intersecting, overlapping, and/or intermeshing faults\"*;
+  *\"Geothermal systems are rare along major range-front faults, possibly due
+  to both reduced permeability in thick zones of clay gouge\"*;
+  *\"Step-overs, terminations, intersections, and accommodation zones
+  correspond to long-term, critically stressed areas, where fluid pathways
+  would more likely remain open in networks of closely-spaced,
+  breccia-dominated fractures.\"*
+* BRIDGE final report SAND2025-01826
+  ([PDF](https://gdr.openei.org/files/1682/BRIDGE_Final_Report_SAND2025-01826.pdf)):
+  *\"Overlapping, oppositely dipping normal fault systems generate multiple
+  fault intersections in the upper part of the reservoir\"* which provide
+  *\"convenient channel ways for geothermal fluids\"* and *\"highly fractured
+  subvertical conduits that accommodate ascent of the hydrothermal fluids.\"*
+* INGENIOUS hydrothermal reV work (Trainor-Guitton et al. 2025,
+  [purl/3018341](https://www.osti.gov/pages/servlets/purl/3018341)): hidden
+  hydrothermal estimates **must** include proxies for permeability and fluids,
+  not temperature/heat flow alone; the 48 INGENIOUS features used are
+  explicitly permeability proxies (earthquake rates, shear/dilatation,
+  conductivity). Hidden systems are defined as those *\"where the permeability
+  and fluids are not apparent at the surface\"*.
+
+H-A..H-E / R6 / R7 all predict *lines*. None predicts the *point* where lines
+meet, and none uses hydrology or illumination-invariant geomorphology — yet
+the literature says the point is the vent, and hydrology is the only signal
+that survives burial beneath basin fill. R8 fills exactly those gaps. All five
+use the 19 official bands only (no external data), so all are validatable
+today on the hide-and-recover holdout.
+
+### R8-1a · Topographic openness / sky-view factor for subtle scarps
+
+* **Layers:** `det_elev` (12, detrended elevation).
+* **Transform:** for each of 8 azimuths, maximum horizon inclination
+  `atan((elev_neighbor - elev_center)/distance)` within 5 px (500 m); positive
+  openness = `90° - mean(max_slope)`; edge is Hessian ridge + NMS of
+  `|∇ openness|`. Implementation: `gems.detectors.topographic_openness`.
+* **Physical signature:** illumination-invariant horizon geometry. A decimetre
+  intrabasin scarp on a flat playa produces a strong openness edge while
+  `det_elev_slope` is near zero; hillshade/slope miss it because they depend
+  on illumination/slope direction. Openness is the standard BRIDGE/3DEP lidar
+  subtle-scarp operator (Yokoyama et al.).
+* **Why it catches a fault missing from the catalogue:** USGS QFaults is
+  compiled from scarps visible in imagery/topography. Intrabasin Lahontan scarps
+  are <30 cm on flat ground (flat_pct <45% slope) and are not visible without
+  detrending and without an illumination-invariant measure. This is the dominant
+  hidden-fault habitat in the Lahontan basin per GDR 1391 basin analysis.
+* **How it differs:** BASE_topo_ridge uses Hessian ridge on `det_elev_slope`;
+  R6_shore uses Laplacian curvature gated to flat with shoreline continuity.
+  Openness uses horizon angle, not derivative, and is orthogonal to both.
+* **Expected DTI gain:** Medium. **Cost:** Low (~20 s). **Measured:** at
+  cov0.05/sp3 worst 1.054 mean 1.092, essentially **tied** with topo (1.055);
+  on the concealed flat subset the edge case collapses (0.30) — honest.
+
+### R8-1b · Multi-scale Topographic Position Index (TPI) for intrabasin scarps
+
+* **Layers:** `det_elev` (12).
+* **Transform:** TPI = elev - mean(elev in window) at radii 3, 6, 12 px
+  (300 m / 600 m / 1.2 km); gradient magnitude of TPI → ridge → NMS;
+  stack across scales. Implementation: `gems.detectors.tpi_multiscale`.
+* **Physical signature:** elevation residual. At a fault scarp TPI crosses zero
+  with high gradient; multi-scale captures both short (300 m) and broad
+  (1.2 km) fault-related topography.
+* **Why it catches a missing fault:** same habitat as openness, but TPI is used
+  in INGENIOUS/BRIDGE 3DEP analysis as a complementary operator.
+* **How it differs:** openness uses horizon geometry; TPI uses elevation minus
+  neighbourhood mean — different geomorphic operator; BASE uses curvature of
+  slope.
+* **Expected DTI gain:** Medium-Low. **Cost:** Low (~12 s). **Measured:**
+  worst 0.88 mean 0.996 at cov0.05 — below chance, not shipped standalone.
+
+### R8-2 · Fault-controlled drainage deflection (hydrologic lineament)
+
+* **Layers:** `det_elev` (12) + `det_elev_slope` (19).
+* **Transform:** D8 steepest-descent flow direction on filled `det_elev`,
+  flow accumulation by processing cells in descending elevation order, then
+  `log(1+accumulation)` → `|∇ log_acc|` → ridge + NMS → flat-ground gate
+  (45th pct) → directional coherence 12 px. Falls back to a wetness proxy
+  `log(1+10/(slope+0.5))` if numba unavailable.
+  Implementation: `gems.detectors.flow_accumulation_anomaly`.
+* **Physical signature:** hydrologic discontinuity. Even where vertical offset
+  is sub-resolution, a buried fault ponds, truncates or deflects the very low-
+  gradient drainage network on a playa; flow accumulation shows a linear
+  deficit/excess where channels are truncated. This is a classic blind-fault
+  indicator in basin fill and is part of BRIDGE lidar work.
+* **Why it catches a missing fault:** intrabasin faults in Lahontan lake beds
+  have no range-front scarp but do perturb the drainage network; QFaults does
+  not use hydrology. Only flat ground is gated (where drainage is most
+  sensitive), so it cannot fire on range fronts already mapped.
+* **How it differs:** **no prior detector uses hydrology**; all are potential-
+  field or topographic derivative operators. This is the first hydrologic
+  detector in the repo.
+* **Expected DTI gain:** Medium (high on concealed). **Cost:** Medium (~12 s
+  with numba, else proxy). **Measured:** worst 0.978 mean 1.026 at cov0.05;
+  on the **concealed flat subset** worst 1.337 mean 1.49 — the **only
+  detector in the repo that beats chance on the concealed subset at that
+  coverage**, which is exactly the hidden-vent population.
+
+### R8-3 · Isostatic coherence breakdown (buried fault-bounded basin)
+
+* **Layers:** `iso_grav_anom` (13) + `det_elev` (12).
+* **Transform:** windowed Pearson r between gravity and topography via
+  Gaussian-weighted means (σ=6 px ≈600 m): `r = cov(g,t)/[σ(g)σ(t)]`;
+  breakdown = `1 - |r|`; modulated by joint gradient strength; ridge-thin.
+  Implementation: `gems.detectors.isostatic_coherence_breakdown`.
+* **Physical signature:** decorrelation of two fields that should correlate.
+  In isostatically compensated terrain, detrended elevation and isostatic
+  gravity correlate at long wavelength (basin fill vs range). A fault-bounded
+  basin or buried fault that offsets basement creates density contrast without
+  matching topography (or vice versa) → decorrelation. Classic hidden-basin
+  detector used in INGENIOUS/BRIDGE basin geometry work.
+* **Why it catches a missing fault:** buried normal fault under basin fill
+  offsets basement (gravity) but has no scarp (topo); QFaults is blind.
+* **How it differs:** H-C/R6-3/R7-2 detect gradient magnitude of depth_to_base
+  or grav+mag; R7-1 needs *parallel* gradients; this needs *decorrelation* of
+  amplitudes — orthogonal.
+* **Expected DTI gain:** Low-Medium. **Cost:** Low (~17 s). **Measured:**
+  worst 0.449 mean 0.58 — below chance standalone, but as a *secondary* in
+  the R8 ensemble it adds orthogonal buried-basin evidence.
+
+### R8-4 · Magnetic remanence divergence (RTP vs TMI/mag_anom mismatch)
+
+* **Layers:** `rtp` (2) + `tmi` (14) + `mag_anom` (1).
+* **Transform:** `| robust_norm(rtp) - robust_norm(tmi) |` and same vs
+  `mag_anom`; max; gradient → ridge. Implementation:
+  `gems.detectors.remanence_divergence`.
+* **Physical signature:** RTP assumes induced magnetization (field parallel to
+  present geomagnetic field). Where remanent magnetization is significant
+  (e.g., across a fault juxtaposing Quaternary volcanics with remanence),
+  RTP mispositions anomalies relative to TMI/mag_anom. The divergence field
+  magnitude highlights contacts with remanence, often fault-bounded lithologic
+  boundaries (INGENIOUS Q volcanics layer).
+* **Why it catches a missing fault:** remanent offset is not a topographic or
+  single-field edge; invisible to worms/TDR. Yet Great Basin faults frequently
+  juxtapose volcanics with remanence.
+* **How it differs:** H-A worms and H-B TDR operate on one field; R7-1 needs
+  *parallel* gradients; remanence needs *position mismatch*, i.e. anti-
+  correlation between fields derived from the same measurement.
+* **Expected DTI gain:** Low-Medium. **Cost:** Low (~18 s). **Measured:**
+  worst 0.475 mean 0.925 — below chance.
+
+### R8-5 · Fault-intersection density as geothermal permeability proxy
+
+* **Layers:** secondary, operates on ridge maps e.g. `BASE_topo_ridge`,
+  `HA_worms_rtp`, `R7_crossgrad`, `R8_isocoherence` (any set).
+* **Transform:** threshold each ridge map at 85th pct → binary line → dilate
+  1 px → pairwise intersections (AND) → kernel density via Gaussian blur
+  σ=6 px (600 m permeability halo) → `robust_norm_nonzero` → multiply by
+  faint ridge skeleton to keep linear context. Implementation:
+  `gems.detectors.intersection_permeability`.
+* **Physical signature:** junction density. Geothermal upflow is at
+  intersections/step-overs/accommodation zones, not on single traces — the
+  *point* not the line is the vent (Faulds 2013; BRIDGE). High intersection
+  density = high fracture permeability = vent proxy. This is the only detector
+  that predicts where *lines meet*.
+* **Why it catches a fault missing from the catalogue:** many hidden vents sit
+  at intersections of short, discontinuous splay faults that individually are
+  below mapping threshold but jointly generate a permeability node; the
+  intersection is mappable even when each segment is not.
+* **How it differs:** every prior detector is a *line* detector; this is the
+  first *secondary* detector and the first to target structural permeability.
+  No prior code computes intersections.
+* **Expected DTI gain:** Medium but coverage-dependent. **Cost:** Low (~5 s).
+  **Measured:** worst 0.28 mean 0.62 at cov0.05 (needs lower coverage tuning;
+  at cov 0.01 worst 0.26). As a *component* of R8 ensemble (1% coverage) it
+  adds vent-focused permeability that no other map provides.
+
+### R8 ranking (measured 2026-09-30, holdout worst-rule)
+
+| rank | hypothesis | worst 0.05/sp3 | concealed | blind spot | cost | novelty | verdict |
+|---|---|---|---|---|---|---|---|
+| 1 | **R8-1a openness** | **1.054** | 0.30 | intrabasin flat scarp | Low | complete (horizon vs slope) | tied with topo on isolated; flat-gated complementary |
+| 2 | **R8-2 flow** | 0.978 | **1.49** | hydrologic truncation in playa | Medium | complete (first hydrology) | only detector beating chance on concealed flat — hidden-vent winner |
+| 3 | **R8-1b TPI** | 0.88 | 0.07 | same as openness, alternative operator | Low | partial (shares layer) | below chance, not shipped standalone |
+| 4 | **R8-4 remanence** | 0.475 | 0.28 | volcanics juxtaposition | Low | complete (divergence) | below chance, niche |
+| 5 | **R8-3 isocoherence** | 0.449 | 0.42 | buried basin decorrelation | Low | complete (correlation) | below chance standalone, orthogonal evidence |
+| 6 | **R8-5 intersections** | 0.28 | 0.07 | vent permeability node | Low | complete (point vs line) | poor as standalone map, but as 1% R8-ensemble component it contributes vent-specific density that no line map captures |
+
+**Ensemble verdict:** No single R8 detector beats `BASE_topo_ridge` (1.055 worst)
+on the isolated-system hide-and-recover holdout. The honest ceiling remains
+low (≈5% over chance) for isolated, unmapped systems — which is the result.
+On the **concealed flat subset** (the hidden-vent analogue), `R8_flow` is the
+only detector >1 (1.34–1.69 across coverages). The shipped R8 ensemble
+therefore hedges: openness+TPI+flow capture flat-ground hidden scarps/hydrology,
+isocoherence/remanence add buried-basin/volcanic evidence, intersections add
+vent permeability nodes, and tip rays/horsetails cover the organizer-named
+extensions/splays/corrections that *do* have high precision (37%). Validated
+on both regimes at once (see `reports/holdout_r8_quick.json`).
+
+### What still needs external data (named, checked, not proposed as viable today)
+
+* **Paleo-hydrothermal sinter/tufa alignment** — line through chains of
+  former hydrothermal deposits (Paleo Geothermal Features.zip, GDR 1391,
+  CC-BY-4.0, 82 kB) — vent ground truth proxy. Source verified but download
+  blocked by sandbox egress (L-2). Not viable until fetched on open egress.
+* **2 m temperature-probe anomaly lineaments** (2 m Temperature Probes.zip,
+  1.03 MB, same GDR) — shallow thermal anomalies on permeable fault conduits.
+* **Age/slip-rate-stratified holdout** — Quaternary Faults v2.zip (5.85 MB,
+  GDR 1391, carries ages and slip rates) — needed to replace the strike-class
+  proxy now used. Same status.

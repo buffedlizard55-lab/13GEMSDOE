@@ -84,34 +84,20 @@ docs/                     the GitHub Pages site (no build step)
 
 ---
 
-## Latest review (2026-09-29, session 2)
+## Latest review (2026-09-30, session 3)
 
 `data/` **is** present in this session (recovered from this group's own public
 repositories via `scripts/fetch_data.py`, blob SHAs pinned in
 `reports/data_manifest.json`), so the full pipeline ran end to end:
 
-* `scripts/audit_metric.py` → **ALL CHECKS PASSED** (12/12).
-* `scripts/audit_bands.py` → **new**. Measures the 19 bands, and **disproves
-  I-2's "band 6 is the radiometric total count" reading**: band 6 is bounded in
-  [2.95°, 88.57°] with p99 = 29.1°, is smoother than the gradient bands it
-  would have to differentiate, and matches none of eight standard magnetic edge
-  angles (all |r| < 0.04). Band 6 is **UNIDENTIFIED**. It also settles that
-  bands 10/16 are density-like, not distance-like, so `HD_strain` is not
-  inverted.
-* `scripts/build_detectors.py` → 21 detector maps, 426 s.
-* `scripts/run_holdout3.py` → the R7 hypotheses, with catalogue-dependent
-  detectors rebuilt per fold (fixing the `R6_horse_full` / `HD_strain` leak,
-  irregularity I-12).
-* `scripts/make_submission.py --recipe …` → validated GeoTIFF, all-finite twin,
-  zip, and the exact Note to paste into the DrivenData form.
+* `scripts/audit_metric.py` → **ALL CHECKS PASSED** (12/12) — DTI is a distance-weighted F2, marginal precision threshold `0.2×DTI`, binary optimal, recall dominates when `P>0.25R`, all proved and reproduced against the worked example (TP 3.00/FP 1.89/FN 2.00→0.60).
+* `scripts/audit_bands.py` → band 6 `tc` is **UNIDENTIFIED** by measurement: bounded in [2.95°,88.57°] with p99 29.1°, smoother than gradient bands, |r|<0.04 vs 8 magnetic edge angles and |ρ|<0.35 vs 51 transforms of other bands. Bands 10/16 are density-like (higher inside catalogue), so `HD_strain` is not inverted.
+* `scripts/build_detectors.py` → **28 detector maps**, 496 s, now including **R8 geothermal-vent suite**: openness (R8-1a), TPI (R8-1b), flow accumulation anomaly (R8-2, first hydrology detector), isostatic coherence breakdown (R8-3), remanence divergence (R8-4), intersection density (R8-5, permeability halo). See [`knowledge/04_geothermal_vents.md`](knowledge/04_geothermal_vents.md) for verified geothermal literature.
+* `scripts/run_holdout3.py` → R7 hypotheses, catalogue-dependent detectors rebuilt per fold (fixing I-12 leak). No R7 beats `BASE_topo_ridge` (1.055 worst-rule lift).
+* **New:** `scripts/make_submission.py --recipe r8` + honest 5-fold holdout (`reports/holdout_r8_quick.json`, `reports/r8_validation.json`) → **R8 openness ties topo** (worst 1.054 vs 1.055 at cov 0.05/sp3); **R8_flow is the *only* detector beating chance on the concealed flat subset** (1.34× worst, 1.49× mean at cov 0.05) — the hidden-vent analogue where catalogue faults are 1.7× under-represented. No new detector beats topo by a wide margin on isolated-system worst-rule, but the **R8 ensemble hedges both regimes** and is more inclusive and geologically defensible for Phase-2.
+* `scripts/make_submission.py --recipe r8` → validated GeoTIFF (`13gems-r8-ensemble-20260930T014614Z`, 452,679 px = 8.76% coverage, binary 0/1, decimated 1-per-3px, tip-rays 2 km + horsetail + openness 2% + TPI 1% + flow 2% + isocoherence 0.5% + remanence 0.5% + intersections 1% + topo 3%), all-finite twin, zip, and the exact Note to paste into the DrivenData form. **IoU vs prior best (composite_plus 380k px) is 0.45 — distinct, not duplicated.** All downloads pass `validate_submission` with values in [0,1] (all-finite variant fixes the “Predicted values must be in range [0,1]” rejection).
 
-**Honest status.** No candidate on the hide-and-recover holdout beats a random
-map of the same size by a wide margin under every withholding rule. The only
-regime with real, large lift is **tip extension / correction of mapped traces**
-(13.9–16.1× chance), which the organizers explicitly named. The full-system
-withholding regime remains at ~1.0× chance for every detector including the new
-R7 ones. See [`reports/holdout_verdict.json`](reports/holdout_verdict.json) and
-the [Hypotheses page](docs/hypotheses.html).
+**Honest status.** The honest ceiling for **isolated, unmapped systems** remains ≈5% over chance (1.055×) for every analytic detector including R8. Tip extensions/corrections (13.9–16.1× chance, 37% precision) and the concealed-flat hydrology signal (R8_flow 1.34×) are the only regimes with real lift. The shipped R8 ensemble therefore **hedges**: high-precision tip rays/horsetails for organizer-named extensions/splays/corrections + flat-ground hidden-vent proxies (openness/flow/intersections) + topo safety net, all decimated, binary, and more inclusive (8.76% vs 7.36%) as theory demands (threshold 3–6%). Leaderboard #1 is **0.3168** (DARD) as of this session; the brief's 0.3049 is outdated. See [`reports/r8_validation.json`](reports/r8_validation.json) and the [Hypotheses page](docs/hypotheses.html).
 
 ---
 

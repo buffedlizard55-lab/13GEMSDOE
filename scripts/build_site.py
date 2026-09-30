@@ -642,7 +642,7 @@ def build_hypotheses() -> str:
                 '<a href="https://github.com/buffedlizard55-lab/13GEMSDOE/blob/main/'
                 'knowledge/03_hypotheses.md">knowledge/03_hypotheses.md</a>.</p>')
     perf = {}
-    for src in ("holdout_v3.json", "holdout_supervised.json",
+    for src in ("holdout_v3.json", "holdout_r8_quick.json", "holdout_supervised.json",
                 "holdout_results.json"):
         hold = load(src)
         if not hold:
@@ -835,6 +835,42 @@ def build_hypotheses() -> str:
          "9×9 context mean of a training pixel can reach 4 px into the 5 px withheld "
          "buffer.",
          "Medium", "Medium (first supervised model)"),
+        ("R8-1a", "Topographic openness / sky-view factor for subtle scarps", "R8_openness",
+         "det_elev (12)",
+         "For each of 8 azimuths, maximum horizon inclination within 5 px (500 m); openness = 90° − mean(max_slope); edge is Hessian ridge + NMS of |∇ openness|.",
+         "Illumination-invariant horizon geometry. A decimetre intrabasin scarp on flat playa produces openness edge while det_elev_slope ≈0; QFaults misses it. Dominant hidden-fault habitat in Lahontan basins (BRIDGE/3DEP lidar).",
+         "BASE_topo_ridge uses slope curvature; R6_shore uses Laplacian curvature. Openness uses horizon angle, not derivative — orthogonal.",
+         "Medium", "Low"),
+        ("R8-1b", "Multi-scale Topographic Position Index (TPI)", "R8_tpi",
+         "det_elev (12)",
+         "TPI = elev − mean(elev in window) at 3/6/12 px (300 m/600 m/1.2 km); gradient of TPI → ridge → NMS; stack across scales.",
+         "Elevation residual crosses zero at scarp with high gradient; multi-scale captures short+ broad fault topography. Complementary to openness (INGENIOUS/BRIDGE).",
+         "Openness uses horizon; TPI uses elevation residual — different geomorphic operator.",
+         "Medium-Low", "Low"),
+        ("R8-2", "Fault-controlled drainage deflection (hydrologic lineament)", "R8_flow",
+         "det_elev (12) + det_elev_slope (19)",
+         "D8 steepest-descent flow direction on det_elev, flow accumulation by descending elevation order, log(1+acc) → |∇ log| → ridge + flat gate (45th pct) → directional coherence.",
+         "Buried fault ponds/truncates low-gradient playa drainages; hydrologic deficit is blind-fault indicator invisible to slope/magnetics. Only flat ground gated, so cannot fire on range fronts already mapped.",
+         "<b>No prior detector uses hydrology</b> — first hydrologic detector in repo. Orthogonal to every potential-field/topographic operator.",
+         "Medium", "Medium"),
+        ("R8-3", "Isostatic coherence breakdown (buried basin)", "R8_isocoherence",
+         "iso_grav_anom (13) + det_elev (12)",
+         "Windowed Pearson r between gravity and topography (σ=6 px≈600 m): r = cov/σgσt; breakdown = 1−|r|; modulated by joint gradient; ridge-thin.",
+         "Isostatically compensated terrain correlates gravity and topography at long wavelength; buried fault-bounded basin offsets basement (gravity) without scarp (topo) → decorrelation. Classic hidden-basin detector (INGENIOUS/BRIDGE).",
+         "H-C/R6-3 need gradient magnitude of depth_to_base; R7-1 needs parallel gradients; this needs decorrelation of amplitudes — orthogonal.",
+         "Low-Medium", "Low"),
+        ("R8-4", "Magnetic remanence divergence", "R8_remanence",
+         "rtp (2) + tmi (14) + mag_anom (1)",
+         "|robust_norm(rtp)−robust_norm(tmi)| and vs mag_anom; max; gradient → ridge.",
+         "RTP assumes induced magnetization; remanent magnetization across fault juxtaposing Q volcanics mispositions RTP vs TMI/mag_anom. Divergence highlights lithologic contacts often fault-bounded.",
+         "H-A worms and H-B TDR operate on one field; R7-1 needs parallel gradients; remanence needs position mismatch/anti-correlation.",
+         "Low-Medium", "Low"),
+        ("R8-5", "Fault-intersection density (geothermal permeability)", "R8_intersections",
+         "secondary on ridge maps e.g. BASE_topo_ridge, HA_worms_rtp, R7_crossgrad",
+         "Threshold each ridge at 85th pct → binary line → dilate 1 px → pairwise intersections (AND) → kernel density Gaussian σ=6 px (600 m halo) → robust_norm_nonzero → multiply by ridge skeleton.",
+         "Geothermal vents sit at intersections/step-overs/accommodation zones where fracture density highest (Faulds 2013, BRIDGE). High intersection density = permeability node = vent proxy. Single trace without intersection is poor conduit (clay gouge).",
+         "Every prior detector is a <i>line</i> detector; this is first <i>secondary</i> detector targeting junctions. No prior code computes intersections.",
+         "Medium", "Low"),
     ]
     rows = ""
     for hid, title, det, layers, sig, why, diff, gain, cost in H:

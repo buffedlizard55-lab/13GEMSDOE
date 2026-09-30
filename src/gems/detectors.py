@@ -28,6 +28,17 @@ PIXEL_M = 100.0
 # ---------------------------------------------------------------------------
 # helpers
 # ---------------------------------------------------------------------------
+def _shift(a: np.ndarray, dy: int, dx: int, fill: float = 0.0) -> np.ndarray:
+    """Shift array by (dy, dx); vacated cells filled with `fill` (for hydrology/openness)."""
+    out = np.full_like(a, fill)
+    ys_dst = slice(max(0, -dy), a.shape[0] - max(0, dy))
+    ys_src = slice(max(0, dy), a.shape[0] - max(0, -dy))
+    xs_dst = slice(max(0, -dx), a.shape[1] - max(0, dx))
+    xs_src = slice(max(0, dx), a.shape[1] - max(0, -dx))
+    out[ys_dst, xs_dst] = a[ys_src, xs_src]
+    return out
+
+
 def fill_nan_nearest(a: np.ndarray) -> np.ndarray:
     """Replace NaN with the nearest finite value (needed before any FFT)."""
     a = np.asarray(a, dtype=np.float32)
@@ -986,6 +997,385 @@ def edge_consensus(bands: list[np.ndarray], n_min: int = 3,
         votes += d
         del d
     out = np.where(votes >= n_min, votes / float(len(edges)), 0.0)
+    return out.astype(np.float32)
+
+
+# ===========================================================================
+# R8 -- five NEW hypotheses (2026-09-30) targeting geothermal-permeability
+# blind spots not covered by H-A..H-E / R6 / R7.
+#
+# Motivation (verified): hidden geothermal systems in the Great Basin are
+# preferentially located at fault intersections, step-overs, accommodation
+# zones and horse-tailing terminations where fracture density and
+# permeability are highest (Faulds et al. 2013 structural inventory,
+# https://www.osti.gov/dataexplorer/biblio/dataset/1148722; Faulds & Hinz
+# 2015; BRIDGE final report SAND2025-01826). The INGENIOUS / reV
+# hydrothermal work explicitly uses 48 proxies for permeability (earthquake
+# rate, shear/dilatation, conductivity) and fluids because temperature or
+# heat flow alone cannot predict hidden systems (Trainor-Guitton et al.
+# 2025, https://www.osti.gov/pages/servlets/purl/3018341). Every R8 detector
+# below targets a permeability proxy that is invisible to a scarp-derived
+# catalogue, and/or a subtle geomorphic signature in flat basin fill where
+# Quaternary mapping is weakest.
+# ===========================================================================
+
+def topographic_openness(dem: np.ndarray, radius_px: int = 5) -> np.ndarray:
+    """Positive openness / sky-view factor for subtle scarps on flat ground.
+
+    Layers: `det_elev` (12) or any DEM (detrended). Openness is illumination-
+    independent (Yokoyama et al.), unlike slope or hillshade. For each of 8
+    azimuths, the maximum zenith angle to the horizon within `radius_px` is
+    found; the mean over azimuths is the sky-view factor. A subtle scarp in a
+    flat playa produces a strong openness edge with no regional slope.
+
+    Why missing: USGS QFaults is compiled from scarps visible in imagery/topography.
+    Intrabasin scarps in Lake Lahontan lake beds are decimetre amplitude on flat
+    ground (flat_pct <45%) and are missed without detrending and without an
+    illumination-invariant measure. Openness detects them where slope does not.
+
+    How differs: BASE_topo_ridge uses Hessian ridge on det_elev_slope; R6_shore uses
+    Laplacian curvature gated to flat. Openness is a different geomorphic operator
+    (horizon angle, not derivative) and needs no slope threshold tuning.
+    """
+    a = fill_nan_nearest(dem).astype(np.float32)
+    H, W = a.shape
+    # 8 azimuths: N, NE, E, SE, S, SW, W, NW
+    dirs = [(-1,0),(-1,1),(0,1),(1,1),(1,0),(1,-1),(0,-1),(-1,-1)]
+    max_slope = np.full((H, W, len(dirs)), -np.inf, dtype=np.float32)
+    # compute slope to horizon for each radius stepwise, keep max per direction
+    for r in range(1, radius_px+1):
+        for di, (dy, dx) in enumerate(dirs):
+            # shift by r * (dy,dx)
+            shifted = _shift(a, dy*r, dx*r, fill=np.nan)
+            dist = np.hypot(dy*r, dx*r) * PIXEL_M
+            # horizon slope = atan((elev_neighbor - elev_center)/dist)
+            # for openness we need zenith angle = 90deg - slope
+            with np.errstate(divide='ignore', invalid='ignore'):
+                slope = np.arctan2(shifted - a, dist)
+                # convert to degrees for stability
+                slope = np.degrees(slope)
+            # keep maximum (steepest upward) per direction
+            max_slope[:, :, di] = np.maximum(max_slope[:, :, di],
+                                             np.where(np.isfinite(slope), slope, -90.0))
+    # positive openness = mean of (90 - max_slope) -> high = open sky, low = enclosed
+    # negative openness = 90 + mean(max_slope) for valleys
+    # For scarp detection we need edge strength: gradient magnitude of openness
+    openness = 90.0 - np.nanmean(max_slope, axis=2)
+    openness = np.where(np.isfinite(openness), openness, 90.0).astype(np.float32)
+    # scarp is edge in openness: ridge strength on its gradient magnitude
+    gmag = horizontal_gradient_mag(openness)
+    st, ori = ridge_strength(gmag, sigma=1.2)
+    crest = nms_thin(st, ori)
+    return robust_norm(crest).astype(np.float32)
+
+
+def tpi_multiscale(dem: np.ndarray, radii=(3, 6, 12)) -> np.ndarray:
+    """Multi-scale Topographic Position Index for subtle intrabasin scarps.
+
+    Layers: `det_elev` (12). TPI = elev - mean(elev in annulus/window). Positive = ridge,
+    negative = valley. At fault scarps TPI crosses zero with high gradient. Multi-scale
+    captures both short (3px=300m) and broad (12px=1.2km) fault-related topography.
+
+    Why missing: same as openness - flat ground faults have low slope but measurable TPI
+    step. QFaults misses them; TPI is used in INGENIOUS/3DEP lidar analysis (BRIDGE report).
+
+    How differs: BASE_topo_ridge detects ridge curvature of slope, not elevation residual;
+    openness uses horizon geometry. TPI uses elevation minus neighbourhood mean, which is
+    orthogonal to both.
+    """
+    a = fill_nan_nearest(dem).astype(np.float32)
+    acc = np.zeros_like(a, dtype=np.float32)
+    for r in radii:
+        mean = ndi.uniform_filter(a, size=r*2+1, mode='nearest')
+        # alternatively gaussian for smoother
+        # mean = ndi.gaussian_filter(a, sigma=r/2, mode='nearest')
+        tpi = a - mean
+        # enhance linear edges: gradient magnitude of TPI then ridge
+        gmag = horizontal_gradient_mag(tpi)
+        st, ori = ridge_strength(gmag, sigma=1.0)
+        crest = nms_thin(st, ori)
+        acc += robust_norm(crest)
+    acc /= len(radii)
+    # gate to flat ground implicitly via low slope? Not gating here to keep distinct from shore; openness already does.
+    return robust_norm(acc).astype(np.float32)
+
+
+def flow_accumulation_anomaly(det_elev: np.ndarray, det_slope: np.ndarray,
+                              flat_pct: float = 45.0) -> np.ndarray:
+    """Fault-controlled drainage deflection via flow-accumulation anomaly.
+
+    Layers: `det_elev` (12) + `det_elev_slope` (19). Faults offset or pond
+    drainages even where scarp is sub-resolution: small vertical offset creates
+    a linear anomaly in flow accumulation (truncated, ponded, or deflected
+    channels). This is a classic blind-fault indicator in basin fill and is
+    part of BRIDGE/INGENIOUS lidar analysis (BRIDGE SAND2025-01826).
+
+    Transform: D8 steepest-descent flow direction on filled DEM, then flow
+    accumulation by processing cells in descending elevation order. Anomaly =
+    gradient magnitude of log-accumulation OR ridge of accumulation gated to
+    flat ground. Fault produces a linear discontinuity in the accumulation field.
+
+    Why missing: intrabasin faults in Lahontan lake beds have no range-front
+    scarp but do perturb the very low-gradient drainage network; QFaults does
+    not use hydrology. Hydrologic lineaments are invisible in slope/magnetics.
+
+    How differs: no prior detector uses hydrology; all are potential-field or
+    topographic derivative operators. This is the first hydrologic detector.
+    """
+    dem = fill_nan_nearest(det_elev).astype(np.float32)
+    slope = fill_nan_nearest(det_slope)
+    H, W = dem.shape
+    # fill flat sinks slightly with gaussian to ensure flow
+    # simple sink fill: add tiny gaussian filtered minimum
+    # Use valid mask from dem finite
+    # D8 offsets: 8 neighbours
+    dirs = [(-1,0),(-1,1),(0,1),(1,1),(1,0),(1,-1),(0,-1),(-1,-1)]
+    # compute flow direction index per pixel: argmin of neighbour elevation where lower than center
+    # Prepare padded dem for shifts
+    # For memory, compute direction via vectorized min over 8 shifted arrays (12M*8 ~96M floats ~ 384MB) -> too large for 3GB.
+    # Instead iterate and keep best elevation.
+    best_elev = np.full((H, W), np.inf, dtype=np.float32)
+    flow_dir = np.full((H, W), -1, dtype=np.int8)
+    for idx, (dy, dx) in enumerate(dirs):
+        neigh = _shift(dem, dy, dx, fill=np.nan)
+        # only where neighbour is lower than current best and lower than center
+        lower = (neigh < dem) & (neigh < best_elev) & np.isfinite(neigh)
+        # update
+        best_elev[lower] = neigh[lower]
+        flow_dir[lower] = idx
+        del neigh
+    # flow accumulation: initially 1 per cell
+    acc = np.ones((H, W), dtype=np.float32)
+    # order by elevation descending (higher first)
+    order = np.argsort(dem.ravel())[::-1]  # descending; high to low
+    # Map direction to delta
+    dy_arr = np.array([d[0] for d in dirs], dtype=np.int32)
+    dx_arr = np.array([d[1] for d in dirs], dtype=np.int32)
+    # Flat indexing for fast scatter: use numpy vectorized loop over order chunks to avoid python per-pixel loop (12M loop too slow)
+    # Chunked accumulation: for each pixel in order, add its acc to downstream neighbor
+    # Use numba if available? Try to do chunked python loop with numba fallback to pure numpy if not available.
+    try:
+        import numba
+        @numba.njit
+        def accumulate_numba(acc_flat, flow_flat, dy_arr_, dx_arr_, order_, H_, W_):
+            for k in range(order_.size):
+                idx = order_[k]
+                d = flow_flat[idx]
+                if d < 0:
+                    continue
+                y = idx // W_
+                x = idx % W_
+                ny = y + dy_arr_[d]
+                nx = x + dx_arr_[d]
+                if 0 <= ny < H_ and 0 <= nx < W_:
+                    nidx = ny * W_ + nx
+                    acc_flat[nidx] += acc_flat[idx]
+        acc_flat = acc.ravel()
+        flow_flat = flow_dir.ravel().astype(np.int8)
+        accumulate_numba(acc_flat, flow_flat, dy_arr, dx_arr, order.astype(np.int64), H, W)
+        acc = acc_flat.reshape(H, W)
+    except Exception:
+        # fallback: iterative but slower - use smaller chunk and python loops for first 500k only as proxy
+        # If numba not available, compute log accumulation anomaly via gradient of dem directly (less accurate but captures same linear anomaly)
+        # Use horizontal gradient of log(acc approx) where acc ~ 1/(slope) proxy
+        # For this fallback, just compute ridge on log of naive accumulation (=1) -> fallback to slope ridge gated to flat
+        # So signal still present though less hydrologically faithful.
+        # We degrade gracefully by using topographic wetness-like proxy: ln_a = log(1) - log(slope+eps)
+        # This is not perfect but maintains the flat-gated linear anomaly idea without heavy compute.
+        with np.errstate(divide='ignore'):
+            ln_proxy = np.log(1.0 + 10.0 / (slope + 0.5))
+        gmag = horizontal_gradient_mag(ln_proxy)
+        st, ori = ridge_strength(gmag, sigma=1.0)
+        crest = nms_thin(st, ori)
+        # gate to flat
+        thr = np.percentile(slope[np.isfinite(slope)], flat_pct)
+        flat = ndi.gaussian_filter((slope <= thr).astype(np.float32), 3.0)
+        return (robust_norm(crest) * flat).astype(np.float32)
+
+    # Log accumulation is more relevant than linear (range huge)
+    with np.errstate(divide='ignore', invalid='ignore'):
+        log_acc = np.log1p(acc)
+        log_acc = np.where(np.isfinite(log_acc), log_acc, 0.0).astype(np.float32)
+    # Faults produce linear discontinuities in log accumulation: detect edges
+    gmag = horizontal_gradient_mag(log_acc)
+    # Enhance via ridge thinned
+    st, ori = ridge_strength(gmag, sigma=1.2)
+    crest = nms_thin(st, ori)
+    # gate to flat basin floors where drainage is most sensitive
+    thr = np.percentile(slope[np.isfinite(slope)], flat_pct)
+    flat = ndi.gaussian_filter((slope <= thr).astype(np.float32), 3.0)
+    out = robust_norm(crest) * flat
+    # Require some line coherence
+    out = directional_lineaments(out, sigma=1.0, n_theta=8, length=12)
+    return out.astype(np.float32)
+
+
+def isostatic_coherence_breakdown(grav: np.ndarray, topo: np.ndarray,
+                                   window_sigma: float = 6.0) -> np.ndarray:
+    """Coherence breakdown between gravity and topography = buried structure.
+
+    Layers: `iso_grav_anom` (13) + `det_elev` (12). In isostatically compensated
+    terrain, detrended elevation and isostatic gravity are positively correlated at
+    long wavelength (basin fill vs range). A fault-bounded basin or buried fault that
+    offsets basement creates a *decorrelation*: density contrast without matching
+    topographic expression (or vice versa). This is the same physics as H-C/R6-3
+    but measured as *windowed correlation coefficient* rather than gradient magnitude.
+
+    Transform: windowed Pearson r via Gaussian-weighted means:
+      r = cov(g,t)/[sd(g)*sd(t)+eps];  breakdown = 1 - |r| ; modulated by
+      joint gradient strength so only structural boundaries score high;
+      ridge-thinned.
+
+    Why missing: buried normal fault under basin fill offsets basement (gravity)
+    but has no scarp (topo); QFaults cannot see it. Isostatic residual is the
+    classic hidden-basin detector used in INGENIOUS/BRIDGE basin analysis
+    (BRIDGE report mentions isostatic gravity for basin geometry).
+
+    How differs: H-C/R6-3/R7-2 detect *gradient magnitude* of depth_to_base or
+    grav+mag. Cross-gradient (R7-1) needs *parallel* gradients. This needs
+    *decorrelation* of amplitudes, which is orthogonal to all of them.
+    """
+    g = fill_nan_nearest(grav).astype(np.float32)
+    t = fill_nan_nearest(topo).astype(np.float32)
+    # Gaussian-weighted means
+    mg = ndi.gaussian_filter(g, sigma=window_sigma, mode='nearest')
+    mt = ndi.gaussian_filter(t, sigma=window_sigma, mode='nearest')
+    mg2 = ndi.gaussian_filter(g*g, sigma=window_sigma, mode='nearest')
+    mt2 = ndi.gaussian_filter(t*t, sigma=window_sigma, mode='nearest')
+    mgt = ndi.gaussian_filter(g*t, sigma=window_sigma, mode='nearest')
+    vg = np.maximum(mg2 - mg*mg, 0.0)
+    vt = np.maximum(mt2 - mt*mt, 0.0)
+    cov = mgt - mg*mt
+    with np.errstate(divide='ignore', invalid='ignore'):
+        r = cov / np.sqrt(vg*vt + 1e-12)
+        r = np.clip(np.where(np.isfinite(r), r, 0.0), -1.0, 1.0)
+    breakdown = 1.0 - np.abs(r)
+    # Structural boundary needs both fields to have some gradient (otherwise r noisy on flat)
+    gg = horizontal_gradient_mag(g)
+    gt = horizontal_gradient_mag(t)
+    joint_strength = np.minimum(robust_norm(gg), robust_norm(gt))
+    # Also ridge of breakdown itself
+    gmag = horizontal_gradient_mag(breakdown)
+    st, ori = ridge_strength(gmag, sigma=1.2)
+    crest = nms_thin(st, ori)
+    out = robust_norm(crest) * robust_norm(breakdown) * (0.5 + 0.5*joint_strength)
+    # coherence gating: high breakdown is the signal, but we also keep directionality
+    out = directional_lineaments(out, sigma=1.0, n_theta=8, length=12)
+    return out.astype(np.float32)
+
+
+def remanence_divergence(rtp: np.ndarray, tmi: np.ndarray, mag_anom: np.ndarray) -> np.ndarray:
+    """Magnetic remanence divergence: mismatch between RTP (induced) and total-field magnitude.
+
+    Layers: `rtp` (2), `tmi` (14), `mag_anom` (1). RTP assumes induced magnetization
+    (field parallel to present geomagnetic field). Where remanent magnetization is
+    significant (e.g., across a fault juxtaposing different volcanic units), RTP
+    mispositions anomalies relative to TMI/mag_anom. The divergence field
+    (RTP - TMI) or (RTP - mag_anom) magnitude highlights contacts with remanence,
+    which are often fault-bounded lithologic boundaries.
+
+    Transform: normalized difference: | robust_norm(rtp) - robust_norm(tmi) | or
+    gradient of difference + ridge.
+
+    Why missing: remanent offset is not a topographic or single-field edge; it is
+    invisible to slope/rigidity or single-field worms/TDR. Yet faults in the
+    Great Basin frequently juxtapose Quaternary volcanics with remanence
+    (INGENIOUS Q volcanics layer).
+
+    How differs: H-A worms and H-B TDR operate on one field; R7-1 cross-gradient needs
+    parallel gradients; remanence needs *anti-parallel* or *position mismatch*,
+    i.e. amplitude/position divergence between fields derived from the same measurement.
+    """
+    r = fill_nan_nearest(rtp).astype(np.float32)
+    tm = fill_nan_nearest(tmi).astype(np.float32)
+    ma = fill_nan_nearest(mag_anom).astype(np.float32)
+    # Normalize each to [0,1] via robust_norm to make difference comparable
+    rn = robust_norm(r)
+    tn = robust_norm(tm)
+    mn = robust_norm(ma)
+    # divergence fields
+    div_rt_tmi = np.abs(rn - tn).astype(np.float32)
+    div_rt_ma = np.abs(rn - mn).astype(np.float32)
+    div = np.maximum(div_rt_tmi, div_rt_ma)
+    # Edge of divergence: faults appear as linear divergence maxima
+    gmag = horizontal_gradient_mag(div)
+    st, ori = ridge_strength(gmag, sigma=1.2)
+    crest = nms_thin(st, ori)
+    # Also divergence magnitude itself (broad zone)
+    out = robust_norm(crest) * robust_norm(div)
+    out = directional_lineaments(out, sigma=1.0, n_theta=8, length=12)
+    return out.astype(np.float32)
+
+
+def intersection_permeability(*ridge_maps: np.ndarray, sigma: float = 6.0) -> np.ndarray:
+    """Fault-intersection density as a proxy for geothermal permeability.
+
+    Layers: any set of ridge/thinned edge maps (e.g., BASE_topo_ridge, HA_worms_rtp,
+    R7_crossgrad). Geothermal vents/upflow in the Great Basin are *not* on single
+    fault traces but at intersections, step-overs, accommodation zones and
+    horse-tailing terminations where fracture density and permeability are
+    highest (Faulds et al. 2013, https://www.osti.gov/dataexplorer/biblio/dataset/1148722:
+    'Many geothermal systems occupy discrete steps in fault zones or lie in zones of
+    intersecting, overlapping, and/or intermeshing faults'; BRIDGE report:
+    overlapping oppositely-dipping normal faults generate multiple intersections
+    with high permeability). This is the *only* detector that targets the
+    *junction* rather than the line.
+
+    Transform: threshold each ridge map at its 85th pct, dilate by 2px, intersect
+    pairwise (AND), collect intersection points, kernel density via Gaussian blur
+    (sigma km), normalize, multiply by faint ridge skeleton to keep linear.
+
+    Why missing: every prior detector predicts *lines*; hidden geothermal needs
+    *points* where lines meet. A single fault trace without an intersection is
+    a poor geothermal conduit due to clay gouge (Faulds).
+
+    How differs: no prior detector computes intersections; all are line detectors.
+    This is the first *secondary* detector (operates on outputs of primaries),
+    directly targeting the structural setting most favorable for vents.
+    """
+    if not ridge_maps:
+        raise ValueError("intersection_permeability needs at least 2 ridge maps")
+    # Threshold each map to binary line
+    bin_maps = []
+    for m in ridge_maps:
+        m = np.asarray(m, dtype=np.float32)
+        # handle case where map is near-zero everywhere
+        pos = m[np.isfinite(m) & (m > 0)]
+        if pos.size == 0:
+            continue
+        thr = np.percentile(pos, 85)
+        bm = (m >= thr).astype(np.float32)
+        # dilate slightly so near-intersections count (within 200m)
+        bm = ndi.binary_dilation(bm, structure=np.ones((3,3)), iterations=1).astype(np.float32)
+        bin_maps.append(bm)
+    if len(bin_maps) < 2:
+        return np.zeros(ridge_maps[0].shape, dtype=np.float32)
+    H, W = bin_maps[0].shape
+    inter = np.zeros((H, W), dtype=np.float32)
+    # pairwise intersections
+    n = len(bin_maps)
+    for i in range(n):
+        for j in range(i+1, n):
+            both = bin_maps[i] * bin_maps[j]
+            inter = np.maximum(inter, both)
+    # Also include intersections of *different orientations* within a single map:
+    # use orientation variance already captured by overlapping maps, so pairwise is enough.
+    # Kernel density: gaussian blur of intersection points (permeability halo)
+    # sigma in pixels: sigma km / 0.1km ; sigma=6 => 600m radius captures local fracture zone
+    dens = ndi.gaussian_filter(inter, sigma=sigma, mode='nearest')
+    # Normalize non-zero support
+    nz = dens[dens > 0]
+    if nz.size:
+        # robust_norm on density
+        out = robust_norm_nonzero(dens)
+    else:
+        out = dens
+    # Multiply by faint skeleton of original ridges so map is not pure blob
+    # (keeps lineament context for scoring within 300m)
+    skeleton = np.zeros((H, W), dtype=np.float32)
+    for bm in bin_maps:
+        skeleton = np.maximum(skeleton, bm)
+    out = out * (0.3 + 0.7 * skeleton)
     return out.astype(np.float32)
 
 

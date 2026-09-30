@@ -430,6 +430,122 @@ def load_priorities() -> dict[str, float]:
         break
     return pri
 
+def build_r8_ensemble(reach: int = 20, spacing: int = 3,
+                      openness_cov: float = 0.02, tpi_cov: float = 0.01,
+                      flow_cov: float = 0.02, iso_cov: float = 0.005,
+                      reman_cov: float = 0.005, inter_cov: float = 0.01,
+                      topo_cov: float = 0.03,
+                      include_catalogue: bool = True) -> tuple[np.ndarray, np.ndarray, dict]:
+    """R8 ensemble: geothermal-vent-targeted union of the five new R8 detectors
+    plus the best honest baseline.
+
+    Why this composition:
+      - openness / TPI: subtle intrabasin scarps on flat Lahontan lake beds
+        (zero scarp relief, detected via sky-view / TPI not slope) – the
+        dominant hidden-fault habitat per INGENIOUS/BRIDGE basin analysis.
+      - flow accumulation anomaly: hydrologic lineament where drainages are
+        truncated/ponded by a buried fault – orthogonal to every potential-field
+        detector and the only hydrology-based detector in the repo.
+      - isostatic coherence breakdown: gravity-topo decorrelation = fault-bounded
+        buried basin, a buried-structure detector orthogonal to gradient magnitude.
+      - remanence divergence: RTP vs TMI/mag_anom mismatch across fault-juxtaposed
+        volcanics – captures remanent-magnetization contacts invisible to single-field
+        worms/TDR.
+      - intersection density: fault-junction permeability halo (600 m) where
+        geothermal upflow is highest (Faulds et al. 2013; BRIDGE). This is the
+        ONLY secondary detector that predicts *points* not lines.
+      - topo ridge fill: still the best worst-rule lifter (1.055x) for recall on
+        short/random isolated withholds – kept as the safety net, but trimmed.
+
+    All components are decimated 1-per-spacing to obey the metric geometry rule
+    (TP_w max over 300 m). Catalogue pixels are added last (masked, score-neutral).
+    """
+    valid = np.load(DER / "_valid.npy")
+    known = np.load(DER / "_known.npy")
+    n_valid = int(valid.sum())
+    allowed = valid & ~known
+
+    def topk_from_score(score: np.ndarray, cov: float) -> np.ndarray:
+        if cov <= 0 or score is None:
+            return np.zeros(score.shape, dtype=bool)
+        n = int(cov * n_valid)
+        flat = np.where(allowed, score, -np.inf).ravel()
+        n = min(n, int(np.isfinite(flat).sum()))
+        if n <= 0:
+            return np.zeros(score.shape, dtype=bool)
+        idx = np.argpartition(flat, -n)[-n:]
+        mask = np.zeros(flat.size, dtype=bool)
+        mask[idx] = True
+        return mask.reshape(score.shape)
+
+    rays = D.extension_rays(known, reach_px=reach)
+    m_rays = (rays > 0) & allowed
+    n_rays_raw = int(m_rays.sum())
+    if spacing > 1:
+        m_rays = D.decimate_grid(m_rays, rays, spacing)
+    horse = D.horsetail_splay(known, max_gap_px=20, splay_len_px=12)
+    m_horse = (horse > 0) & allowed
+    n_horse_raw = int(m_horse.sum())
+    if spacing > 1:
+        m_horse = D.decimate_grid(m_horse, horse, spacing)
+
+    def load_det(name):
+        p = DER / f"{name}.npy"
+        return np.load(p) if p.exists() else None
+
+    openness = load_det("R8_openness")
+    tpi = load_det("R8_tpi")
+    flow = load_det("R8_flow")
+    iso = load_det("R8_isocoherence")
+    reman = load_det("R8_remanence")
+    inter = load_det("R8_intersections")
+    topo = load_det("BASE_topo_ridge")
+
+    masks = [m_rays, m_horse]
+    cov_map = {
+        "R8_openness": (openness, openness_cov),
+        "R8_tpi": (tpi, tpi_cov),
+        "R8_flow": (flow, flow_cov),
+        "R8_isocoherence": (iso, iso_cov),
+        "R8_remanence": (reman, reman_cov),
+        "R8_intersections": (inter, inter_cov),
+        "BASE_topo_ridge": (topo, topo_cov),
+    }
+    details = {}
+    for det_name, (score, cov) in cov_map.items():
+        if score is None or cov <= 0:
+            continue
+        m = topk_from_score(score, cov)
+        if spacing > 1:
+            m = D.decimate_grid(m, score, spacing)
+        masks.append(m)
+        details[det_name] = {"coverage_target": cov, "n_px_after_decimation": int(m.sum())}
+
+    union = np.zeros(valid.shape, dtype=bool)
+    for m in masks:
+        union |= m
+    pred = union.astype(np.float32)
+    if include_catalogue:
+        pred = np.maximum(pred, known.astype(np.float32))
+    stats = {
+        "recipe": "r8_ensemble",
+        "tip_ray_reach_px": reach, "tip_ray_reach_m": reach*100,
+        "decimation_spacing_px": spacing,
+        "coverages": {k: v["coverage_target"] for k, v in details.items()},
+        "n_px_per_detector": details,
+        "n_tip_ray_px_before_decimation": n_rays_raw,
+        "n_tip_ray_px": int(m_rays.sum()),
+        "n_horse_px_before_decimation": n_horse_raw,
+        "n_horse_px": int(m_horse.sum()),
+        "n_union_new_px": int(union.sum()),
+        "n_predicted_px": int((pred > 0).sum()),
+        "pct_of_valid": round(100.0 * float((pred > 0).sum()) / n_valid, 4),
+        "max_value": float(pred.max()), "min_value": float(pred.min()),
+        "include_known_catalogue": include_catalogue,
+    }
+    return pred, valid, stats
+
+
 def build(detector: str, coverage: float, spacing: int,
           include_catalogue: bool) -> tuple[np.ndarray, np.ndarray, dict]:
     valid = np.load(DER / "_valid.npy")
@@ -478,7 +594,7 @@ def build(detector: str, coverage: float, spacing: int,
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--recipe", default="composite",
-                    choices=["composite", "composite_plus", "best", "r6",
+                    choices=["composite", "composite_plus", "best", "r6", "r8",
                              "ranked"])
     ap.add_argument("--budget", type=float, default=0.06,
                     help="ranked recipe: fraction of the valid footprint to "
@@ -512,6 +628,22 @@ def main() -> None:
         prov = {"selected_by": "holdout worst-rule lift + geological blind-spot targeting",
                 "detectors": ["extension_rays", "horsetail_splay", "BASE_topo_ridge", "R6_gravterm", "R6_transt", "HB_tdr_rtp", "R6_shore", "R6_condbase"],
                 "objective": "maximize worst-rule lift while covering organizer-named tip extensions, relay ramps, intrabasin scarps, buried steps"}
+    elif a.recipe == "r8":
+        sp = a.spacing or 3
+        reach = a.reach if a.reach != 10 else 20
+        print(f"recipe: R8 ensemble reach={reach} spacing={sp}")
+        pred, valid, stats = build_r8_ensemble(reach=reach, spacing=sp,
+                                               openness_cov=0.02, tpi_cov=0.01,
+                                               flow_cov=0.02, iso_cov=0.005,
+                                               reman_cov=0.005, inter_cov=0.01,
+                                               topo_cov=0.03,
+                                               include_catalogue=not a.no_catalogue)
+        det = "r8-ensemble"
+        note_bits = (f"R8 geothermal-vent ensemble: tip-rays {reach*100}m + horse splay + openness 2% + TPI 1% + flow 2% + isocoherence 0.5% + remanence 0.5% + intersections 1% + topo 3%, decimated 1-per-{sp}px, hidden-vent focus")
+        prov = {"selected_by": "holdout worst-rule + concealed-subset + geothermal permeability literature (Faulds/BRIDGE/INGENIOUS)",
+                "detectors": ["extension_rays", "horsetail_splay", "R8_openness", "R8_tpi", "R8_flow", "R8_isocoherence", "R8_remanence", "R8_intersections", "BASE_topo_ridge"],
+                "objective": "maximize worst-rule lift (intersections/flow for vent permeability) while covering organizer-named extensions/splays/corrections + hidden intrabasin vents",
+                "geothermal_basis": "fault intersections/step-overs/accommodation zones = highest permeability (Faulds 2013, BRIDGE SAND2025-01826); hidden systems have no surface scarp so need openness/TPI/flow/hydrology not slope"}
     elif a.recipe == "ranked":
         sp = a.spacing or 3
         reach = a.reach if a.reach != 10 else 20
