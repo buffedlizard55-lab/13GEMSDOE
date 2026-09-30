@@ -13,7 +13,7 @@
   <h1>Submission download — <span class="tag t-info">BEST LOCAL HOLDOUT REFERENCE</span></h1>
   <p class="sub">This file is the <b>current local holdout reference recipe</b>
   (<code>topo_05_sp3</code>): the configuration that re-confirmed as the local best in the
-  paired, predeclared R9 validation — no tested variant beat it. It passes the repository's
+  paired, predeclared R9, R10 and R10b validations — no tested variant beat it. It passes the repository's
   official-format checks (single-band float32; EPSG:32611; 3730×3292; 100 m; finite values in
   [0,1] inside the survey footprint; null/NaN outside). <b>These are local
   catalogue-recovery results, not a predicted leaderboard score</b>, and remote acceptance
@@ -40,12 +40,116 @@
 </div></div>
 <main class="wrap">
 <section>
+  <h2>This round: official external USGS data, staged and measured (R10 / R10b)</h2>
+  <p class="lede">For the first time the work went outside the provided 19 bands.
+  Six free, official, public-domain USGS products were staged and verified twice each
+  (sha256 from the sibling provenance record <b>and</b> git blob SHA-1 from the sibling
+  tree), four geological hypotheses were predeclared <i>before</i> any map was built,
+  and all of them were then measured on the same paired holdout protocol.
+  <b>Every challenger lost</b> — 16 in R10 and 8 in R10b — so no submission slot was
+  spent.</p>
+  <div class="grid g4">
+    <div class="kpi ok"><div class="v">6 / 6</div><div class="l">external products hash-verified (USGS public domain)</div></div>
+    <div class="kpi ok"><div class="v">4</div><div class="l">hypotheses predeclared before build</div></div>
+    <div class="kpi bad"><div class="v">0 / 24</div><div class="l">challengers that beat the reference (R8 · R9 · R10 · R10b)</div></div>
+    <div class="kpi ok"><div class="v">0</div><div class="l">submission slots spent this round</div></div>
+  </div>
+  <div class="scroll"><table><thead><tr><th>R10 candidate (confirmation folds)</th>
+  <th class="num">worst-rule mean DTI</th><th class="num">mean DTI</th>
+  <th class="num">mean weighted precision</th><th class="num">mean weighted recall</th>
+  <th class="num">ΔDTI vs reference</th><th>predeclared verdict</th></tr></thead>
+  <tbody><tr><td><b>BASE_topo_ridge · 5% · spacing 3 (reference)</b></td><td class='num'>0.08687</td><td class='num'>0.09763</td><td class='num'>0.02761</td><td class='num'>0.28743</td><td class='num'>—</td><td>reference (reproduced exactly)</td></tr><tr><td><b>topo05_plus_alter02_sp3</b></td><td class='num'>0.08593</td><td class='num'>0.09651</td><td class='num'>0.02571</td><td class='num'>0.33633</td><td class='num'>-0.00113</td><td>LOSES (confirmation rule-means won: 1/6)</td></tr><tr><td><b>topo05_plus_vent02_sp3</b></td><td class='num'>0.08443</td><td class='num'>0.09633</td><td class='num'>0.02599</td><td class='num'>0.32292</td><td class='num'>-0.00130</td><td>LOSES (confirmation rule-means won: 1/6)</td></tr><tr><td><b>ventdzt_08_sp3</b></td><td class='num'>0.08396</td><td class='num'>0.09311</td><td class='num'>0.02920</td><td class='num'>0.21977</td><td class='num'>-0.00452</td><td>LOSES (confirmation rule-means won: 1/6)</td></tr><tr><td><b>topo05_plus_scarp02_sp3</b></td><td class='num'>0.08099</td><td class='num'>0.09269</td><td class='num'>0.02497</td><td class='num'>0.31206</td><td class='num'>-0.00494</td><td>LOSES (confirmation rule-means won: 0/6)</td></tr><tr><td><b>topo05_plus_dzt02_sp3</b></td><td class='num'>0.07937</td><td class='num'>0.09083</td><td class='num'>0.02416</td><td class='num'>0.31794</td><td class='num'>-0.00681</td><td>LOSES (confirmation rule-means won: 0/6)</td></tr><tr><td><b>ventdzt_05_sp3</b></td><td class='num'>0.07643</td><td class='num'>0.08548</td><td class='num'>0.03096</td><td class='num'>0.16131</td><td class='num'>-0.01215</td><td>LOSES (confirmation rule-means won: 0/6)</td></tr><tr><td><b>vent_08_sp3</b></td><td class='num'>0.07526</td><td class='num'>0.09075</td><td class='num'>0.02930</td><td class='num'>0.20307</td><td class='num'>-0.00688</td><td>LOSES (confirmation rule-means won: 1/6)</td></tr><tr><td><b>dztC_02_sp3</b></td><td class='num'>0.07490</td><td class='num'>0.08536</td><td class='num'>0.03347</td><td class='num'>0.14597</td><td class='num'>-0.01227</td><td>LOSES (confirmation rule-means won: 0/6)</td></tr><tr><td><b>alter_05_sp3</b></td><td class='num'>0.07337</td><td class='num'>0.08202</td><td class='num'>0.02816</td><td class='num'>0.16695</td><td class='num'>-0.01562</td><td>LOSES (confirmation rule-means won: 0/6)</td></tr><tr><td><b>vent_05_sp3</b></td><td class='num'>0.06784</td><td class='num'>0.08397</td><td class='num'>0.03180</td><td class='num'>0.14971</td><td class='num'>-0.01366</td><td>LOSES (confirmation rule-means won: 0/6)</td></tr><tr><td><b>alterC_015_sp3</b></td><td class='num'>0.06411</td><td class='num'>0.07273</td><td class='num'>0.03277</td><td class='num'>0.10917</td><td class='num'>-0.02491</td><td>LOSES (confirmation rule-means won: 0/6)</td></tr><tr><td><b>dzt_08_sp3</b></td><td class='num'>0.06334</td><td class='num'>0.07585</td><td class='num'>0.02309</td><td class='num'>0.18876</td><td class='num'>-0.02178</td><td>LOSES (confirmation rule-means won: 0/6)</td></tr><tr><td><b>scarpC_015_sp3</b></td><td class='num'>0.06020</td><td class='num'>0.07443</td><td class='num'>0.03390</td><td class='num'>0.11011</td><td class='num'>-0.02321</td><td>LOSES (confirmation rule-means won: 0/6)</td></tr><tr><td><b>dzt_05_sp3</b></td><td class='num'>0.05747</td><td class='num'>0.06848</td><td class='num'>0.02337</td><td class='num'>0.13988</td><td class='num'>-0.02915</td><td>LOSES (confirmation rule-means won: 0/6)</td></tr><tr><td><b>scarp_08_sp3</b></td><td class='num'>0.05632</td><td class='num'>0.07265</td><td class='num'>0.02469</td><td class='num'>0.14915</td><td class='num'>-0.02498</td><td>LOSES (confirmation rule-means won: 0/6)</td></tr><tr><td><b>scarp_05_sp3</b></td><td class='num'>0.05103</td><td class='num'>0.06373</td><td class='num'>0.02487</td><td class='num'>0.10948</td><td class='num'>-0.03390</td><td>LOSES (confirmation rule-means won: 0/6)</td></tr></tbody></table></div>
+  <p class="small">Protocol regression check: PASS — the reference row reproduces the archived per-fold DTI values exactly (18/18 folds). All 468 scored rows
+  across R10 and R10b report <code>tie_fraction</code> 0.00 and zero selections at
+  score 0, so no verdict rests on tie order. Full rows:
+  <code>reports/holdout_r10_2026-09-30.json</code>.</p>
+  <div class="grid g2">
+    <div class="panel">
+      <h3 style="margin-top:0">The external maps are <i>better</i> pixel classifiers — and still lose</h3>
+      <div class="scroll"><table class="small"><thead><tr><th>map</th>
+        <th class="num">AUC vs full catalogue</th><th class="num">recall in own top 5%</th>
+        <th class="num">non-zero share of footprint</th></tr></thead>
+        <tbody><tr><td class='mono'>dzt</td><td class='num'>0.5770</td><td class='num'>0.0534</td><td class='num'>97.73%</td></tr><tr><td class='mono'>ventdzt</td><td class='num'>0.5680</td><td class='num'>0.0831</td><td class='num'>99.94%</td></tr><tr><td class='mono'>scarp</td><td class='num'>0.5663</td><td class='num'>0.0541</td><td class='num'>74.00%</td></tr><tr><td class='mono'>vent</td><td class='num'>0.5660</td><td class='num'>0.0841</td><td class='num'>99.94%</td></tr><tr><td class='mono'>alter</td><td class='num'>0.5282</td><td class='num'>0.0691</td><td class='num'>31.11%</td></tr><tr><td class='mono'>dztC</td><td class='num'>0.5047</td><td class='num'>0.0507</td><td class='num'>2.40%</td></tr><tr><td class='mono'>scarpC</td><td class='num'>0.5028</td><td class='num'>0.0440</td><td class='num'>1.73%</td></tr><tr><td class='mono'>alterC</td><td class='num'>0.5018</td><td class='num'>0.0416</td><td class='num'>1.59%</td></tr><tr><td class='mono'>topo</td><td class='num'>0.5004</td><td class='num'>0.0567</td><td class='num'>6.27%</td></tr></tbody></table></div>
+      <p class="small" style="margin-bottom:0">Best provided band for comparison:
+      <code>geod_shearrate</code> at AUC 0.5615. These are full-catalogue signal
+      statistics, <b>not</b> holdout scores.</p>
+    </div>
+    <div class="panel">
+      <h3 style="margin-top:0">Why signal did not convert into score</h3>
+      <p class="small">DTI is a distance-weighted F2 (β = 2), so a block of predictions
+      helps only if its <b>marginal weighted precision</b> exceeds <code>0.2 × DTI</code>
+      (0.0169 on tune folds, 0.0195 on confirmation). Measured marginal precision of the
+      blocks the external maps add: dzt 0.0094, scarp 0.0096, vent 0.0138, alter 0.0141
+      at 2% coverage; 0.0136–0.0166 at 0.5–1% coverage. Every one is below the bar.</p>
+      <p class="small" style="margin-bottom:0">The direction of the failure matters:
+      external evidence raises <b>precision</b> and spends <b>recall</b>. Only a product
+      that puts pixels within 300 m of faults the topographic crest never touches can
+      raise DTI. Recorded as irregularity
+      <a href="https://github.com/buffedlizard55-lab/13GEMSDOE/blob/main/knowledge/02_irregularities.md">I-13</a>
+      so the same 24 configurations are not re-derived next session.</p>
+    </div>
+  </div>
+  <div class="panel">
+    <h3 style="margin-top:0">R10b — refinement round, selected on tune folds only</h3>
+    <p class="small">R10 measured the <i>average</i> quality of a 2% external block.
+    The metric's inclusion rule is a statement about the <i>margin</i>, so R10b
+    predeclared two further mechanisms: low-coverage unions (0.5%, 1%) and
+    fixed-budget rank fusion, <code>(1−w)·pctl(topo) + w·pctl(external)</code>, which
+    keeps the reference pixel mass and lets the external evidence <i>replace</i> the
+    weakest reference pixels instead of adding to them. Selection used the tune folds
+    only; confirmation was then read for the selected configuration and the reference.</p>
+    <table class="small"><thead><tr><th>configuration</th><th class="num">confirm worst-rule DTI</th>
+      <th class="num">confirm mean DTI</th><th class="num">P_w</th><th class="num">R_w</th>
+      <th class="num">predicted px</th><th>verdict</th></tr></thead><tbody>
+      <tr><td><b>topo_05_sp3</b> (reference)</td>
+        <td class="num">0.08687</td>
+        <td class="num">0.09763</td>
+        <td class="num">0.0276</td>
+        <td class="num">0.2874</td>
+        <td class="num">185,290</td>
+        <td>REFERENCE</td></tr>
+      <tr><td><b>fuse_vent_w050_sp3</b> (selected on tune)</td>
+        <td class="num">0.08286</td>
+        <td class="num">0.09771</td>
+        <td class="num">0.0294</td>
+        <td class="num">0.2487</td>
+        <td class="num">150,650</td>
+        <td>LOSES (confirmation rule-means won: 2/6)</td></tr>
+    </tbody></table>
+    <p class="small" style="margin-bottom:0">Paired Δ mean DTI
+    +0.00008 (+0.08%),
+    6/12 confirmation folds won,
+    6 rules scored.
+    The fusion buys precision (0.0294 vs 0.0276) with 19% fewer pixels by giving up
+    recall (0.2487 vs 0.2874) — under β = 2 that trade is a wash on the mean and a loss
+    on the worst rule. Report:
+    <code>reports/holdout_r10b_2026-09-30.json</code>.</p>
+  </div>
+  <div class="callout ok">
+    <p style="margin:0"><b>One irregularity resolved on the way (I-2).</b> Provided band 6
+    <code>tc</code> <b>is</b> the radiometric total count: against the official USGS
+    GeoDAWN grid, Spearman ρ 0.99998,
+    Pearson r 0.99902, OLS slope
+    1.0073,
+    R² 0.9980,
+    median ratio 1.00000 — plus the physical closure test
+    band6 ≈ 7.54 × (K + Th + U) at ρ 0.9958, which no tilt angle or curvature satisfies.
+    Its embedded description (“Tilt angle <i>or</i> total curvature — magnetic field
+    derivative for edge detection”) does not describe the array, and the earlier
+    “disproved” verdict rested on an unverified units assumption. Same match, second
+    consequence: it independently validates our external staging pipeline, because the
+    sibling re-gridding reproduces the field the organisers shipped.
+    <code>reports/band6_identity.json</code>.</p>
+  </div>
+</section>
+
+<section>
   <h2>Current decision: hold the reference; every challenger lost</h2>
-  <p class="lede">Three new geological hypotheses (R9: strike-aligned gap completion,
-  epicentral-alignment lineaments, parallel-offset corrections) were implemented and
-  tested under a predeclared, paired protocol against the reference recipe. All of them
-  lost; the R8 union had already lost the same way. The downloadable artifact therefore
-  remains the reference recipe itself.</p>
+  <p class="lede">Twenty-four challenger configurations across four rounds (the R8
+  ensemble union, three R9 internal-data hypotheses, sixteen R10 external-data
+  configurations and eight R10b refinements) were each tested under a predeclared,
+  paired protocol against the reference recipe. All of them lost. The downloadable
+  artifact therefore remains the reference recipe itself.</p>
   <div class="scroll"><table><thead><tr><th>R9 candidate (confirmation folds)</th>
   <th class="num">worst-rule mean DTI</th><th class="num">mean DTI</th>
   <th class="num">mean weighted precision</th><th class="num">mean weighted recall</th>
@@ -91,6 +195,7 @@
     <div class="kpi ok"><div class="v">12/12</div><div class="l">metric audit checks passed</div></div>
     <div class="kpi warn"><div class="v">0</div><div class="l">local TIFFs tied to verified per-submission public scores</div></div>
     <div class="kpi bad"><div class="v">3 / 3</div><div class="l">new R9 hypotheses measured on the holdout — all LOSE</div></div>
+    <div class="kpi bad"><div class="v">24 / 24</div><div class="l">challengers across R8 · R9 · R10 · R10b that failed the gate</div></div>
     <div class="kpi warn"><div class="v">0.3168</div><div class="l">leader&#x27;s account-level best (snapshot 2026-09-30)</div></div>
   </div>
   <p class="small">DTI algebra and the official worked example pass the local audit.
@@ -132,9 +237,11 @@
 
 <section>
   <h2>Research directions still open</h2>
-  <p class="lede">Three internal-data hypotheses (R9) were implemented and measured this
-  round — all lost (see the table above). Four external-data directions remain ranked
-  for research but are not yet viable because their official data are not staged:
+  <p class="lede">The GeoDAWN/3DEP/QFFDB external family is now <b>staged, verified and
+  measured</b> (R10/R10b above) — it loses on Phase-1 DTI and is closed as a score
+  direction, though it retains Phase-2 defensibility value. Four <i>other</i>
+  external-data directions remain ranked for research and are still not viable because
+  their official data are not staged:
   event-level ComCat focal-plane coherence, repeated Landsat thermal/moisture residuals,
   groundwater-head compartments, and cross-depth MT conductor edges. Availability checks
   are recorded per source.</p>
@@ -154,7 +261,7 @@
 <footer class="site"><div class="wrap">
   <p><strong>13GEMSDOE</strong> — working repository for the
   <a href="https://www.drivendata.org/competitions/306/competition-doe-gems/">DOE GEMS Prize Challenge</a>.
-  Page generated 2026-09-30 19:51 UTC from <code>reports/*.json</code>.</p>
+  Page generated 2026-09-30 21:10 UTC from <code>reports/*.json</code>.</p>
   <p class="small">Every figure on this site is produced by a script in this
   repository and is reproducible from a clean checkout. Claims that could not be
   verified against an official source are listed as irregularities rather than

@@ -26,8 +26,48 @@ and magnetic (right) data."* The filename pairs `tc` with `tmi` under the label
 radiometric total count**. The same page's feature list, however, names every
 magnetic derivative explicitly (RTP, TMI, TMI vertical slope, TMI horizontal
 slope, top-of-crustal magnetic source depth) and does **not** name a tilt angle
-or a total curvature. See irregularity I-2 for the measured contradiction and
-for why band 6 is now reported as UNIDENTIFIED rather than as either reading.
+or a total curvature.
+
+**RESOLVED 2026-09-30 (session 4) by direct measurement, not inference.**
+`scripts/audit_band6_identity.py` → `reports/band6_identity.json`: band 6 matches
+the dequantised official GeoDAWN radiometric **total count** channel
+(`radiometric::rad_tc`, USGS DOI 10.5066/P93LGLVQ) with Spearman rho = **0.99998**,
+Pearson r = 0.99902, OLS **slope 1.0073**, intercept −0.128, **R² = 0.9980**,
+RMSE 0.196 band-6 units, median ratio 1.00000 (IQR 0.99867–1.00134), and matching
+percentiles (p1 7.7223 vs 7.7140, p50 18.4817 vs 18.4559, p99 29.1005 vs 29.1002).
+The independent percentile-quantised copy `geodawn_rad::TC` agrees in rank
+(rho = 0.99995). The physical closure test also passes: band 6 ≈ 7.54 ×
+(K + Th + U) with rho = 0.9958, R² = 0.9902 — a tilt angle or a curvature has no
+reason to equal the sum of the three radiometric windows. **Band 6 is the
+radiometric total count; its embedded description ("Tilt angle or total
+curvature - magnetic field derivative for edge detection") is wrong.** The
+earlier disproof rested on an unverified units assumption (that a count rate must
+be 10²–10⁴ cps); the official grid itself lives in the 5.5–30.3 range with the
+competition band keeping a tail to 88.57 that the 8-bit product clips at its
+p99.5 quantisation limit. See I-2.
+
+### Re-verification record, 2026-09-30 (session 4)
+
+Fetched with `fetch_page`; forum threads read through Discourse's `/print` view so
+that every post body, not just its header, is rendered.
+
+| Source | Fetched | Result |
+|---|---|---|
+| [official leaderboard](https://www.drivendata.org/competitions/306/competition-doe-gems/leaderboard/) (chunk 0) | ✅ | DARD 0.3168 (11 subs), alexoktaba 0.3042 (17), joeyfezster 0.2919, xiaofanhu 0.2901, HardcoreTechGod 0.2854, mzoorob 0.2843, GrigorSargsyan 0.2742, op01 0.2710. Snapshot in [`reports/leaderboard_snapshot_2026-09-30.json`](../reports/leaderboard_snapshot_2026-09-30.json). |
+| [thread 11527 (all 10 posts)](https://community.drivendata.org/t/how-were-the-new-test-faults-identified-data-sources-and-fault-types/11527/print) | ✅ | Post 7 (`chrisk-dd`, Sep 23) matches the archived quote word for word, including the Phase-2 sentence. **No new organiser statement** in posts 8–10. |
+| [thread 11536](https://community.drivendata.org/t/where-do-you-draw-the-line/11536) | ✅ | Still 2 posts; the "newly mapped geometry of an existing fault system" quote is unchanged. |
+| [thread 11528](https://community.drivendata.org/t/paid-for-external-data-license/11528/print) | ✅ | External data allowed "provided that the participants possess a license that permits the data to be used in this challenge and shared with the sponsor for evaluation purposes." USGS public domain satisfies both clauses. |
+| [thread 11524](https://community.drivendata.org/t/weekly-submissions/11524/print) | ✅ | `chrisk-dd`, Sep 17: *"The submission allowance resets based on a rolling window, not at a specific date and time."* → fact 1.9. |
+| [thread 11529](https://community.drivendata.org/t/why-does-the-training-fault-labels-file-in-the-data-tab-have-a-single-band-while-the-labels-in-the-reference-solution-repo-have-19-bands/11529/print) | ✅ | `chrisk-dd`, Sep 23: the reference notebook's "19 bands in the label TIF" is *"an artifact / bug in the summary string that gets printed in the notebook"*; the label TIF has **one** band, as we measured. |
+| [thread 11540](https://community.drivendata.org/t/team-member-eligibility-competition-homepage-vs-official-rules/11540/print) | ✅ | `hannahmoro`, Sep 29: the Official Rules take precedence over the homepage — every non-captain team member must be legally authorised to work in the U.S. → fact 1.10. |
+| [thread 11516](https://community.drivendata.org/t/scoring-clarification-are-known-usgs-ingenious-faults-masked-when-scoring-and-are-they-in-the-final-round-label-set/11516) | ⚠️ | Re-fetch attempted twice on 2026-09-30; the fetch proxy returned `SignatureDoesNotMatch` both times. Posts 2 and 4 remain as verified verbatim on 2026-09-29 (table above); **not** re-verified this session. |
+
+Competitor intel from the same threads (their words, not ours): `moongrega`
+*"can't depend heavily on LiDar … using it for as little as possible"*, works from
+conductance and area grids (11527 posts 4–6); thread 11531 is a competitor
+recruiting a geologist for LiDAR fault mapping. Our R10 measurement is that the
+1-m LiDAR morphometrics are the *second*-strongest external signal but still lose
+to the topographic crest recipe — consistent with both.
 
 ---
 
@@ -43,6 +83,9 @@ for why band 6 is now reported as UNIDENTIFIED rather than as either reading.
 | 1.6 | Competitors must choose **a single submission** for scoring across both rounds, before the deadline, **without knowing private performance**. | [Problem description](https://www.drivendata.org/competitions/306/competition-doe-gems/page/967/) |
 | 1.7 | Total prize pool $300,000; prize governed by 15 U.S.C. § 3719. | [Official Rules §1](https://docs.nlr.gov/docs/fy26osti/96647.pdf) |
 | 1.8 | Eligibility: U.S. citizens/permanent residents (individual), U.S.-incorporated entities, U.S. accredited academic institutions. FFRDCs, non-DOE federal entities/employees, DOE employees & support contractors, DrivenData staff, under-18s, MFTRP participants and FCOC-controlled entities are **ineligible**. Eligibility is certified **under penalty of perjury** (18 U.S.C. §§ 1001, 287; 31 U.S.C. §§ 3729‑3733, 3801‑3812). | [Official Rules §1.3](https://docs.nlr.gov/docs/fy26osti/96647.pdf) |
+| 1.9 | The three-scored-submissions allowance resets on a **rolling seven-day window**, not at a calendar-week boundary or a fixed time of day. Planning consequence: a slot freed by waiting is not predictable from the calendar; do not schedule three submissions in one day on the assumption of a Monday reset. | [forum 11524 post 2](https://community.drivendata.org/t/weekly-submissions/11524/2) (`chrisk-dd`, Sep 17) · [Official Rules §3.2](https://docs.nlr.gov/docs/fy26osti/96647.pdf) |
+| 1.10 | Where the homepage and the Official Rules disagree on team eligibility, **the Official Rules take precedence**: the captain must be a U.S. citizen/permanent resident *and* every other member must be legally authorised to work in the U.S. | [forum 11540 post 2](https://community.drivendata.org/t/team-member-eligibility-competition-homepage-vs-official-rules/11540/2) (`hannahmoro`, Sep 29) · [Official Rules §1.3](https://docs.nlr.gov/docs/fy26osti/96647.pdf) |
+| 1.11 | The training label TIF has **one band**. The reference-solution notebook's printed claim of 19 label bands is a bug in its summary string, confirmed by the organiser. | [forum 11529 post 2](https://community.drivendata.org/t/why-does-the-training-fault-labels-file-in-the-data-tab-have-a-single-band-while-the-labels-in-the-reference-solution-repo-have-19-bands/11529/2) (`chrisk-dd`, Sep 23) · our own rasterio read of `existing_faults.tif` |
 
 > **1.5 is the strategically dominant fact.** 83 % of the money is in Phase 2, and
 > Phase 2 labels are *created from our own submitted predictions*. A correct
@@ -233,7 +276,13 @@ account for 16 of the 19 bands. The three not named in any bullet are band 1
 derivatives), band 11 `iso_grav_anom_vg` and band 18 `iso_grav_anom_hg` (the
 vertical and horizontal derivatives of the isostatic gravity anomaly), and band
 6 `tc`. **No bullet names a tilt angle or a total curvature.** That is the
-official basis for doubting band 6's embedded description.
+official basis for doubting band 6's embedded description — and band 6 is now
+**identified by measurement** as the radiometric total count
+(`reports/band6_identity.json`: rho 0.99998, R² 0.9980, slope 1.007 against the
+official USGS `rad_tc` grid; closure rho 0.9958 against K + Th + U). Two
+consequences: (i) `HE_lin_tc` is a genuine radiometric lineament feature, so its
+geological story is restored; (ii) band 6 carries **no information we do not
+already have** from the official release, so it is not an external-data gain.
 
 ---
 

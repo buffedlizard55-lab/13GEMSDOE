@@ -11,7 +11,76 @@
 
 ---
 
-## Latest review — 2026-09-30, session 3 (R9)
+## Latest review — 2026-09-30, session 4 (R10 / R10b: official external data)
+
+This session went outside the provided 19 bands for the first time, under the
+standing rule that external data must be **free, official, licence-clean and
+verifiably obtainable** before any code is written around it.
+
+**Data staged and verified.** Six USGS public-domain products were re-staged from
+this group's sibling repositories by `scripts/fetch_external_data.py` and verified
+twice each (sha256 from the sibling provenance record **and** git blob SHA-1 from
+the sibling tree): 3DEP 1-m LiDAR morphometrics (12 bands), GeoDAWN radiometrics,
+GeoDAWN derivative extensions, a 9-band topographic morphometric set, and the
+QFFDB prior (analysis-only — leakage risk). Pins: `reports/external_manifest.json`,
+provenance: `reports/external_provenance/` (11 records). Licence check: USGS work
+is public domain, which satisfies the organiser's condition that participants hold
+"a license that permits the data to be used in this challenge and shared with the
+sponsor" ([forum 11528](https://community.drivendata.org/t/paid-for-external-data-license/11528)).
+All six grids conform exactly to the competition grid (EPSG:32611, 100 m,
+3730×3292) — `reports/external_audit.json`.
+
+**Four hypotheses predeclared before any map was built**
+([`knowledge/06_r10_hypotheses.md`](knowledge/06_r10_hypotheses.md)), ranked by
+expected ΔDTI ÷ cost: R10-3 damage-zone texture (3DEP slope_std × profile
+curvature), R10-1 1-m LiDAR morphometric scarp composite, R10-2 radiometric
+alteration-ratio lineaments (U/K, U/Th), R10-4 geothermal-vent conjunction
+(scarp × alteration × conductance × shallow conductive base). Two further
+candidates were screened out on measurement before build: the QFFDB-minus-catalogue
+difference (**1 pixel** — dead) and a LiDAR-coherence channel (AUC 0.4608 — below
+chance).
+
+**Result: every one of the 24 challenger configurations LOSES**
+(16 in R10, 8 in R10b) against the paired reference `topo_05_sp3`
+(confirmation worst-rule mean **0.08687**). Best challenger 0.08593
+(`topo05_plus_alter02_sp3`), best fixed-budget fusion 0.08286
+(`fuse_vent_w050_sp3`). Protocol regression checks passed in both runs; all 468
+scored rows report `tie_fraction` 0.00. **No submission slot was spent.**
+Reports: [`holdout_r10_2026-09-30.json`](reports/holdout_r10_2026-09-30.json),
+[`holdout_r10b_2026-09-30.json`](reports/holdout_r10b_2026-09-30.json).
+
+**Why, measured rather than asserted.** The external maps are *better pixel
+classifiers than any provided band* (AUC 0.5282–0.5770 vs 0.5615 for
+`geod_shearrate`) and still lose, because the marginal weighted precision of the
+pixels they add — 0.0094–0.0166 depending on block and coverage — sits below the
+metric's own inclusion bar `0.2 × DTI` (0.0169 tune / 0.0195 confirmation).
+External evidence buys **precision** (0.0294 vs 0.0276 at 19 % fewer pixels for
+the w = 0.5 vent fusion) and spends **recall** (0.2487 vs 0.2874); under β = 2
+that trade is a wash at best. Carried forward as
+[irregularity I-13](knowledge/02_irregularities.md): *univariate AUC is not a
+go/no-go signal in this competition*, and only a product that reaches fault
+neighbourhoods the topographic crest never touches can raise DTI.
+
+**One irregularity resolved on the way — I-2.** Band 6 `tc` is the **radiometric
+total count**, measured against the official USGS grid: Spearman ρ 0.99998,
+Pearson r 0.99902, OLS slope 1.0073, R² 0.9980, median ratio 1.00000, matching
+percentiles, plus the physical closure test band6 ≈ 7.54 × (K + Th + U) at
+ρ 0.9958. Its embedded description ("Tilt angle or total curvature — magnetic
+field derivative for edge detection") does **not** describe the array. The earlier
+"disproved" verdict rested on an unverified units assumption and is retracted in
+place, with the reasoning preserved
+([`reports/band6_identity.json`](reports/band6_identity.json),
+`scripts/audit_band6_identity.py`). The same match independently validates our
+external staging pipeline: the sibling re-gridding reproduces the field the
+organisers shipped.
+
+New organiser statements verified verbatim this session: the submission allowance
+resets on a **rolling window** (11524), the Official Rules take precedence on team
+eligibility (11540), the label TIF has **one** band and the reference notebook's
+"19 bands" is a printing bug (11529). The downloadable artifact is unchanged:
+**`13gems-toporef-holdoutref.tif`**.
+
+### Previous review — 2026-09-30, session 3 (R9)
 
 Three new geological hypotheses were implemented, predeclared, and measured on the
 paired holdout this session — none beat the local best, so the reference recipe was
@@ -54,7 +123,9 @@ public scores, not receipts for our local TIFFs.
 | Can public scores be compared with the local chance baseline? | **No.** Public inference from account-best scores is withdrawn. `dti_chance()` is retained only for an approximate same-run random-control sanity check with known local truth and the eligible fold domain. | [Irregularity I‑9](knowledge/02_irregularities.md) |
 | What should a submission look like? | Use the exact marginal rule `ΔTP_w/(ΔTP_w+ΔFP_w) > 0.2 × DTI` for the same evaluation set; select cutoff, coverage, spacing, and fusion on the holdout rather than from unverified public labels. R9 measured the rule: mass below the bar loses exactly as the algebra says. | [`knowledge/01_verified_facts.md` §2.1](knowledge/01_verified_facts.md) |
 | How do we check an idea before a submission slot? | Use whole-system and segment hide-and-recover folds with buffers, visible-catalogue-only feature construction, an exact known-fault mask, withheld-truth-only DTI, and multiple rules. The low-slope slice is a stress test—not hidden-test ground truth. | [`src/gems/holdout.py`](src/gems/holdout.py) · [`reports/holdout_r9_2026-09-30.json`](reports/holdout_r9_2026-09-30.json) |
-| Is the current downloadable artifact cleared to submit? | It **is the current local holdout reference** (`topo_05_sp3`) — the best available recipe under the gate — labelled `BEST_LOCAL_REFERENCE_NOT_PRIVATE_TEST_CLAIM`. No challenger (R8 or R9) has beaten it. | [`reports/latest_submission.json`](reports/latest_submission.json) |
+| Is the current downloadable artifact cleared to submit? | It **is the current local holdout reference** (`topo_05_sp3`) — the best available recipe under the gate — labelled `BEST_LOCAL_REFERENCE_NOT_PRIVATE_TEST_CLAIM`. No challenger (R8, R9, R10 or R10b) has beaten it. | [`reports/latest_submission.json`](reports/latest_submission.json) |
+| Do the free official USGS products help? | **Measured: not on Phase-1 DTI.** Six hash-verified products, four predeclared hypotheses, 24 challenger configurations — all lose to `topo_05_sp3`. They beat every provided band on AUC and still fail the metric's marginal-precision bar. Their remaining value is Phase-2 defensibility. | [I-13](knowledge/02_irregularities.md) · [`reports/holdout_r10_2026-09-30.json`](reports/holdout_r10_2026-09-30.json) |
+| What is band 6 (`tc`)? | **Radiometric total count**, measured against the official USGS grid (ρ 0.99998, R² 0.9980, slope 1.007, closure vs K+Th+U ρ 0.9958). The embedded "tilt angle or total curvature" description is wrong. | [`reports/band6_identity.json`](reports/band6_identity.json) · [I-2](knowledge/02_irregularities.md) |
 | How do I actually submit? | Download the front-page GeoTIFF, paste the printed name and note into the form, and follow the five steps (including the [0, 1]-error triage path). | [Executive summary](docs/executive_summary.html) |
 
 ---
@@ -93,16 +164,28 @@ holdout; do not assume a universal 300 m decimation.
 PROJECT_CHARTER.md        standing brief — read first, every session
 knowledge/
   01_verified_facts.md    every fact with the official URL it came from
-  02_irregularities.md    things that are wrong or unverifiable, with actions
+  02_irregularities.md    things that are wrong or unverifiable, with actions (I-1..I-14)
   03_hypotheses.md        candidate geological hypotheses, ranked
+  04_geothermal_vents.md  vent science from official sources (contrarian, cited)
+  05_hypothesis_screen_2026-09-30.md   screened-out candidates and why
+  06_r10_hypotheses.md    R10/R10b predeclared register, decision rule, results
 src/gems/
   metric.py               the official DTI, transcribed and audited
   fastscore.py            exact fast scorer (verified == metric.py)
   holdout.py              hide-and-recover fold construction
-  detectors.py            the physical-signature detectors (H-A..H-E, R6-*, R7-*)
+  detectors.py            the physical-signature detectors (H-A..H-E, R6-*, R7-*, R10-*)
+  external.py             provenance-driven loader for data/external (no hand-typed constants)
+  supervised.py           supervised baselines
   rio.py                  raster I/O + the strict submission validator
+tests/                    43 unit tests: rio, R9, R10 detectors (`unittest discover -s tests`)
 scripts/
   fetch_data.py           reconstruct data/raw from official + mirrored sources
+  fetch_external_data.py  stage + double-verify the six official external products
+  audit_external.py       grid conformance, catalogue gap, band identity, channel novelty
+  audit_band6_identity.py settles I-2: band 6 vs official TC, with the closure test
+  build_external_detectors.py  the eight R10 maps + per-map AUC/top-5% manifest
+  validate_r10_holdout.py      predeclared paired validation of the four R10 hypotheses
+  validate_r10b_holdout.py     predeclared refinement round: low-coverage unions + rank fusion
   audit_metric.py         proves the four results above
   audit_bands.py          measures what the 19 bands actually are; tests I-2
   analyze_scored.py       file/pixel identity and support for historical TIFFs; score labels unverified
@@ -150,6 +233,19 @@ in this workspace lacks the scientific dependencies.
   0.06232). These labels are not receipts; no score is attributed to a local
   file. High overlap also does not mean exact duplicate (for example, the
   ens12/dualunion support IoU is 0.94191, but their file and pixel hashes differ).
+* `scripts/fetch_external_data.py` → six official products staged into
+  `data/external/` (~150 MB, gitignored), each verified against a pinned sha256
+  **and** a pinned git blob SHA-1; `reports/external_manifest.json` records both.
+* `scripts/audit_external.py` (streaming, one channel at a time — a first version
+  was OOM-killed on this 3.9 GB box) → grid conformance for all six products,
+  the QFFDB catalogue gap (**1 px**, hypothesis dead), band identity against
+  official channels, per-channel AUC/novelty, and the 3,205,306-px common domain.
+* `scripts/build_external_detectors.py` → eight R10 maps in `data/derived/`
+  (43 s) plus `reports/external_detectors_manifest.json`.
+* `scripts/validate_r10_holdout.py` / `validate_r10b_holdout.py` → 306 + 162
+  paired fold scorings, both protocol regression checks PASS, all challengers
+  LOSE (see the session-4 review above).
+* `scripts/audit_band6_identity.py` → I-2 resolved (28 s).
 * `scripts/validate_ensemble_holdout.py` → tested a visible-only reconstruction
   of the archived R8 recipe against `BASE_topo_ridge|cov0.05|sp3`. The report
   uses 15 whole-system folds across five withholding rules plus three raw
@@ -170,6 +266,10 @@ baseline on the confirmation summary. These numbers concern catalogue recovery
 under this protocol only; they do not predict the undisclosed target. The archived
 full-catalogue raster is not itself holdout-scored because that would leak its
 catalogue-derived tip/horsetail geometry.
+
+**Submission decision (2026-09-30, session 4 — unchanged from session 3):** no R10
+or R10b challenger passed the predeclared gate, so no slot is spent and the
+recommendation stands.
 
 **Submission decision (2026-09-30, session 3):** the primary downloadable artifact is
 `13gems-toporef-holdoutref` — the reference recipe itself (`BASE_topo_ridge` top-5 %,
@@ -196,7 +296,13 @@ pip install numpy scipy rasterio
 .venv/bin/python scripts/audit_metric.py      # proves the metric results
 .venv/bin/python scripts/audit_bands.py       # what the 19 bands actually are
 .venv/bin/python scripts/analyze_scored.py    # file/pixel identity; labels are not receipts
-.venv/bin/python scripts/build_detectors.py   # ~8.4 min
+.venv/bin/python scripts/audit_band6_identity.py   # settles I-2 (~30 s)
+.venv/bin/python scripts/fetch_external_data.py    # stage + verify data/external (~150 MB)
+.venv/bin/python scripts/audit_external.py         # grid/gap/identity/novelty audit (~140 s)
+.venv/bin/python scripts/build_detectors.py   # ~7 min (418 s measured this session)
+.venv/bin/python scripts/build_external_detectors.py   # the eight R10 maps (~45 s)
+.venv/bin/python scripts/validate_r10_holdout.py    # predeclared R10 validation (~90 s)
+.venv/bin/python scripts/validate_r10b_holdout.py   # predeclared R10b refinement (~66 s)
 .venv/bin/python scripts/run_holdout3.py      # historical full sweep (~82 min, 3 GB RAM)
 .venv/bin/python scripts/validate_ensemble_holdout.py # targeted visible-only ensemble holdout
 .venv/bin/python scripts/make_submission.py --recipe best

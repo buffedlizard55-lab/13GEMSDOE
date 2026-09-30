@@ -4,6 +4,7 @@ data/raw/
 data/derived/
 data/scored/
 data/holdout/
+data/external/
 *.tif.part-*
 .venv/
 __pycache__/

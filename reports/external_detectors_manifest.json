@@ -1,0 +1,153 @@
+{
+  "generated_utc": "2026-09-30T20:37:58Z",
+  "inputs": {
+    "lidar": {
+      "file": "lidar_scarp_features_u8.tif",
+      "source": "USGS 3DEP 1 m DEM, 716 tiles; morphometrics computed at 2 m working resolution and aggregated to 100 m",
+      "official": "https://prd-tnm.s3.amazonaws.com/StagedProducts/Elevation/"
+    },
+    "topo": {
+      "file": "topo_u8.tif",
+      "source": "USGS 3DEP DEM -> 9 channels at 100 m"
+    },
+    "radiometric": {
+      "file": "radiometric_u8.tif",
+      "source": "USGS GeoDAWN airborne radiometric survey",
+      "official": "https://doi.org/10.5066/P93LGLVQ"
+    },
+    "provided_bands": [
+      "cond_surf (17)",
+      "depth_to_base_surf (15)"
+    ]
+  },
+  "catalogue_input": false,
+  "maps": {
+    "R10_dzt": {
+      "auc": 0.50471,
+      "domain_px": 5167373,
+      "catalogue_recall_in_top5pct": 0.05068,
+      "catalogue_precision_in_top5pct": 0.01196,
+      "nonzero_px_inside_footprint": 124079,
+      "description": "R10-3 damage-zone texture: persistent ridge crests of slope_std x profile curvature (3DEP DEM)",
+      "layers": [
+        "topo::slope_std",
+        "topo::curv_prof_absmax"
+      ],
+      "min": 0.0,
+      "max": 1.0
+    },
+    "R10_dzt_field": {
+      "auc": 0.577,
+      "domain_px": 5167373,
+      "catalogue_recall_in_top5pct": 0.05345,
+      "catalogue_precision_in_top5pct": 0.01262,
+      "nonzero_px_inside_footprint": 5049948,
+      "description": "R10-3 un-thinned damage-zone texture field (for fusion)",
+      "layers": [
+        "topo::slope_std",
+        "topo::curv_prof_absmax"
+      ],
+      "min": 0.0,
+      "max": 1.0
+    },
+    "R10_scarp": {
+      "auc": 0.50284,
+      "domain_px": 5167373,
+      "catalogue_recall_in_top5pct": 0.04403,
+      "catalogue_precision_in_top5pct": 0.01039,
+      "nonzero_px_inside_footprint": 89438,
+      "description": "R10-1 LiDAR scarp composite: band-passed step x slope-excess x (crest convexity x toe concavity) x antislope, persistent crests",
+      "layers": [
+        "lidar::step_max",
+        "lidar::ex_max",
+        "lidar::ex_mean",
+        "lidar::lapneg_max",
+        "lidar::lappos_max",
+        "lidar::upface_max"
+      ],
+      "min": 0.0,
+      "max": 1.0
+    },
+    "R10_scarp_field": {
+      "auc": 0.56629,
+      "domain_px": 5167373,
+      "catalogue_recall_in_top5pct": 0.05408,
+      "catalogue_precision_in_top5pct": 0.01276,
+      "nonzero_px_inside_footprint": 3823955,
+      "description": "R10-1 un-thinned LiDAR scarp field (for fusion)",
+      "layers": [
+        "lidar::step_max",
+        "lidar::ex_max",
+        "lidar::ex_mean",
+        "lidar::lapneg_max",
+        "lidar::lappos_max",
+        "lidar::upface_max"
+      ],
+      "min": 0.0,
+      "max": 1.0
+    },
+    "R10_alter": {
+      "auc": 0.50183,
+      "domain_px": 5167373,
+      "catalogue_recall_in_top5pct": 0.04163,
+      "catalogue_precision_in_top5pct": 0.00983,
+      "nonzero_px_inside_footprint": 81972,
+      "description": "R10-2 alteration lineaments: relief-residual U/K x U/Th local anomalies, persistent crests",
+      "layers": [
+        "radiometric::rad_uk",
+        "radiometric::rad_uth",
+        "topo::relief_local"
+      ],
+      "min": 0.0,
+      "max": 1.0
+    },
+    "R10_alter_field": {
+      "auc": 0.52824,
+      "domain_px": 5167373,
+      "catalogue_recall_in_top5pct": 0.06913,
+      "catalogue_precision_in_top5pct": 0.01632,
+      "nonzero_px_inside_footprint": 1607696,
+      "description": "R10-2 un-thinned alteration-residual field (for fusion)",
+      "layers": [
+        "radiometric::rad_uk",
+        "radiometric::rad_uth",
+        "topo::relief_local"
+      ],
+      "min": 0.0,
+      "max": 1.0
+    },
+    "R10_vent": {
+      "auc": 0.56602,
+      "domain_px": 5167373,
+      "catalogue_recall_in_top5pct": 0.08413,
+      "catalogue_precision_in_top5pct": 0.01986,
+      "nonzero_px_inside_footprint": 5164312,
+      "description": "R10-4 vent conjunction: LiDAR scarp x alteration chemistry x surface-conductivity anomaly x shallow conductive base",
+      "layers": [
+        "R10_scarp_field",
+        "R10_alter_field",
+        "cond_surf (17)",
+        "depth_to_base_surf (15)"
+      ],
+      "min": 0.0,
+      "max": 0.9536334276199341
+    },
+    "R10_vent_dzt": {
+      "auc": 0.56804,
+      "domain_px": 5167373,
+      "catalogue_recall_in_top5pct": 0.0831,
+      "catalogue_precision_in_top5pct": 0.01962,
+      "nonzero_px_inside_footprint": 5164312,
+      "description": "R10-4b vent conjunction with damage-zone texture instead of the LiDAR scarp composite (100 % footprint coverage)",
+      "layers": [
+        "R10_dzt_field",
+        "R10_alter_field",
+        "cond_surf (17)",
+        "depth_to_base_surf (15)"
+      ],
+      "min": 0.0,
+      "max": 0.9536334276199341
+    }
+  },
+  "total_seconds": 42.5
+}

@@ -1674,3 +1674,393 @@ def parallel_offset_correction(visible: np.ndarray, edge_score: np.ndarray,
         run = np.maximum(run, acc * (eastwest if along_ew else 1 - eastwest))
     out = (ring & bina & (run >= 1)).astype(np.float32)
     return out
+
+
+# ===========================================================================
+# R10 -- four NEW hypotheses (2026-09-30, session 4), built on EXTERNAL
+# official products (USGS 3DEP 1-m LiDAR morphometrics, USGS GeoDAWN
+# radiometrics) that the competition does NOT provide.
+#
+# Predeclared in knowledge/06_r10_hypotheses.md BEFORE any fold was scored.
+# Measured motivation (reports/external_audit.json):
+#   * provided band 6 `tc` == official radiometric total count (Spearman +1.000),
+#     so K/Th/U and every alteration ratio are withheld from competitors;
+#   * the best PROVIDED band univariate AUC against the catalogue is 0.5615
+#     (`geod_shearrate`), while seven external channels exceed it
+#     (`topo::slope_std` 0.5755, `lidar::upface_max` 0.5704, ...);
+#   * `radiometric::rad_uk` has the highest top-5 % catalogue recall measured
+#     (0.0975) and the LOWEST redundancy with any provided band (|rho| 0.246);
+#   * `lidar::coh100` measured AUC 0.4608 (below chance) and is therefore NOT
+#     used as a linearity gate here; linearity is enforced by along-strike
+#     persistence of ridge crests instead.
+# ===========================================================================
+
+# ---------------------------------------------------------------------------
+# shared helper: along-strike persistence of a crest mask
+# ---------------------------------------------------------------------------
+def oriented_persistence(crest: np.ndarray, support: np.ndarray | None = None,
+                         coherence_px: int = 9, min_coh: int = 5) -> np.ndarray:
+    """Keep crest pixels that have >= `min_coh` SUPPORT pixels within
+    +-`coherence_px` along one of the four lattice line directions.
+
+    Enforces "this is a LINE, not a speck" without trusting an orientation
+    estimate (the failure mode documented on `decimate_along_strike`). Same
+    operator that `eq_lineaments` uses inline; factored out so R10 detectors
+    share one implementation.
+
+    `support` defaults to `crest` itself. Passing a WIDER support mask (a
+    thresholded ridge-strength band rather than the 1-px NMS crest) is what
+    makes the test robust: NMS breaks a perfectly good line into a dozen
+    non-adjacent pixels wherever the strength is flat along strike, and
+    counting only crest pixels then rejects real lines. Measured during R10
+    development: with crest-only support a synthetic 80-px fault line kept 0
+    pixels; with a p85 strength band as support it keeps the whole line, while
+    an isolated speck is still rejected (no support in any direction).
+    """
+    crest = np.asarray(crest, dtype=bool)
+    sup = crest if support is None else np.asarray(support, dtype=bool)
+    keep = np.zeros(crest.shape, dtype=bool)
+    for dy, dx in _GAP_DIRS:
+        acc = np.zeros(crest.shape, dtype=np.uint16)
+        for step in range(1, coherence_px + 1):
+            acc += _shift(sup, dy * step, dx * step).astype(np.uint16)
+            acc += _shift(sup, -dy * step, -dx * step).astype(np.uint16)
+        keep |= crest & (acc >= min_coh)
+    return keep
+
+
+def _normalize_field(a: np.ndarray, mask: np.ndarray | None = None) -> np.ndarray:
+    """Percentile-normalise a field to [0,1], choosing the sparsity-safe variant.
+
+    `robust_norm` silently returns ALL ZEROS when more than `hi`% of the grid is
+    exactly zero (documented warning, measured 2026-09-29). Detector outputs are
+    often that sparse, so this helper measures the zero fraction on the
+    selection and switches to `robust_norm_nonzero` when it exceeds 50%.
+    """
+    a = np.asarray(a, dtype=np.float32)
+    fin = np.isfinite(a)
+    sel = fin if mask is None else (fin & np.asarray(mask, dtype=bool))
+    if not sel.any():
+        return np.zeros_like(a)
+    zero_frac = float((a[sel] == 0).mean())
+    if zero_frac > 0.5:
+        out = robust_norm_nonzero(np.where(sel, a, 0.0).astype(np.float32))
+    else:
+        out = robust_norm(a, mask=sel)
+    return np.where(sel, out, 0.0).astype(np.float32)
+
+
+def _crest_lines(field: np.ndarray, mask: np.ndarray | None = None,
+                 sigma: float = 1.5, coherence_px: int = 9,
+                 min_coh: int = 5, support_pct: float = 85.0) -> np.ndarray:
+    """Ridge-crest extraction + along-strike persistence -> continuous score.
+
+    Returns the NMS-thinned ridge strength, zeroed outside `mask` and outside
+    the persistent-crest set, then rescaled with `robust_norm_nonzero` so the
+    sparse output keeps its ranking (see the `robust_norm` sparsity warning).
+    """
+    strength, orientation = ridge_strength(field, sigma)
+    crest = nms_thin(strength, orientation)
+    # support = a thresholded ridge-strength band, not the 1-px crest (see
+    # `oriented_persistence`): NMS fragments flat-along-strike lines.
+    pos = strength[strength > 0] if mask is None else strength[(strength > 0) & mask]
+    if pos.size:
+        thr = float(np.percentile(pos, support_pct))
+        support = strength >= thr
+    else:
+        support = crest > 0
+    if mask is not None:
+        support &= mask
+    keep = oriented_persistence(crest > 0, support, coherence_px, min_coh)
+    out = np.where(keep, crest, 0.0).astype(np.float32)
+    if mask is not None:
+        out = np.where(mask, out, 0.0).astype(np.float32)
+    return robust_norm_nonzero(out)
+
+
+# ---------------------------------------------------------------------------
+# R10-3 -- fault damage-zone texture (slope heterogeneity, not slope magnitude)
+# ---------------------------------------------------------------------------
+def damage_zone_texture(slope_std: np.ndarray, curv_absmax: np.ndarray,
+                        sigma: float = 1.5, coherence_px: int = 9,
+                        min_coh: int = 5, thin: bool = True) -> np.ndarray:
+    """Linear zones of anomalous sub-100 m slope VARIANCE and profile curvature.
+
+    Layers: external 3DEP-derived `topo::slope_std` and `topo::curv_prof_absmax`
+    (USGS 3DEP DEM aggregated to the competition grid; physical lo/hi pinned in
+    the sibling manifest and read back by `gems.external`).
+
+    Physical signature: a fault zone is a damaged, fractured rock volume. Its
+    diagnostic is not mean steepness (mountain fronts are steep) but
+    *heterogeneity*: the local standard deviation of slope and the absolute
+    profile curvature are anomalous over a shattered zone even where the mean
+    slope is ordinary. Transform: geometric mean of the two percentile-normalised
+    fields (both must agree), then Hessian ridge + NMS thinning + along-strike
+    persistence, so the output is a 1-px line as the metric requires.
+
+    Why it should catch a catalogue-missing fault: measured univariate AUC
+    against the provided catalogue is 0.5755 -- higher than ANY of the 19
+    provided bands (best 0.5615) -- while correlating only 0.751 with the
+    provided `det_elev_slope`. It therefore separates *faulted* ground from
+    merely *steep* ground, which is exactly the discrimination a
+    scarp-morphology compilation cannot make for buried or alluvium-covered
+    structures.
+
+    How it differs from everything already in this repo: no existing detector
+    uses a second-moment (variance/texture) statistic, because the 19 provided
+    bands contain none. `BASE_topo_ridge`, `R8_openness`, `R8_tpi`, `R8_flow`
+    and `R6_shore` are all first-derivative or local-relief operators on the
+    provided elevation field.
+    """
+    m = np.isfinite(slope_std) & np.isfinite(curv_absmax)
+    if not m.any():
+        return np.zeros(slope_std.shape, dtype=np.float32)
+    s = robust_norm(slope_std, mask=m)
+    c = robust_norm(curv_absmax, mask=m)
+    combo = np.sqrt(np.clip(s, 0, None) * np.clip(c, 0, None)).astype(np.float32)
+    if not thin:
+        return _normalize_field(np.where(m, combo, 0.0).astype(np.float32), mask=m)
+    return _crest_lines(combo, m, sigma, coherence_px, min_coh)
+
+
+# ---------------------------------------------------------------------------
+# R10-1 -- 1-m LiDAR morphometric scarp composite ("paired-crest scarp")
+# ---------------------------------------------------------------------------
+def lidar_scarp_composite(ch: dict[str, np.ndarray], sigma: float = 1.5,
+                          coherence_px: int = 9, min_coh: int = 4,
+                          use_upface: bool = True, thin: bool = True) -> np.ndarray:
+    """Fault-scarp detector on 1-m-LiDAR morphometrics (USGS 3DEP).
+
+    Layers: `lidar::step_max` (10 m-scale slope minus 50 m-scale slope),
+    `lidar::ex_max`/`ex_mean` (2 m slope in excess of the 30 m regional slope),
+    `lidar::lapneg_max` (crest convexity: -LoG(6 m) of the 50 m band-passed
+    surface), `lidar::lappos_max` (toe concavity: +LoG), `lidar::upface_max`
+    (band-passed step gradient against the regional slope, i.e. uphill-facing /
+    antislope faces). Channel definitions are quoted from the sibling
+    provenance record `reports/external_provenance/
+    7GEMSDOE__external_dem_lidar_scarp_features.json`, which also pins the
+    sqrt-quantisation limits inverted by `gems.external.read_channel`.
+
+    Physical signature: a fault scarp is not "a steep place". It is a
+    *band-passed step* whose profile carries a **convex breakover paired with a
+    concave toe**, with slope locally in excess of the regional trend, and
+    frequently an uphill-facing face on the downthrown side. The detector takes
+    the geometric mean of three must-agree normalised terms
+    (step x slope-excess x crest/toe pair) and multiplies by an antislope boost
+    (0.5 + 0.5*upface_n), then extracts persistent ridge crests.
+
+    Why it should catch a catalogue-missing fault: the source compilation's own
+    attribute fields record 23,552 features mapped at 1:250,000, 8,455 at
+    1:100,000 and 6,654 with certainty "Poor"/"Unknown" (verified from the
+    QFFDB archive schema). A trace drawn at 1:250,000 cannot resolve a 1-3 m
+    scarp beneath alluvium or vegetation; 1-m LiDAR can. Five of the seven
+    highest-AUC channels measured this session are LiDAR morphometrics
+    (`upface_max` 0.5704, `lappos_max` 0.5695, `lapneg_max` 0.5626, `ex_max`
+    0.5620, `downface_max` 0.5616), all above the best provided band (0.5615).
+
+    How it differs from everything already in this repo: every prior detector
+    (H-A..H-E, R6-*, R7-*, R8-*, R9-*, BASE_*) reads only the 19 provided bands
+    or catalogue geometry. This is the first operator whose input is an
+    independent 1-m-derived product, and the paired crest/toe sign logic and the
+    antislope term appear nowhere else in `src/gems/detectors.py`.
+
+    `lidar::coh100` is deliberately NOT used as a gate: its measured univariate
+    AUC is 0.4608 (below chance), so gating on high coherence would discard
+    fault pixels. Linearity is enforced by `oriented_persistence` instead.
+    """
+    need = ("step_max", "ex_max", "lapneg_max", "lappos_max")
+    missing = [k for k in need if k not in ch]
+    if missing:
+        raise KeyError(f"lidar_scarp_composite missing channels: {missing}")
+    m = np.isfinite(ch["step_max"])
+    for k in need:
+        m &= np.isfinite(ch[k])
+    if use_upface and "upface_max" in ch:
+        m_up = m & np.isfinite(ch["upface_max"])
+    else:
+        m_up = None
+    if not m.any():
+        return np.zeros(ch["step_max"].shape, dtype=np.float32)
+
+    step = robust_norm(ch["step_max"], mask=m)
+    ex = robust_norm(ch["ex_max"], mask=m)
+    if "ex_mean" in ch:
+        exm = robust_norm(ch["ex_mean"], mask=m & np.isfinite(ch["ex_mean"]))
+        ex = np.sqrt(np.clip(ex, 0, None) * np.clip(exm, 0, None)).astype(np.float32)
+    crest = robust_norm(ch["lapneg_max"], mask=m)
+    toe = robust_norm(ch["lappos_max"], mask=m)
+    pair = np.sqrt(np.clip(crest, 0, None) * np.clip(toe, 0, None)).astype(np.float32)
+    combo = np.cbrt(np.clip(step, 0, None) * np.clip(ex, 0, None)
+                    * np.clip(pair, 0, None)).astype(np.float32)
+    if m_up is not None:
+        up = robust_norm(ch["upface_max"], mask=m_up)
+        combo = (combo * (0.5 + 0.5 * np.where(m_up, up, 0.0))).astype(np.float32)
+    if not thin:
+        return _normalize_field(np.where(m, combo, 0.0).astype(np.float32), mask=m)
+    return _crest_lines(combo, m, sigma, coherence_px, min_coh)
+
+
+# ---------------------------------------------------------------------------
+# R10-2 -- radiometric alteration-ratio lineaments ("hydrothermal conduit")
+# ---------------------------------------------------------------------------
+def highpass_residual(field: np.ndarray, control: np.ndarray | None = None,
+                      sigma_px: float = 12.0) -> np.ndarray:
+    """Local anomaly of `field`: high-pass against its own regional trend, then
+    (optionally) minus the part explainable by a topographic control.
+
+    Two steps, both needed for alteration work:
+      1. `field - gaussian(field, sigma_px)` removes the regional/lithologic
+         trend so only LOCAL anomalies remain (a 1.2 km high-pass at 100 m).
+      2. a scalar least-squares fit against `control` (normally local relief)
+         is subtracted, and only the POSITIVE residual is kept, so that
+         bare-bedrock ridge chemistry is not mistaken for hydrothermal
+         alteration.
+    NaN-safe; the output is finite exactly where `field` is finite.
+    """
+    a = np.asarray(field, dtype=np.float32)
+    m = np.isfinite(a)
+    if not m.any():
+        return np.zeros_like(a)
+    filled = fill_nan_nearest(a)
+    hp = (filled - ndi.gaussian_filter(filled, sigma_px, mode="nearest")).astype(np.float32)
+    hp = np.where(m, hp, np.nan).astype(np.float32)
+    if control is None:
+        return hp
+    c = np.asarray(control, dtype=np.float32)
+    cm = fill_nan_nearest(np.where(np.isfinite(c), c, np.nan))
+    ok = m & np.isfinite(cm)
+    if ok.sum() < 100:
+        return hp
+    x = cm[ok].astype(np.float64)
+    y = hp[ok].astype(np.float64)
+    x = x - x.mean()
+    denom = float(np.dot(x, x))
+    beta = float(np.dot(x, y - y.mean()) / denom) if denom > 0 else 0.0
+    resid = (hp - np.float32(beta) * (cm - np.float32(cm[ok].mean()))).astype(np.float32)
+    return np.where(m, resid, np.nan).astype(np.float32)
+
+
+def alteration_ratio_lineaments(uk: np.ndarray, uth: np.ndarray,
+                                relief: np.ndarray | None = None,
+                                sigma_px: float = 12.0, sigma: float = 1.5,
+                                coherence_px: int = 9,
+                                min_coh: int = 5, thin: bool = True) -> np.ndarray:
+    """Linear hydrothermal-alteration zones from official K-Th-U ratio grids.
+
+    Layers: external `radiometric::rad_uk` (U/K) and `radiometric::rad_uth`
+    (U/Th), dequantised to physical units with the sibling-pinned percentile
+    limits; source USGS GeoDAWN airborne radiometric survey,
+    https://doi.org/10.5066/P93LGLVQ. Optional topographic control
+    `topo::relief_local` for the residual step.
+
+    Physical signature: hydrothermal fluids fractionate K, Th and U
+    systematically. Uranium is mobile in oxidising hydrothermal fluid while K
+    and Th are not, so silicification and argillic/alunitic alteration raise
+    U/K and U/Th; potassic metasomatism lowers them; iron-oxide gossan raises
+    Th/K. The detector (i) high-passes each ratio against its own regional
+    trend (1.2 km), (ii) subtracts the scalar-relief-explainable part and keeps
+    the positive residual, (iii) requires U/K and U/Th to agree (geometric
+    mean), and (iv) extracts persistent ridge crests -- a LINEAR alteration
+    zone, i.e. a fluid conduit, rather than an alteration blob.
+
+    Why it should catch a catalogue-missing fault: permeable faults are the
+    conduits that carry hydrothermal fluid to the surface, and the chemical
+    footprint survives when the morphological footprint has been buried or
+    eroded -- precisely the "no surface expression" population that a
+    geomorphology-based Quaternary compilation cannot contain. Measured:
+    `rad_uk` has the highest top-5 % catalogue recall of any channel in this
+    study (0.0975 vs 0.0593 for the best topographic channel) and the LOWEST
+    redundancy with the 19 provided bands (max |rho| 0.246), i.e. it is close
+    to an orthogonal observation. The competition supplies only radiometric
+    total count (band 6 `tc`, now proven to be TC at rho +1.000); K, Th, U and
+    every ratio are withheld.
+
+    How it differs from everything already in this repo: no detector in
+    `src/gems/detectors.py` touches radiometric chemistry. The nearest relative,
+    `HE_lin_tc`, is a lineament operator on total COUNT -- a single bulk
+    intensity channel with no K/Th/U fractionation information -- and performs
+    no high-pass, no relief-residual gating and no ratio algebra.
+    """
+    r_uk = highpass_residual(uk, relief, sigma_px)
+    r_uth = highpass_residual(uth, relief, sigma_px)
+    m = np.isfinite(r_uk) & np.isfinite(r_uth)
+    if not m.any():
+        return np.zeros(np.shape(uk), dtype=np.float32)
+    a = _normalize_field(np.clip(np.nan_to_num(r_uk, nan=0.0), 0, None), mask=m)
+    b = _normalize_field(np.clip(np.nan_to_num(r_uth, nan=0.0), 0, None), mask=m)
+    combo = np.sqrt(np.clip(a, 0, None) * np.clip(b, 0, None)).astype(np.float32)
+    if not thin:
+        return _normalize_field(np.where(m, combo, 0.0).astype(np.float32), mask=m)
+    return _crest_lines(combo, m, sigma, coherence_px, min_coh)
+
+
+# ---------------------------------------------------------------------------
+# R10-4 -- vent conjunction: structure x chemistry x electrical
+# ---------------------------------------------------------------------------
+def vent_conjunction(scarp: np.ndarray, alteration: np.ndarray,
+                     conductivity: np.ndarray, shallow_base: np.ndarray,
+                     sigma_px: float = 12.0,
+                     require_all: bool = True) -> np.ndarray:
+    """Geothermal upflow/vent target: three independent physics must agree.
+
+    Layers: R10-1 LiDAR scarp composite (morphology), R10-2 alteration-ratio
+    residual (chemistry), and two PROVIDED bands -- `cond_surf` (17, surface
+    conductivity) and `depth_to_base_surf` (15, depth to the conductive base
+    surface, negated so shallow base scores high) -- each high-passed against
+    its own regional trend.
+
+    Physical signature: the convective geothermal model. Fluid rises along a
+    permeable structure (scarp/lineament), through a shallow conductive pathway
+    (high surface conductivity, shallow conductive base), and leaves a
+    hydrothermal alteration fingerprint at the surface. The detector is the
+    geometric mean of the four percentile-normalised local anomalies; requiring
+    agreement suppresses each single physics' dominant false-positive class
+    (erosional scarps; lithologic bedrock chemistry; clay-filled basins;
+    basement highs) while retaining the intersection population.
+
+    Why it should catch a catalogue-missing fault: Quaternary compilations are
+    built from geomorphic evidence, so a structure that is geomorphically
+    subtle but hydrothermally active is systematically under-represented in the
+    catalogue -- and it is exactly the population a geothermal prize's expert
+    reviewers were hired to find. This is also the most defensible map for
+    Phase 2, where 83 % of the prize is decided by expert review of our own
+    predictions: a candidate with morphology + chemistry + conductivity evidence
+    is one an expert can accept on the record.
+
+    How it differs from everything already in this repo: `R8_intersections`
+    intersects four ridge maps all derived from the PROVIDED bands;
+    `R7_consensus3/4` is an N-of-5 vote among provided-band edges;
+    `seismicity_gate`/`R6_transt` are two-physics gates on provided bands. No
+    existing operator fuses an external morphology product, an external
+    chemistry product and provided electrical products, and none is
+    vent-targeted.
+
+    `require_all=True` (default) forces every input to be defined; set False to
+    take the geometric mean over whatever is defined (needed where LiDAR
+    coverage is 75.3 % of the footprint rather than 100 %).
+    """
+    fields = [scarp, alteration, conductivity, shallow_base]
+    m = np.ones(np.shape(scarp), dtype=bool)
+    for f in fields:
+        m &= np.isfinite(f)
+    if not require_all:
+        m = np.isfinite(scarp) & np.isfinite(alteration)
+    if not m.any():
+        return np.zeros(np.shape(scarp), dtype=np.float32)
+    prod = np.ones(np.shape(scarp), dtype=np.float32)
+    n = 0
+    for f in fields:
+        f = np.asarray(f, dtype=np.float32)
+        # a field with no finite value, or no positive value at all, inside the
+        # domain carries no evidence: with `require_all` it vetoes the
+        # conjunction instead of being floored to 1e-6 (which would let a dead
+        # input masquerade as weak agreement).
+        if not np.isfinite(f)[m].any() or not (f[m] > 0).any():
+            if require_all:
+                return np.zeros(np.shape(scarp), dtype=np.float32)
+            continue
+        fn = _normalize_field(f, mask=m)
+        prod *= np.clip(np.where(m, fn, 0.0), 1e-6, None).astype(np.float32)
+        n += 1
+    out = np.power(prod, np.float32(1.0 / max(n, 1))).astype(np.float32)
+    return np.where(m, out, 0.0).astype(np.float32)

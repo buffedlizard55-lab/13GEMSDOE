@@ -1,0 +1,12 @@
+{
+  "record": {
+    "url": "https://prd-tnm.s3.amazonaws.com/StagedProducts/Elevation/1m/Projects/NV_WestCentral_EarthMRI_2020_D20/TIFF/USGS_1M_11_x40y416_NV_WestCentral_EarthMRI_2020_D20.tif",
+    "key": "StagedProducts/Elevation/1m/Projects/NV_WestCentral_EarthMRI_2020_D20/TIFF/USGS_1M_11_x40y416_NV_WestCentral_EarthMRI_2020_D20.tif",
+    "project": "NV_WestCentral_EarthMRI_2020_D20",
+    "tile": "x40y416",
+    "filename": "USGS_1M_11_x40y416_NV_WestCentral_EarthMRI_2020_D20.tif",
+    "source": "USGS 3DEP public bucket listing (ListObjectsV2), matched to OCR of the competition PDF"
+  },
+  "inventory_source": "https://github.com/buffedlizard55-lab/GEMSDOE/blob/main/data/dem_links.json",
+  "inventory_provenance": "Inherited OCR inventory; URL must be re-opened from official USGS bucket. Not authenticated competition CSV."
+}

@@ -214,10 +214,35 @@
 
 
 <section>
+  <h2>R10 / R10b — the external-data register is now measured and closed</h2>
+  <p class="lede">Four hypotheses were predeclared in
+  <a href="https://github.com/buffedlizard55-lab/13GEMSDOE/blob/main/knowledge/06_r10_hypotheses.md">knowledge/06_r10_hypotheses.md</a>
+  <i>before</i> any map was built, with the decision rule written down first:
+  R10-3 damage-zone texture (3DEP slope_std × profile curvature), R10-1 1-m LiDAR
+  morphometric scarp composite, R10-2 radiometric alteration-ratio lineaments
+  (U/K, U/Th), R10-4 geothermal-vent conjunction. Two more were screened out on
+  measurement before build: the QFFDB-minus-catalogue difference (1 pixel) and a
+  LiDAR coherence channel (AUC 0.4608, below chance).</p>
+  <p class="small"><b>Outcome: all 24 challenger configurations across R8, R9, R10 and
+  R10b LOSE</b> to <code>topo_05_sp3</code> (confirmation worst-rule mean 0.08687; best
+  R10 challenger 0.08593; best R10b fusion 0.08286). No submission slot was spent.
+  One predeclaration was wrong in its mechanism and is corrected on the record: R10-4
+  was expected to be low-recall, and it measured the <i>highest</i> top-5% recall of the
+  family (0.0841) — it still loses, because its recall stays below the reference while
+  its precision gain is too small to pay for it under β = 2.</p>
+  <p class="small">What survives as a research direction is narrow and now evidence-based:
+  an external product only helps if it puts predictions within 300 m of faults the
+  topographic crest never touches. Re-ranking, tightening or fusing the neighbourhoods
+  the crest already hits cannot raise DTI, and univariate AUC is not a go/no-go signal
+  (irregularity I-13).</p>
+</section>
+
+<section>
   <h2>Fresh external-data candidates — rank for research, not submission</h2>
   <p class="lede">The rank is a qualitative geological prior, not a numerical DTI
-  forecast. The specific external layers have not been staged and the candidates
-  have not passed the prescribed holdout. None is approved as viable or ready to submit.</p>
+  forecast. These four directions use layers that have <b>not</b> been staged (the
+  GeoDAWN / 3DEP / QFFDB family has been — see above), and none has passed the
+  prescribed holdout. None is approved as viable or ready to submit.</p>
   <div class="scroll"><table><thead><tr><th>rank / hypothesis</th>
   <th>layers and physical signature</th><th>why it could find uncatalogued faults / difference from prior detectors</th>
   <th>expected impact / cost</th><th>required official data and availability</th></tr></thead><tbody>
@@ -273,7 +298,7 @@
 <footer class="site"><div class="wrap">
   <p><strong>13GEMSDOE</strong> — working repository for the
   <a href="https://www.drivendata.org/competitions/306/competition-doe-gems/">DOE GEMS Prize Challenge</a>.
-  Page generated 2026-09-30 19:51 UTC from <code>reports/*.json</code>.</p>
+  Page generated 2026-09-30 21:10 UTC from <code>reports/*.json</code>.</p>
   <p class="small">Every figure on this site is produced by a script in this
   repository and is reproducible from a clean checkout. Claims that could not be
   verified against an official source are listed as irregularities rather than

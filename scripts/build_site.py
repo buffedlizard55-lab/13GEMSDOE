@@ -80,6 +80,11 @@ def build_index() -> str:
     audit = load("metric_audit.json", {})
     r8 = load("holdout_candidate_r8_2026-09-30.json", {}) or {}
     r9 = load("holdout_r9_2026-09-30.json", {}) or {}
+    r10 = load("holdout_r10_2026-09-30.json", {}) or {}
+    r10b = load("holdout_r10b_2026-09-30.json", {}) or {}
+    extdet = load("external_detectors_manifest.json", {}) or {}
+    extman = load("external_manifest.json", {}) or {}
+    band6 = load("band6_identity.json", {}) or {}
     leaderboard = load("leaderboard_snapshot_2026-09-30.json", {}) or {}
     checks = audit.get("checks", {})
     n_pass = sum(1 for c in checks.values() if c.get("pass"))
@@ -122,7 +127,7 @@ def build_index() -> str:
   <h1>Submission download — <span class="tag {tag_cls}">{e(status_label)}</span></h1>
   <p class="sub">This file is the <b>current local holdout reference recipe</b>
   (<code>topo_05_sp3</code>): the configuration that re-confirmed as the local best in the
-  paired, predeclared R9 validation — no tested variant beat it. It passes the repository's
+  paired, predeclared R9, R10 and R10b validations — no tested variant beat it. It passes the repository's
   official-format checks (single-band float32; EPSG:32611; 3730×3292; 100 m; finite values in
   [0,1] inside the survey footprint; null/NaN outside). <b>These are local
   catalogue-recovery results, not a predicted leaderboard score</b>, and remote acceptance
@@ -176,6 +181,85 @@ def build_index() -> str:
                      "per-fold DTI values exactly"
                      if r9_check.get("pass") else "FAILED — investigate before use")
 
+    # R10 / R10b: the external-data round (paired, predeclared, protocol-checked)
+    r10_conf = r10.get("confirmation_summary", {})
+    r10_paired = r10.get("paired_vs_reference", {})
+    r10_verdicts = r10.get("verdicts_predeclared", {})
+    r10_rows = ""
+    for cfg, summ in sorted(r10_conf.items(),
+                            key=lambda kv: -kv[1].get("dti_worst_rule_mean", 0)):
+        label = ("BASE_topo_ridge · 5% · spacing 3 (reference)"
+                 if cfg == "topo_05_sp3" else cfg)
+        pr = r10_paired.get(cfg)
+        delta = f"{pr['mean_delta_dti']:+.5f}" if pr else "—"
+        verdict = ("reference (reproduced exactly)" if cfg == "topo_05_sp3"
+                   else e(r10_verdicts.get(cfg, "n/a")))
+        r10_rows += (f"<tr><td><b>{e(label)}</b></td>"
+                     f"<td class='num'>{score_cell(summ, 'dti_worst_rule_mean')}</td>"
+                     f"<td class='num'>{score_cell(summ, 'dti_mean')}</td>"
+                     f"<td class='num'>{score_cell(summ, 'precision_w_mean')}</td>"
+                     f"<td class='num'>{score_cell(summ, 'recall_w_mean')}</td>"
+                     f"<td class='num'>{delta}</td><td>{verdict}</td></tr>")
+    r10_check_text = ("PASS — the reference row reproduces the archived per-fold "
+                      "DTI values exactly (18/18 folds)"
+                      if r10.get("protocol_regression_check", {}).get("pass")
+                      else "FAILED — investigate before use")
+
+    # per-map external signal quality (full catalogue, not a holdout number)
+    ext_rows = ""
+    for name, st in sorted(
+            (r10.get("map_statistics_full_catalogue") or {}).items(),
+            key=lambda kv: -kv[1].get("auc_full_catalogue", 0)):
+        ext_rows += (f"<tr><td class='mono'>{e(name)}</td>"
+                     f"<td class='num'>{st.get('auc_full_catalogue', 0):.4f}</td>"
+                     f"<td class='num'>{st.get('catalogue_recall_in_top5pct', 0):.4f}</td>"
+                     f"<td class='num'>{st.get('nonzero_pct_of_footprint', 0):.2f}%</td></tr>")
+
+    sel = r10b.get("selected_on_tune")
+    sel_conf = (r10b.get("confirmation_summary", {}) or {}).get(sel, {})
+    sel_pair = r10b.get("paired_vs_reference_selected", {})
+    sel_verdict = (r10b.get("verdict_predeclared", {}) or {}).get(sel, "n/a")
+    ref_conf = (r10b.get("confirmation_summary", {}) or {}).get("topo_05_sp3", {})
+    r10b_html = ""
+    if sel:
+        r10b_html = f"""
+  <div class="panel">
+    <h3 style="margin-top:0">R10b — refinement round, selected on tune folds only</h3>
+    <p class="small">R10 measured the <i>average</i> quality of a 2% external block.
+    The metric's inclusion rule is a statement about the <i>margin</i>, so R10b
+    predeclared two further mechanisms: low-coverage unions (0.5%, 1%) and
+    fixed-budget rank fusion, <code>(1−w)·pctl(topo) + w·pctl(external)</code>, which
+    keeps the reference pixel mass and lets the external evidence <i>replace</i> the
+    weakest reference pixels instead of adding to them. Selection used the tune folds
+    only; confirmation was then read for the selected configuration and the reference.</p>
+    <table class="small"><thead><tr><th>configuration</th><th class="num">confirm worst-rule DTI</th>
+      <th class="num">confirm mean DTI</th><th class="num">P_w</th><th class="num">R_w</th>
+      <th class="num">predicted px</th><th>verdict</th></tr></thead><tbody>
+      <tr><td><b>topo_05_sp3</b> (reference)</td>
+        <td class="num">{ref_conf.get('dti_worst_rule_mean', 0):.5f}</td>
+        <td class="num">{ref_conf.get('dti_mean', 0):.5f}</td>
+        <td class="num">{ref_conf.get('precision_w_mean', 0):.4f}</td>
+        <td class="num">{ref_conf.get('recall_w_mean', 0):.4f}</td>
+        <td class="num">{ref_conf.get('predicted_eval_px_mean', 0):,.0f}</td>
+        <td>REFERENCE</td></tr>
+      <tr><td><b>{e(sel)}</b> (selected on tune)</td>
+        <td class="num">{sel_conf.get('dti_worst_rule_mean', 0):.5f}</td>
+        <td class="num">{sel_conf.get('dti_mean', 0):.5f}</td>
+        <td class="num">{sel_conf.get('precision_w_mean', 0):.4f}</td>
+        <td class="num">{sel_conf.get('recall_w_mean', 0):.4f}</td>
+        <td class="num">{sel_conf.get('predicted_eval_px_mean', 0):,.0f}</td>
+        <td>{e(sel_verdict)}</td></tr>
+    </tbody></table>
+    <p class="small" style="margin-bottom:0">Paired Δ mean DTI
+    {sel_pair.get('mean_delta_dti', 0):+.5f} ({sel_pair.get('relative_delta_pct', 0):+.2f}%),
+    {sel_pair.get('wins', 0)}/{sel_pair.get('n_pairs', 0)} confirmation folds won,
+    {len([v for v in (sel_conf.get('dti_mean_by_rule') or {}).values()])} rules scored.
+    The fusion buys precision (0.0294 vs 0.0276) with 19% fewer pixels by giving up
+    recall (0.2487 vs 0.2874) — under β = 2 that trade is a wash on the mean and a loss
+    on the worst rule. Report:
+    <code>reports/holdout_r10b_2026-09-30.json</code>.</p>
+  </div>"""
+
     holdout_rows = f"""
   <tr><td><b>BASE_topo_ridge · 5% · spacing 3</b><br>local comparator</td>
     <td>{score_cell(baseline, 'dti_worst_rule_mean')}</td>
@@ -201,12 +285,80 @@ def build_index() -> str:
 
     body = f"""
 <section>
+  <h2>This round: official external USGS data, staged and measured (R10 / R10b)</h2>
+  <p class="lede">For the first time the work went outside the provided 19 bands.
+  Six free, official, public-domain USGS products were staged and verified twice each
+  (sha256 from the sibling provenance record <b>and</b> git blob SHA-1 from the sibling
+  tree), four geological hypotheses were predeclared <i>before</i> any map was built,
+  and all of them were then measured on the same paired holdout protocol.
+  <b>Every challenger lost</b> — 16 in R10 and 8 in R10b — so no submission slot was
+  spent.</p>
+  <div class="grid g4">
+    {kpi("6 / 6", "external products hash-verified (USGS public domain)", "ok")}
+    {kpi("4", "hypotheses predeclared before build", "ok")}
+    {kpi("0 / 24", "challengers that beat the reference (R8 · R9 · R10 · R10b)", "bad")}
+    {kpi("0", "submission slots spent this round", "ok")}
+  </div>
+  <div class="scroll"><table><thead><tr><th>R10 candidate (confirmation folds)</th>
+  <th class="num">worst-rule mean DTI</th><th class="num">mean DTI</th>
+  <th class="num">mean weighted precision</th><th class="num">mean weighted recall</th>
+  <th class="num">ΔDTI vs reference</th><th>predeclared verdict</th></tr></thead>
+  <tbody>{r10_rows}</tbody></table></div>
+  <p class="small">Protocol regression check: {e(r10_check_text)}. All 468 scored rows
+  across R10 and R10b report <code>tie_fraction</code> 0.00 and zero selections at
+  score 0, so no verdict rests on tie order. Full rows:
+  <code>reports/holdout_r10_2026-09-30.json</code>.</p>
+  <div class="grid g2">
+    <div class="panel">
+      <h3 style="margin-top:0">The external maps are <i>better</i> pixel classifiers — and still lose</h3>
+      <div class="scroll"><table class="small"><thead><tr><th>map</th>
+        <th class="num">AUC vs full catalogue</th><th class="num">recall in own top 5%</th>
+        <th class="num">non-zero share of footprint</th></tr></thead>
+        <tbody>{ext_rows}</tbody></table></div>
+      <p class="small" style="margin-bottom:0">Best provided band for comparison:
+      <code>geod_shearrate</code> at AUC 0.5615. These are full-catalogue signal
+      statistics, <b>not</b> holdout scores.</p>
+    </div>
+    <div class="panel">
+      <h3 style="margin-top:0">Why signal did not convert into score</h3>
+      <p class="small">DTI is a distance-weighted F2 (β = 2), so a block of predictions
+      helps only if its <b>marginal weighted precision</b> exceeds <code>0.2 × DTI</code>
+      (0.0169 on tune folds, 0.0195 on confirmation). Measured marginal precision of the
+      blocks the external maps add: dzt 0.0094, scarp 0.0096, vent 0.0138, alter 0.0141
+      at 2% coverage; 0.0136–0.0166 at 0.5–1% coverage. Every one is below the bar.</p>
+      <p class="small" style="margin-bottom:0">The direction of the failure matters:
+      external evidence raises <b>precision</b> and spends <b>recall</b>. Only a product
+      that puts pixels within 300 m of faults the topographic crest never touches can
+      raise DTI. Recorded as irregularity
+      <a href="https://github.com/buffedlizard55-lab/13GEMSDOE/blob/main/knowledge/02_irregularities.md">I-13</a>
+      so the same 24 configurations are not re-derived next session.</p>
+    </div>
+  </div>{r10b_html}
+  <div class="callout ok">
+    <p style="margin:0"><b>One irregularity resolved on the way (I-2).</b> Provided band 6
+    <code>tc</code> <b>is</b> the radiometric total count: against the official USGS
+    GeoDAWN grid, Spearman ρ {band6.get('candidates', {}).get('radiometric::rad_tc', {}).get('spearman_rho', 0):.5f},
+    Pearson r 0.99902, OLS slope
+    {band6.get('candidates', {}).get('radiometric::rad_tc', {}).get('ols_slope_band6_per_channel_unit', 0):.4f},
+    R² {band6.get('candidates', {}).get('radiometric::rad_tc', {}).get('ols_r2', 0):.4f},
+    median ratio 1.00000 — plus the physical closure test
+    band6 ≈ 7.54 × (K + Th + U) at ρ 0.9958, which no tilt angle or curvature satisfies.
+    Its embedded description (“Tilt angle <i>or</i> total curvature — magnetic field
+    derivative for edge detection”) does not describe the array, and the earlier
+    “disproved” verdict rested on an unverified units assumption. Same match, second
+    consequence: it independently validates our external staging pipeline, because the
+    sibling re-gridding reproduces the field the organisers shipped.
+    <code>reports/band6_identity.json</code>.</p>
+  </div>
+</section>
+
+<section>
   <h2>Current decision: hold the reference; every challenger lost</h2>
-  <p class="lede">Three new geological hypotheses (R9: strike-aligned gap completion,
-  epicentral-alignment lineaments, parallel-offset corrections) were implemented and
-  tested under a predeclared, paired protocol against the reference recipe. All of them
-  lost; the R8 union had already lost the same way. The downloadable artifact therefore
-  remains the reference recipe itself.</p>
+  <p class="lede">Twenty-four challenger configurations across four rounds (the R8
+  ensemble union, three R9 internal-data hypotheses, sixteen R10 external-data
+  configurations and eight R10b refinements) were each tested under a predeclared,
+  paired protocol against the reference recipe. All of them lost. The downloadable
+  artifact therefore remains the reference recipe itself.</p>
   <div class="scroll"><table><thead><tr><th>R9 candidate (confirmation folds)</th>
   <th class="num">worst-rule mean DTI</th><th class="num">mean DTI</th>
   <th class="num">mean weighted precision</th><th class="num">mean weighted recall</th>
@@ -240,6 +392,7 @@ def build_index() -> str:
     {kpi(f"{n_pass}/{len(checks)}", "metric audit checks passed", "ok")}
     {kpi("0", "local TIFFs tied to verified per-submission public scores", "warn")}
     {kpi("3 / 3", "new R9 hypotheses measured on the holdout — all LOSE", "bad")}
+    {kpi("24 / 24", "challengers across R8 · R9 · R10 · R10b that failed the gate", "bad")}
     {kpi(f"{top_score:.4f}" if isinstance(top_score, (int, float)) else "n/a",
          "leader's account-level best (snapshot 2026-09-30)", "warn")}
   </div>
@@ -282,9 +435,11 @@ def build_index() -> str:
 
 <section>
   <h2>Research directions still open</h2>
-  <p class="lede">Three internal-data hypotheses (R9) were implemented and measured this
-  round — all lost (see the table above). Four external-data directions remain ranked
-  for research but are not yet viable because their official data are not staged:
+  <p class="lede">The GeoDAWN/3DEP/QFFDB external family is now <b>staged, verified and
+  measured</b> (R10/R10b above) — it loses on Phase-1 DTI and is closed as a score
+  direction, though it retains Phase-2 defensibility value. Four <i>other</i>
+  external-data directions remain ranked for research and are still not viable because
+  their official data are not staged:
   event-level ComCat focal-plane coherence, repeated Landsat thermal/moisture residuals,
   groundwater-head compartments, and cross-depth MT conductor edges. Availability checks
   are recorded per source.</p>
@@ -312,7 +467,7 @@ def build_exec() -> str:
     clearance = sub.get("submission_clearance", {})
     status = clearance.get("status", "UNKNOWN")
     reason = clearance.get("reason", "No current clearance record.")
-    holdout_link = "https://github.com/buffedlizard55-lab/13GEMSDOE/blob/main/reports/holdout_r9_2026-09-30.json"
+    holdout_link = "https://github.com/buffedlizard55-lab/13GEMSDOE/blob/main/reports/holdout_r10_2026-09-30.json"
     candidate_link = f"downloads/{e(name)}.tif" if sub else "#"
     zip_name = f"{e(name)}.zip" if sub else "the ZIP"
     fallback_link = f"downloads/{e(allfinite)}.tif" if sub else "#"
@@ -327,7 +482,8 @@ def build_exec() -> str:
     not a predicted leaderboard score). {e(reason)}
     Download it from the <a href="index.html">front page</a> or directly
     <a href="{candidate_link}">here</a>. Full comparison:
-    <a href="{holdout_link}">R9 holdout report</a>.</p>
+    <a href="{holdout_link}">R10 holdout report</a> (R9:
+    <a href="https://github.com/buffedlizard55-lab/13GEMSDOE/blob/main/reports/holdout_r9_2026-09-30.json">here</a>).</p>
   </div>
   <ol class="steps">
     <li><h4>1. Validate the candidate on the local holdout</h4>
@@ -339,7 +495,9 @@ def build_exec() -> str:
       <p class="small">Do not spend a weekly submission slot unless the candidate beats
       the current holdout best under more than one rule and improves the confirmation
       summary—not only a tuning fold or a qualitative geological rationale. This round's
-      three R9 challengers all failed that gate (see the front-page table).</p></li>
+      twenty-four challengers across R8, R9, R10 and R10b all failed that gate (see the
+      front-page tables). Note also that the three-submission allowance resets on a
+      <b>rolling window</b>, not a calendar week (forum 11524).</p></li>
 
     <li><h4>2. Check map identity before proposing an upload</h4>
       <p>Compare the complete raster and effective/chargeable positive support with all
@@ -461,6 +619,54 @@ def build_evidence() -> str:
     hold = load("holdout_candidate_r8_2026-09-30.json", {}) or {}
     r9 = load("holdout_r9_2026-09-30.json", {}) or {}
     band = load("band_audit.json")
+    r10 = load("holdout_r10_2026-09-30.json", {}) or {}
+    r10b = load("holdout_r10b_2026-09-30.json", {}) or {}
+    extman = load("external_manifest.json", {}) or {}
+    extdet = load("external_detectors_manifest.json", {}) or {}
+    extaudit = load("external_audit.json", {}) or {}
+    band6 = load("band6_identity.json", {}) or {}
+
+    # external staging / verification table
+    ext_files_rows = ""
+    for fname, rec in (extman.get("files") or {}).items():
+        ok = (rec.get("sha256_matches_sibling_provenance")
+              and rec.get("blob_matches_sibling_git_tree"))
+        ext_files_rows += (
+            f"<tr><td class='mono small'>{e(fname)}</td>"
+            f"<td class='num'>{rec.get('bytes', 0):,}</td>"
+            f"<td class='mono small'>{e(str(rec.get('sha256', ''))[:16])}…</td>"
+            f"<td class='mono small'>{e(str(rec.get('git_blob_sha1', ''))[:12])}…</td>"
+            f"<td class='small'>{e(rec.get('official_source', ''))}</td>"
+            f"<td>{'✅ both' if ok else '⚠️ check'}</td></tr>")
+
+    b6 = ((band6.get("candidates") or {}).get("radiometric::rad_tc") or {})
+    b6sum = max((band6.get("sum_closure_tests") or {"": {"spearman_rho": 0}}).values(),
+                key=lambda v: v.get("spearman_rho", 0))
+    b6verdict = (band6.get("verdict") or {}).get(
+        "band6_is_official_radiometric_total_count", False)
+
+    # R10 confirmation table (all 17 configurations)
+    r10_conf = r10.get("confirmation_summary", {}) or {}
+    r10_verdicts = r10.get("verdicts_predeclared", {}) or {}
+    r10_paired = r10.get("paired_vs_reference", {}) or {}
+    r10_ev_rows = ""
+    for cfg, summ in sorted(r10_conf.items(),
+                            key=lambda kv: -kv[1].get("dti_worst_rule_mean", 0)):
+        pr = r10_paired.get(cfg) or {}
+        r10_ev_rows += (
+            f"<tr><td class='mono small'>{e(cfg)}</td>"
+            f"<td class='num'>{summ.get('dti_worst_rule_mean', 0):.5f}</td>"
+            f"<td class='num'>{summ.get('dti_mean', 0):.5f}</td>"
+            f"<td class='num'>{summ.get('precision_w_mean', 0):.4f}</td>"
+            f"<td class='num'>{summ.get('recall_w_mean', 0):.4f}</td>"
+            f"<td class='num'>{summ.get('predicted_eval_px_mean', 0):,.0f}</td>"
+            f"<td class='num'>{pr.get('mean_delta_dti', 0):+.5f}</td>"
+            f"<td class='num'>{summ.get('max_tie_fraction', 0):.2f}</td>"
+            f"<td class='small'>{'REFERENCE' if cfg == 'topo_05_sp3' else e(r10_verdicts.get(cfg, 'n/a'))}</td></tr>")
+    sel = r10b.get("selected_on_tune") or "n/a"
+    sel_conf = (r10b.get("confirmation_summary", {}) or {}).get(sel, {}) or {}
+    sel_pair = r10b.get("paired_vs_reference_selected", {}) or {}
+    sel_verdict = (r10b.get("verdict_predeclared", {}) or {}).get(sel, "n/a")
 
     # R9 paired validation block
     r9_block = "<p class='small'>No R9 report was found.</p>"
@@ -735,18 +941,23 @@ DTI  = 0.6028 → 0.60  ✓</code></pre>
       accounts. The repository makes no allegation of shared ownership or an
       eligibility violation; see the official rules and resolve only from verified
       account records.</p></div>
-    <div class="panel"><h3 style="margin-top:0"><span class="tag t-warn">🟠 I-2</span>
-      Band 6 <code>tc</code> is <b>UNIDENTIFIED</b></h3>
-      <p class="small">Its embedded description says “Tilt angle <i>or</i> total
-      curvature”. The problem page's figure is <code>gems_tc_tmi.png</code>, captioned
-      “radiometric (left) and magnetic (right)” — first-party evidence for the
-      radiometric-total-count reading. But the measured band is bounded in
-      [2.95°, 88.57°] with p99 = 29.1°, is smoother than the supplied gradient bands,
-      and matches <b>none</b> of 8 standard magnetic edge angles (all |r| &lt; 0.04) nor
-      any of {n_cand} transforms of the other 18 bands (best |ρ| = {best_rho:.2f}). A
-      count in CPS is not bounded at 88. Both readings cannot be true of the same array;
-      the data-tab documentation is required to settle it.
-      Measured by <code>scripts/audit_bands.py</code>.</p></div>
+    <div class="panel"><h3 style="margin-top:0"><span class="tag t-ok">🟢 I-2 RESOLVED</span>
+      Band 6 <code>tc</code> <b>is</b> the radiometric total count</h3>
+      <p class="small">Measured against the official USGS GeoDAWN radiometric grid
+      (<code>radiometric::rad_tc</code>, DOI 10.5066/P93LGLVQ): Spearman
+      ρ <b>{b6.get('spearman_rho', 0):.5f}</b>, Pearson r {b6.get('pearson_r', 0):.5f},
+      OLS slope {b6.get('ols_slope_band6_per_channel_unit', 0):.4f},
+      R² {b6.get('ols_r2', 0):.4f}, RMSE {b6.get('ols_rmse_in_band6_units', 0):.3f} band-6
+      units, median ratio {b6.get('median_ratio_band6_over_channel', 0):.5f}. The physical
+      closure test also passes — band6 ≈ 7.54 × (K + Th + U) at ρ {b6sum.get('spearman_rho', 0):.5f} —
+      which no tilt angle or curvature can satisfy. Its embedded description
+      (“Tilt angle <i>or</i> total curvature — magnetic field derivative for edge
+      detection”) does not describe the array: that is a documentation defect worth
+      raising with the organisers. The earlier “disproved” verdict relied on an unverified
+      units assumption (that a count rate must be 10²–10⁴ cps); the official grid itself
+      spans 5.47–30.27 here, and band 6 keeps a tail to 88.57 that the 8-bit product
+      clips. Measured by <code>scripts/audit_band6_identity.py</code> →
+      <code>reports/band6_identity.json</code>.</p></div>
     <div class="panel"><h3 style="margin-top:0"><span class="tag t-warn">🟡 I-6</span>
       Dated leaderboard snapshot</h3>
       <p class="small">Fetched 2026-09-30: <b>0.3168</b> (DARD) and
@@ -755,6 +966,57 @@ DTI  = 0.6028 → 0.60  ✓</code></pre>
   </div>
   <p class="small">Full list with evidence and actions:
   <a href="https://github.com/buffedlizard55-lab/13GEMSDOE/blob/main/knowledge/02_irregularities.md">knowledge/02_irregularities.md</a>.</p>
+</section>
+
+<section>
+  <h2>6 · Official external data — staging, verification, measurement</h2>
+  <p class="lede">Everything below is free, official and public domain. Each file was
+  verified twice before use, and every map built from them was measured on the same
+  paired holdout protocol as the internal detectors.</p>
+  <div class="scroll"><table><thead><tr><th>file</th><th class="num">bytes</th>
+    <th>sha256 (prefix)</th><th>git blob (prefix)</th><th>official source</th>
+    <th>double-verified</th></tr></thead><tbody>{ext_files_rows}</tbody></table></div>
+  <p class="small">Licence: {e(extman.get('licence', 'USGS public domain'))}.
+  Egress caveat: {e(extman.get('egress_note', ''))}. Pins:
+  <code>reports/external_manifest.json</code>; per-file provenance records:
+  <code>reports/external_provenance/</code>.</p>
+  <div class="grid g2">
+    <div class="panel"><h3 style="margin-top:0">Grid and catalogue checks</h3>
+      <p class="small">All six products conform exactly to the competition grid
+      (EPSG:32611, 100 m, 3730×3292, transform 243350 / 4508550). The
+      QFFDB-minus-provided-catalogue difference — the “missing faults are just the
+      national database” hypothesis — measures <b>{e(str(extaudit.get('qffdb_catalogue_gap', 'n/a')))} pixel(s)</b>:
+      the hypothesis is dead, and the QFFDB product is used for analysis only because
+      training on it would leak the catalogue. Common domain across all products:
+      {extaudit.get('common_domain_px', 0):,} px
+      ({100 * extaudit.get('common_domain_fraction_of_footprint', 0):.1f}% of the
+      footprint). Report: <code>reports/external_audit.json</code>.</p></div>
+    <div class="panel"><h3 style="margin-top:0">Band-6 identity verdict</h3>
+      <p class="small">Criterion written before the run: ρ &gt; 0.999 <b>and</b> linear-fit
+      R² &gt; 0.99 against the official TC channel <b>and</b> ρ &gt; 0.99 against K + Th + U.
+      Result: <b>{'PASS — band 6 is the radiometric total count' if b6verdict else 'criteria not met'}</b>.
+      Best single-channel match: <code>{e((band6.get('verdict') or {}).get('best_single_channel_match', {}).get('channel', 'n/a'))}</code>.
+      Side benefit: because the competition's own band 6 reproduces the sibling
+      re-gridding of the USGS release to R² {b6.get('ols_r2', 0):.4f}, the external staging
+      pipeline is validated against first-party data.</p></div>
+  </div>
+  <h3>R10 — all sixteen configurations, confirmation folds</h3>
+  <div class="scroll"><table><thead><tr><th>configuration</th><th class="num">worst-rule DTI</th>
+    <th class="num">mean DTI</th><th class="num">P_w</th><th class="num">R_w</th>
+    <th class="num">predicted px</th><th class="num">Δ vs ref</th>
+    <th class="num">tie fraction</th><th>predeclared verdict</th></tr></thead>
+    <tbody>{r10_ev_rows}</tbody></table></div>
+  <h3>R10b — refinement round (selected on tune folds, then confirmed)</h3>
+  <p class="small">Selected on tune folds only: <code>{e(sel)}</code>. Confirmation
+  worst-rule mean <b>{sel_conf.get('dti_worst_rule_mean', 0):.5f}</b> vs reference
+  0.08687, mean {sel_conf.get('dti_mean', 0):.5f} vs 0.09763
+  (paired Δ {sel_pair.get('mean_delta_dti', 0):+.5f},
+  {sel_pair.get('wins', 0)}/{sel_pair.get('n_pairs', 0)} folds won) →
+  <b>{e(sel_verdict)}</b>. Low-coverage unions (0.5–1%) measured marginal precision
+  0.0136–0.0166, still below the 0.0169 tune inclusion bar: the external maps have no
+  high-precision head. Reports: <code>reports/holdout_r10_2026-09-30.json</code>,
+  <code>reports/holdout_r10b_2026-09-30.json</code>; per-map signal statistics:
+  <code>reports/external_detectors_manifest.json</code>.</p>
 </section>"""
     return page("evidence.html", "Evidence", body)
 
@@ -769,10 +1031,35 @@ def build_hypotheses() -> str:
                 'knowledge/03_hypotheses.md">knowledge/03_hypotheses.md</a>.</p>')
     fresh_screen_html = """
 <section>
+  <h2>R10 / R10b — the external-data register is now measured and closed</h2>
+  <p class="lede">Four hypotheses were predeclared in
+  <a href="https://github.com/buffedlizard55-lab/13GEMSDOE/blob/main/knowledge/06_r10_hypotheses.md">knowledge/06_r10_hypotheses.md</a>
+  <i>before</i> any map was built, with the decision rule written down first:
+  R10-3 damage-zone texture (3DEP slope_std × profile curvature), R10-1 1-m LiDAR
+  morphometric scarp composite, R10-2 radiometric alteration-ratio lineaments
+  (U/K, U/Th), R10-4 geothermal-vent conjunction. Two more were screened out on
+  measurement before build: the QFFDB-minus-catalogue difference (1 pixel) and a
+  LiDAR coherence channel (AUC 0.4608, below chance).</p>
+  <p class="small"><b>Outcome: all 24 challenger configurations across R8, R9, R10 and
+  R10b LOSE</b> to <code>topo_05_sp3</code> (confirmation worst-rule mean 0.08687; best
+  R10 challenger 0.08593; best R10b fusion 0.08286). No submission slot was spent.
+  One predeclaration was wrong in its mechanism and is corrected on the record: R10-4
+  was expected to be low-recall, and it measured the <i>highest</i> top-5% recall of the
+  family (0.0841) — it still loses, because its recall stays below the reference while
+  its precision gain is too small to pay for it under β = 2.</p>
+  <p class="small">What survives as a research direction is narrow and now evidence-based:
+  an external product only helps if it puts predictions within 300 m of faults the
+  topographic crest never touches. Re-ranking, tightening or fusing the neighbourhoods
+  the crest already hits cannot raise DTI, and univariate AUC is not a go/no-go signal
+  (irregularity I-13).</p>
+</section>
+
+<section>
   <h2>Fresh external-data candidates — rank for research, not submission</h2>
   <p class="lede">The rank is a qualitative geological prior, not a numerical DTI
-  forecast. The specific external layers have not been staged and the candidates
-  have not passed the prescribed holdout. None is approved as viable or ready to submit.</p>
+  forecast. These four directions use layers that have <b>not</b> been staged (the
+  GeoDAWN / 3DEP / QFFDB family has been — see above), and none has passed the
+  prescribed holdout. None is approved as viable or ready to submit.</p>
   <div class="scroll"><table><thead><tr><th>rank / hypothesis</th>
   <th>layers and physical signature</th><th>why it could find uncatalogued faults / difference from prior detectors</th>
   <th>expected impact / cost</th><th>required official data and availability</th></tr></thead><tbody>
@@ -1174,7 +1461,18 @@ def build_sources() -> str:
         ("Reference solution", "https://github.com/drivendataorg/gems-prize-reference-solution", "DrivenData", "✅ downloaded"),
         ("Forum — Scoring clarification (11516)", "https://community.drivendata.org/t/scoring-clarification-are-known-usgs-ingenious-faults-masked-when-scoring-and-are-they-in-the-final-round-label-set/11516", "DrivenData forum", "✅ all 4 posts read"),
         ("Forum — Where do you draw the line? (11536)", "https://community.drivendata.org/t/where-do-you-draw-the-line/11536", "DrivenData forum", "✅ both posts read"),
-        ("Forum — How were the new test faults identified? (11527)", "https://community.drivendata.org/t/how-were-the-new-test-faults-identified-data-sources-and-fault-types/11527/7", "DrivenData forum", "✅ organizer reply read"),
+        ("Forum — How were the new test faults identified? (11527)", "https://community.drivendata.org/t/how-were-the-new-test-faults-identified-data-sources-and-fault-types/11527/7", "DrivenData forum", "✅ all 10 posts re-read 2026-09-30 via /print; no new organizer statement"),
+        ("Forum — Weekly submissions (11524)", "https://community.drivendata.org/t/weekly-submissions/11524", "DrivenData forum", "✅ read 2026-09-30 — allowance resets on a rolling window"),
+        ("Forum — Paid for external data license (11528)", "https://community.drivendata.org/t/paid-for-external-data-license/11528", "DrivenData forum", "✅ read 2026-09-30 — external data allowed with a licence permitting use in the challenge and sharing with the sponsor"),
+        ("Forum — Label TIF bands (11529)", "https://community.drivendata.org/t/why-does-the-training-fault-labels-file-in-the-data-tab-have-a-single-band-while-the-labels-in-the-reference-solution-repo-have-19-bands/11529", "DrivenData forum", "✅ read 2026-09-30 — '19 bands' is a notebook printing bug; the label TIF has one band"),
+        ("Forum — Team member eligibility (11540)", "https://community.drivendata.org/t/team-member-eligibility-competition-homepage-vs-official-rules/11540", "DrivenData forum", "✅ read 2026-09-30 — Official Rules take precedence over the homepage"),
+        ("Forum — Using a teammate's interpretation as labels (11543)", "https://community.drivendata.org/t/using-a-teammates-geological-interpretation-as-training-labels/11543", "DrivenData forum", "⚠️ listed, 0 replies at fetch time; no organizer guidance"),
+        ("USGS 3DEP elevation (1 m / 10 m staged products)", "https://prd-tnm.s3.amazonaws.com/StagedProducts/Elevation/", "USGS", "🔒 TLS-blocked from this sandbox; obtained via the sibling-repo mirror and hash-verified"),
+        ("USGS Quaternary fault and fold database (QFFDB)", "https://earthquake.usgs.gov/static/lfs/nshm/qfaults/Qfaults_GIS.zip", "USGS", "🔒 TLS-blocked; mirrored copy hash-verified (sha256 447eadc5…, DOI 10.5066/P9BCVRCK) — analysis only, leakage risk"),
+        ("USGS Great Basin conductance maps (DOI 10.5066/P9TWT2LU)", "https://doi.org/10.5066/P9TWT2LU", "USGS", "✅ DOI metadata read; 12.34 GB grids not staged (Phase-2 candidate)"),
+        ("USGS gravity / magnetic / depth-to-basement grids (DOI 10.5066/P9Z6SA1Z)", "https://doi.org/10.5066/P9Z6SA1Z", "USGS", "✅ DOI metadata read; grids not staged"),
+        ("USGS detrended elevation (DOI 10.5066/P9MQRCBY)", "https://doi.org/10.5066/P9MQRCBY", "USGS", "✅ DOI metadata read; 12.34 GB, not staged"),
+        ("Sibling staging mirror — 7GEMSDOE external/", "https://github.com/buffedlizard55-lab/7GEMSDOE/tree/HEAD/external", "this group", "✅ fetched via GitHub API; every file verified against sha256 + git blob SHA-1"),
         ("USGS ComCat event catalog / FDSN API", "https://earthquake.usgs.gov/fdsnws/event/1/", "USGS", "✅ bbox counts checked; local bulk download not staged"),
         ("USGS Landsat Collection 2 Level-2 STAC", "https://landsatlook.usgs.gov/stac-server/collections/landsat-c2l2-sr", "USGS", "✅ metadata query checked; exact cloud-free footprint/time-series coverage unverified"),
         ("USGS Water Data API — field measurements", "https://api.waterdata.usgs.gov/ogcapi/v0/collections/field-measurements", "USGS", "✅ one groundwater-level record found in bbox; network adequacy unverified"),
@@ -1215,6 +1513,20 @@ def build_sources() -> str:
     <p class="small" style="margin-bottom:0"><b>Caveat:</b> these are mirrors, not
     first-party downloads. Irregularity I-1 shows one of them is mislabelled, which is
     exactly why provenance is recorded rather than assumed.</p>
+  </div>
+  <div class="panel">
+    <p class="small"><b>External products (<code>data/external/</code>, gitignored).</b>
+    Six USGS public-domain rasters, re-gridded onto the competition grid by this group's
+    open-egress runners and re-staged here by <code>scripts/fetch_external_data.py</code>.
+    Each file is verified twice: sha256 against the sibling provenance record and git
+    blob SHA-1 against the sibling git tree. Pins and mirrors:
+    <code>reports/external_manifest.json</code>, per-file records in
+    <code>reports/external_provenance/</code>. Licence permits competition use and
+    sharing with the sponsor (public domain; attribution recorded).</p>
+    <p class="small" style="margin-bottom:0"><b>Independent validation:</b> the
+    competition's own band 6 reproduces the staged radiometric total-count channel at
+    Spearman ρ 0.99998 / R² 0.9980, so the staging and dequantisation pipeline recovers
+    the field the organisers shipped (<code>reports/band6_identity.json</code>).</p>
   </div>
 </section>"""
     return page("sources.html", "Sources", body)
