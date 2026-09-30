@@ -1,0 +1,62 @@
+{
+  "log": "append-only record of DrivenData submission-form responses",
+  "note": "Scores/acceptances recorded by the team are marked team_recorded; they are not platform receipts. Verify every entry against the file sha256 before acting on it.",
+  "responses": [
+    {
+      "date_utc": "2026-09-27 (approx; team-recorded)",
+      "artifact": "gems3_pindrop_nodes",
+      "file": "data/scored/gems3_pindrop_nodes_LB0.1193.tif",
+      "sha256_prefix": "f347b70daa",
+      "encoding": "nan_outside (float32, NoData=nan, 7,111,787 NaN cells)",
+      "outcome": "ACCEPTED_AND_SCORED",
+      "score_label": 0.1193,
+      "source": "team submission notes quoted in the project brief; sha256 prefix re-verified against archived bytes 2026-09-30",
+      "evidence_class": "team_recorded_not_receipt"
+    },
+    {
+      "date_utc": "2026-09-27 (approx; team-recorded)",
+      "artifact": "gems3_pindrop_discovery",
+      "file": "data/scored/gems3_pindrop_discovery_LB0.0830.tif",
+      "sha256_prefix": "37f9d5b855",
+      "encoding": "nan_outside (float32, NoData=nan, 7,111,787 NaN cells)",
+      "outcome": "ACCEPTED_AND_SCORED",
+      "score_label": 0.083,
+      "source": "team submission notes; sha256 prefix re-verified 2026-09-30",
+      "evidence_class": "team_recorded_not_receipt"
+    },
+    {
+      "date_utc": "2026-09-27 (approx; team-recorded)",
+      "artifact": "gems3_pindrop_ridge",
+      "file": "data/scored/gems3_pindrop_ridge_LB0.1152.tif",
+      "sha256_prefix": "4e03fc9705",
+      "encoding": "nan_outside (float32, NoData=nan, 7,111,787 NaN cells)",
+      "outcome": "ACCEPTED_AND_SCORED",
+      "score_label": 0.1152,
+      "source": "team submission notes; sha256 prefix re-verified 2026-09-30",
+      "evidence_class": "team_recorded_not_receipt"
+    },
+    {
+      "date_utc": "2026-09-30",
+      "artifact": "13gems-r11-greedy-mp",
+      "file": "13gems-r11-greedy-mp.tif (NaN-outside primary)",
+      "sha256_prefix": null,
+      "encoding": "nan_outside (float32, NoData=nan, 7,111,787 NaN cells)",
+      "outcome": "REJECTED",
+      "message": "Predicted values must be in range [0, 1]",
+      "source": "team report to the session (user), 2026-09-30; file downloaded from this site's front-page primary button",
+      "evidence_class": "user_reported_platform_response",
+      "action_taken": "predeclared I-8 triage step 2 executed: all-finite encoding promoted to PRIMARY (site, zip, latest.*); NaN-outside demoted to record-only secondary"
+    },
+    {
+      "date_utc": "2026-09-29/30 (approx; team-recorded)",
+      "artifact": "r7-nms3-dem10-scarp (12GEMSDOE)",
+      "file": "12GEMSDOE r7-nms3-dem10-scarp_0c9199f14e62_allfinite",
+      "sha256_prefix": null,
+      "encoding": "all_finite zero-fill (name says _allfinite)",
+      "outcome": "ACCEPTED_AND_SCORED (label SDCF9; score not recorded)",
+      "score_label": null,
+      "source": "team submission notes quoted in the project brief",
+      "evidence_class": "team_recorded_not_receipt"
+    }
+  ]
+}

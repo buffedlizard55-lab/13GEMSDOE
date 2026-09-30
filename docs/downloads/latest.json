@@ -191,12 +191,29 @@
       ],
       "masked_min": 0.0,
       "masked_max": 1.0,
-      "note": "a validator that reads the raw array WITHOUT honouring the NoData tag and tests all(v>=0 & v<=1) will reject ANY NaN-outside file, including the official sample submission's structure; a masked read passes. If the form repeats the range error on this file, upload 13gems-r11-greedy-mp_allfinite.tif next and record both responses."
+      "note": "REJECTED by the form on 2026-09-30 with 'Predicted values must be in range [0, 1]' (team upload of this file). Kept on disk and on the site as a RECORD-ONLY secondary; the front-page primary button now serves the all-finite encoding."
     },
     "all_finite_variant": {
       "n_nan_raw": 0,
       "raw_all_in_[0,1]_naive": true,
-      "note": "passes a naive raw range check; outside-footprint cells are 0.0"
+      "note": "PRIMARY upload encoding as of 2026-09-30: passes a naive raw range check AND a masked read; outside-footprint cells are exactly 0.0 (score-neutral for a binary map)."
     }
-  }
+  },
+  "primary_upload": {
+    "encoding": "all_finite_zero_fill",
+    "file": "13gems-r11-greedy-mp_allfinite.tif",
+    "zip": "13gems-r11-greedy-mp.zip",
+    "zip_contains": "13gems-r11-greedy-mp_allfinite.tif",
+    "latest_aliases": {
+      "latest.tif": "all-finite primary",
+      "latest_allfinite.tif": "all-finite primary (alias)",
+      "latest_nan.tif": "record-only NaN-outside secondary"
+    },
+    "secondary_record_only": {
+      "encoding": "nan_outside_strict",
+      "file": "13gems-r11-greedy-mp.tif"
+    },
+    "policy_source": "reports/form_responses.json; reports/primary_flip_2026-09-30.json; knowledge/02_irregularities.md I-8; user-reported form rejection of the NaN-outside encoding, 2026-09-30"
+  },
+  "encoding_policy_note": "Primary download/upload encoding flipped to all-finite 2026-09-30 (session 6). This JSON was produced by make_submission.py under the old NaN-outside-primary policy and then patched by scripts/flip_primary_encoding.py; predictions are byte-identical inside the survey footprint in both variants."
 }
