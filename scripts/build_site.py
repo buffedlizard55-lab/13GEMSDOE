@@ -18,7 +18,6 @@ import numpy as np
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
-from chance_baseline import dti_chance          # noqa: E402
 REP = ROOT / "reports"
 DOCS = ROOT / "docs"
 DL = DOCS / "downloads"
@@ -51,7 +50,7 @@ def page(active: str, title: str, body: str, hero: str = "") -> str:
 <html lang="en"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>{e(title)} — 13GEMSDOE</title>
-<meta name="description" content="GEMS Prize Challenge: audited scoring metric, hide-and-recover holdout, and a one-click validated submission GeoTIFF.">
+<meta name="description" content="GEMS Prize Challenge: audited scoring metric, local hide-and-recover evidence, and a review-only artifact that has not cleared submission holdout.">
 <link rel="stylesheet" href="assets/style.css">
 </head><body>
 <header class="site"><div class="wrap">
@@ -77,333 +76,265 @@ def kpi(v, l, cls="") -> str:
 
 # ---------------------------------------------------------------------------
 def build_index() -> str:
-    sub = load("latest_submission.json")
+    sub = load("latest_submission.json", {}) or {}
     audit = load("metric_audit.json", {})
-    hold = load("holdout_results.json")
+    r8 = load("holdout_candidate_r8_2026-09-30.json", {}) or {}
+    leaderboard = load("leaderboard_snapshot_2026-09-30.json", {}) or {}
+    checks = audit.get("checks", {})
+    n_pass = sum(1 for c in checks.values() if c.get("pass"))
 
-    if sub:
-        name = sub["name"]
-        st = sub["map_stats"]
-        val = sub["validation"]
-        ok = all(v["ok"] for v in val.values())
-        sel = sub.get("recipe_selection", {})
-        rng = (f'{val["nan_outside"]["stats"].get("min", 0):.4g} – '
-               f'{val["nan_outside"]["stats"].get("max", 1):.4g}')
-        # Primary must be all-finite (0 outside) to avoid DrivenData NaN rejection.
-        # latest.tif is now the all-finite variant (see make_submission.py).
-        primary_name = f"{e(name)}_allfinite.tif"
-        hero_dl = f"""
-  <div class="dl">
+    clearance = sub.get("submission_clearance", {})
+    clearance_status = clearance.get("status", "UNKNOWN")
+    validation = sub.get("validation", {})
+    nan_check = validation.get("nan_outside", {})
+    local_format_ok = bool(nan_check.get("official_format_conformant", False))
+    local_format_text = "passes local format checks" if local_format_ok else "local format checks incomplete"
+    name = sub.get("name")
+    if name:
+        nan_href = f"downloads/{e(name)}.tif"
+        zip_href = f"downloads/{e(name)}.zip"
+        allfinite_href = f"downloads/{e(name)}_allfinite.tif"
+        artifact_links = f"""
     <div class="row">
-      <a class="btn" href="downloads/{primary_name}" download>⬇ Download submission GeoTIFF — valid [0,1] (all-finite, 0 outside)</a>
-      <a class="btn ghost" href="downloads/latest.zip" download>⬇ .zip version</a>
-      <a class="btn ghost" href="downloads/{e(name)}.tif" download>⬇ NaN-outside variant (reference)</a>
+      <a class="btn" href="{nan_href}" download>⬇ Download archived R8 raster — review only, NOT CLEARED</a>
+      <a class="btn ghost" href="{zip_href}" download>⬇ NaN-outside ZIP — review only</a>
     </div>
-    <div class="meta">
-      <b>Validated:</b> {'✅ passes every official format requirement' if ok else '❌ FAILED VALIDATION'}
-      &nbsp;·&nbsp; single-band float32 &nbsp;·&nbsp; EPSG:32611 &nbsp;·&nbsp; 3730×3292 @100 m
-      &nbsp;·&nbsp; value range <b>{rng}</b> — all finite, min 0 max 1 — no NaN
-      &nbsp;·&nbsp; {st['n_predicted_px']:,} predicted pixels
-      ({st['pct_of_valid']}% of the survey area)
-      &nbsp;·&nbsp; file <code>{primary_name}</code> (also <code>latest.tif</code>) is primary
-    </div>
-    <div class="copyfield">
-      <input id="fn" readonly value="{primary_name}">
-      <button onclick="cp('fn',this)">Copy file name (unique)</button>
-    </div>
-    <div class="copyfield">
-      <input id="nt" readonly value="{e(sub['note_for_submission_form'])}">
-      <button onclick="cp('nt',this)">Copy the Note field</button>
-    </div>
-    <div class="callout warn" style="margin-top:12px">
-      <p style="margin:0"><b>If you see “Predicted values must be in range [0, 1]”:</b> you uploaded a NaN-outside file.
-      Use the all-finite variant above — it writes 0 outside the survey footprint instead of NaN, which is
-      score-neutral per <a href="https://community.drivendata.org/t/scoring-clarification-are-known-usgs-ingenious-faults-masked-when-scoring-and-are-they-in-the-final-round-label-set/11516/4">forum 11516 post 4</a>
-      and passes the DrivenData range check.</p>
-    </div>
-  </div>
-  <script>function cp(id,b){{const i=document.getElementById(id);i.select();
-  navigator.clipboard.writeText(i.value);const t=b.textContent;b.textContent='Copied ✓';
-  setTimeout(()=>b.textContent=t,1400);}}</script>"""
-        body_top = ""
+    <p class="small">The all-finite twin (<a href="{allfinite_href}">diagnostic only</a>)
+    has finite zeros outside the footprint and is not treated as official-format equivalent.</p>
+    <p class="small"><b>Candidate note (provenance only; not an upload recommendation):</b>
+    <code>{e(sub.get('note_for_submission_form', 'not recorded'))}</code></p>""".strip()
     else:
-        hero_dl = """
-  <div class="dl"><div class="row">
-    <span class="btn ghost" style="cursor:default">No submission built yet</span></div>
-    <div class="meta">Run <code>python scripts/make_submission.py --recipe best</code>
-    then <code>python scripts/build_site.py</code>.</div></div>"""
-        body_top = ""
+        artifact_links = '<p class="small">No archived candidate file is currently registered.</p>'
 
     hero = f"""<div class="hero"><div class="wrap">
-  <h1>Download a validated GEMS submission, then upload it.</h1>
-  <p class="sub">The file below already passes every format rule in the official
-  submission spec — single-band float32, EPSG:32611, exact geotransform, and
-  every value inside [0,&nbsp;1]. Nothing here is released unless the validator passes.</p>
-  {hero_dl}
+  <h1>Current R8 candidate: <span class="tag t-bad">{e(clearance_status)}</span></h1>
+  <p class="sub">Do <b>not</b> spend a submission slot on this artifact. A per-fold,
+  visible-catalogue reconstruction of its recipe lost to the topographic baseline in
+  the local confirmation holdout. These are catalogue-recovery proxy results, not
+  private-test performance. The archived map is available only for review.</p>
+  <div class="dl">
+    {artifact_links}
+    <div class="meta"><b>Local format:</b> NaN-outside file {e(local_format_text)}
+    against the supplied footprint (single-band float32; EPSG:32611; 3730×3292;
+    100 m; finite in-footprint values in [0,1]; null/NaN outside). Remote acceptance
+    remains unverified. No candidate is submission-cleared.</div>
+    <p><a class="btn ghost" href="executive_summary.html">Submission workflow and clearance gate</a>
+    <a href="evidence.html">Metric, forensics, and local holdout details</a></p>
+  </div>
 </div></div>"""
 
-    checks = audit.get("checks", {})
-    n_pass = sum(1 for c in checks.values() if c["pass"])
-    lead_best = 0.3168
-    chance = load("chance_baseline.json", {})
-    verdict = (load("holdout_verdict_v3.json")
-               or load("holdout_verdict.json", {}))
-    comp = load("composite_validation.json", {})
-    sup = load("holdout_supervised.json")
-    band = load("band_audit.json")
+    rows = leaderboard.get("rows", [])
+    first = rows[0] if rows else {}
+    second = rows[1] if len(rows) > 1 else {}
+    confirm = r8.get("confirmation_summary", {})
+    baseline = confirm.get("topo_05_sp3", {})
+    candidate = confirm.get("r8_current_union_sp3", {})
 
-    # holdout headline
-    hold_html = "<p class='small'>Holdout not yet run.</p>"
-    if False and hold:
-        res = hold["results"]
-        per = defaultdict(lambda: defaultdict(list))
-        for r in res:
-            if r["family"].startswith("STAGE2:"):
-                per[r["tag"]][r["rule"]].append(r["dti"])
-        if not per:
-            for r in res:
-                if r["family"] not in ("control", "prior_submission"):
-                    per[r["tag"]][r["rule"]].append(r["dti"])
-        rows = []
-        for tag, rules in per.items():
-            rm = {k: float(np.mean(v)) for k, v in rules.items()}
-            rows.append((min(rm.values()), float(np.mean(list(rm.values()))),
-                         tag, len(rm)))
-        rows.sort(reverse=True)
-        trs = "".join(
-            f"<tr><td class='mono'>{e(t)}</td><td class='num'>{w:.4f}</td>"
-            f"<td class='num'>{m:.4f}</td><td class='num'>{n}</td></tr>"
-            for w, m, t, n in rows[:12])
-        hold_html = (f"<div class='scroll'><table><thead><tr><th>candidate</th>"
-                     f"<th class='num'>worst-rule DTI</th><th class='num'>mean DTI</th>"
-                     f"<th class='num'>rules</th></tr></thead><tbody>{trs}"
-                     f"</tbody></table></div>")
+    def score_cell(d: dict, key: str, places: int = 5) -> str:
+        value = d.get(key)
+        return f"{value:.{places}f}" if isinstance(value, (int, float)) else "n/a"
 
-    crows = "".join(
-        f"<tr><td class='mono'>{e(r['submission'])}</td>"
-        f"<td class='num'>{r['public_LB']:.4f}</td>"
-        f"<td class='num'>{r['coverage_pct']:.2f}%</td>"
-        f"<td class='num'>{r['catalogue_echo_pct']:.0f}%</td>"
-        f"<td class='num'>{r['chance_DTI_at_|G|=median']:.4f}</td>"
-        f"<td class='num'><b>{r['lift_over_chance']:.2f}×</b></td></tr>"
-        for r in chance.get("rows", []))
-    chance_tbl = (
-        "<div class='scroll'><table><thead><tr><th>submission</th>"
-        "<th class='num'>public LB</th><th class='num'>coverage</th>"
-        "<th class='num'>catalogue echo</th><th class='num'>chance DTI</th>"
-        "<th class='num'>lift</th></tr></thead><tbody>" + crows +
-        "</tbody></table></div><p class='small'>Chance computed in closed form from "
-        "the kernel, validated to 1.2% median error against 105 measured random "
-        "controls. |G| is the public-chunk new-fault pixel count, estimated at "
-        f"~{chance.get('median_implied_|G|', 0):,}. The ordering is stable across every "
-        "plausible |G| — see reports/chance_baseline.json.</p>"
-    ) if chance else "<p class='small'>Chance baseline not yet computed.</p>"
-    best_lift = (f"{verdict.get('best_worst_lift') or verdict.get('best_worst_rule_lift', 0):.2f}"
-                 if verdict else "?")
+    base_support = baseline.get("predicted_eval_px_mean")
+    r8_support = candidate.get("predicted_eval_px_mean")
+    base_support_text = f"{base_support:,.0f}" if isinstance(base_support, (int, float)) else "n/a"
+    r8_support_text = f"{r8_support:,.0f}" if isinstance(r8_support, (int, float)) else "n/a"
+    holdout_rows = f"""
+  <tr><td><b>BASE_topo_ridge · 5% · spacing 3</b><br>local comparator</td>
+    <td>{score_cell(baseline, 'dti_worst_rule_mean')}</td>
+    <td>{score_cell(baseline, 'dti_mean')}</td>
+    <td>{score_cell(baseline, 'precision_w_mean')}</td>
+    <td>{score_cell(baseline, 'recall_w_mean')}</td>
+    <td>{base_support_text}</td></tr>
+  <tr><td><b>R8 current union · spacing 3</b><br>per-fold visible-only rebuild</td>
+    <td>{score_cell(candidate, 'dti_worst_rule_mean')}</td>
+    <td>{score_cell(candidate, 'dti_mean')}</td>
+    <td>{score_cell(candidate, 'precision_w_mean')}</td>
+    <td>{score_cell(candidate, 'recall_w_mean')}</td>
+    <td>{r8_support_text}</td></tr>"""
 
-    body = f"""{body_top}
+    top_score = first.get("best_public_dw_tversky")
+    second_score = second.get("best_public_dw_tversky")
+    public_scores = (
+        f"{e(first.get('account', 'unknown'))} {top_score:.4f}; "
+        f"{e(second.get('account', 'unknown'))} {second_score:.4f}"
+        if isinstance(top_score, (int, float)) and isinstance(second_score, (int, float))
+        else "not available"
+    )
+
+    body = f"""
 <section>
-  <h2>What this is</h2>
-  <p class="lede">A working system for the DOE GEMS Prize: the scoring metric
-  audited before any model was built, a holdout that mirrors the actual
-  distribution shift, and a one-click submission file. Every number is generated
-  by a script in the repository.</p>
+  <h2>Current decision: hold submission</h2>
+  <p class="lede">The R8 union increases local recall but adds too much low-precision
+  support: it did not beat the topo baseline in the separate confirmation folds.
+  The comparison is a local known-catalogue hide-and-recover experiment, not an
+  estimate of public or private leaderboard performance.</p>
+  <div class="scroll"><table><thead><tr><th>recipe</th><th>worst-rule mean DTI</th>
+  <th>mean DTI</th><th>mean weighted precision</th><th>mean weighted recall</th>
+  <th>mean effective positive support in eval domain</th></tr></thead>
+  <tbody>{holdout_rows}</tbody></table></div>
+  <p class="small">Confirmation summary from
+  <code>reports/holdout_candidate_r8_2026-09-30.json</code>: 15 tested
+  configurations; whole-system and raw 8-connected segment folds; 5-pixel buffer;
+  visible-catalogue-only ray/horsetail rebuild; pixel-exact visible mask; withheld
+  truth only. The lowest-slope-third slice is a robustness stress test, not a hidden-
+  fault analogue. No tested R8 variant beat the baseline in this summary.</p>
+</section>
+
+<section>
+  <h2>Metric audit and identity checks</h2>
   <div class="grid g4">
     {kpi(f"{n_pass}/{len(checks)}", "metric audit checks passed", "ok")}
-    {kpi("1.15×", "best prior submission, vs pure chance", "bad")}
-    {kpi("16×", "chance beaten by tip-extension rays", "ok")}
-    {kpi(f"{lead_best:.4f}", "leaderboard #1 to beat", "warn")}
+    {kpi("0", "local TIFFs tied to verified per-submission public scores", "warn")}
+    {kpi("4", "fresh external-data hypotheses screened; none validated", "bad")}
+    {kpi(f"{top_score:.4f}" if isinstance(top_score, (int, float)) else "n/a",
+         "leader's account-level best (snapshot 2026-09-30)", "warn")}
+  </div>
+  <p class="small">DTI algebra and the official worked example pass the local audit.
+  Historical equal rounded score labels are not evidence of identical maps or a score
+  receipt. Exact file, canonical pixel, effective-support, and unmasked-support
+  comparisons are recorded separately in <code>reports/scored_forensics.json</code>.</p>
+</section>
+
+<section>
+  <h2>Public-score attribution and chance baseline</h2>
+  <div class="callout warn">
+    <p><b>Historical score-to-file attribution is unresolved.</b> The official
+    account-level “Best public DW-Tversky” snapshot is {public_scores}; it does not
+    identify scores for local TIFFs. The previous public chance/lift inference is
+    withdrawn because it estimated hidden truth size from those same score labels.</p>
+    <p style="margin-bottom:0">Candidate variants are ranked by direct DTI. A corrected
+    closed-form calculation is retained only as an approximate same-run random-control
+    sanity check using the fold-specific eligible domain; its in-sample calibration is
+    not universal. No local chance figure is a public/private baseline or upload gate.</p>
   </div>
 </section>
 
 <section>
-  <h2>Four facts that should drive every decision</h2>
-  <p class="lede">All proved analytically and re-checked numerically in
-  <a href="https://github.com/buffedlizard55-lab/13GEMSDOE/blob/main/scripts/audit_metric.py"><code>scripts/audit_metric.py</code></a>,
-  and reproduced against the organizers' own worked example
-  (TP<sub>w</sub>&nbsp;3.00, FP<sub>w</sub>&nbsp;1.89, FN<sub>w</sub>&nbsp;2.00&nbsp;→&nbsp;0.60).</p>
-  <div class="grid g2">
-    <div class="panel"><h3 style="margin-top:0">1 · DTI is a distance-weighted F2 score</h3>
-      <p class="small">Because <code>FN_w ≡ |G| − TP_w</code>, the index collapses to
-      <code>TP/(0.2·TP + 0.2·FP + 0.8·|G|)</code> = <code>1/(0.2/P + 0.8/R)</code>.
-      With β²&nbsp;=&nbsp;0.8/0.2&nbsp;=&nbsp;4 this is exactly F2. Recall is worth four times precision.</p></div>
-    <div class="panel"><h3 style="margin-top:0">2 · Be radically more inclusive than 0.5</h3>
-      <p class="small">A block of predictions raises the score <b>iff</b> its marginal weighted
-      precision exceeds <code>0.2 × DTI</code>. At our 0.1563 that is <b>3.1%</b>;
-      even at first place it is only 6.3%. A calibrated 0.5 cutoff discards enormous score.</p></div>
-    <div class="panel"><h3 style="margin-top:0">3 · The optimum is binary</h3>
-      <p class="small"><code>DTI(c·p)</code> strictly increases in <code>c</code>, and a pixel
-      exactly on truth costs zero false-positive mass because <code>k(0)=1</code>.
-      Graded probabilities are only useful for <i>ranking</i> which pixels to turn on.</p></div>
-    <div class="panel"><h3 style="margin-top:0">4 · Decimate lines, don't thicken them</h3>
-      <p class="small"><code>TP_w</code> takes a <b>max</b> over the 300&nbsp;m neighbourhood, so a
-      second predicted pixel within 3&nbsp;px of the first earns nothing and pays full
-      FP mass. The efficient primitive is a 1-px line thinned to ~300&nbsp;m spacing.</p></div>
-  </div>
-</section>
-
-<section>
-  <h2>The finding that reframes the whole project</h2>
-  <div class="callout bad">
-    <p style="margin-top:0"><b>All eight of our previously scored submissions are
-    statistically indistinguishable from a random map of the same size.</b> The best is
-    1.15× chance; four are <i>below</i> chance; the most catalogue-hugging one is
-    <b>0.21×</b> — five times worse than random.</p>
-    <p style="margin-bottom:0">The chance DTI curve peaks at <b>0.145 around 5%
-    coverage</b>. That is why every idea converged on ≈0.156: the team was not hitting a
-    modelling ceiling, it was hitting <b>the score a random map of that size earns</b>.</p>
-  </div>
-  {chance_tbl}
-</section>
-
-<section>
-  <h2>What actually carries signal</h2>
-  <p class="lede">Two holdout regimes disagree, and the disagreement is the result.</p>
-  <div class="grid g2">
-    <div class="panel"><h3 style="margin-top:0">Isolated unmapped systems
-      <span class="tag t-bad">nothing works</span></h3>
-      <p class="small">Withhold whole fault systems plus a 500 m buffer. Best honest
-      candidate reaches <b>{best_lift}× chance</b>. Every hypothesis — worms, tilt
-      derivative, basement hinge, cross-gradient fusion, N-of-5 consensus, and the
-      supervised classifier — lands within a few percent of chance.
-      Finding a completely unmapped, isolated fault from geophysics alone is, on this
-      evidence, not something we can currently do. The ranking is also <b>inverted</b>
-      on the concealed subset (irregularity I-11): catalogue faults are 1.7×
-      over-represented on slopes, so a detector that wins on the full withheld set is
-      partly winning on the catalogue's own bias.</p></div>
-    <div class="panel"><h3 style="margin-top:0">Extensions &amp; corrections
-      <span class="tag t-ok">16× chance</span></h3>
-      <p class="small">Hide the terminal 20–30% of every mapped segment — the regime the
-      organizers explicitly named. Projecting each mapped tip forward along its own
-      strike recovers them at <b>13.9–16.1× chance</b> with only 0.4% coverage and
-      <b>37% weighted precision</b>. Blanket catalogue dilation manages only 2.6×, so
-      the gain is in the <i>direction</i>, not the proximity.</p></div>
-  </div>
-  <div class="callout ok">
-    <p style="margin:0"><b>The shipped recipe is the hedge between them:</b> tip-extension
-    rays (1 km reach, one pixel per 3×3 tile) ∪ topographic-ridge fill at 5% ∪ the known
-    catalogue. Validated on both regimes at once: <b>2.11× chance</b> where extensions
-    dominate, <b>0.96×</b> where they do not — i.e. meaningful upside with no
-    meaningful downside.</p>
-  </div>
+  <h2>Four new research directions — not yet viable or validated</h2>
+  <p class="lede">The 2026-09-30 screen ranks event-level ComCat focal-plane coherence,
+  repeated Landsat thermal/moisture residuals, groundwater-head compartments, and
+  cross-depth MT conductor edges. Official-source availability checks are partial;
+  none is implemented or evaluated on the prescribed holdout. These ranks are
+  qualitative research priorities, not DTI forecasts.</p>
+  <p><a class="btn ghost" href="hypotheses.html">Read the ranked hypothesis review</a>
+  <a href="https://github.com/buffedlizard55-lab/13GEMSDOE/blob/main/knowledge/05_hypothesis_screen_2026-09-30.md">Sources, data checks, and prior-art comparisons</a></p>
 </section>
 
 <section>
   <div class="callout bad">
-    <p><strong>Before the next upload:</strong> two 🔴 issues are open — the
-    <code>example_submission.tif</code> in our data mirror is actually the known fault
-    catalogue, and the repeated 0.1563 appears to be a leaderboard reading error
-    across several accounts. Both are documented with evidence in
-    <a href="evidence.html">Evidence</a>.</p>
+    <p style="margin:0"><strong>Submission gate:</strong> no current candidate has
+    cleared the latest local holdout. Do not treat format validation, geological
+    rationale, an old chance ratio, or a rounded public score label as clearance.</p>
   </div>
 </section>"""
-    return page("index.html", "Submit", body, hero)
+    return page("index.html", "Submission status", body, hero)
 
 
 # ---------------------------------------------------------------------------
 def build_exec() -> str:
-    sub = load("latest_submission.json")
-    name = sub["name"] if sub else "latest"
-    primary = f"{name}_allfinite.tif" if sub else "latest.tif"
-    note = sub["note_for_submission_form"] if sub else "(build a submission first)"
+    sub = load("latest_submission.json", {}) or {}
+    name = sub.get("name", "(no candidate)")
+    clearance = sub.get("submission_clearance", {})
+    status = clearance.get("status", "UNKNOWN")
+    reason = clearance.get("reason", "No current clearance record.")
+    holdout_link = "https://github.com/buffedlizard55-lab/13GEMSDOE/blob/main/reports/holdout_candidate_r8_2026-09-30.json"
+    candidate_link = f"downloads/{e(name)}.tif" if sub else "#"
     body = f"""
 <section>
-  <h2>Executive summary — how to make a submission</h2>
-  <p class="lede">Start to finish in about two minutes. You need a DrivenData
-  account that is registered as a competitor for this challenge. Primary download is now all-finite (0 outside) — no NaN — so it passes 'Predicted values must be in range [0,1]'.</p>
-
+  <h2>Submission workflow — clearance comes before upload</h2>
+  <div class="callout bad">
+    <p style="margin:0"><b>Current status: {e(status)}.</b> {e(reason)}
+    The archived artifact <a href="{candidate_link}"><code>{e(name)}.tif</code></a>
+    is retained for review only; do not upload it. The full local proxy comparison is
+    <a href="{holdout_link}">here</a>. A format-valid GeoTIFF is not evidence that
+    its predictions improve DTI.</p>
+  </div>
+  <p class="lede">When a candidate eventually clears the holdout, follow these steps.
+  The current R8 artifact has <b>not</b> cleared them.</p>
   <ol class="steps">
-    <li><h4>Download the file (first button, obvious)</h4>
-      <p>From the <a href="index.html">front page</a>, click
-      <b>Download submission GeoTIFF — valid [0,1] (all-finite, 0 outside)</b>. You get
-      <code>{e(primary)}</code> — unique timestamped name, single-band float32, EPSG:32611, 3730x3292 @100 m, values in [0,1], 0 outside footprint (all-finite).</p>
-      <p class="small">A <code>.zip</code> with the same all-finite GeoTIFF is also offered — form accepts 'a single-band GeoTIFF (.tif) file, or a .zip file containing a single GeoTIFF'.
-      NaN-outside variant kept only for provenance.</p></li>
+    <li><h4>1. Validate the candidate on the local holdout</h4>
+      <p>Use whole-system and raw-segment hide-and-recover folds with buffers,
+      visible-catalogue-only construction of catalogue-dependent features, the exact
+      visible known-fault mask, and DTI scored on withheld truth only. Compare multiple
+      withholding rules and report cutoff, support, precision, recall, and DTI.
+      The low-slope-third slice is a robustness stress test, not a hidden-test analogue.</p>
+      <p class="small">Do not spend a weekly submission slot unless the candidate beats
+      the current holdout best under more than one rule and improves the confirmation
+      summary—not only a tuning fold or a qualitative geological rationale.</p></li>
 
-    <li><h4>Open the submission form</h4>
-      <p>Go to the
-      <a href="https://www.drivendata.org/competitions/306/competition-doe-gems/submissions/">
-      competition submissions page</a> and click <b>New submission</b>.</p>
-      <p class="small">Limit: <b>three submissions per week</b>
-      (<a href="https://docs.nlr.gov/docs/fy26osti/96647.pdf">Official Rules §3.2</a>). Nothing gets a weekly slot until it beats current best on hide-and-recover holdout under multiple rules.</p></li>
+    <li><h4>2. Check map identity before proposing an upload</h4>
+      <p>Compare the complete raster and effective/chargeable positive support with all
+      prior candidates. Record file hash, canonical pixel hash, support hash and overlap.
+      An exact duplicate is different from a distinct map with the same rounded score;
+      neither outcome can be inferred from filenames or account-level leaderboard values.</p>
+      <p class="small">Use a new immutable file stem and note. The generator refuses a
+      stem collision. Never promise a unique score: distinct maps can round to the same
+      score.</p></li>
 
-    <li><h4>Choose the file</h4>
-      <p>Select the <code>{e(primary)}</code> you downloaded. It already matches required CRS (EPSG:32611), shape, geotransform (100,0,243350,0,-100,4508550), float32, [0,1].</p></li>
+    <li><h4>3. Validate official GeoTIFF format</h4>
+      <p>Check one float32 band, EPSG:32611, 100 m resolution, 3730×3292 shape,
+      exact affine transform, finite in-footprint values in [0,1], and null/NaN outside
+      the valid footprint. The source page specifies null/NaN outside data bounds.</p>
+      <p class="small">Local checks establish only conformance to the checked fields;
+      they do not establish remote acceptance. The earlier server-side “[0,1]” rejection
+      remains unexplained. A zero-filled outside-footprint twin is diagnostic only.</p></li>
 
-    <li><h4>Paste the unique Note</h4>
-      <p>The form's optional <i>Note</i> is 'a short comment to help you or your team
-      tell submissions apart later'. Use the unique one generated with the file — it records detector, coverage, spacing:</p>
-      <pre><code>{e(note)}</code></pre>
-      <p class="small">The front page has a <b>Copy the Note field</b> button.</p></li>
+    <li><h4>4. Prepare the uniquely named raster and truthful note</h4>
+      <p>After the holdout gate, run <code>.venv/bin/python scripts/make_submission.py</code>
+      with the chosen recipe and an unused <code>--name</code>. Inspect the generated
+      JSON provenance, local validation report, output TIFF, ZIP contents, and form note.
+      The note must identify what was actually generated and must not claim hidden-test
+      performance or unsupported geothermal certainty.</p></li>
 
-    <li><h4>Submit, then record the score</h4>
-      <p>After scoring, copy the <b>per-submission</b> score — not the leaderboard
-      figure — into <code>reports/leaderboard_ledger.csv</code>.</p>
-      <div class="callout warn"><p style="margin:0"><b>This matters.</b> The public
-      leaderboard column is literally "<i>Best public DW-Tversky</i>". It shows your
-      best-ever score, so it does <b>not</b> change when a later submission scores
-      worse. Reading it as "the score of what I just uploaded" is what produced the
-      illusion of a 0.1563 plateau.</p></div></li>
+    <li><h4>5. Upload only after clearance, then record the receipt</h4>
+      <p>Use the
+      <a href="https://www.drivendata.org/competitions/306/competition-doe-gems/submissions/">official submissions page</a>
+      and select the validated named GeoTIFF (or ZIP only if it contains that one TIFF).
+      The competition allows three submissions per week per the
+      <a href="https://docs.nlr.gov/docs/fy26osti/96647.pdf">Official Rules §3.2</a>.</p>
+      <p>After scoring, record the authenticated per-submission score and submission ID
+      in <code>reports/leaderboard_ledger.csv</code>, tied to the exact file checksum.
+      The account-level “Best public DW-Tversky” leaderboard value is not a receipt for
+      that upload.</p></li>
   </ol>
 </section>
 
 <section>
-  <h2>Troubleshooting</h2>
+  <h2>Official format requirements</h2>
   <div class="panel">
-    <h3 style="margin-top:0"><span class="tag t-bad">Error</span>
-      &nbsp;“Predicted values must be in range [0, 1]”</h3>
-    <p>Every file this site publishes is checked by
-    <code>src/gems/rio.py::validate_submission</code> before release, which rejects
-    any raster whose finite minimum is below 0, whose maximum exceeds 1, or that
-    contains infinities. If the platform still rejects the plain file, the cause is
-    almost certainly <b>NaN</b>: the official format permits nan outside the data
-    bounds, but a validator written as <code>min()&lt;0 or max()&gt;1</code> can
-    treat it as out of range.</p>
-    <p><b>Fix:</b> upload <code>{e(name)}_allfinite.tif</code>, which is identical
-    inside the survey footprint and writes <code>0.0</code> instead of nan outside it.</p>
-  </div>
-  <div class="panel">
-    <h3 style="margin-top:0"><span class="tag t-warn">Check</span>
-      &nbsp;Format requirements, verbatim</h3>
     <ul class="small">
-      <li>Same projected CRS as the training data — <b>EPSG:32611</b> (UTM 11N)</li>
-      <li>Same resolution — <b>100 m</b></li>
-      <li>Same bounds; data outside the bounds null or nan</li>
-      <li>A single layer, <b>float32</b>, values between <b>0 and 1</b></li>
+      <li>Same projected CRS and bounds as training data: <b>EPSG:32611</b></li>
+      <li>Same resolution: <b>100 m</b>; 3730×3292 grid and matching transform</li>
+      <li>One layer, <b>float32</b>, values between <b>0 and 1</b></li>
+      <li>Outside the data bounds: <b>null/NaN</b> per the problem description</li>
     </ul>
-    <p class="small">Source:
-    <a href="https://www.drivendata.org/competitions/306/competition-doe-gems/page/967/">
-    problem description → Submission format</a>. Our grid is
-    3730×3292, transform <code>(100, 0, 243350; 0, −100, 4508550)</code>,
-    5,167,373 valid pixels.</p>
+    <p class="small">Official source:
+    <a href="https://www.drivendata.org/competitions/306/competition-doe-gems/page/967/">DrivenData problem description → Submission format</a>.
+    The NaN-outside archived R8 file passes the repository's local grid/range/footprint
+    checks; that does not clear its prediction map or verify server acceptance.</p>
   </div>
 </section>
 
 <section>
-  <h2>Choosing the one submission that counts</h2>
-  <div class="callout">
-    <p>Competitors must nominate a <b>single</b> submission that is scored in both
-    rounds, before the deadline, without seeing private performance
-    (<a href="https://www.drivendata.org/competitions/306/competition-doe-gems/page/967/">problem description</a>).</p>
-    <p><b>Phase 2 is 83% of the money</b> ($250k of $300k) and its labels are built by
-    expert review of every team's predictions. The organizers confirmed this directly:
-    <i>"your fault predictions have an impact on final evaluation even if they are not
-    the most performant in Phase 1"</i>
-    (<a href="https://community.drivendata.org/t/how-were-the-new-test-faults-identified-data-sources-and-fault-types/11527/7">forum 11527</a>).
-    Nominate the map that is most defensible geologically and broadest in coverage,
-    not the one that squeezed the most out of the public chunk.</p>
-  </div>
+  <h2>Why the holdout gate matters</h2>
+  <p>Competition organizers define a new fault to include uncaptured extensions,
+  splays, parallel strands, and corrections, and say known training pixels are masked
+  pixel-exactly. Predictions near known traces but far from new-fault truth are
+  penalized. These are reasons to test plausible detectors locally, not permission to
+  treat catalogue hide-and-recover results as a reconstruction of the undisclosed
+  test distribution.</p>
+  <p>Keep the scientific rationale and the scoring evidence separate. The current
+  R8 union has higher proxy recall but lower weighted precision and DTI than the topo
+  baseline in confirmation folds; its download is not recommended for an upload.</p>
 </section>"""
-    return page("executive_summary.html", "How to submit", body)
+    return page("executive_summary.html", "Submission workflow", body)
 
 
 # ---------------------------------------------------------------------------
 def build_evidence() -> str:
     audit = load("metric_audit.json", {})
     fx = load("scored_forensics.json", {})
-    hold = (load("holdout_v3.json") or load("holdout_results.json"))
-    verdict3 = (load("holdout_verdict_v3.json")
-                or load("holdout_verdict.json", {}))
+    hold = load("holdout_candidate_r8_2026-09-30.json", {}) or {}
     band = load("band_audit.json")
 
     crows = "".join(
@@ -413,92 +344,86 @@ def build_evidence() -> str:
         for k, v in audit.get("checks", {}).items())
 
     mrows = ""
-    for n, v in sorted(fx.get("maps", {}).items(),
-                       key=lambda kv: -kv[1]["public_LB_DW_Tversky"]):
+    for n, v in sorted(fx.get("maps", {}).items()):
         b = v["mass_by_distance_to_known_catalogue"]
         echo = b["on_known"] + b["within_300m"]
         mrows += (f"<tr><td class='mono'>{e(n.replace('.tif',''))}</td>"
-                  f"<td class='num'>{v['public_LB_DW_Tversky']:.4f}</td>"
+                  f"<td class='num'>{v['reported_score_label_not_receipt']:.4f}</td>"
                   f"<td class='num'>{v['n_pixels_gt0']:,}</td>"
                   f"<td class='num'>{v['coverage_pct_of_valid']:.2f}%</td>"
                   f"<td class='num'>{v['n_distinct_values']:,}</td>"
-                  f"<td class='num'>{echo*100:.1f}%</td></tr>")
+                  f"<td class='num'>{echo*100:.1f}%</td>"
+                  f"<td class='num'>{v['n_positive_pixels_outside_known_mask']:,}</td>"
+                  f"<td class='num'>{v['unmasked_mass_pct_of_valid']:.2f}%</td></tr>")
 
     prows = "".join(
         f"<tr><td class='mono'>{e(p['a'].replace('.tif',''))}</td>"
         f"<td class='mono'>{e(p['b'].replace('.tif',''))}</td>"
-        f"<td class='num'>{p['LB_a']:.4f}</td><td class='num'>{p['LB_b']:.4f}</td>"
-        f"<td class='num'>{p['IoU_of_support']:.4f}</td></tr>"
+        f"<td class='num'>{p['reported_score_label_a_not_receipt']:.4f}</td>"
+        f"<td class='num'>{p['reported_score_label_b_not_receipt']:.4f}</td>"
+                  f"<td>{'yes' if p['exact_file_bytes'] else 'no'}</td>"
+        f"<td>{'yes' if p['exact_canonical_pixel_values'] else 'no'}</td>"
+        f"<td>{'yes' if p['exact_unmasked_evaluation_support'] else 'no'}</td>"
+        f"<td class='num'>{p['IoU_of_support']:.4f}</td>"
+        f"<td class='num'>{p['unmasked_evaluation_support_IoU']:.4f}</td></tr>"
         for p in sorted(fx.get("pairwise", []),
-                        key=lambda z: (not z["same_LB"], -z["IoU_of_support"]))[:8])
+                        key=lambda z: (not z["same_reported_score_label"], -z["IoU_of_support"]))[:8])
 
-    hold_block = "<p class='small'>Holdout not yet run.</p>"
+    hold_block = "<p class='small'>No current holdout report was found.</p>"
     if hold:
-        res = hold["results"]
-        n_valid = hold["grid"]["valid_px"]
-        leaked = {"prior_submission"}
-        # One row per (family, configuration). lift is against the closed-form
-        # chance DTI AT THAT ROW'S OWN predicted-pixel count, so a configuration
-        # that predicts more pixels is not flattered by it.
-        per = defaultdict(lambda: {"dti": defaultdict(list),
-                                   "lift": defaultdict(list),
-                                   "px": []})
-        for r in res:
-            key = r["family"].replace("STAGE2:", "")
-            tag = r["tag"]
-            g = r.get("n_hidden") or 0
-            c = dti_chance(r["n_pred_px"], g, n_valid) if g else 0.0
-            if c <= 0:
-                continue
-            a = per[(key, tag)]
-            a["dti"][r["rule"]].append(r["dti"])
-            a["lift"][r["rule"]].append(r["dti"] / c)
-            a["px"].append(r["n_pred_px"])
-        # best configuration per family = the one with the best WORST-RULE lift,
-        # which is the same rule reports/holdout_verdict_v3.json applies
-        best_of_family = {}
-        for (fam, tag), a in per.items():
-            rl = {k: float(np.mean(v)) for k, v in a["lift"].items()}
-            w = min(rl.values())
-            cur = best_of_family.get(fam)
-            if cur is None or w > cur[0]:
-                best_of_family[fam] = (w, tag, a, rl)
-        rows = sorted(((v[0], k, v[1], v[2], v[3]) for k, v in
-                       best_of_family.items()), reverse=True)
-        allrules = sorted({r for _, _, _, a, _ in rows for r in a["dti"]})
-        head = "".join(f"<th class='num'>{e(r)}</th>" for r in allrules)
+        summary = hold.get("confirmation_summary", {})
+        display = [
+            ("BASE_topo_ridge · 5% · spacing 3", "topo_05_sp3"),
+            ("BASE_topo_ridge · 3% · spacing 3", "topo_03_sp3"),
+            ("R8 union · spacing 3", "r8_current_union_sp3"),
+            ("R8 without catalogue geometry · spacing 3", "r8_no_catalogue_geometry_sp3"),
+        ]
+        rules = ["random", "short", "isolated", "oriented", "dense", "segment_random"]
+        headers = "".join(f"<th class='num'>{e(rule)}</th>" for rule in rules)
         trs = ""
-        for w, fam, tag, a, rl in rows:
-            cells = ""
-            for r in allrules:
-                if r not in a["dti"]:
-                    cells += "<td class='num'>–</td>"
-                else:
-                    cells += (f"<td class='num'>{a['dti'][r][0]:.4f}"
-                              f"<br><span class='small'>{rl[r]:.2f}×</span></td>")
-            badge = ("<span class='tag t-bad'>leaked</span> "
-                     if fam in leaked else "")
-            trs += (f"<tr><td class='mono'>{badge}{e(fam)}<br>"
-                    f"<span class='small'>{e(tag)}</span></td>"
-                    f"<td class='num'><b>{w:.2f}×</b><br>"
-                    f"<span class='small'>{int(np.median(a['px'])):,} px</span>"
-                    f"</td>{cells}</tr>")
-        fold_info = ", ".join(
-            f"{f['name']} ({f['n_hidden']:,} px)" for f in hold["folds"][:6])
+        for label, key in display:
+            d = summary.get(key)
+            if not d:
+                continue
+            vals = d.get("dti_mean_by_rule", {})
+            rule_cells = "".join(
+                f"<td class='num'>{vals[rule]:.4f}</td>" if rule in vals
+                else "<td class='num'>–</td>"
+                for rule in rules
+            )
+            support = d.get("predicted_eval_px_mean")
+            support_text = f"{support:,.0f}" if isinstance(support, (int, float)) else "n/a"
+            trs += (f"<tr><td>{e(label)}</td>"
+                    f"<td class='num'>{d.get('dti_worst_rule_mean', 0):.4f}</td>"
+                    f"<td class='num'>{d.get('dti_mean', 0):.4f}</td>"
+                    f"<td class='num'>{d.get('precision_w_mean', 0):.4f}</td>"
+                    f"<td class='num'>{d.get('recall_w_mean', 0):.4f}</td>"
+                    f"<td class='num'>{support_text}</td>{rule_cells}</tr>")
+        protocol = hold.get("protocol", {})
+        system = protocol.get("system_folds", {})
+        segment = protocol.get("segment_folds", {})
+        fold_count = (len(system.get("rules", [])) * system.get("n_folds_per_rule", 0)
+                      + segment.get("n_folds", 0))
         hold_block = f"""
-  <p class="small">{len(hold['folds'])} folds, {hold['grid']['known_fault_px']:,}
-  catalogue pixels, 25% of fault mass withheld per fold with a 5-px buffer.
-  Folds include: {e(fold_info)}… Each cell is the <b>DTI of that family's best
-  configuration</b> — chosen by worst-rule lift, the same rule
-  <code>reports/holdout_verdict_v3.json</code> applies — with its
-  <b>lift over chance</b> beneath it. Chance is the closed-form DTI at that
-  configuration's own predicted-pixel count, so a configuration that predicts
-  more pixels is not flattered by it. <b>A family below 1.00× is doing worse
-  than a random map of the same size.</b> Rows marked <i>leaked</i> are prior
-  submissions that contain the catalogue itself and are excluded from every
-  conclusion.</p>
-  <div class="scroll"><table><thead><tr><th>detector family<br>best config</th>
-  <th class="num">worst-rule lift</th>{head}</tr></thead><tbody>{trs}</tbody></table></div>"""
+  <p class="small"><b>Protocol:</b> {fold_count} folds total —
+  {system.get('n_folds_per_rule', 0)} folds for each of
+  {e(', '.join(system.get('rules', [])))} system-withholding rules, plus
+  {segment.get('n_folds', 0)} raw 8-connected segment folds. Approximately
+  {system.get('hide_fraction_target', 0):.0%} of known fault mass withheld per fold;
+  {protocol.get('buffer_px', 0)}-pixel evaluation buffer. Catalogue-derived
+  tip/horsetail features are rebuilt per fold from visible catalogue; the exact
+  visible known-fault mask is applied; DTI is scored on withheld truth only.
+  The low-slope-third slice is reported only as a robustness stress test.</p>
+  <div class="scroll"><table><thead><tr><th>recipe</th>
+  <th class="num">worst-rule mean DTI</th><th class="num">overall mean DTI</th>
+  <th class="num">mean weighted precision</th><th class="num">mean weighted recall</th>
+  <th class="num">mean effective positive support</th>{headers}</tr></thead>
+  <tbody>{trs}</tbody></table></div>
+  <p class="small">These are local known-catalogue recovery scores, not performance
+  estimates for the undisclosed test distribution. Candidate selection and this table
+  use direct DTI; historical candidate-to-chance ratios have been withdrawn. The
+  random-control check is an approximate same-run diagnostic, not a universal baseline
+  or submission-clearance criterion.</p>"""
     if band:
         bm = band.get("band6_best_match_search", {})
         n_cand = bm.get("n_candidates", 0)
@@ -535,40 +460,50 @@ DTI  = 0.6028 → 0.60  ✓</code></pre>
 </section>
 
 <section>
-  <h2>2 · Why 0.1563 kept coming back</h2>
-  <div class="callout bad">
-    <p><b>It is a measurement artefact, not a modelling ceiling.</b> The leaderboard
-    column is literally “Best public DW-Tversky”. Three separate accounts
-    (#26&nbsp;extradr19, #27&nbsp;SDCF9, #28&nbsp;smashi34) all sit at exactly 0.1563 —
-    matching the three 0.1563 figures reported for GEMSDOE1, 5GEMSDOE and 8GEMSDOE.</p>
+  <h2>2 · Score attribution and structural identity</h2>
+  <div class="callout warn">
+    <p><b>No per-submission score has been verified against these local TIFFs.</b>
+    The official leaderboard column is account-level “Best public DW-Tversky”.
+    Historical filename/team-note values below are reported labels only, not score
+    receipts. The public chance/lift inference based on them is withdrawn.</p>
   </div>
-  <h3>The two maps reported as 0.1563 are not the same map</h3>
+  <p class="small">Exact byte identity, canonical pixel-value identity, and positive-
+  support identity are measured separately. Equal rounded labels establish none of
+  them; different maps can also receive the same score rounded to four decimals.</p>
   <div class="scroll"><table><thead><tr><th>map A</th><th>map B</th>
-  <th class="num">LB A</th><th class="num">LB B</th><th class="num">IoU of support</th>
-  </tr></thead><tbody>{prows}</tbody></table></div>
-  <p class="small">Two maps sharing 6.7% of their support, anti-correlated
-  (r&nbsp;=&nbsp;−0.55), cannot score identically to four decimals. Two maps sharing
-  94% of their support scoring 0.1563 and 0.1560 obviously can — that pair
-  <i>is</i> duplicated work.</p>
+  <th class="num">reported label A<br>(not receipt)</th>
+  <th class="num">reported label B<br>(not receipt)</th>
+  <th>identical TIFF bytes</th><th>identical canonical pixels</th>
+  <th>identical unmasked support</th><th class="num">all-support IoU</th>
+  <th class="num">unmasked-support IoU</th></tr></thead><tbody>{prows}</tbody></table></div>
+  <p class="small">Canonical pixels are decoded float32 values after non-finite and
+  outside-valid cells are set to zero. Full SHA-256 values and exact support comparisons
+  are in <code>reports/scored_forensics.json</code> and the ledger.</p>
 
-  <h3>Catalogue echo versus score</h3>
-  <div class="scroll"><table><thead><tr><th>submission</th><th class="num">public LB</th>
-  <th class="num">pixels</th><th class="num">coverage</th><th class="num">distinct values</th>
-  <th class="num">mass within 300 m of a known fault</th></tr></thead>
+  <h3>Catalogue-distance diagnostics (not score attribution)</h3>
+  <div class="scroll"><table><thead><tr><th>local artifact</th>
+  <th class="num">historical score label<br>(unverified)</th>
+  <th class="num">positive pixels</th><th class="num">coverage</th>
+  <th class="num">distinct values</th>
+  <th class="num">mass on/within 300 m of known faults</th>
+  <th class="num">positive pixels outside known mask</th>
+  <th class="num">unmasked prediction mass</th></tr></thead>
   <tbody>{mrows}</tbody></table></div>
-  <p class="small">The most catalogue-hugging map (<code>gems6_hgb88</code>, 69.5%)
-  scored worst at 0.0286 — consistent with the organizers' statement that a pixel near a
-  known trace but far from a <i>new</i>-fault pixel is “fully penalized”.
-  <code>gems8_apex</code> is 90.8% catalogue-hugging yet was recorded at 0.1563, which is
-  not credible; it is the account best being read back.</p>
+  <p class="small">The “unmasked” columns are positive support/mass in valid pixels
+  outside the exact known-fault mask, useful for map-identity comparisons. They are not
+  true-positive or chargeable support because the new-fault truth is hidden. Proximity
+  to the known catalogue likewise does not reveal score: new-fault pixels can lie within
+  300 m of known traces, while other nearby predictions are penalized when not close to
+  new-fault truth.</p>
 </section>
 
 <section>
-  <h2>3 · Hide-and-recover holdout</h2>
-  <p class="lede">Withhold whole fault systems with a buffer, rebuild every
-  catalogue-derived feature from what remains, mask the remainder pixel-exactly as the
-  organizers do, and score DTI on the withheld pixels alone — under five different
-  withholding rules.</p>
+  <h2>3 · Local hide-and-recover comparison</h2>
+  <p class="lede">Withhold catalogue systems and raw raster segments with buffers,
+  rebuild catalogue-derived features from visible geometry, apply the organizer's
+  pixel-exact known-fault mask, and score DTI on withheld truth only. This tests
+  recovery of known catalogue geometry; it does not recreate the undisclosed test
+  distribution or estimate private-test performance.</p>
   {hold_block}
 </section>
 
@@ -605,11 +540,12 @@ DTI  = 0.6028 → 0.60  ✓</code></pre>
       <p class="small">Our mirrored template is value-identical to
       <code>existing_faults.tif</code> (60,988 ones), but the official page says the
       sample “predicts total fault absence”. Needs a logged-in re-download to settle.</p></div>
-    <div class="panel"><h3 style="margin-top:0"><span class="tag t-bad">🔴 I-4</span>
-      Multiple leaderboard accounts</h3>
-      <p class="small">Reported scores match the “best public” values of at least five
-      distinct accounts. The rules require a single entry, cap submissions at three per
-      week, and require eligibility certification under penalty of perjury.</p></div>
+    <div class="panel"><h3 style="margin-top:0"><span class="tag t-warn">🟠 I-4</span>
+      Account ownership is unverified</h3>
+      <p class="small">Score/rank matches do not establish who controls leaderboard
+      accounts. The repository makes no allegation of shared ownership or an
+      eligibility violation; see the official rules and resolve only from verified
+      account records.</p></div>
     <div class="panel"><h3 style="margin-top:0"><span class="tag t-warn">🟠 I-2</span>
       Band 6 <code>tc</code> is <b>UNIDENTIFIED</b></h3>
       <p class="small">Its embedded description says “Tilt angle <i>or</i> total
@@ -623,9 +559,10 @@ DTI  = 0.6028 → 0.60  ✓</code></pre>
       the data-tab documentation is required to settle it.
       Measured by <code>scripts/audit_bands.py</code>.</p></div>
     <div class="panel"><h3 style="margin-top:0"><span class="tag t-warn">🟡 I-6</span>
-      The target moved</h3>
-      <p class="small">The brief says 0.3049 is top. As fetched today it is
-      <b>0.3168</b> (DARD).</p></div>
+      Dated leaderboard snapshot</h3>
+      <p class="small">Fetched 2026-09-30: <b>0.3168</b> (DARD) and
+      <b>0.3042</b> (alexoktaba). Both are account-level “Best public” values,
+      not per-submission receipts.</p></div>
   </div>
   <p class="small">Full list with evidence and actions:
   <a href="https://github.com/buffedlizard55-lab/13GEMSDOE/blob/main/knowledge/02_irregularities.md">knowledge/02_irregularities.md</a>.</p>
@@ -641,20 +578,80 @@ def build_hypotheses() -> str:
         note = ('<p class="small">Full write-up with references: '
                 '<a href="https://github.com/buffedlizard55-lab/13GEMSDOE/blob/main/'
                 'knowledge/03_hypotheses.md">knowledge/03_hypotheses.md</a>.</p>')
-    perf = {}
-    for src in ("holdout_v3.json", "holdout_r8_quick.json", "holdout_supervised.json",
+    fresh_screen_html = """
+<section>
+  <h2>Fresh external-data candidates — rank for research, not submission</h2>
+  <p class="lede">The rank is a qualitative geological prior, not a numerical DTI
+  forecast. The specific external layers have not been staged and the candidates
+  have not passed the prescribed holdout. None is approved as viable or ready to submit.</p>
+  <div class="scroll"><table><thead><tr><th>rank / hypothesis</th>
+  <th>layers and physical signature</th><th>why it could find uncatalogued faults / difference from prior detectors</th>
+  <th>expected impact / cost</th><th>required official data and availability</th></tr></thead><tbody>
+  <tr><td><b>1 · Event-level focal-plane coherence</b></td>
+      <td>USGS ComCat hypocentres + moment-tensor nodal planes; coherent strike/dip geometry projected toward a shallow trace.</td>
+      <td>Could expose active buried structures or splays without a mapped scarp. Uses event-by-event focal mechanisms, not the supplied smoothed seismicity bands or the prior seismicity gate.</td>
+      <td>Medium possible, high variance; no score forecast.<br>Cost: medium-high</td>
+      <td>USGS ComCat/FDSN API. 17,178 M≥2 and 478 M≥3 moment-tensor bbox counts checked; counts are not valid-footprint coverage and local event payload is not staged.</td></tr>
+  <tr><td><b>2 · Repeat Landsat thermal/moisture corridors</b></td>
+      <td>Landsat Collection 2 Level-2 surface temperature/reflectance + QA; recurring date- and terrain-adjusted residual lineaments.</td>
+      <td>Could flag fault-controlled seepage or upflow under alluvium. Differs from static radiometry by requiring repeated satellite observations and temporal residualization; confounds include irrigation, land cover, weather, and shadow.</td>
+      <td>Low-to-medium, high false-positive risk.<br>Cost: high</td>
+      <td>USGS Landsat C2 Level-2 STAC. 875 January 2020 bbox metadata hits; one inspected item reported 61% cloud. Exact usable footprint and time series are unverified.</td></tr>
+  <tr><td><b>3 · Groundwater-head compartments</b></td>
+      <td>USGS groundwater-level measurements + well, aquifer, datum, and time metadata; persistent head offsets or different response across a candidate corridor.</td>
+      <td>Could indicate a buried hydraulic barrier or conduit without surface relief. Differs from static chemistry/temperature and DEM-derived flow by testing temporal well-head response; aquifer boundaries and pumping are confounders.</td>
+      <td>Low-to-medium, likely sparse.<br>Cost: high</td>
+      <td>USGS Water Data API field measurements. One 1976 groundwater record found in bbox; station density and comparable time coverage are unknown.</td></tr>
+  <tr><td><b>4 · Cross-depth MT edge persistence</b></td>
+      <td>Five ScienceBase depth-integrated conductance intervals; test whether a lateral edge recurs at the same location across adjacent depth products.</td>
+      <td>Could highlight a buried, vertically persistent boundary beneath weak surface expression. Differs from the prior surface-conductivity/basement rasters by using cross-depth persistence; conductors are not uniquely faults.</td>
+      <td>Low, high scale risk.<br>Cost: medium-high</td>
+      <td>USGS ScienceBase conductance products (DOI 10.5066/P9TWT2LU). Metadata lists five intervals; grids, native resolution, and valid-footprint coverage are not verified.</td></tr>
+  </tbody></table></div>
+  <p><a href="../knowledge/05_hypothesis_screen_2026-09-30.md">Full hypotheses, prior-art comparisons, official links, data checks, and validation gate</a>.</p>
+</section>"""
+    # Prefer the corrected DTI-first summary. Older per-detector screens retain
+    # direct DTI only; no candidate-to-chance values are used on this page.
+    perf: dict[str, tuple[float, float, str]] = {}
+    verdict = load("holdout_verdict_v3.json", {}) or {}
+    for row in verdict.get("table", []):
+        family = row.get("family")
+        if not family or row.get("family") in ("prior_submission", "control"):
+            continue
+        if row.get("stage") == "confirmation":
+            perf[family] = (float(row["worst_rule_mean_dti"]),
+                            float(row["mean_dti"]), "confirmed local DTI")
+        elif family not in perf:
+            perf[family] = (float(row["worst_rule_mean_dti"]),
+                            float(row["mean_dti"]), "screening-only DTI")
+
+    for src in ("holdout_r8_quick.json", "holdout_supervised.json",
                 "holdout_results.json"):
         hold = load(src)
         if not hold:
             continue
-        agg = defaultdict(lambda: defaultdict(list))
-        for r in hold["results"]:
-            agg[r["family"].replace("STAGE2:", "")][r["rule"]].append(r["dti"])
-        for f, rules in agg.items():
-            if f in perf:
+        by_family_tag: dict[tuple[str, str], dict[str, list[float]]] = defaultdict(
+            lambda: defaultdict(list))
+        stages: dict[tuple[str, str], set[str]] = defaultdict(set)
+        for row in hold.get("results", []):
+            family = str(row.get("family", "")).replace("STAGE2:", "")
+            if not family or family in ("control", "control_random", "prior_submission"):
                 continue
-            rm = {k: float(np.mean(v)) for k, v in rules.items()}
-            perf[f] = (min(rm.values()), max(rm.values()))
+            tag = str(row.get("tag", family))
+            by_family_tag[(family, tag)][row.get("rule", "all")].append(
+                float(row["dti"]))
+            stages[(family, tag)].add(str(row.get("stage", "stage1")))
+        candidates_by_family: dict[str, list[tuple[float, float, str]]] = defaultdict(list)
+        for (family, tag), rules in by_family_tag.items():
+            if family in perf:
+                continue
+            means = [float(np.mean(values)) for values in rules.values()]
+            if means:
+                candidates_by_family[family].append((min(means),
+                                                     float(np.mean(means)), tag))
+        for family, choices in candidates_by_family.items():
+            worst, mean, _tag = max(choices, key=lambda x: (x[0], x[1]))
+            perf[family] = (worst, mean, f"historical local DTI · {src}")
 
     H = [
         ("H-A", "Multiscale potential-field “worms”", "HA_worms_rtp / HA_worms_grav",
@@ -838,45 +835,46 @@ def build_hypotheses() -> str:
         ("R8-1a", "Topographic openness / sky-view factor for subtle scarps", "R8_openness",
          "det_elev (12)",
          "For each of 8 azimuths, maximum horizon inclination within 5 px (500 m); openness = 90° − mean(max_slope); edge is Hessian ridge + NMS of |∇ openness|.",
-         "Illumination-invariant horizon geometry. A decimetre intrabasin scarp on flat playa produces openness edge while det_elev_slope ≈0; QFaults misses it. Dominant hidden-fault habitat in Lahontan basins (BRIDGE/3DEP lidar).",
-         "BASE_topo_ridge uses slope curvature; R6_shore uses Laplacian curvature. Openness uses horizon angle, not derivative — orthogonal.",
-         "Medium", "Low"),
+         "Hypothesis: horizon-angle metrics may emphasize some subdued terrain edges that a local slope threshold misses. The supplied elevation grid is 100 m; decimetre relief, Lahontan-wide prevalence, and catalogue omission are not established by this layer alone.",
+         "Different terrain operator from slope/curvature and the prior Laplacian shoreline detector, but it remains a topographic feature and may be redundant.",
+         "Unknown (not estimated)", "Low (compute)"),
         ("R8-1b", "Multi-scale Topographic Position Index (TPI)", "R8_tpi",
          "det_elev (12)",
          "TPI = elev − mean(elev in window) at 3/6/12 px (300 m/600 m/1.2 km); gradient of TPI → ridge → NMS; stack across scales.",
-         "Elevation residual crosses zero at scarp with high gradient; multi-scale captures short+ broad fault topography. Complementary to openness (INGENIOUS/BRIDGE).",
-         "Openness uses horizon; TPI uses elevation residual — different geomorphic operator.",
-         "Medium-Low", "Low"),
+         "A multiscale elevation residual may emphasize some topographic breaks, but slope, depositional edges, drainage, roads, and other landforms can create similar patterns. It cannot by itself establish a missing fault or resolve sub-pixel relief.",
+         "Uses local elevation residuals rather than horizon angles; still overlaps with prior topographic ridge, curvature, and shoreline detectors.",
+         "Unknown marginal DTI", "Low (compute)"),
         ("R8-2", "Fault-controlled drainage deflection (hydrologic lineament)", "R8_flow",
          "det_elev (12) + det_elev_slope (19)",
          "D8 steepest-descent flow direction on det_elev, flow accumulation by descending elevation order, log(1+acc) → |∇ log| → ridge + flat gate (45th pct) → directional coherence.",
-         "Buried fault ponds/truncates low-gradient playa drainages; hydrologic deficit is blind-fault indicator invisible to slope/magnetics. Only flat ground gated, so cannot fire on range fronts already mapped.",
-         "<b>No prior detector uses hydrology</b> — first hydrologic detector in repo. Orthogonal to every potential-field/topographic operator.",
-         "Medium", "Medium"),
+         "A drainage anomaly could be consistent with fault-controlled ponding or diversion under cover, but DEM-derived flow is affected by topography, DEM artefacts, climate, and land use; the signature is not fault-specific.",
+         "Adds a D8/flow-accumulation transform not used by the earlier edge operators, while remaining dependent on the same elevation data and potentially correlated with existing terrain features.",
+         "Unknown marginal DTI", "Medium (feature QC)"),
         ("R8-3", "Isostatic coherence breakdown (buried basin)", "R8_isocoherence",
          "iso_grav_anom (13) + det_elev (12)",
          "Windowed Pearson r between gravity and topography (σ=6 px≈600 m): r = cov/σgσt; breakdown = 1−|r|; modulated by joint gradient; ridge-thin.",
-         "Isostatically compensated terrain correlates gravity and topography at long wavelength; buried fault-bounded basin offsets basement (gravity) without scarp (topo) → decorrelation. Classic hidden-basin detector (INGENIOUS/BRIDGE).",
-         "H-C/R6-3 need gradient magnitude of depth_to_base; R7-1 needs parallel gradients; this needs decorrelation of amplitudes — orthogonal.",
-         "Low-Medium", "Low"),
+         "A gravity–topography mismatch could flag a subsurface or lithologic boundary beneath subdued relief, but non-fault density contrasts, regional compensation, resolution, and processing can also produce decorrelation. No causal interpretation follows from the score alone.",
+         "Tests local amplitude coherence rather than the earlier depth gradient or cross-field gradient alignment; related gravity/topography features can still overlap.",
+         "Unknown marginal DTI", "Low-to-medium (scale/QC)"),
         ("R8-4", "Magnetic remanence divergence", "R8_remanence",
          "rtp (2) + tmi (14) + mag_anom (1)",
          "|robust_norm(rtp)−robust_norm(tmi)| and vs mag_anom; max; gradient → ridge.",
-         "RTP assumes induced magnetization; remanent magnetization across fault juxtaposing Q volcanics mispositions RTP vs TMI/mag_anom. Divergence highlights lithologic contacts often fault-bounded.",
-         "H-A worms and H-B TDR operate on one field; R7-1 needs parallel gradients; remanence needs position mismatch/anti-correlation.",
-         "Low-Medium", "Low"),
+         "A mismatch between RTP, TMI, and magnetic-anomaly transforms may reflect remanent magnetization or processing differences and could highlight lithologic contacts. Such contacts are not necessarily faults; input scaling and reduction assumptions require checks.",
+         "Compares transformed magnetic products rather than applying a single-field edge detector; it may be redundant with existing magnetic-gradient features and is not independent geological confirmation.",
+         "Unknown marginal DTI", "Low-to-medium (normalization/QC)"),
         ("R8-5", "Fault-intersection density (geothermal permeability)", "R8_intersections",
          "secondary on ridge maps e.g. BASE_topo_ridge, HA_worms_rtp, R7_crossgrad",
          "Threshold each ridge at 85th pct → binary line → dilate 1 px → pairwise intersections (AND) → kernel density Gaussian σ=6 px (600 m halo) → robust_norm_nonzero → multiply by ridge skeleton.",
-         "Geothermal vents sit at intersections/step-overs/accommodation zones where fracture density highest (Faulds 2013, BRIDGE). High intersection density = permeability node = vent proxy. Single trace without intersection is poor conduit (clay gouge).",
-         "Every prior detector is a <i>line</i> detector; this is first <i>secondary</i> detector targeting junctions. No prior code computes intersections.",
-         "Medium", "Low"),
+         "A dense intersection of candidate edges could mark a structurally complex zone, but it is only an intersection of detector outputs—not confirmed faults, fracture permeability, or a geothermal upflow measurement. Edge density and correlated false positives are major risks.",
+         "Adds a secondary density transform over existing candidate ridge maps rather than a new physical observation. Its apparent novelty is computational; it does not independently validate the input lineaments.",
+         "Unknown marginal DTI; current R8 union is below the local topo baseline", "Low-to-medium (threshold sensitivity)"),
     ]
     rows = ""
     for hid, title, det, layers, sig, why, diff, gain, cost in H:
         k = det.split(" / ")[0]
         p = perf.get(k)
-        got = (f"<span class='tag t-info'>worst {p[0]:.4f} · best {p[1]:.4f}</span>"
+        got = (f"<span class='tag t-info'>worst-rule DTI {p[0]:.4f} · mean DTI {p[1]:.4f}</span><br>"
+               f"<span class='small'>{e(p[2])}</span>"
                if p else "<span class='tag t-mut'>pending</span>")
         rows += f"""<tr>
           <td><b>{hid}</b><br><span class="small">{title}</span><br>{got}</td>
@@ -884,30 +882,37 @@ def build_hypotheses() -> str:
           <td class="small">{sig}</td>
           <td class="small">{why}</td>
           <td class="small">{diff}</td>
-          <td><span class="tag t-ok">{gain}</span><br>
+          <td><span class="tag t-info">qualitative: {gain}</span><br>
               <span class="tag t-mut">cost {cost}</span></td></tr>"""
 
     body = f"""
 <section>
-  <h2>Candidate hypotheses</h2>
-  <p class="lede">Every one of these targets a <b>systematic blind spot of a
-  scarp-derived catalogue</b> rather than re-detecting the topographic signature the
-  catalogue already encodes. That is the point: the test labels are, by definition,
-  faults the USGS/INGENIOUS compilation does not contain.</p>
+  <h2>Previously explored detector hypotheses</h2>
+  <p class="lede">These entries summarize earlier candidate mechanisms. Geological
+  rationales are hypotheses, not established facts or evidence of hidden-test
+  performance. The qualitative impact/cost labels are research judgments, not numeric
+  DTI forecasts.</p>
+  <p class="small">Any “worst / best” values are historical local constructed-holdout
+  DTI summaries from their respective reports; they are not public/private leaderboard
+  scores, chance ratios, or results from one common protocol. The current R8 ensemble
+  lost to the topo baseline on the separate visible-only confirmation comparison.</p>
   {note}
   <div class="callout">
-    <p><b>Why not more topography?</b> The USGS Quaternary Fault and Fold Database is
-    built predominantly from surface scarp expression. A better topographic ridge
-    detector finds more of what is <i>already mapped</i>. The organizers confirmed
-    “new fault” means “any fault pixel not already captured”, explicitly including
-    extensions, splays and corrections — so the productive search is for faults whose
-    surface expression is weak, absent, or non-topographic.</p>
+    <p><b>Why not assume a terrain edge is a new fault?</b> Topographic lineaments can
+    be catalogue blind spots, but they can also be known faults, erosion, drainage,
+    depositional boundaries, or processing artefacts. The organizers define “new” as
+    fault pixels not already captured, including extensions, splays, parallel strands,
+    and corrections. Only pixel-exact masking and buffered hide-and-recover tests can
+    measure a detector's local recovery of withheld catalogue geometry; they do not
+    establish transfer to the undisclosed test set.</p>
   </div>
   <div class="scroll"><table><thead><tr>
     <th>hypothesis</th><th>layers</th><th>physical signature</th>
     <th>why it finds a <i>missing</i> fault</th><th>how it differs from prior work</th>
     <th>rank</th></tr></thead><tbody>{rows}</tbody></table></div>
 </section>
+
+{fresh_screen_html}
 
 <section>
   <h2>External data that would unlock more — and whether it is obtainable</h2>
@@ -929,10 +934,10 @@ def build_hypotheses() -> str:
       <td>Metre-scale scarp morphology</td><td>USGS public domain ✅</td>
       <td><span class="tag t-bad">needs a DrivenData login</span></td></tr>
   </tbody></table></div>
-  <p class="small"><b>Honest limitation:</b> none of the five hypotheses above requires
-  external data — all five run on the 19 official bands, which is deliberate. The
-  external sources would strengthen the <i>holdout</i> (age/slip-rate strata) and add a
-  genuinely new geothermal channel (paleo-hydrothermal deposits), not the detectors.</p>
+  <p class="small"><b>Scope:</b> the earlier H/R detector register uses the supplied
+  bands where stated above. The fresh ranked shortlist is separate and requires the
+  external sources listed in its availability column; those data checks are incomplete,
+  so none of the four new candidates is called viable.</p>
 </section>"""
     return page("hypotheses.html", "Hypotheses", body)
 
@@ -944,13 +949,17 @@ def build_sources() -> str:
         ("Problem description (metric + submission format)", "https://www.drivendata.org/competitions/306/competition-doe-gems/page/967/", "DrivenData", "✅ fetched"),
         ("About page", "https://www.drivendata.org/competitions/306/competition-doe-gems/page/968/", "DrivenData", "✅ linked"),
         ("Data download tab", "https://www.drivendata.org/competitions/306/competition-doe-gems/data/", "DrivenData", "🔒 login required"),
-        ("Public leaderboard", "https://www.drivendata.org/competitions/306/competition-doe-gems/leaderboard/", "DrivenData", "✅ fetched — top 0.3168"),
+        ("Public leaderboard snapshot", "https://www.drivendata.org/competitions/306/competition-doe-gems/leaderboard/", "DrivenData", "✅ fetched 2026-09-30 — #1 0.3168 / #2 0.3042; account-level Best public"),
         ("Official Rules (PDF)", "https://docs.nlr.gov/docs/fy26osti/96647.pdf", "NLR / DOE", "✅ fetched"),
         ("Rules landing page", "https://www.herox.com/GEMSPrize/resource/2274", "HeroX", "✅ fetched"),
         ("Reference solution", "https://github.com/drivendataorg/gems-prize-reference-solution", "DrivenData", "✅ downloaded"),
         ("Forum — Scoring clarification (11516)", "https://community.drivendata.org/t/scoring-clarification-are-known-usgs-ingenious-faults-masked-when-scoring-and-are-they-in-the-final-round-label-set/11516", "DrivenData forum", "✅ all 4 posts read"),
         ("Forum — Where do you draw the line? (11536)", "https://community.drivendata.org/t/where-do-you-draw-the-line/11536", "DrivenData forum", "✅ both posts read"),
         ("Forum — How were the new test faults identified? (11527)", "https://community.drivendata.org/t/how-were-the-new-test-faults-identified-data-sources-and-fault-types/11527/7", "DrivenData forum", "✅ organizer reply read"),
+        ("USGS ComCat event catalog / FDSN API", "https://earthquake.usgs.gov/fdsnws/event/1/", "USGS", "✅ bbox counts checked; local bulk download not staged"),
+        ("USGS Landsat Collection 2 Level-2 STAC", "https://landsatlook.usgs.gov/stac-server/collections/landsat-c2l2-sr", "USGS", "✅ metadata query checked; exact cloud-free footprint/time-series coverage unverified"),
+        ("USGS Water Data API — field measurements", "https://api.waterdata.usgs.gov/ogcapi/v0/collections/field-measurements", "USGS", "✅ one groundwater-level record found in bbox; network adequacy unverified"),
+        ("USGS Great Basin conductance maps", "https://www.sciencebase.gov/catalog/item/62979746d34ec53d276c113b", "USGS ScienceBase", "✅ metadata lists five depth intervals; binary grids not verified locally"),
         ("GeoDAWN airborne magnetic & radiometric surveys", "https://www.usgs.gov/data/geodawn-airborne-magnetic-and-radiometric-surveys-northwestern-great-basin-nevada-and", "USGS", "✅ linked"),
         ("GeoDAWN DOI (Glen & Earney 2024)", "https://doi.org/10.5066/P93LGLVQ", "USGS", "✅ cited in Official Rules §2"),
         ("GeoDAWN ScienceBase item", "https://www.sciencebase.gov/catalog/item/657e1d85d34e23d3533209f7", "USGS", "✅ linked"),

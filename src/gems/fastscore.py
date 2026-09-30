@@ -119,11 +119,13 @@ class FoldScorer:
 def verify_against_reference(seed: int = 7, trials: int = 8,
                              dti_tol: float = 1e-6,
                              rel_tol: float = 1e-4) -> dict:
-    """Assert FoldScorer == gems.metric.dti on random rasters.
+    """Compare FoldScorer with ``gems.metric.dti`` after clipping predictions.
 
-    FoldScorer accumulates in float32 (the reference uses float64), so TP_w and
-    FP_w are compared on a RELATIVE basis; DTI itself is compared absolutely
-    because that is the number that gets used.
+    This verifies numerical implementation parity for the same local mask
+    semantics; it does not resolve whether the private evaluator allows masked
+    predictions to supply nearby TP credit. FoldScorer accumulates in float32
+    (the reference uses float64), so TP_w and FP_w use relative tolerances and
+    DTI uses an absolute tolerance.
     """
     from .metric import dti as ref_dti
     rng = np.random.default_rng(seed)

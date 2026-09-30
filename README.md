@@ -16,11 +16,12 @@
 | Question | Answer | Where |
 |---|---|---|
 | What is the metric, really? | A **distance-weighted F2 score**. `DTI = 1/(0.2/P + 0.8/R)`. Proved, not asserted. | [`reports/metric_audit.json`](reports/metric_audit.json) |
-| Why were we stuck at 0.1563? | Mostly a **measurement artefact** — the leaderboard shows *best-ever* per account, and three accounts all read 0.1563. Two maps reported as 0.1563 share only 6.7 % of their support. | [Irregularity I‑3](knowledge/02_irregularities.md) |
-| Why is *every* submission ≈ chance? | The chance DTI curve peaks at **0.145 near 5 % coverage**; our plateau of 0.1563 sits on it. The detector contributed ~10 %. | [Irregularity I‑9](knowledge/02_irregularities.md) |
-| What should a submission look like? | **Binary, inclusive, and strike-decimated.** Any block of predictions with weighted precision above `0.2 × DTI` (≈ **3 %** today) raises the score. | [`knowledge/01_verified_facts.md` §2.1](knowledge/01_verified_facts.md) |
-| How do we know an idea works before we spend a submission slot? | The **hide-and-recover holdout**: withhold whole fault systems, rebuild features from what remains, mask the rest pixel-exactly, score DTI on the withheld pixels alone under 5 withholding rules — *and* on the concealed subset. | [`src/gems/holdout.py`](src/gems/holdout.py) |
-| How do I actually submit? | Open the site → the download button is the first thing on the page. | [Executive summary](docs/executive_summary.html) |
+| Why do historical files carry the same 0.1563 label? | **Unresolved.** The official leaderboard shows account-level best-public scores, not per-submission receipts; no local TIFF is currently linked to a verified public score. Rounded score equality is not map identity. | [Irregularity I‑3](knowledge/02_irregularities.md) |
+| Can public scores be compared with the local chance baseline? | **No.** Public inference from account-best scores is withdrawn. `dti_chance()` is retained only for an approximate same-run random-control sanity check with known local truth and the eligible fold domain. | [Irregularity I‑9](knowledge/02_irregularities.md) |
+| What should a submission look like? | Use the exact marginal rule `ΔTP_w/(ΔTP_w+ΔFP_w) > 0.2 × DTI` for the same evaluation set; select cutoff, coverage, spacing, and fusion on the holdout rather than from unverified public labels. | [`knowledge/01_verified_facts.md` §2.1](knowledge/01_verified_facts.md) |
+| How do we check an idea before a submission slot? | Use whole-system and segment hide-and-recover folds with buffers, visible-catalogue-only feature construction, an exact known-fault mask, withheld-truth-only DTI, and multiple rules. The low-slope slice is a stress test—not hidden-test ground truth. | [`src/gems/holdout.py`](src/gems/holdout.py) |
+| Is the current downloadable artifact cleared to submit? | **No.** The archived R8 recipe underperformed the local baseline in the visible-only confirmation folds; its download is retained for review, not recommended for an upload. | [`reports/holdout_candidate_r8_2026-09-30.json`](reports/holdout_candidate_r8_2026-09-30.json) |
+| How do I actually submit? | Follow the front-page gate and format checklist; use no slot until the candidate beats the local holdout best under multiple rules. | [Executive summary](docs/executive_summary.html) |
 
 ---
 
@@ -33,21 +34,22 @@ FN_w 2.00 → 0.60).
 1. **`FN_w ≡ |G| − TP_w`**, so `DTI = TP_w / (0.2·TP_w + 0.2·FP_w + 0.8·|G|)`
    and equivalently `DTI = 1/(0.2/P_w + 0.8/R_w)`. Since `β² = 4`, **DTI is a
    distance-weighted F2 score.**
-2. **Inclusion rule.** A block of predictions raises the score **iff** its
-   marginal weighted precision exceeds `0.2 × DTI`. At our 0.1563 that is
-   **3.1 %**; at the leaderboard leader's 0.3168 it is **6.3 %**. A 0.5
-   probability cutoff throws away enormous amounts of score.
+2. **Inclusion rule.** A block of predictions raises DTI **iff** its
+   marginal weighted precision exceeds `0.2 × DTI` for the same evaluation set.
+   The historical 0.1563 file labels are not verified per-file scores. At the
+   official account-level leader value 0.3168, the arithmetic is 6.3%—an
+   illustration only, not a threshold for any local or private-test map.
 3. **Binary is optimal.** `DTI(c·p) = TP/(0.2TP + 0.2FP + 0.8|G|/c)` strictly
    increases in `c`, and a pixel exactly on truth has `k(0)=1` so it costs zero
    FP mass. Graded values are only useful for *ranking* pixels.
 4. **Recall dominates** whenever `P_w > 0.25 · R_w`. Elasticities always sum
    to 1, so this is a hard crossover, not a heuristic.
 
-**Geometry corollary.** `TP_w` takes a **max** over the 300 m neighbourhood, so
-a second predicted pixel within 3 px of the first earns *no* extra credit while
-paying full FP mass. Thick ridges and 100 m-spaced lines are waste; the
-efficient primitive is a **1-px line decimated to ~300 m spacing**. This is
-swept, not assumed — see `--spacing` in the holdout results.
+**Geometry corollary.** `TP_w` takes a **max** over nearby predictions for each
+truth pixel. Once that pixel's credit is saturated, a redundant neighbour may add
+FP mass without more credit for that truth; another truth pixel nearby may still
+benefit. Tune cutoff, line spacing, ridge width, and fusion on the multiple-rule
+holdout; do not assume a universal 300 m decimation.
 
 ---
 
@@ -69,35 +71,80 @@ scripts/
   fetch_data.py           reconstruct data/raw from official + mirrored sources
   audit_metric.py         proves the four results above
   audit_bands.py          measures what the 19 bands actually are; tests I-2
-  analyze_scored.py       forensics on our previously-scored submissions
-  chance_baseline.py      the random-map control every DTI must be read against
+  analyze_scored.py       file/pixel identity and support for historical TIFFs; score labels unverified
+  chance_baseline.py      local random-map DTI only when holdout truth size is known
   build_detectors.py      compute and cache every detector map
   run_holdout.py          the v1 sweep
   run_holdout2.py         the v2 sweep (concealed subset, grid decimation)
   run_holdout3.py         the v3 sweep: R7 detectors + per-fold catalogue rebuild
-  summarize_holdout.py    lift-over-chance verdict
+  summarize_holdout.py    direct-DTI ranking; local random-control sanity check only
   validate_composite.py   two-regime validation of the shipped hedge
-  make_submission.py      build + validate + package a submission
+  make_submission.py      build + identity-check + format-validate; never grants score clearance
 reports/                  machine-readable evidence for every claim
-docs/                     the GitHub Pages site (no build step)
+docs/                     generated GitHub Pages site (`scripts/build_site.py`)
 ```
 
 ---
 
-## Latest review (2026-09-30, session 3)
+## Local proxy evaluation and review status (2026-09-30)
 
-`data/` **is** present in this session (recovered from this group's own public
-repositories via `scripts/fetch_data.py`, blob SHAs pinned in
-`reports/data_manifest.json`), so the full pipeline ran end to end:
+All results below are local catalogue hide-and-recover measurements, **not**
+public/private leaderboard performance. Use `.venv/bin/python`; system Python
+in this workspace lacks the scientific dependencies.
 
-* `scripts/audit_metric.py` → **ALL CHECKS PASSED** (12/12) — DTI is a distance-weighted F2, marginal precision threshold `0.2×DTI`, binary optimal, recall dominates when `P>0.25R`, all proved and reproduced against the worked example (TP 3.00/FP 1.89/FN 2.00→0.60).
-* `scripts/audit_bands.py` → band 6 `tc` is **UNIDENTIFIED** by measurement: bounded in [2.95°,88.57°] with p99 29.1°, smoother than gradient bands, |r|<0.04 vs 8 magnetic edge angles and |ρ|<0.35 vs 51 transforms of other bands. Bands 10/16 are density-like (higher inside catalogue), so `HD_strain` is not inverted.
-* `scripts/build_detectors.py` → **28 detector maps**, 496 s, now including **R8 geothermal-vent suite**: openness (R8-1a), TPI (R8-1b), flow accumulation anomaly (R8-2, first hydrology detector), isostatic coherence breakdown (R8-3), remanence divergence (R8-4), intersection density (R8-5, permeability halo). See [`knowledge/04_geothermal_vents.md`](knowledge/04_geothermal_vents.md) for verified geothermal literature.
-* `scripts/run_holdout3.py` → R7 hypotheses, catalogue-dependent detectors rebuilt per fold (fixing I-12 leak). No R7 beats `BASE_topo_ridge` (1.055 worst-rule lift).
-* **New:** `scripts/make_submission.py --recipe r8` + honest 5-fold holdout (`reports/holdout_r8_quick.json`, `reports/r8_validation.json`) → **R8 openness ties topo** (worst 1.054 vs 1.055 at cov 0.05/sp3); **R8_flow is the *only* detector beating chance on the concealed flat subset** (1.34× worst, 1.49× mean at cov 0.05) — the hidden-vent analogue where catalogue faults are 1.7× under-represented. No new detector beats topo by a wide margin on isolated-system worst-rule, but the **R8 ensemble hedges both regimes** and is more inclusive and geologically defensible for Phase-2.
-* `scripts/make_submission.py --recipe r8` → validated GeoTIFF (`13gems-r8-ensemble-20260930T014614Z`, 452,679 px = 8.76% coverage, binary 0/1, decimated 1-per-3px, tip-rays 2 km + horsetail + openness 2% + TPI 1% + flow 2% + isocoherence 0.5% + remanence 0.5% + intersections 1% + topo 3%), all-finite twin, zip, and the exact Note to paste into the DrivenData form. **IoU vs prior best (composite_plus 380k px) is 0.45 — distinct, not duplicated.** All downloads pass `validate_submission` with values in [0,1] (all-finite variant fixes the “Predicted values must be in range [0,1]” rejection).
+* `scripts/audit_metric.py` → **12/12 checks pass**, including a numerical
+  reconstruction of the official worked example. This verifies the DTI algebra,
+  not hidden-test performance.
+* `scripts/build_detectors.py` → 29 input-derived detector maps built in about
+  502 seconds. Generated `data/derived/` is local/ignored.
+* `scripts/chance_baseline.py` → public chance/lift inference remains
+  **withdrawn** because it inferred hidden truth size from account-level scores
+  and reused that estimate. The helper is retained only for a limited local
+  random-control sanity check with known truth and each fold's eligible area; it
+  is not a candidate-ranking or submission-clearance metric.
+* `scripts/summarize_holdout.py` → candidate tables rank by direct worst-rule
+  mean DTI, using confirmation rows when available. Historical candidate-to-chance
+  ratios with a full-grid denominator are withdrawn; the low-slope slice is a
+  robustness test, not a hidden-test analogue. See
+  [`knowledge/03_hypotheses.md`](knowledge/03_hypotheses.md) and I-9/I-11.
+* `scripts/analyze_scored.py` → eight historical TIFFs have exact file, canonical
+  pixel, support, and unmasked-support hashes in
+  `reports/scored_forensics.json`. The two files with historical 0.1563 labels
+  have different file/pixel hashes (support IoU 0.06703; unmasked-support IoU
+  0.06232). These labels are not receipts; no score is attributed to a local
+  file. High overlap also does not mean exact duplicate (for example, the
+  ens12/dualunion support IoU is 0.94191, but their file and pixel hashes differ).
+* `scripts/validate_ensemble_holdout.py` → tested a visible-only reconstruction
+  of the archived R8 recipe against `BASE_topo_ridge|cov0.05|sp3`. The report
+  uses 15 whole-system folds across five withholding rules plus three raw
+  8-connected segment folds, about 25% withheld fault mass, and a 5-pixel
+  buffer. Catalogue-derived rays/horsetail features are rebuilt from each fold's
+  visible catalogue; the visible-fault mask is pixel-exact, predictions are
+  scored on withheld truth only, and a separate lowest-slope-third slice is
+  treated as a stress test. See
+  [`reports/holdout_candidate_r8_2026-09-30.json`](reports/holdout_candidate_r8_2026-09-30.json).
 
-**Honest status.** The honest ceiling for **isolated, unmapped systems** remains ≈5% over chance (1.055×) for every analytic detector including R8. Tip extensions/corrections (13.9–16.1× chance, 37% precision) and the concealed-flat hydrology signal (R8_flow 1.34×) are the only regimes with real lift. The shipped R8 ensemble therefore **hedges**: high-precision tip rays/horsetails for organizer-named extensions/splays/corrections + flat-ground hidden-vent proxies (openness/flow/intersections) + topo safety net, all decimated, binary, and more inclusive (8.76% vs 7.36%) as theory demands (threshold 3–6%). Leaderboard #1 is **0.3168** (DARD) as of this session; the brief's 0.3049 is outdated. See [`reports/r8_validation.json`](reports/r8_validation.json) and the [Hypotheses page](docs/hypotheses.html).
+On the held-back confirmation folds, the local topo baseline scored worst-rule
+mean DTI **0.08687** / overall mean **0.09763**, with mean weighted precision
+0.0276 and recall 0.2874. The per-fold R8 union scored **0.05584** / **0.06615**,
+with precision 0.0161 and recall 0.3292. Its effective positive support was
+about 7.16% of the fold evaluation domain versus 3.62% for the topo baseline.
+None of the tested coverage, spacing, width, and fusion variants beat that
+baseline on the confirmation summary. These numbers concern catalogue recovery
+under this protocol only; they do not predict the undisclosed target. The archived
+full-catalogue raster is not itself holdout-scored because that would leak its
+catalogue-derived tip/horsetail geometry.
+
+**Submission decision:** the R8 artifact is **not cleared for an upload**. Its
+NaN-outside GeoTIFF passes local grid, CRS, affine transform, dtype, band-count,
+range, and footprint-NoData checks against the supplied mask. The zero-filled
+all-finite twin passes local range checks but has finite values outside the
+footprint, so it is **not treated as official-format equivalent**. The prior
+remote “range” rejection remains unexplained; server acceptance is unverified.
+No submission slot was used, and no new prediction artifact was generated in
+this review. Historical file notes/scores are not public score receipts. The
+official account-level leaderboard snapshot is DARD 0.3168 / alexoktaba 0.3042
+as of 2026-09-30; neither value is tied to a local TIFF.
 
 ---
 
@@ -107,20 +154,34 @@ repositories via `scripts/fetch_data.py`, blob SHAs pinned in
 python3 -m venv .venv && . .venv/bin/activate
 pip install numpy scipy rasterio
 
-python scripts/fetch_data.py        # data/raw (419 MB, gitignored)
-python scripts/audit_metric.py      # proves the metric results
-python scripts/audit_bands.py       # what the 19 bands actually are
-python scripts/analyze_scored.py    # why 0.1563 repeated
-python scripts/build_detectors.py   # ~7 min
-python scripts/run_holdout3.py      # the sweep (~20 min, 3 GB RAM)
-python scripts/make_submission.py --recipe best
+.venv/bin/python scripts/fetch_data.py        # data/raw (419 MB, gitignored)
+.venv/bin/python scripts/audit_metric.py      # proves the metric results
+.venv/bin/python scripts/audit_bands.py       # what the 19 bands actually are
+.venv/bin/python scripts/analyze_scored.py    # file/pixel identity; labels are not receipts
+.venv/bin/python scripts/build_detectors.py   # ~8.4 min
+.venv/bin/python scripts/run_holdout3.py      # historical full sweep (~82 min, 3 GB RAM)
+.venv/bin/python scripts/validate_ensemble_holdout.py # targeted visible-only ensemble holdout
+.venv/bin/python scripts/make_submission.py --recipe best
 ```
 
-`make_submission.py` refuses to emit a file unless
-`validate_submission` passes: single-band float32, EPSG:32611, 3730×3292, exact
-geotransform, and **every finite value inside [0, 1]** — the check that the
-rejected submission failed. Every submission is written twice, NaN-outside and
-all-finite, because DrivenData's range validator rejects NaN.
+`make_submission.py` first hashes canonical float32 scored-grid pixels and
+positive support against existing download/scored TIFFs, blocking an exact pixel
+duplicate (NaN and outside-footprint encodings normalize to zero). It also records
+that distinct maps can still round to the same public score; no score uniqueness is
+promised. The script checks the one-band float32 grid, EPSG:32611, 3730×3292 shape,
+affine transform, finite in-footprint values in `[0,1]`, and supplied footprint mask.
+The primary GeoTIFF and ZIP use NaN outside the footprint, as the official format
+text requires; an all-finite zero-fill twin is diagnostic only and is **not** treated
+as format-equivalent. Local checks do not prove remote acceptance. The historical
+server-side range rejection remains unexplained.
+
+**A unique, format-valid GeoTIFF is not a cleared candidate.** Every artifact built
+by the script is marked `NOT_CLEARED` until it beats the current best under paired
+direct-DTI multi-rule confirmation. Check `submission_clearance` and the latest
+visible-only holdout report before using a submission slot. At this review, the R8
+recipe is `NOT_CLEARED`; the legacy `--recipe best` selector reads
+`reports/holdout_results.json` and is not automatically updated by
+`validate_ensemble_holdout.py`.
 
 ---
 
@@ -130,14 +191,22 @@ all-finite, because DrivenData's range validator rejects NaN.
    best on the hide-and-recover holdout.** Three submissions per week, total
    ([Official Rules §3.2](https://docs.nlr.gov/docs/fy26osti/96647.pdf)).
 2. **A candidate that wins under only one withholding rule is fragile** and is
-   reported as such. `make_submission.py --recipe best` selects on the
-   *worst-case* rule, not the mean.
+   reported as such. The legacy `make_submission.py --recipe best` selector uses
+   `reports/holdout_results.json` and the worst-rule DTI there; it does not read
+   the newer R8 comparison report or confer submission clearance.
 3. **Every factual claim carries the official URL it came from.** If it cannot
    be verified from a public official source, it goes in
    `knowledge/02_irregularities.md` marked `UNVERIFIED`, not into the analysis.
-4. **Never report a DTI without the chance DTI at the same pixel count beside
-   it.** `scripts/summarize_holdout.py` enforces this.
-5. **Phase 2 is 83 % of the money** and its labels are built from *our own*
+4. **Rank candidate variants by direct, paired holdout DTI—not chance ratios.**
+   A same-fold random-map DTI may be shown as a limited local control only when
+   its actual support, withheld-truth size, and eligible eval-domain are known;
+   do not treat the approximation as universal calibration, a submission gate,
+   or a public/private baseline. Never infer truth size or chance from leaderboard
+   scores.
+5. **Never repeat an identical prediction as a new submission.** The builder
+   checks canonical pixel identity against existing maps; distinct maps can still
+   round to the same score, so no unique-score promise is made.
+6. **Phase 2 is 83 % of the money** and its labels are built from *our own*
    predictions by expert review. A defensible, geologically-argued map is worth
    more than a leaderboard-tuned one.
 

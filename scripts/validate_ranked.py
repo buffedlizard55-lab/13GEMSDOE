@@ -11,15 +11,15 @@ different components within 3 px of each other. Decimating the UNION once,
 globally, removes that waste.
 
 This script builds both maps from the same components on the same folds and
-scores both. If global decimation does not win on the holdout, the `ranked`
-recipe is not shipped -- that is the standing rule.
+compares direct DTI. The five-fold A/B result is exploratory; it is not a
+submission gate or evidence of private-test performance.
 
 Protocol
 --------
-Same folds as `scripts/run_holdout3.py` (seed 20260928, whole systems withheld
-with a 500 m buffer, five withholding rules), same coverage-matched random
-control, same closed-form chance DTI at the ACTUAL pixel count, same concealed
-subset.
+Same five system-withholding folds as `scripts/run_holdout3.py` (seed 20260928,
+whole systems with a 500 m buffer), with the same-fold random controls and the
+predeclared low-slope robustness slice reported separately. Candidate ordering
+uses worst-rule mean DTI, not chance ratios.
 """
 from __future__ import annotations
 
@@ -40,7 +40,6 @@ sys.path.insert(0, str(ROOT / "scripts"))
 from gems import detectors as D                        # noqa: E402
 from gems.fastscore import FoldScorer, verify_against_reference  # noqa: E402
 from gems.holdout import build_folds                   # noqa: E402
-from chance_baseline import dti_chance                 # noqa: E402
 
 DER = ROOT / "data" / "derived"
 REP = ROOT / "reports"
@@ -118,7 +117,8 @@ def main() -> None:
             sf, sc = scorers(fn)
             r = sf.score(pred)
             row = {"tag": tag, "family": family, "fold": fn, "rule": f.rule,
-                   "n_hidden": f.n_hidden, "n_pred_px": int((pred > 0).sum()),
+                   "n_hidden": f.n_hidden, "n_eval_px": int(f.eval_mask.sum()),
+                   "n_pred_px": int((pred > 0).sum()),
                    "dti": round(r["dti"], 6),
                    "precision_w": round(r["precision_w"], 6),
                    "recall_w": round(r["recall_w"], 6)}
@@ -135,12 +135,6 @@ def main() -> None:
         n = int(cov * n_valid)
         evaluate(f"CTRL_random|cov{cov}", "control_random",
                  lambda f, n=n: noise.topk(f.eval_mask.ravel(), n), FOLDS5)
-    chance = defaultdict(list)
-    for r in results:
-        if r["family"] == "control_random":
-            chance[(float(r["tag"].split("|")[1][3:]), r["fold"])].append(r["dti"])
-    chance_mean = {k: float(np.mean(v)) for k, v in chance.items()}
-
     # ---------------- components ----------------
     print(f"--- loading components ({time.time()-t0:.0f}s) ---")
     comp_scores: dict[str, np.ndarray] = {}
@@ -210,63 +204,52 @@ def main() -> None:
                      build_b, FOLDS5)
         print(f"    budget={budget} ({time.time()-t0:.0f}s)")
 
-    hidden_by_fold = {f.name: f.n_hidden for f in folds}
-
-    def lift(r, key="dti"):
-        g = (hidden_by_fold[r["fold"]] if key == "dti"
-             else r.get("n_hidden_concealed"))
-        if not g:
-            return None
-        c = dti_chance(r["n_pred_px"], g, n_valid)
-        return r[key] / c if c > 0 else None
-
-    agg = defaultdict(lambda: {"lift": [], "lift_c": [], "dti": [], "px": [],
-                               "rules": defaultdict(list)})
+    agg = defaultdict(lambda: {"dti": [], "dti_c": [], "px": [],
+                               "rules_dti": defaultdict(list)})
     for r in results:
-        if r["family"] in ("control_random",):
-            continue
-        L = lift(r)
-        if L is None:
+        if r["family"] == "control_random":
             continue
         a = agg[r["tag"]]
-        a["lift"].append(L)
-        a["dti"].append(r["dti"])
+        a["dti"].append(float(r["dti"]))
         a["px"].append(r["n_pred_px"])
-        a["rules"][r["rule"]].append(L)
-        Lc = lift(r, "dti_concealed")
-        if Lc is not None:
-            a["lift_c"].append(Lc)
+        a["rules_dti"][r["rule"]].append(float(r["dti"]))
+        if r.get("dti_concealed") is not None:
+            a["dti_c"].append(float(r["dti_concealed"]))
         a["family"] = r["family"]
 
     table = []
     for tag, a in agg.items():
-        per_rule = {k: float(np.mean(x)) for k, x in a["rules"].items()}
+        per_rule = {k: float(np.mean(x)) for k, x in a["rules_dti"].items()}
         table.append({"tag": tag, "family": a["family"],
-                      "mean_lift": float(np.mean(a["lift"])),
-                      "worst_rule_lift": float(min(per_rule.values())),
-                      "mean_lift_concealed": (float(np.mean(a["lift_c"]))
-                                              if a["lift_c"] else None),
                       "mean_dti": float(np.mean(a["dti"])),
+                      "worst_rule_mean_dti": float(min(per_rule.values())),
+                      "mean_dti_concealed": (float(np.mean(a["dti_c"]))
+                                              if a["dti_c"] else None),
                       "median_px": int(np.median(a["px"])),
-                      "per_rule_lift": {k: round(x, 4) for k, x in per_rule.items()}})
-    table.sort(key=lambda z: -z["worst_rule_lift"])
+                      "per_rule_dti": {k: round(x, 6) for k, x in per_rule.items()}})
+    table.sort(key=lambda z: (-z["worst_rule_mean_dti"], -z["mean_dti"]))
 
     best_a = max((t for t in table if t["family"] == "A_percomponent"),
-                 key=lambda z: z["worst_rule_lift"], default=None)
+                 key=lambda z: (z["worst_rule_mean_dti"], z["mean_dti"]),
+                 default=None)
     best_b = max((t for t in table if t["family"] == "B_globalunion"),
-                 key=lambda z: z["worst_rule_lift"], default=None)
+                 key=lambda z: (z["worst_rule_mean_dti"], z["mean_dti"]),
+                 default=None)
 
     out = {
         "generated_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
         "scorer_verification": v,
+        "scope": "LOCAL_FIVE_FOLD_PROXY_NOT_PRIVATE_TEST_PERFORMANCE",
+        "selection_metric": "worst_rule_mean_dti_then_mean_dti",
         "question": ("does ONE global decimation of the union beat decimating "
-                     "each component separately?"),
+                     "each component separately on these fixed folds?"),
         "grid": {"valid_px": n_valid, "known_fault_px": int(known.sum())},
         "concealed_zone": {"slope_percentile": 33.0, "threshold": float(thr),
                            "n_px": int(concealed_zone.sum()),
                            "catalogue_px_inside": int((known & concealed_zone).sum())},
         "folds": [{"name": f.name, "rule": f.rule, "n_hidden": f.n_hidden,
-                   "n_visible": f.n_visible} for f in folds],
+                   "n_visible": f.n_visible,
+                   "n_eval_px": int(f.eval_mask.sum())} for f in folds],
         "budgets": BUDGETS, "coverages": COVERAGES, "spacings": SPACINGS,
         "normalisation_note": (
             "arm B normalises every source with robust_norm_nonzero, NOT "
@@ -275,23 +258,27 @@ def main() -> None:
             "extension_rays (0.1% nonzero) and HC_hinge (0.98% nonzero) from "
             "the first run of this script. That run's numbers are void."),
         "best_A_percomponent": best_a, "best_B_globalunion": best_b,
-        "global_wins": bool(best_b and best_a and
-                            best_b["worst_rule_lift"] > best_a["worst_rule_lift"]),
+        "global_wins_on_these_folds": bool(
+            best_b and best_a and
+            (best_b["worst_rule_mean_dti"], best_b["mean_dti"])
+            > (best_a["worst_rule_mean_dti"], best_a["mean_dti"])),
+        "submission_clearance": "NOT_ESTABLISHED_BY_THIS_FIVE_FOLD_SCREEN",
         "table": table, "results": results,
         "runtime_s": round(time.time() - t0, 1)}
     (REP / "ranked_ab.json").write_text(json.dumps(out, indent=1))
 
-    print("\n=== best per arm, by WORST-RULE lift over chance ===")
-    for lbl, t in (("A per-component (old)", best_a),
-                   ("B global union (new)", best_b)):
+    print("\n=== best per arm, by WORST-RULE MEAN DTI ===")
+    for lbl, t in (("A per-component", best_a),
+                   ("B global union", best_b)):
         if t is None:
             continue
-        lc = (f"{t['mean_lift_concealed']:.3f}"
-              if t["mean_lift_concealed"] is not None else "-")
-        print(f"  {lbl:24s} {t['tag']:34s} lift={t['mean_lift']:.3f} "
-              f"worst={t['worst_rule_lift']:.3f} concealed={lc} "
+        dc = (f"{t['mean_dti_concealed']:.4f}"
+              if t["mean_dti_concealed"] is not None else "-")
+        print(f"  {lbl:24s} {t['tag']:34s} mean={t['mean_dti']:.4f} "
+              f"worst-rule={t['worst_rule_mean_dti']:.4f} concealed DTI={dc} "
               f"px={t['median_px']:,}")
-    print(f"\n  GLOBAL DECIMATION WINS: {out['global_wins']}")
+    print(f"\n  GLOBAL DECIMATION WINS ON THESE FOLDS: "
+          f"{out['global_wins_on_these_folds']}; this is not submission clearance.")
     print(f"wrote {REP/'ranked_ab.json'} ({time.time()-t0:.0f}s)")
 
 

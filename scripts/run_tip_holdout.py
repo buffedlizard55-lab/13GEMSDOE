@@ -18,9 +18,10 @@ The organizers were explicit that the label set is not like that:
    and can include newly mapped geometry of an existing fault system."
                                      -- chrisk-dd, forum 11536
 
-So this script builds the complementary holdout: hide the terminal N% of every
-mapped segment, keep the rest visible, and ask whether anything can recover the
-missing continuation. Chance is computed at the ACTUAL predicted pixel count.
+So this script builds a complementary local stress test: hide terminal portions
+of known mapped segments, keep the rest visible, and measure recovery of the
+missing continuation with direct DTI. The result is not an estimate of the
+undisclosed test distribution.
 """
 from __future__ import annotations
 
@@ -36,7 +37,6 @@ from scipy import ndimage as ndi
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 sys.path.insert(0, str(ROOT / "scripts"))
-from chance_baseline import dti_chance          # noqa: E402
 from gems import detectors as D                 # noqa: E402
 from gems.fastscore import FoldScorer           # noqa: E402
 
@@ -102,14 +102,12 @@ def main() -> None:
             p = np.where(em, np.clip(p, 0, 1), 0.0)
             s = sc.score(p)
             mass = float(p.sum())
-            ch = dti_chance(mass, sc.n_truth, n_valid)
             results.append({
                 "tag": tag, "fold": fn, "dti": round(s["dti"], 6),
                 "precision_w": round(s["precision_w"], 6),
                 "recall_w": round(s["recall_w"], 6),
                 "mass": round(mass, 1), "n_truth": sc.n_truth,
-                "chance_dti": round(ch, 6),
-                "lift": round(s["dti"] / ch, 4) if ch > 0 else None})
+                "n_eval_px": int(em.sum())})
 
     def topk(score, em, n):
         flat = np.where(em, score, -np.inf).ravel()
@@ -147,28 +145,31 @@ def main() -> None:
         agg[r["tag"]].append(r)
     rows = []
     for tag, v in agg.items():
+        fold_dti = [float(x["dti"]) for x in v]
         rows.append({"tag": tag,
-                     "mean_lift": float(np.mean([x["lift"] for x in v])),
-                     "worst_lift": float(min(x["lift"] for x in v)),
-                     "mean_dti": float(np.mean([x["dti"] for x in v])),
-                     "mean_chance": float(np.mean([x["chance_dti"] for x in v])),
+                     "mean_dti": float(np.mean(fold_dti)),
+                     "minimum_fold_dti": float(min(fold_dti)),
                      "mean_recall": float(np.mean([x["recall_w"] for x in v])),
                      "median_mass": float(np.median([x["mass"] for x in v]))})
-    rows.sort(key=lambda z: -z["worst_lift"])
+    rows.sort(key=lambda z: (-z["minimum_fold_dti"], -z["mean_dti"]))
 
-    hdr = (f"{'candidate':38s} {'mass':>9s} {'DTI':>7s} {'chance':>7s} "
-           f"{'lift':>6s} {'worst':>6s} {'recall':>7s}")
-    print("\n=== TIP-EXTENSION HOLDOUT ===")
+    hdr = (f"{'candidate':38s} {'mass':>9s} {'mean DTI':>9s} "
+           f"{'min-fold DTI':>12s} {'recall':>7s}")
+    print("\n=== LOCAL TIP-CONTINUATION HOLDOUT (direct DTI) ===")
     print(hdr); print("-" * len(hdr))
     for r in rows:
-        print(f"{r['tag'][:38]:38s} {r['median_mass']:9,.0f} {r['mean_dti']:7.4f} "
-              f"{r['mean_chance']:7.4f} {r['mean_lift']:6.2f} {r['worst_lift']:6.2f} "
+        print(f"{r['tag'][:38]:38s} {r['median_mass']:9,.0f} "
+              f"{r['mean_dti']:9.4f} {r['minimum_fold_dti']:12.4f} "
               f"{r['mean_recall']:7.4f}")
 
     (REP / "holdout_tip.json").write_text(json.dumps(
         {"generated_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+         "scope": "LOCAL_KNOWN_CATALOGUE_TIP_CONTINUATION_STRESS_TEST_NOT_PRIVATE_TEST_PERFORMANCE",
+         "ranking_metric": "minimum single-fold DTI, then mean DTI; no chance ratio",
          "folds": {k: {"n_hidden": int(v[0].sum()),
-                       "n_visible": int(v[1].sum())} for k, v in folds.items()},
+                       "n_visible": int(v[1].sum()),
+                       "n_eval_px": int(v[2].sum())}
+                   for k, v in folds.items()},
          "summary": rows, "results": results}, indent=2))
     print(f"\nwrote {REP/'holdout_tip.json'} ({time.time()-t0:.0f}s)")
 

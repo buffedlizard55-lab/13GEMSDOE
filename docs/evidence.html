@@ -2,7 +2,7 @@
 <html lang="en"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Evidence — 13GEMSDOE</title>
-<meta name="description" content="GEMS Prize Challenge: audited scoring metric, hide-and-recover holdout, and a one-click validated submission GeoTIFF.">
+<meta name="description" content="GEMS Prize Challenge: audited scoring metric, local hide-and-recover evidence, and a review-only artifact that has not cleared submission holdout.">
 <link rel="stylesheet" href="assets/style.css">
 </head><body>
 <header class="site"><div class="wrap">
@@ -38,54 +38,70 @@ DTI  = 0.6028 → 0.60  ✓</code></pre>
 </section>
 
 <section>
-  <h2>2 · Why 0.1563 kept coming back</h2>
-  <div class="callout bad">
-    <p><b>It is a measurement artefact, not a modelling ceiling.</b> The leaderboard
-    column is literally “Best public DW-Tversky”. Three separate accounts
-    (#26&nbsp;extradr19, #27&nbsp;SDCF9, #28&nbsp;smashi34) all sit at exactly 0.1563 —
-    matching the three 0.1563 figures reported for GEMSDOE1, 5GEMSDOE and 8GEMSDOE.</p>
+  <h2>2 · Score attribution and structural identity</h2>
+  <div class="callout warn">
+    <p><b>No per-submission score has been verified against these local TIFFs.</b>
+    The official leaderboard column is account-level “Best public DW-Tversky”.
+    Historical filename/team-note values below are reported labels only, not score
+    receipts. The public chance/lift inference based on them is withdrawn.</p>
   </div>
-  <h3>The two maps reported as 0.1563 are not the same map</h3>
+  <p class="small">Exact byte identity, canonical pixel-value identity, and positive-
+  support identity are measured separately. Equal rounded labels establish none of
+  them; different maps can also receive the same score rounded to four decimals.</p>
   <div class="scroll"><table><thead><tr><th>map A</th><th>map B</th>
-  <th class="num">LB A</th><th class="num">LB B</th><th class="num">IoU of support</th>
-  </tr></thead><tbody><tr><td class='mono'>gemsdoe1_ens12_LB0.1563</td><td class='mono'>gems8_apex_LB0.1563</td><td class='num'>0.1563</td><td class='num'>0.1563</td><td class='num'>0.0670</td></tr><tr><td class='mono'>gemsdoe1_ens12_LB0.1563</td><td class='mono'>gemsdoe2_dualunion_LB0.1560</td><td class='num'>0.1563</td><td class='num'>0.1560</td><td class='num'>0.9419</td></tr><tr><td class='mono'>gems8_apex_LB0.1563</td><td class='mono'>gems6_hgb88_LB0.0286</td><td class='num'>0.1563</td><td class='num'>0.0286</td><td class='num'>0.2647</td></tr><tr><td class='mono'>gems8_apex_LB0.1563</td><td class='mono'>gems7_halo15_LB0.1461</td><td class='num'>0.1563</td><td class='num'>0.1461</td><td class='num'>0.2313</td></tr><tr><td class='mono'>gems3_pindrop_nodes_LB0.1193</td><td class='mono'>gems3_pindrop_ridge_LB0.1152</td><td class='num'>0.1193</td><td class='num'>0.1152</td><td class='num'>0.1076</td></tr><tr><td class='mono'>gems7_halo15_LB0.1461</td><td class='mono'>gems6_hgb88_LB0.0286</td><td class='num'>0.1461</td><td class='num'>0.0286</td><td class='num'>0.0830</td></tr><tr><td class='mono'>gems3_pindrop_ridge_LB0.1152</td><td class='mono'>gems6_hgb88_LB0.0286</td><td class='num'>0.1152</td><td class='num'>0.0286</td><td class='num'>0.0828</td></tr><tr><td class='mono'>gemsdoe2_dualunion_LB0.1560</td><td class='mono'>gems6_hgb88_LB0.0286</td><td class='num'>0.1560</td><td class='num'>0.0286</td><td class='num'>0.0816</td></tr></tbody></table></div>
-  <p class="small">Two maps sharing 6.7% of their support, anti-correlated
-  (r&nbsp;=&nbsp;−0.55), cannot score identically to four decimals. Two maps sharing
-  94% of their support scoring 0.1563 and 0.1560 obviously can — that pair
-  <i>is</i> duplicated work.</p>
+  <th class="num">reported label A<br>(not receipt)</th>
+  <th class="num">reported label B<br>(not receipt)</th>
+  <th>identical TIFF bytes</th><th>identical canonical pixels</th>
+  <th>identical unmasked support</th><th class="num">all-support IoU</th>
+  <th class="num">unmasked-support IoU</th></tr></thead><tbody><tr><td class='mono'>gems8_apex_LB0.1563</td><td class='mono'>gemsdoe1_ens12_LB0.1563</td><td class='num'>0.1563</td><td class='num'>0.1563</td><td>no</td><td>no</td><td>no</td><td class='num'>0.0670</td><td class='num'>0.0623</td></tr><tr><td class='mono'>gemsdoe1_ens12_LB0.1563</td><td class='mono'>gemsdoe2_dualunion_LB0.1560</td><td class='num'>0.1563</td><td class='num'>0.1560</td><td>no</td><td>no</td><td>no</td><td class='num'>0.9419</td><td class='num'>0.9464</td></tr><tr><td class='mono'>gems6_hgb88_LB0.0286</td><td class='mono'>gems8_apex_LB0.1563</td><td class='num'>0.0286</td><td class='num'>0.1563</td><td>no</td><td>no</td><td>no</td><td class='num'>0.2647</td><td class='num'>0.2460</td></tr><tr><td class='mono'>gems7_halo15_LB0.1461</td><td class='mono'>gems8_apex_LB0.1563</td><td class='num'>0.1461</td><td class='num'>0.1563</td><td>no</td><td>no</td><td>no</td><td class='num'>0.2313</td><td class='num'>0.2048</td></tr><tr><td class='mono'>gems3_pindrop_nodes_LB0.1193</td><td class='mono'>gems3_pindrop_ridge_LB0.1152</td><td class='num'>0.1193</td><td class='num'>0.1152</td><td>no</td><td>no</td><td>no</td><td class='num'>0.1076</td><td class='num'>0.1076</td></tr><tr><td class='mono'>gems6_hgb88_LB0.0286</td><td class='mono'>gems7_halo15_LB0.1461</td><td class='num'>0.0286</td><td class='num'>0.1461</td><td>no</td><td>no</td><td>no</td><td class='num'>0.0830</td><td class='num'>0.0726</td></tr><tr><td class='mono'>gems3_pindrop_ridge_LB0.1152</td><td class='mono'>gems6_hgb88_LB0.0286</td><td class='num'>0.1152</td><td class='num'>0.0286</td><td>no</td><td>no</td><td>no</td><td class='num'>0.0828</td><td class='num'>0.0902</td></tr><tr><td class='mono'>gems6_hgb88_LB0.0286</td><td class='mono'>gemsdoe2_dualunion_LB0.1560</td><td class='num'>0.0286</td><td class='num'>0.1560</td><td>no</td><td>no</td><td>no</td><td class='num'>0.0816</td><td class='num'>0.0735</td></tr></tbody></table></div>
+  <p class="small">Canonical pixels are decoded float32 values after non-finite and
+  outside-valid cells are set to zero. Full SHA-256 values and exact support comparisons
+  are in <code>reports/scored_forensics.json</code> and the ledger.</p>
 
-  <h3>Catalogue echo versus score</h3>
-  <div class="scroll"><table><thead><tr><th>submission</th><th class="num">public LB</th>
-  <th class="num">pixels</th><th class="num">coverage</th><th class="num">distinct values</th>
-  <th class="num">mass within 300 m of a known fault</th></tr></thead>
-  <tbody><tr><td class='mono'>gemsdoe1_ens12_LB0.1563</td><td class='num'>0.1563</td><td class='num'>172,974</td><td class='num'>3.35%</td><td class='num'>1</td><td class='num'>20.2%</td></tr><tr><td class='mono'>gems8_apex_LB0.1563</td><td class='num'>0.1563</td><td class='num'>427,862</td><td class='num'>8.28%</td><td class='num'>72,781</td><td class='num'>90.8%</td></tr><tr><td class='mono'>gemsdoe2_dualunion_LB0.1560</td><td class='num'>0.1560</td><td class='num'>183,642</td><td class='num'>3.55%</td><td class='num'>1</td><td class='num'>21.8%</td></tr><tr><td class='mono'>gems7_halo15_LB0.1461</td><td class='num'>0.1461</td><td class='num'>1,828,699</td><td class='num'>35.39%</td><td class='num'>643</td><td class='num'>39.9%</td></tr><tr><td class='mono'>gems3_pindrop_nodes_LB0.1193</td><td class='num'>0.1193</td><td class='num'>155,021</td><td class='num'>3.00%</td><td class='num'>1</td><td class='num'>8.1%</td></tr><tr><td class='mono'>gems3_pindrop_ridge_LB0.1152</td><td class='num'>0.1152</td><td class='num'>155,021</td><td class='num'>3.00%</td><td class='num'>1</td><td class='num'>18.1%</td></tr><tr><td class='mono'>gems3_pindrop_discovery_LB0.0830</td><td class='num'>0.0830</td><td class='num'>155,021</td><td class='num'>3.00%</td><td class='num'>1</td><td class='num'>7.7%</td></tr><tr><td class='mono'>gems6_hgb88_LB0.0286</td><td class='num'>0.0286</td><td class='num'>155,021</td><td class='num'>3.00%</td><td class='num'>1</td><td class='num'>69.5%</td></tr></tbody></table></div>
-  <p class="small">The most catalogue-hugging map (<code>gems6_hgb88</code>, 69.5%)
-  scored worst at 0.0286 — consistent with the organizers' statement that a pixel near a
-  known trace but far from a <i>new</i>-fault pixel is “fully penalized”.
-  <code>gems8_apex</code> is 90.8% catalogue-hugging yet was recorded at 0.1563, which is
-  not credible; it is the account best being read back.</p>
+  <h3>Catalogue-distance diagnostics (not score attribution)</h3>
+  <div class="scroll"><table><thead><tr><th>local artifact</th>
+  <th class="num">historical score label<br>(unverified)</th>
+  <th class="num">positive pixels</th><th class="num">coverage</th>
+  <th class="num">distinct values</th>
+  <th class="num">mass on/within 300 m of known faults</th>
+  <th class="num">positive pixels outside known mask</th>
+  <th class="num">unmasked prediction mass</th></tr></thead>
+  <tbody><tr><td class='mono'>gems3_pindrop_discovery_LB0.0830</td><td class='num'>0.0830</td><td class='num'>155,021</td><td class='num'>3.00%</td><td class='num'>1</td><td class='num'>7.7%</td><td class='num'>155,021</td><td class='num'>3.00%</td></tr><tr><td class='mono'>gems3_pindrop_nodes_LB0.1193</td><td class='num'>0.1193</td><td class='num'>155,021</td><td class='num'>3.00%</td><td class='num'>1</td><td class='num'>8.1%</td><td class='num'>155,021</td><td class='num'>3.00%</td></tr><tr><td class='mono'>gems3_pindrop_ridge_LB0.1152</td><td class='num'>0.1152</td><td class='num'>155,021</td><td class='num'>3.00%</td><td class='num'>1</td><td class='num'>18.1%</td><td class='num'>155,021</td><td class='num'>3.00%</td></tr><tr><td class='mono'>gems6_hgb88_LB0.0286</td><td class='num'>0.0286</td><td class='num'>155,021</td><td class='num'>3.00%</td><td class='num'>1</td><td class='num'>69.5%</td><td class='num'>131,416</td><td class='num'>2.54%</td></tr><tr><td class='mono'>gems7_halo15_LB0.1461</td><td class='num'>0.1461</td><td class='num'>1,828,699</td><td class='num'>35.39%</td><td class='num'>643</td><td class='num'>39.9%</td><td class='num'>1,767,711</td><td class='num'>10.61%</td></tr><tr><td class='mono'>gems8_apex_LB0.1563</td><td class='num'>0.1563</td><td class='num'>427,862</td><td class='num'>8.28%</td><td class='num'>72,781</td><td class='num'>90.8%</td><td class='num'>366,874</td><td class='num'>2.94%</td></tr><tr><td class='mono'>gemsdoe1_ens12_LB0.1563</td><td class='num'>0.1563</td><td class='num'>172,974</td><td class='num'>3.35%</td><td class='num'>1</td><td class='num'>20.2%</td><td class='num'>166,519</td><td class='num'>3.22%</td></tr><tr><td class='mono'>gemsdoe2_dualunion_LB0.1560</td><td class='num'>0.1560</td><td class='num'>183,642</td><td class='num'>3.55%</td><td class='num'>1</td><td class='num'>21.8%</td><td class='num'>175,949</td><td class='num'>3.40%</td></tr></tbody></table></div>
+  <p class="small">The “unmasked” columns are positive support/mass in valid pixels
+  outside the exact known-fault mask, useful for map-identity comparisons. They are not
+  true-positive or chargeable support because the new-fault truth is hidden. Proximity
+  to the known catalogue likewise does not reveal score: new-fault pixels can lie within
+  300 m of known traces, while other nearby predictions are penalized when not close to
+  new-fault truth.</p>
 </section>
 
 <section>
-  <h2>3 · Hide-and-recover holdout</h2>
-  <p class="lede">Withhold whole fault systems with a buffer, rebuild every
-  catalogue-derived feature from what remains, mask the remainder pixel-exactly as the
-  organizers do, and score DTI on the withheld pixels alone — under five different
-  withholding rules.</p>
+  <h2>3 · Local hide-and-recover comparison</h2>
+  <p class="lede">Withhold catalogue systems and raw raster segments with buffers,
+  rebuild catalogue-derived features from visible geometry, apply the organizer's
+  pixel-exact known-fault mask, and score DTI on withheld truth only. This tests
+  recovery of known catalogue geometry; it does not recreate the undisclosed test
+  distribution or estimate private-test performance.</p>
   
-  <p class="small">10 folds, 60,988
-  catalogue pixels, 25% of fault mass withheld per fold with a 5-px buffer.
-  Folds include: random_0 (15,303 px), random_1 (15,673 px), short_0 (15,330 px), short_1 (15,439 px), isolated_0 (15,499 px), isolated_1 (15,613 px)… Each cell is the <b>DTI of that family's best
-  configuration</b> — chosen by worst-rule lift, the same rule
-  <code>reports/holdout_verdict_v3.json</code> applies — with its
-  <b>lift over chance</b> beneath it. Chance is the closed-form DTI at that
-  configuration's own predicted-pixel count, so a configuration that predicts
-  more pixels is not flattered by it. <b>A family below 1.00× is doing worse
-  than a random map of the same size.</b> Rows marked <i>leaked</i> are prior
-  submissions that contain the catalogue itself and are excluded from every
-  conclusion.</p>
-  <div class="scroll"><table><thead><tr><th>detector family<br>best config</th>
-  <th class="num">worst-rule lift</th><th class='num'>dense</th><th class='num'>isolated</th><th class='num'>oriented</th><th class='num'>random</th><th class='num'>short</th></tr></thead><tbody><tr><td class='mono'><span class='tag t-bad'>leaked</span> prior_submission<br><span class='small'>PRIOR_gems8_apex_LB0.1563</span></td><td class='num'><b>4.90×</b><br><span class='small'>427,862 px</span></td><td class='num'>0.3487<br><span class='small'>4.90×</span></td><td class='num'>0.3511<br><span class='small'>4.93×</span></td><td class='num'>0.1570<br><span class='small'>5.48×</span></td><td class='num'>0.3475<br><span class='small'>4.93×</span></td><td class='num'>0.3489<br><span class='small'>4.95×</span></td></tr><tr><td class='mono'>BASE_topo_ridge<br><span class='small'>BASE_topo_ridge|cov0.05|sp3</span></td><td class='num'><b>1.06×</b><br><span class='small'>185,341 px</span></td><td class='num'>0.0853<br><span class='small'>1.06×</span></td><td class='num'>0.0913<br><span class='small'>1.13×</span></td><td class='num'>0.0385<br><span class='small'>1.08×</span></td><td class='num'>0.0894<br><span class='small'>1.12×</span></td><td class='num'>0.0876<br><span class='small'>1.09×</span></td></tr><tr><td class='mono'>control_random<br><span class='small'>CTRL_random|cov0.08|rep0</span></td><td class='num'><b>1.00×</b><br><span class='small'>413,389 px</span></td><td class='num'>0.0727<br><span class='small'>1.01×</span></td><td class='num'>0.0717<br><span class='small'>1.00×</span></td><td class='num'>0.0293<br><span class='small'>1.00×</span></td><td class='num'>0.0710<br><span class='small'>1.00×</span></td><td class='num'>0.0716<br><span class='small'>1.01×</span></td></tr><tr><td class='mono'>BASE_tmi_hg<br><span class='small'>BASE_tmi_hg|cov0.05|sp3</span></td><td class='num'><b>0.98×</b><br><span class='small'>177,402 px</span></td><td class='num'>0.0833<br><span class='small'>1.03×</span></td><td class='num'>0.0820<br><span class='small'>1.01×</span></td><td class='num'>0.0374<br><span class='small'>1.04×</span></td><td class='num'>0.0802<br><span class='small'>1.00×</span></td><td class='num'>0.0789<br><span class='small'>0.98×</span></td></tr><tr><td class='mono'>R7_seis_cross<br><span class='small'>R7_seis_cross|cov0.005|sp3</span></td><td class='num'><b>0.97×</b><br><span class='small'>8,065 px</span></td><td class='num'>0.0178<br><span class='small'>1.11×</span></td><td class='num'>0.0173<br><span class='small'>1.08×</span></td><td class='num'>0.0227<br><span class='small'>1.69×</span></td><td class='num'>0.0155<br><span class='small'>0.97×</span></td><td class='num'>0.0185<br><span class='small'>1.16×</span></td></tr><tr><td class='mono'>R7_crossgrad<br><span class='small'>R7_crossgrad|cov0.08|sp3</span></td><td class='num'><b>0.93×</b><br><span class='small'>227,752 px</span></td><td class='num'>0.0795<br><span class='small'>0.99×</span></td><td class='num'>0.0767<br><span class='small'>0.95×</span></td><td class='num'>0.0321<br><span class='small'>0.93×</span></td><td class='num'>0.0760<br><span class='small'>0.95×</span></td><td class='num'>0.0762<br><span class='small'>0.96×</span></td></tr><tr><td class='mono'>R6_gravterm<br><span class='small'>R6_gravterm|cov0.005|sp3</span></td><td class='num'><b>0.90×</b><br><span class='small'>23,064 px</span></td><td class='num'>0.0334<br><span class='small'>0.91×</span></td><td class='num'>0.0331<br><span class='small'>0.90×</span></td><td class='num'>0.0277<br><span class='small'>1.10×</span></td><td class='num'>0.0386<br><span class='small'>1.05×</span></td><td class='num'>0.0372<br><span class='small'>1.02×</span></td></tr><tr><td class='mono'>HC_hinge<br><span class='small'>HC_hinge|cov0.02|sp3</span></td><td class='num'><b>0.90×</b><br><span class='small'>64,949 px</span></td><td class='num'>0.0626<br><span class='small'>0.96×</span></td><td class='num'>0.0616<br><span class='small'>0.95×</span></td><td class='num'>0.0343<br><span class='small'>0.98×</span></td><td class='num'>0.0582<br><span class='small'>0.90×</span></td><td class='num'>0.0599<br><span class='small'>0.93×</span></td></tr><tr><td class='mono'>R7_seis_grav<br><span class='small'>R7_seis_grav|cov0.01|sp3</span></td><td class='num'><b>0.86×</b><br><span class='small'>14,744 px</span></td><td class='num'>0.0268<br><span class='small'>1.02×</span></td><td class='num'>0.0308<br><span class='small'>1.17×</span></td><td class='num'>0.0295<br><span class='small'>1.48×</span></td><td class='num'>0.0289<br><span class='small'>1.10×</span></td><td class='num'>0.0225<br><span class='small'>0.86×</span></td></tr><tr><td class='mono'>HB_theta_rtp<br><span class='small'>HB_theta_rtp|cov0.01|sp3</span></td><td class='num'><b>0.80×</b><br><span class='small'>32,783 px</span></td><td class='num'>0.0369<br><span class='small'>0.80×</span></td><td class='num'>0.0445<br><span class='small'>0.96×</span></td><td class='num'>0.0277<br><span class='small'>0.95×</span></td><td class='num'>0.0376<br><span class='small'>0.82×</span></td><td class='num'>0.0430<br><span class='small'>0.93×</span></td></tr><tr><td class='mono'>HB_tdr_rtp<br><span class='small'>HB_tdr_rtp|cov0.08|sp3</span></td><td class='num'><b>0.80×</b><br><span class='small'>176,203 px</span></td><td class='num'>0.0725<br><span class='small'>0.90×</span></td><td class='num'>0.0793<br><span class='small'>0.98×</span></td><td class='num'>0.0390<br><span class='small'>1.09×</span></td><td class='num'>0.0638<br><span class='small'>0.80×</span></td><td class='num'>0.0739<br><span class='small'>0.92×</span></td></tr><tr><td class='mono'>HB_tdr_grav<br><span class='small'>HB_tdr_grav|cov0.08|sp3</span></td><td class='num'><b>0.64×</b><br><span class='small'>83,156 px</span></td><td class='num'>0.0545<br><span class='small'>0.77×</span></td><td class='num'>0.0510<br><span class='small'>0.72×</span></td><td class='num'>0.0304<br><span class='small'>0.84×</span></td><td class='num'>0.0451<br><span class='small'>0.64×</span></td><td class='num'>0.0476<br><span class='small'>0.67×</span></td></tr><tr><td class='mono'>HA_worms_rtp<br><span class='small'>HA_worms_rtp|cov0.08|sp3</span></td><td class='num'><b>0.63×</b><br><span class='small'>93,407 px</span></td><td class='num'>0.0617<br><span class='small'>0.84×</span></td><td class='num'>0.0653<br><span class='small'>0.89×</span></td><td class='num'>0.0389<br><span class='small'>1.07×</span></td><td class='num'>0.0462<br><span class='small'>0.63×</span></td><td class='num'>0.0564<br><span class='small'>0.77×</span></td></tr><tr><td class='mono'>R6_transt<br><span class='small'>R6_transt|cov0.08|sp3</span></td><td class='num'><b>0.60×</b><br><span class='small'>55,968 px</span></td><td class='num'>0.0937<br><span class='small'>1.52×</span></td><td class='num'>0.0894<br><span class='small'>1.51×</span></td><td class='num'>0.0957<br><span class='small'>2.03×</span></td><td class='num'>0.0327<br><span class='small'>0.60×</span></td><td class='num'>0.0364<br><span class='small'>0.63×</span></td></tr><tr><td class='mono'>HE_lin_cond<br><span class='small'>HE_lin_cond|cov0.08|sp3</span></td><td class='num'><b>0.54×</b><br><span class='small'>55,859 px</span></td><td class='num'>0.0333<br><span class='small'>0.54×</span></td><td class='num'>0.0356<br><span class='small'>0.58×</span></td><td class='num'>0.0214<br><span class='small'>0.63×</span></td><td class='num'>0.0329<br><span class='small'>0.54×</span></td><td class='num'>0.0436<br><span class='small'>0.72×</span></td></tr><tr><td class='mono'>R7_consensus4<br><span class='small'>R7_consensus4|cov0.03|sp3</span></td><td class='num'><b>0.45×</b><br><span class='small'>22,526 px</span></td><td class='num'>0.0162<br><span class='small'>0.45×</span></td><td class='num'>0.0369<br><span class='small'>1.02×</span></td><td class='num'>0.0182<br><span class='small'>0.73×</span></td><td class='num'>0.0275<br><span class='small'>0.76×</span></td><td class='num'>0.0416<br><span class='small'>1.16×</span></td></tr><tr><td class='mono'>R7_consensus3<br><span class='small'>R7_consensus3|cov0.03|sp3</span></td><td class='num'><b>0.44×</b><br><span class='small'>22,736 px</span></td><td class='num'>0.0162<br><span class='small'>0.44×</span></td><td class='num'>0.0335<br><span class='small'>0.92×</span></td><td class='num'>0.0163<br><span class='small'>0.65×</span></td><td class='num'>0.0259<br><span class='small'>0.71×</span></td><td class='num'>0.0404<br><span class='small'>1.12×</span></td></tr><tr><td class='mono'>R6_shore<br><span class='small'>R6_shore|cov0.005|sp3</span></td><td class='num'><b>0.40×</b><br><span class='small'>5,999 px</span></td><td class='num'>0.0049<br><span class='small'>0.40×</span></td><td class='num'>0.0104<br><span class='small'>0.84×</span></td><td class='num'>0.0053<br><span class='small'>0.50×</span></td><td class='num'>0.0115<br><span class='small'>0.94×</span></td><td class='num'>0.0138<br><span class='small'>1.12×</span></td></tr><tr><td class='mono'>HE_lin_tc<br><span class='small'>HE_lin_tc|cov0.02|sp3</span></td><td class='num'><b>0.39×</b><br><span class='small'>19,319 px</span></td><td class='num'>0.0128<br><span class='small'>0.39×</span></td><td class='num'>0.0260<br><span class='small'>0.80×</span></td><td class='num'>0.0201<br><span class='small'>0.87×</span></td><td class='num'>0.0211<br><span class='small'>0.65×</span></td><td class='num'>0.0208<br><span class='small'>0.65×</span></td></tr><tr><td class='mono'>HA_worms_grav<br><span class='small'>HA_worms_grav|cov0.03|sp3</span></td><td class='num'><b>0.39×</b><br><span class='small'>33,739 px</span></td><td class='num'>0.0210<br><span class='small'>0.45×</span></td><td class='num'>0.0182<br><span class='small'>0.39×</span></td><td class='num'>0.0116<br><span class='small'>0.39×</span></td><td class='num'>0.0416<br><span class='small'>0.89×</span></td><td class='num'>0.0246<br><span class='small'>0.53×</span></td></tr><tr><td class='mono'>R6_condbase<br><span class='small'>R6_condbase|cov0.08|sp3</span></td><td class='num'><b>0.30×</b><br><span class='small'>60,685 px</span></td><td class='num'>0.0307<br><span class='small'>0.49×</span></td><td class='num'>0.0271<br><span class='small'>0.43×</span></td><td class='num'>0.0104<br><span class='small'>0.30×</span></td><td class='num'>0.0326<br><span class='small'>0.52×</span></td><td class='num'>0.0327<br><span class='small'>0.52×</span></td></tr><tr><td class='mono'>R7_hinge_curv<br><span class='small'>R7_hinge_curv|cov0.08|sp3</span></td><td class='num'><b>0.20×</b><br><span class='small'>60,322 px</span></td><td class='num'>0.0325<br><span class='small'>0.52×</span></td><td class='num'>0.0291<br><span class='small'>0.46×</span></td><td class='num'>0.0069<br><span class='small'>0.20×</span></td><td class='num'>0.0398<br><span class='small'>0.63×</span></td><td class='num'>0.0353<br><span class='small'>0.56×</span></td></tr><tr><td class='mono'>HD_strain<br><span class='small'>HD_strain|cov0.08|sp3</span></td><td class='num'><b>0.19×</b><br><span class='small'>47,431 px</span></td><td class='num'>0.0108<br><span class='small'>0.19×</span></td><td class='num'>0.0542<br><span class='small'>0.97×</span></td><td class='num'>0.0100<br><span class='small'>0.31×</span></td><td class='num'>0.0600<br><span class='small'>1.07×</span></td><td class='num'>0.0658<br><span class='small'>1.18×</span></td></tr><tr><td class='mono'>control<br><span class='small'>CTRL_catalogue_dilate_1px</span></td><td class='num'><b>0.00×</b><br><span class='small'>131,778 px</span></td><td class='num'>0.0000<br><span class='small'>0.00×</span></td><td class='num'>0.0000<br><span class='small'>0.00×</span></td><td class='num'>0.0000<br><span class='small'>0.00×</span></td><td class='num'>0.0000<br><span class='small'>0.00×</span></td><td class='num'>0.0000<br><span class='small'>0.00×</span></td></tr><tr><td class='mono'>R7_grain<br><span class='small'>R7_grain|cov0.005|sp1</span></td><td class='num'><b>0.00×</b><br><span class='small'>25,836 px</span></td><td class='num'>0.0000<br><span class='small'>0.00×</span></td><td class='num'>0.0074<br><span class='small'>0.19×</span></td><td class='num'>0.0029<br><span class='small'>0.11×</span></td><td class='num'>0.0050<br><span class='small'>0.13×</span></td><td class='num'>0.0121<br><span class='small'>0.31×</span></td></tr></tbody></table></div>
+  <p class="small"><b>Protocol:</b> 18 folds total —
+  3 folds for each of
+  random, short, isolated, oriented, dense system-withholding rules, plus
+  3 raw 8-connected segment folds. Approximately
+  25% of known fault mass withheld per fold;
+  5-pixel evaluation buffer. Catalogue-derived
+  tip/horsetail features are rebuilt per fold from visible catalogue; the exact
+  visible known-fault mask is applied; DTI is scored on withheld truth only.
+  The low-slope-third slice is reported only as a robustness stress test.</p>
+  <div class="scroll"><table><thead><tr><th>recipe</th>
+  <th class="num">worst-rule mean DTI</th><th class="num">overall mean DTI</th>
+  <th class="num">mean weighted precision</th><th class="num">mean weighted recall</th>
+  <th class="num">mean effective positive support</th><th class='num'>random</th><th class='num'>short</th><th class='num'>isolated</th><th class='num'>oriented</th><th class='num'>dense</th><th class='num'>segment_random</th></tr></thead>
+  <tbody><tr><td>BASE_topo_ridge · 5% · spacing 3</td><td class='num'>0.0869</td><td class='num'>0.0976</td><td class='num'>0.0276</td><td class='num'>0.2874</td><td class='num'>185,290</td><td class='num'>0.0916</td><td class='num'>0.0876</td><td class='num'>0.0909</td><td class='num'>0.1271</td><td class='num'>0.1018</td><td class='num'>0.0869</td></tr><tr><td>BASE_topo_ridge · 3% · spacing 3</td><td class='num'>0.0780</td><td class='num'>0.0865</td><td class='num'>0.0291</td><td class='num'>0.1810</td><td class='num'>110,543</td><td class='num'>0.0828</td><td class='num'>0.0792</td><td class='num'>0.0875</td><td class='num'>0.1048</td><td class='num'>0.0869</td><td class='num'>0.0780</td></tr><tr><td>R8 union · spacing 3</td><td class='num'>0.0558</td><td class='num'>0.0662</td><td class='num'>0.0161</td><td class='num'>0.3292</td><td class='num'>366,415</td><td class='num'>0.0558</td><td class='num'>0.0573</td><td class='num'>0.0590</td><td class='num'>0.0900</td><td class='num'>0.0625</td><td class='num'>0.0723</td></tr><tr><td>R8 without catalogue geometry · spacing 3</td><td class='num'>0.0633</td><td class='num'>0.0722</td><td class='num'>0.0181</td><td class='num'>0.3125</td><td class='num'>309,387</td><td class='num'>0.0650</td><td class='num'>0.0661</td><td class='num'>0.0685</td><td class='num'>0.0981</td><td class='num'>0.0720</td><td class='num'>0.0633</td></tr></tbody></table></div>
+  <p class="small">These are local known-catalogue recovery scores, not performance
+  estimates for the undisclosed test distribution. Candidate selection and this table
+  use direct DTI; historical candidate-to-chance ratios have been withdrawn. The
+  random-control check is an approximate same-run diagnostic, not a universal baseline
+  or submission-clearance criterion.</p>
 </section>
 
 <section>
@@ -121,11 +137,12 @@ DTI  = 0.6028 → 0.60  ✓</code></pre>
       <p class="small">Our mirrored template is value-identical to
       <code>existing_faults.tif</code> (60,988 ones), but the official page says the
       sample “predicts total fault absence”. Needs a logged-in re-download to settle.</p></div>
-    <div class="panel"><h3 style="margin-top:0"><span class="tag t-bad">🔴 I-4</span>
-      Multiple leaderboard accounts</h3>
-      <p class="small">Reported scores match the “best public” values of at least five
-      distinct accounts. The rules require a single entry, cap submissions at three per
-      week, and require eligibility certification under penalty of perjury.</p></div>
+    <div class="panel"><h3 style="margin-top:0"><span class="tag t-warn">🟠 I-4</span>
+      Account ownership is unverified</h3>
+      <p class="small">Score/rank matches do not establish who controls leaderboard
+      accounts. The repository makes no allegation of shared ownership or an
+      eligibility violation; see the official rules and resolve only from verified
+      account records.</p></div>
     <div class="panel"><h3 style="margin-top:0"><span class="tag t-warn">🟠 I-2</span>
       Band 6 <code>tc</code> is <b>UNIDENTIFIED</b></h3>
       <p class="small">Its embedded description says “Tilt angle <i>or</i> total
@@ -139,9 +156,10 @@ DTI  = 0.6028 → 0.60  ✓</code></pre>
       the data-tab documentation is required to settle it.
       Measured by <code>scripts/audit_bands.py</code>.</p></div>
     <div class="panel"><h3 style="margin-top:0"><span class="tag t-warn">🟡 I-6</span>
-      The target moved</h3>
-      <p class="small">The brief says 0.3049 is top. As fetched today it is
-      <b>0.3168</b> (DARD).</p></div>
+      Dated leaderboard snapshot</h3>
+      <p class="small">Fetched 2026-09-30: <b>0.3168</b> (DARD) and
+      <b>0.3042</b> (alexoktaba). Both are account-level “Best public” values,
+      not per-submission receipts.</p></div>
   </div>
   <p class="small">Full list with evidence and actions:
   <a href="https://github.com/buffedlizard55-lab/13GEMSDOE/blob/main/knowledge/02_irregularities.md">knowledge/02_irregularities.md</a>.</p>
@@ -149,7 +167,7 @@ DTI  = 0.6028 → 0.60  ✓</code></pre>
 <footer class="site"><div class="wrap">
   <p><strong>13GEMSDOE</strong> — working repository for the
   <a href="https://www.drivendata.org/competitions/306/competition-doe-gems/">DOE GEMS Prize Challenge</a>.
-  Page generated 2026-09-30 01:51 UTC from <code>reports/*.json</code>.</p>
+  Page generated 2026-09-30 18:14 UTC from <code>reports/*.json</code>.</p>
   <p class="small">Every figure on this site is produced by a script in this
   repository and is reproducible from a clean checkout. Claims that could not be
   verified against an official source are listed as irregularities rather than

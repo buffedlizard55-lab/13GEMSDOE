@@ -1,7 +1,8 @@
 # Verified fact base — GEMS Prize Challenge
 
-**Verification date: 2026-09-28, re-verified line by line 2026-09-29.** Every
-line below was fetched from the named official URL during those sessions.
+**Verification date: 2026-09-28, re-verified line by line 2026-09-29; leaderboard
+snapshot refreshed 2026-09-30.** Every line below was fetched from the named official
+URL during those sessions.
 Anything I could **not** verify is in
 [`02_irregularities.md`](02_irregularities.md) and is explicitly marked
 `UNVERIFIED`. Nothing here is recalled from memory.
@@ -36,7 +37,7 @@ for why band 6 is now reported as UNIDENTIFIED rather than as either reading.
 |---|------|--------|
 | 1.1 | Task: predict pixel-wise presence of **geological faults** as indicators of geothermal resources. | [Problem description](https://www.drivendata.org/competitions/306/competition-doe-gems/page/967/) |
 | 1.2 | The test set is a set of **newly identified faults not in the public USGS database**, manually labelled by fault experts. | [Problem description](https://www.drivendata.org/competitions/306/competition-doe-gems/page/967/) |
-| 1.3 | The GeoDAWN region is chunked into a **public** and a **private** test set. The public leaderboard shows public-test performance. | [Problem description](https://www.drivendata.org/competitions/306/competition-doe-gems/page/967/) |
+| 1.3 | The GeoDAWN region is chunked into a **public** and a **private** test set. The public leaderboard reports an account-level **Best public DW-Tversky** value; it is not a per-submission receipt. Snapshot on 2026-09-30: DARD 0.3168, alexoktaba 0.3042. | [Problem description](https://www.drivendata.org/competitions/306/competition-doe-gems/page/967/) · [official leaderboard](https://www.drivendata.org/competitions/306/competition-doe-gems/leaderboard/) · [`reports/leaderboard_snapshot_2026-09-30.json`](../reports/leaderboard_snapshot_2026-09-30.json) |
 | 1.4 | **Initial/Phase‑1 round**: $50,000, split equally among top 5, scored on the private set. | [Problem description](https://www.drivendata.org/competitions/306/competition-doe-gems/page/967/) · [Official Rules §1.1](https://docs.nlr.gov/docs/fy26osti/96647.pdf) |
 | 1.5 | **Final/Phase‑2 round**: $250,000 — $100k / $70k / $40k / $25k / $15k — re-scoring the *same* submissions against an **expanded** label set built by expert review of **every team's** submission. | [Problem description](https://www.drivendata.org/competitions/306/competition-doe-gems/page/967/) · [Official Rules §1.1](https://docs.nlr.gov/docs/fy26osti/96647.pdf) |
 | 1.6 | Competitors must choose **a single submission** for scoring across both rounds, before the deadline, **without knowing private performance**. | [Problem description](https://www.drivendata.org/competitions/306/competition-doe-gems/page/967/) |
@@ -84,17 +85,21 @@ Official worked example: `TP_w = 3.00, FP_w = 1.89, FN_w = 2.00 → 0.60`.
 | A6 | Scaling every prediction up toward 1 **strictly** increases DTI: `DTI(c·p) = TP/(0.2TP + 0.2FP + 0.8|G|/c)`. A pixel exactly on truth has `k(0)=1` so it costs **zero** FP mass. The optimum is therefore **binary**; graded values only encode ranking. | **monotone over 8 scales** |
 | A7 | A relative gain in recall beats the same relative gain in precision **iff** `P_w > 0.25 · R_w`. Elasticities always sum to 1. | **proved + 40/40 grid points agree** |
 
-**A5 is the headline.** At our current best public score of 0.1563 the
-threshold is `0.2 × 0.1563 = 0.0313`. *Any* block of predictions whose weighted
-precision exceeds **3.1 %** raises the score. Against the current #1 (0.3168)
-the threshold is still only **6.3 %**. A 0.5 probability cutoff is
-catastrophically over-conservative for this metric.
+**A5 is a conditional decision rule, not a leaderboard forecast.** For a score
+`DTI = d`, a block of added predictions helps iff its marginal weighted precision
+exceeds `0.2 × d`. The arithmetic is exact; the applicable `d` must come from the
+same evaluation set. The historical 0.1563 labels are not verified per-file public
+scores and must not be used as “our current DTI.” For context only, at the official
+2026-09-30 **account-level** leader score of 0.3168 the arithmetic value is 0.06336;
+that is not a threshold estimate for any local file or private test. Tune coverage and
+cutoffs on the known-truth holdout, not by assertion or leaderboard extrapolation.
 
-**A6 + the max in TP_w give the geometry rule.** `TP_w` takes a *max* over the
-300 m neighbourhood, so a second predicted pixel within 300 m of the first adds
-FP mass and **no** extra credit. Thick ridges and 100‑m-spaced lines are pure
-waste; the efficient primitive is a **decimated 1‑px line**. This is tested
-directly in `scripts/tune_geometry.py`.
+**A6 + the max in TP_w motivate, but do not dictate, spacing.** Once a truth pixel's
+maximum credit is saturated, a nearby redundant prediction may add false-positive
+mass without more credit for that truth. Nearby predictions can still serve a
+different truth pixel, so spacing is not a universal 300 m rule. Settle line spacing,
+ridge width, and fusion numerically on the multiple-rule holdout; do not assume every
+100 m-spaced or thick line is waste. The previous categorical wording is withdrawn.
 
 ---
 

@@ -1,9 +1,9 @@
 {
   "name": "13gems-r8-ensemble-20260930T014614Z",
   "generated_utc": "20260930T014614Z",
-  "note_for_submission_form": "R8 geothermal-vent ensemble: tip-rays 2000m + horse splay + openness 2% + TPI 1% + flow 2% + isocoherence 0.5% + remanence 0.5% + intersections 1% + topo 3%, decimated 1-per-3px, hidden-vent focus, binary 0/1, catalogue included (masked at scoring)",
+  "note_for_submission_form": "Exploratory R8 union: 2 km tip rays + horsetail; openness 2%, TPI 1%, flow 2%, isocoherence 0.5%, remanence 0.5%, intersections 1%, topo 3%; 1-per-3-px thinning; binary. Rebuilt local visible-only holdout did not beat BASE_topo_ridge; not submission-cleared.",
   "recipe_selection": {
-    "selected_by": "holdout worst-rule + concealed-subset + geothermal permeability literature (Faulds/BRIDGE/INGENIOUS)",
+    "selected_by": "Exploratory synthesis of detector hypotheses; the full ensemble was not tested when this raster was created.",
     "detectors": [
       "extension_rays",
       "horsetail_splay",
@@ -15,8 +15,8 @@
       "R8_intersections",
       "BASE_topo_ridge"
     ],
-    "objective": "maximize worst-rule lift (intersections/flow for vent permeability) while covering organizer-named extensions/splays/corrections + hidden intrabasin vents",
-    "geothermal_basis": "fault intersections/step-overs/accommodation zones = highest permeability (Faulds 2013, BRIDGE SAND2025-01826); hidden systems have no surface scarp so need openness/TPI/flow/hydrology not slope"
+    "objective": "Test a broad union of fault-tip geometry, terrain, hydrology, gravity, and magnetic hypotheses; no hidden-test performance claim.",
+    "geothermal_basis": "Literature motivates these layers as permeability or concealed-structure hypotheses; their local holdout contribution must be measured and is not assumed."
   },
   "map_stats": {
     "recipe": "r8_ensemble",
@@ -76,9 +76,10 @@
   "validation": {
     "nan_outside": {
       "ok": true,
+      "official_format_conformant": true,
       "errors": [],
       "warnings": [
-        "7111787 NaN cells. Official format permits nan OUTSIDE the data bounds, but some validators reject nan. An all-finite twin is written alongside every submission for exactly this reason."
+        "7111787 NaN cells. The official format requires null/NaN outside the data bounds; verify their location against the supplied footprint and record the official form's response before upload."
       ],
       "stats": {
         "driver": "GTiff",
@@ -101,16 +102,24 @@
         "n_finite": 5167373,
         "n_nan": 7111787,
         "n_inf": 0,
+        "n_valid_footprint": 5167373,
+        "n_nan_inside_footprint": 0,
+        "n_finite_outside_footprint": 0,
+        "n_nan_outside_footprint": 7111787,
+        "outside_nodata_ok": true,
         "min": 0.0,
         "max": 1.0,
         "sum": 452679.0,
         "n_gt0": 452679
       }
     },
-    "all_finite": {
+    "all_finite_diagnostic": {
       "ok": true,
+      "official_format_conformant": false,
       "errors": [],
-      "warnings": [],
+      "warnings": [
+        "7111787 finite values outside the valid footprint; official format requires null/NaN outside bounds; zero-fill is diagnostic only"
+      ],
       "stats": {
         "driver": "GTiff",
         "shape": [
@@ -132,6 +141,11 @@
         "n_finite": 12279160,
         "n_nan": 0,
         "n_inf": 0,
+        "n_valid_footprint": 5167373,
+        "n_nan_inside_footprint": 0,
+        "n_finite_outside_footprint": 7111787,
+        "n_nan_outside_footprint": 0,
+        "outside_nodata_ok": false,
         "min": 0.0,
         "max": 1.0,
         "sum": 452679.0,
@@ -144,5 +158,17 @@
     "marginal_precision_needed_to_help": "0.2 x current DTI",
     "binary_is_optimal": "DTI(c*p) strictly increases in c"
   },
-  "official_format_source": "https://www.drivendata.org/competitions/306/competition-doe-gems/page/967/"
+  "official_format_source": "https://www.drivendata.org/competitions/306/competition-doe-gems/page/967/",
+  "validation_scope": {
+    "checked_utc": "2026-09-30",
+    "checks": "GeoTIFF grid, CRS, affine transform, dtype, band count, finite in-footprint values, range, and outside-footprint NoData against the supplied valid mask.",
+    "remote_acceptance": "UNKNOWN; the historical remote range rejection does not identify the cause.",
+    "no_data_decision": "NaN-outside follows the official format text. Zero-fill is retained as a diagnostic only and is not treated as equivalent."
+  },
+  "submission_clearance": {
+    "status": "NOT_CLEARED",
+    "reason": "The archived full-catalogue raster is not scored directly because its catalogue-derived tip/horsetail features would leak holdout truth. A per-fold rebuild using visible catalogue was tested; it did not beat the local BASE_topo_ridge comparator on the confirmation folds.",
+    "holdout_report": "reports/holdout_candidate_r8_2026-09-30.json",
+    "private_test_claim": false
+  }
 }

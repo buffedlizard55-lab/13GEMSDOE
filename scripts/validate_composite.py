@@ -1,22 +1,12 @@
 #!/usr/bin/env python3
-"""Validate the composite submission recipe on BOTH holdout regimes.
+"""Historical local comparison of tip-extension and whole-system folds.
 
-The two holdouts measure different things and disagree, which is the point:
-
-  isolated-systems holdout  ->  "find a completely unmapped fault system"
-                                nothing beats chance (best 1.06x)
-  tip-extension holdout     ->  "recover missing geometry of a mapped system"
-                                directional tip rays reach 14-16x chance
-
-The real label set is a mixture of the two, in unknown proportion. The metric
-tells us exactly how to hedge: a block of predictions raises DTI iff its
-marginal weighted precision exceeds 0.2 x DTI (~3%). Tip rays measured 37%
-weighted precision, so they are always worth including; broad coverage buys the
-chance-level bulk. So the composite is
-
-    max(tip rays, broad fill at coverage c, known catalogue)
-
-and this script sweeps c on both holdouts at once.
+The script evaluates direct DTI for four fixed catalogue hide-and-recover
+folds (two terminal-tip folds and two whole-system random folds). These folds
+represent distinct local questions, not a known mixture of the competition's
+undisclosed labels. Do not combine them with chance ratios or treat them as a
+submission gate; candidate decisions require the current multi-rule confirmation
+protocol and direct DTI.
 """
 from __future__ import annotations
 
@@ -31,7 +21,6 @@ from scipy import ndimage as ndi
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 sys.path.insert(0, str(ROOT / "scripts"))
-from chance_baseline import dti_chance       # noqa: E402
 from gems import detectors as D              # noqa: E402
 from gems.fastscore import FoldScorer        # noqa: E402
 from gems.holdout import build_folds         # noqa: E402
@@ -84,7 +73,7 @@ def main() -> None:
             for cov in COVS:
                 rec = {"reach": reach, "spacing": sp, "fill_cov": cov,
                        "per_regime": {}}
-                lifts = []
+                dti_values = []
                 for name, (h, vis, em, sc) in regimes.items():
                     r = rays[(name, reach)]
                     m = (r > 0) & em
@@ -95,46 +84,53 @@ def main() -> None:
                     p = m.astype(np.float32)
                     s = sc.score(p)
                     mass = float(p.sum())
-                    ch = dti_chance(mass, sc.n_truth, n_valid)
-                    lift = s["dti"] / ch if ch > 0 else 0.0
-                    lifts.append(lift)
+                    dti_values.append(float(s["dti"]))
                     rec["per_regime"][name] = {
-                        "dti": round(s["dti"], 5), "chance": round(ch, 5),
-                        "lift": round(lift, 3),
-                        "precision_w": round(s["precision_w"], 5),
-                        "recall_w": round(s["recall_w"], 5),
-                        "mass": int(mass)}
-                rec["worst_lift"] = round(min(lifts), 4)
-                rec["mean_lift"] = round(float(np.mean(lifts)), 4)
-                rec["geo_mean_lift"] = round(
-                    float(np.exp(np.mean(np.log(np.maximum(lifts, 1e-6))))), 4)
+                        "dti": round(s["dti"], 6),
+                        "precision_w": round(s["precision_w"], 6),
+                        "recall_w": round(s["recall_w"], 6),
+                        "mass": int(mass), "n_truth": int(sc.n_truth),
+                        "n_eval_px": int(em.sum())}
+                rec["mean_dti_four_folds"] = round(float(np.mean(dti_values)), 6)
+                rec["minimum_single_fold_dti"] = round(min(dti_values), 6)
                 out.append(rec)
 
-    out.sort(key=lambda z: -z["geo_mean_lift"])
+    # The four folds are intentionally heterogeneous; this is a descriptive
+    # direct-DTI sort, not a mixture estimate or submission selection.
+    out.sort(key=lambda z: (-z["minimum_single_fold_dti"],
+                            -z["mean_dti_four_folds"]))
     hdr = (f"{'reach':>6s} {'sp':>3s} {'fill':>6s} {'mass':>9s} "
            f"{'tip20':>7s} {'tip30':>7s} {'iso1':>7s} {'iso2':>7s} "
-           f"{'geo':>6s} {'worst':>6s}")
-    print("\n=== COMPOSITE: lift over chance in BOTH regimes ===")
+           f"{'mean':>7s} {'min':>7s}")
+    print("\n=== EXPLORATORY COMPOSITE: direct DTI on four fixed folds ===")
     print(hdr); print("-" * len(hdr))
     for r in out[:20]:
         pr = r["per_regime"]
         print(f"{r['reach']:6d} {r['spacing']:3d} {r['fill_cov']:6.3f} "
               f"{pr['tip20']['mass']:9,d} "
-              f"{pr['tip20']['lift']:7.2f} {pr['tip30']['lift']:7.2f} "
-              f"{pr['isolated_random']['lift']:7.2f} "
-              f"{pr['isolated_random2']['lift']:7.2f} "
-              f"{r['geo_mean_lift']:6.2f} {r['worst_lift']:6.2f}")
+              f"{pr['tip20']['dti']:7.4f} {pr['tip30']['dti']:7.4f} "
+              f"{pr['isolated_random']['dti']:7.4f} "
+              f"{pr['isolated_random2']['dti']:7.4f} "
+              f"{r['mean_dti_four_folds']:7.4f} "
+              f"{r['minimum_single_fold_dti']:7.4f}")
 
     (REP / "composite_validation.json").write_text(json.dumps(
         {"generated_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
-         "regimes": {k: {"n_hidden": int(v[3].n_truth)} for k, v in regimes.items()},
-         "note": ("geo_mean_lift is the geometric mean of lift over chance "
-                  "across both regimes; it is the hedging objective because we "
-                  "do not know the mixture proportion in the real label set."),
+         "scope": "LOCAL_PROXY_FOUR_FIXED_FOLDS_NOT_PRIVATE_TEST_PERFORMANCE",
+         "selection": "descriptive direct-DTI ordering only; no chance ratio or submission gate",
+         "regimes": {k: {"n_hidden": int(v[3].n_truth),
+                         "n_eval_px": int(v[2].sum())}
+                     for k, v in regimes.items()},
+         "note": ("Tip-continuation folds and whole-system folds answer distinct "
+                  "local questions. Their mixture in the undisclosed test is unknown; "
+                  "the unweighted mean is a descriptive summary only."),
          "sweep": out}, indent=2))
     b = out[0]
-    print(f"\nBEST HEDGE: reach={b['reach']} spacing={b['spacing']} "
-          f"fill_coverage={b['fill_cov']}  geo-mean lift {b['geo_mean_lift']:.2f}x")
+    print(f"\nTop descriptive configuration: reach={b['reach']} "
+          f"spacing={b['spacing']} fill_coverage={b['fill_cov']} "
+          f"mean DTI={b['mean_dti_four_folds']:.4f}; "
+          f"minimum single-fold DTI={b['minimum_single_fold_dti']:.4f} "
+          "(not submission clearance).")
     print(f"wrote {REP/'composite_validation.json'} ({time.time()-t0:.0f}s)")
 
 

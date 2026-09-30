@@ -1,50 +1,8 @@
 {
-  "generated_utc": "2026-09-30T01:46:50Z",
-  "note": "Single-coverage (0.05, sp3) worst-rule lift measured on 5 hide-and-recover folds (random_0, short_0, isolated_0, strike_60_120, dense_0) vs closed-form chance at actual predicted count. Full sweep not yet run due to compute limit; these are the 5-fold means.",
-  "measurements": {
-    "R8_openness": {
-      "worst": 1.054,
-      "mean": 1.092,
-      "concealed_worst": 0.298,
-      "concealed_mean": 0.473,
-      "n_pred": 258368
-    },
-    "R8_tpi": {
-      "worst": 0.88,
-      "mean": 0.996,
-      "concealed_worst": 0.07,
-      "concealed_mean": 0.107
-    },
-    "R8_flow": {
-      "worst": 0.978,
-      "mean": 1.026,
-      "concealed_worst": 1.337,
-      "concealed_mean": 1.49
-    },
-    "R8_isocoherence": {
-      "worst": 0.449,
-      "mean": 0.58,
-      "concealed_worst": 0.418,
-      "concealed_mean": 0.522
-    },
-    "R8_remanence": {
-      "worst": 0.475,
-      "mean": 0.925,
-      "concealed_worst": 0.276,
-      "concealed_mean": 0.422
-    },
-    "R8_intersections": {
-      "worst": 0.281,
-      "mean": 0.623,
-      "concealed_worst": 0.072,
-      "concealed_mean": 0.217
-    },
-    "BASE_topo_ridge": {
-      "worst": 1.055,
-      "mean": 1.095,
-      "concealed_worst": 0.271,
-      "concealed_mean": 0.514
-    }
-  },
-  "verdict": "No R8 detector beats BASE_topo_ridge (1.055) on isolated-system worst-rule. R8_flow is the only detector beating chance on the concealed flat subset (1.34x), the hidden-vent analogue. R8_openness ties topo on isolated. R8 ensemble therefore hedges both regimes."
+  "status": "WITHDRAWN_CHANCE_DOMAIN_MISMATCH",
+  "purpose": "Legacy five-fold R8 detector screen at cov0.05/sp3; its chance-lift values are no longer valid for comparison.",
+  "reason": "The prior closed-form chance calculation used the full valid-grid size even though predictions were restricted to the smaller fold eval_mask. Do not use the recorded worst/mean lift values or its hidden-vent interpretation.",
+  "replacement_for_raw_local_dti": "reports/holdout_r8_quick.json",
+  "replacement_for_R8_ensemble_comparison": "reports/holdout_candidate_r8_2026-09-30.json",
+  "scope": "Any replacement DTI remains a local known-catalogue proxy measurement, not private-test performance."
 }

@@ -124,105 +124,56 @@ next are `gauss9_b19` −0.3270 and `gradmag_b12` −0.2997. Nothing reaches
   with p50 18.48 and p99 29.10, and is smoother than every supplied gradient
   band. A count in CPS is neither bounded at 88 nor smooth.
 
-Both cannot be true of the same array. The two hypotheses are **not** in
-conflict with each other — they are in conflict with each other's evidence, and
-only the data‑tab documentation can settle it. **No code change is warranted**:
-`HE_lin_tc` is already treated as an unlabelled‑input lineament detector, and its
-holdout numbers (0.39–0.67 worst‑rule lift) are recorded as a measurement of
-that detector, not as a radiometric hypothesis.
+These observations do not identify band 6. Only the data-tab documentation can
+settle its meaning. `HE_lin_tc` is treated as an unlabelled-input lineament feature,
+not as a verified radiometric or tilt measurement. Its historical chance/lift values
+are withdrawn: they used a mismatched evaluation-domain denominator and should not
+be cited as evidence for the feature or either geological interpretation.
 
 ---
 
-## I‑3 🔴 CRITICAL — the 0.1563 plateau is a *measurement* artefact, not a modelling plateau
+## I‑3 🟠 UNRESOLVED — repeated 0.1563 labels do not establish a plateau or a measurement artefact
 
-Three things are simultaneously true, and together they explain the plateau.
+The official DrivenData leaderboard labels its score column **“Best public
+DW-Tversky”** ([leaderboard](https://www.drivendata.org/competitions/306/competition-doe-gems/leaderboard/)).
+That is an account-level best, not a receipt identifying the score of a particular
+uploaded TIFF. The dated snapshot in `reports/leaderboard_snapshot_2026-09-30.json`
+records DARD at 0.3168 and alexoktaba at 0.3042; those values are also account-level
+best-public scores.
 
-**(a) The leaderboard column is "Best public", not "last submission".**
-The column header on the
-[leaderboard](https://www.drivendata.org/competitions/306/competition-doe-gems/leaderboard/)
-reads verbatim: `Best public DW-Tversky (in descending order)`. Once an account
-records 0.1563, it displays 0.1563 forever, regardless of what is submitted
-afterwards.
+Several historical local TIFF filenames and team notes carry the value 0.1563.
+However, `reports/leaderboard_ledger.csv` has `per_submission_score=UNKNOWN` for those
+artifacts, and no per-submission receipt currently maps a public score to a local file.
+The structural comparisons in `reports/scored_forensics.json` answer a different
+question: they compare TIFF bytes, canonical pixel values, positive-pixel support,
+and support overlap. A matching rounded label proves none of those identities; a
+large or small support IoU does not verify which file received which score.
 
-**(b) Three *separate leaderboard accounts* sit at exactly 0.1563.**
+**Conclusion:** neither a modeling plateau nor a leaderboard measurement artefact is
+established. The previous claim that the plateau was “almost certainly” an account-best
+misread is withdrawn. Equal rounded scores are not a prediction-identity test, and
+distinct maps may legitimately receive the same score rounded to four decimals.
 
-| rank | account | submissions | best public |
-|---|---|---|---|
-| #26 | extradr19 | 3 | 0.1563 |
-| #27 | SDCF9 | 3 | 0.1563 |
-| #28 | smashi34 | 2 | 0.1563 |
-
-The reported scores for GEMSDOE1, 5GEMSDOE and 8GEMSDOE are also 0.1563 —
-three values, three accounts.
-
-**(c) The two files reported as 0.1563 are not remotely the same map.**
-Measured in `reports/scored_forensics.json`:
-
-| pair | IoU of support | Pearson r |
-|---|---|---|
-| `gemsdoe1_ens12` vs `gems8_apex` (both reported 0.1563) | **0.0670** | **−0.546** |
-| `gemsdoe1_ens12` vs `gemsdoe2_dualunion` (0.1563 vs 0.1560) | **0.9419** | — (both binary) |
-
-Two maps sharing 6.7 % of their support and *anti-correlated* cannot produce
-the same score to four decimals. Two maps sharing 94 % of their support scoring
-0.1563 and 0.1560 obviously can.
-
-**Independent corroboration.** `gems8_apex` puts **90.8 %** of its predicted
-mass within 300 m of a known fault trace. The only other map that
-catalogue-hugging is `gems6_hgb88` (69.5 %), and it scored **0.0286** — the
-worst of the eight. Under the organizer's verified statement that a pixel near
-a known trace but far from a *new*-fault pixel is "fully penalized", `gems8_apex`
-should score in the same low range, not 0.1563.
-
-**Conclusion.** `0.1563` is almost certainly the *account best* carried over
-from one earlier submission, recorded three times. The team has been reading
-the leaderboard's best-score column and attributing it to whatever was uploaded
-most recently. **Most submissions' true scores are unknown.**
-
-**Action (cheap, do this first).** DrivenData shows a per-submission score on
-the *submissions* page of each account. Read the actual per-submission scores
-and back-fill `reports/leaderboard_ledger.csv`. Until that is done, every
-"which idea worked" conclusion drawn from these numbers is unsound. This is
-also why the holdout in this repo exists: it is the only feedback channel we
-control.
+**Action:** keep per-file public scores unknown until the DrivenData submission details
+provide a receipt that can be tied to a submission ID and the exact GeoTIFF checksum.
+Until then, do not use these score labels to decide which geological idea worked.
 
 ---
 
-## I‑4 🔴 CRITICAL — apparent use of multiple DrivenData accounts (eligibility risk)
+## I‑4 🟠 UNVERIFIED — account ownership and eligibility cannot be inferred from score matches
 
-The scores reported to me match, one-for-one, the "Best public" values of
-several **distinct** leaderboard accounts:
+Earlier working notes associated some leaderboard handles with the project, but the
+public leaderboard does not establish who controls an account. Similar account-best
+scores or rankings are not evidence of common ownership, shared submissions, or an
+eligibility violation. This repository therefore makes no allegation about account
+ownership.
 
-| reported | matching account | rank | submissions |
-|---|---|---|---|
-| 0.1563 ×3 | extradr19 / SDCF9 / smashi34 | #26/#27/#28 | 3 / 3 / 2 |
-| 0.1461 (7GEMSDOE) | **wbg1** (named in the 10GEMSDOE notes) | #33 | 4 |
-| 0.1193 (GEMSDOE3) | smrtdoog5 | #48 | 2 |
-| 0.1294 (12GEMSDOE) | op01 → 0.1293 | #44 | 2 |
-
-`SDCF9` and `wbg1` are written in the session notes as our own handles.
-
-**Official position.** The rules require that *"Participants will submit a
-**single entry**"* ([§1.1](https://docs.nlr.gov/docs/fy26osti/96647.pdf)), that
-submissions are limited to *"three submissions per week"*
-([§3.2](https://docs.nlr.gov/docs/fy26osti/96647.pdf)), and that an authorised
-representative certifies eligibility **under penalty of perjury** citing
-18 U.S.C. §§ 1001 and 287 ([§1.3](https://docs.nlr.gov/docs/fy26osti/96647.pdf)).
-Section 1.3 also states: *"As soon as the prize administrator becomes aware
-that a competitor is not eligible to win the prize, the competitor may be
-disqualified."*
-
-**I cannot verify account ownership from here** — that is an assertion about
-people, not files. But if one group is operating several accounts to obtain
-more than three submissions per week, the $300,000 is at risk no matter how
-good the model is.
-
-**Action.** Resolve this before any further modelling. If in doubt, ask the
-organizers directly via `info@drivendata.org` or the forum; the
-["Institutional Limit"](https://community.drivendata.org/t/institutional-limit/11526)
-and ["Team member eligibility"](https://community.drivendata.org/t/team-member-eligibility-competition-homepage-vs-official-rules/11540)
-threads show they answer this class of question. Consolidating onto one account
-also *fixes* I‑3, because then the leaderboard best is attributable.
+The official rules do impose entry and submission requirements
+([Official Rules](https://docs.nlr.gov/docs/fy26osti/96647.pdf), §§1.1, 1.3, 3.2).
+If internal account records raise a real compliance question, verify it with the
+organizers rather than infer it from rounded leaderboard values. The earlier claim
+that consolidating accounts would “fix” I‑3 is withdrawn; account consolidation cannot
+supply the missing per-submission score-to-file evidence.
 
 ---
 
@@ -235,12 +186,14 @@ their results cannot be audited or reproduced.
 
 ---
 
-## I‑6 🟡 The leaderboard target has moved
+## I‑6 🟡 The leaderboard target has moved — dated account-level snapshot
 
-The brief states the top score is **0.3049**. As fetched on 2026‑09‑28 the
-public leaderboard top is **0.3168** (DARD, 11 submissions), with 0.2993
-(alexoktaba) second. The bar for "top of the leaderboard" is 0.3168 and rising.
-Our best *attributable* public score is 0.1563 — rank ~#26 of 50+.
+The official leaderboard was fetched on **2026-09-30**. Its “Best public
+DW-Tversky” column listed DARD at **0.3168** (#1) and alexoktaba at **0.3042** (#2)
+([official leaderboard](https://www.drivendata.org/competitions/306/competition-doe-gems/leaderboard/);
+see `reports/leaderboard_snapshot_2026-09-30.json`). The snapshot is time-sensitive
+and reports account-level best-public scores, not per-submission receipts. No public
+score is currently attributable to a local prediction file in this repository.
 
 ---
 
@@ -255,23 +208,19 @@ also employs the geology experts who labelled the new faults
 
 ---
 
-## I‑8 🟠 The submission that was rejected
+## I‑8 🟠 UNRESOLVED — the rejected file's remote validation cause is unknown
 
 The reported rejection message is `Predicted values must be in range [0, 1]`.
-The most likely causes, in order, and all now blocked by
-`src/gems/rio.py::validate_submission`:
+It does not identify whether the remote validator saw a finite out-of-range value,
+NaN/NoData, or another issue. `src/gems/rio.py::validate_submission` checks the
+repository's local grid, dtype, band-count, NoData, and range rules; it does not
+reproduce the remote validator.
 
-1. **NaN present.** The official format permits nan *outside the data bounds*,
-   but a validator implemented as `arr.min() < 0 or arr.max() > 1` on a masked
-   array, or one that rejects non-finite values, will fail. The presence of a
-   file named `…_allfinite` in 12GEMSDOE suggests a previous session already
-   suspected this.
-2. **nodata written as `-3.4028e38` or `-9999`** instead of NaN, which puts a
-   hugely negative value inside the band.
-3. **float rounding above 1.0** after a rescale.
-
-Every submission this repo writes is emitted in **two** variants — NaN-outside
-and all-finite — and neither is released until the validator passes.
+The official problem page permits null/NaN outside the data bounds. The all-finite
+variant writes zero outside the valid mask; no cited organizer statement establishes
+that zero-fill is scoring-equivalent or accepted by the remote form. Retain both
+variants for diagnosis, inspect each submitted file's stored values and NoData tag,
+and record the official form's response before claiming a cause or fix.
 
 ---
 
@@ -284,110 +233,84 @@ entirely" (otherwise including the catalogue would strictly help, and the
 organizer says it "should not matter"). We default to **discarded**, which is
 conservative. `FoldScorer.build(..., ignore_pred_outside_eval=False)` flips it.
 
-**Q‑2.** How many new-fault pixels are in the public test chunk? Our exact
-inversion of the leaderboard scores bounds it: every map scoring 0.1563 must
-have achieved weighted recall ≥ `0.8·DTI/(1−0.2·DTI)` = **0.1291**, and since
-`FP_w ≤ total predicted mass`, `|G|_public ≤ 32,655` if recall was 0.30 and
-≤ 78,697 if recall was 0.20 (see `reports/scored_forensics.json`).
+**Q‑2.** How many new-fault pixels are in the public test chunk? **Unknown.**
+The previous algebraic bounds used historical score labels attributed to local TIFFs;
+that attribution has no per-submission receipt, and the official leaderboard provides
+account-level best-public values. The numeric bounds are withdrawn. No independent
+public truth-size estimate is available from this repository.
 
 ---
 
-## I‑9 🔴 CRITICAL — every scored submission is statistically indistinguishable from a random map
+## I‑9 🟠 WITHDRAWN — public chance/lift estimates are circular and unsupported
 
-**Measured** (`reports/chance_baseline.json`, `scripts/chance_baseline.py`).
+The former public report (`reports/chance_baseline.json`, before withdrawal) inferred
+an apparent hidden-truth pixel count from the same public score labels it then compared
+with chance. `scripts/chance_baseline.py` used `implied_truth(mass, score)`, took a
+median of those inferred counts, and reported chance/lift at that median. The value
+`|G|≈35,262` was therefore **not an independent estimate**. Reusing it to explain the
+input scores is circular. The input score-to-file attribution was also unverified.
 
-For a Bernoulli(c) random prediction the expected TP credit per ground-truth
-pixel is the expected maximum of the kernel weights over the switched-on cells.
-Sorting the 25 kernel weights descending,
+Accordingly, the old public chance curve, per-artifact lift table, “every submission is
+statistically indistinguishable from random” conclusion, and claimed public
+score/coverage ordering are **withdrawn**. `reports/chance_baseline.json` now contains
+only a withdrawal notice; it has no public truth-size estimate or score rows.
 
-```
-r(c) = sum_j  w_j * c * (1-c)^(j-1)
-DTI_chance = r / (0.2*r + 0.8 + 0.2*FP_w/|G|)
-```
+The function `dti_chance(mass, n_truth, n_valid)` is retained for **local
+hide-and-recover diagnostics only**, when withheld truth and the eligible domain are
+known independently. A review found that the older `summarize_holdout.py` passed the
+full valid-footprint size even though candidate and control pixels were restricted to
+a smaller fold `eval_mask`; the stored v3 calibration was therefore not on the right
+domain and is superseded. The corrected script uses `valid_px - n_visible` (or an
+explicit `n_eval_px`) and reports a 30-control, same-run diagnostic (median relative
+error **1.8%**, p90 **7.3%**) for that historical run. The analytic approximation does
+not represent the exact spatial arrangement of the fold mask; this is an in-sample
+check on those local random controls, not a universal calibration, submission gate,
+or public/private baseline. Candidate-to-chance ratios have been removed from the
+primary summaries; candidate ranking uses direct DTI. The R8 confirmation is likewise
+reported and selected by direct DTI, without an analytic chance comparison.
 
-This closed form was validated against **105 measured random controls** on the
-holdout: **median relative error 1.2 %, p90 4.1 %**.
-
-Applied to our eight leaderboard-scored submissions, at the self-consistent
-estimate |G|≈35,000 new-fault pixels in the public chunk:
-
-| submission | public LB | coverage | chance DTI | **lift** |
-|---|---|---|---|---|
-| gemsdoe1_ens12 | 0.1563 | 3.35 % | 0.1370 | **1.14×** |
-| gems8_apex | 0.1563 | 4.06 % | 0.1419 | **1.10×** |
-| gemsdoe2_dualunion | 0.1560 | 3.55 % | 0.1387 | **1.12×** |
-| gems7_halo15 | 0.1461 | 11.73 % | 0.1267 | **1.15×** |
-| gems3_pindrop_nodes | 0.1193 | 3.00 % | 0.1333 | **0.90×** |
-| gems3_pindrop_ridge | 0.1152 | 3.00 % | 0.1333 | **0.86×** |
-| gems3_pindrop_discovery | 0.0830 | 3.00 % | 0.1333 | **0.62×** |
-| gems6_hgb88 | 0.0286 | 3.00 % | 0.1333 | **0.21×** |
-
-**The chance DTI curve peaks at 0.1449 at 5.4 % coverage.** Our plateau of
-0.1563 sits almost exactly on it.
-
-**This is the real explanation of the 0.1563 plateau**, and it subsumes I‑3.
-Different ideas converged on the same number because **they were all converging
-on the score that a random map of that size earns.** The coverage was the
-score; the detector contributed ~10 %.
-
-The ordering is stable across every plausible |G| (10k–160k): see the
-sensitivity table in `reports/chance_baseline.json`. At every |G| the
-leaderboard leader (0.3168) is roughly **2× whatever we achieve**, and
-`gems6_hgb88` is 2–5× *worse* than random — catalogue echo is actively harmful,
-exactly as the organizers' "fully penalized" statement predicts.
-
-**Action.** Never report a DTI again without the chance DTI at the same pixel
-count beside it. `scripts/summarize_holdout.py` now enforces this.
+**Action:** use a chance comparator only when the same fold's actual withheld truth
+size, effective predicted mass, and eligible evaluation area are known. Do not infer
+truth size or chance from leaderboard scores. Local proxy results must not be
+presented as private-test performance.
 
 ---
 
-## I‑10 🟠 Plain hide-and-recover is biased toward topographic detectors
+## I‑10 🟠 Catalogue hide-and-recover has a known scope mismatch
 
-**Measured.** The withheld pixels are *catalogue* faults, and a Quaternary fault
-catalogue is compiled largely from topographic scarp expression. So the
-withheld set is, by construction, enriched in exactly the signature a
-topographic detector finds — while the competition's real targets are faults
-that signature **missed**.
+**Measured:** the local holdout withholds pixels from the existing catalogue; the
+competition target is expert-labelled new-fault truth. In this catalogue, about
+**19.8%** of known-fault pixels fall in the lowest-slope third of the valid area,
+which occupies about **33.0%** of that area (`reports/holdout_v3.json`). This is a
+measured topographic composition difference in the *training catalogue*.
 
-Quantified: only **19.8 %** of catalogue pixels fall in the flattest 33 % of the
-survey area, so catalogue faults are ~2× over-represented on slopes.
+It does **not** establish the terrain distribution of the undisclosed new-fault
+labels, nor prove that the full holdout favors topographic methods on the private
+test. The catalogue may reflect mapping practices, physical geology, or both.
 
-Scoring restricted to the withheld pixels with the weakest topographic
-expression (`dti_concealed` in `reports/holdout_v2.json`), the topographic
-baseline collapses from **1.06× chance to 0.51×**, while the
-topography-independent detectors are roughly flat. The bias is real and
-measurable.
-
-**Action.** `scripts/run_holdout2.py` reports both. Any future candidate must be
-reported on the concealed subset as well as the full withheld set.
+**Action:** report DTI across the ordinary withheld catalogue pixels and the
+lowest-slope-third slice as a robustness stress test. Do not call the latter an
+“honest” hidden-test score or use its chance ratio as a private-test estimate.
+The fold-construction and feature-rebuild protocol is documented in
+`scripts/run_holdout3.py`.
 
 ---
 
-## I-11 (new, 2026-09-29 session 2) — the hide-and-recover holdout is *structurally* biased against the hypotheses that matter
+## I-11 (revised 2026-09-30) — the low-slope subset is a stress test, not a hidden-fault analogue
 
-**Measured** (`scripts/audit_bands.py`, section "catalogue vs topography").
+The earlier notes described withheld catalogue pixels in the lowest-slope third
+as “the honest number” and a proxy for hidden vents. That is too strong and is
+withdrawn. The measured **19.7–19.8%** versus **33.0%** comparison describes the
+existing catalogue only; it supplies no independent estimate of the hidden-test
+fault population. Nor does it show that the private target is concentrated on flat
+ground or that a ranking reversal transfers to the competition test.
 
-The withheld pixels in every fold are **catalogue** faults. Only **19.7 %** of
-catalogue pixels fall in the flattest third of the survey area, while that
-flattest third is **33.0 %** of the valid footprint — an over-representation
-factor of **0.596**. Catalogue faults are therefore ~1.7x *over*-represented on
-slopes and correspondingly under-represented on flat ground.
-
-A Quaternary fault catalogue is compiled largely from topographic scarp
-expression, so this is not a surprise; but it means the holdout's ground truth
-is enriched in exactly the signature a topographic detector finds, and depleted
-in exactly the signature the competition is asking for.
-
-**Consequence.** `dti` on the full withheld set rewards topographic detectors for
-the wrong reason. `dti_concealed` (the withheld pixels in the flattest third)
-is the honest number, and it is reported beside every candidate in
-`reports/holdout_v3.json`. On that subset the topographic baseline collapses to
-**0.51x chance** while the topography-independent detectors are roughly flat —
-so the ranking on the full withheld set is close to inverted on the concealed
-subset. **Any candidate must be judged on both.**
-
-**Action.** No candidate is promoted on `dti` alone. `scripts/run_holdout3.py`
-writes both, and the verdict uses the concealed subset as a tie-breaker.
+`dti_concealed` remains useful as a **predeclared robustness slice**: it asks how
+a detector behaves on one terrain subset of the known-catalogue holdout. Always
+show it beside full-fold results and retain the subset definition (lowest-slope
+third); do not promote a detector on that slice alone. The current 18-fold R8
+recipe comparison and its limitations are recorded in
+`reports/holdout_candidate_r8_2026-09-30.json`.
 
 ---
 

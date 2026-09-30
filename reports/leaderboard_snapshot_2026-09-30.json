@@ -1,0 +1,18 @@
+{
+  "observed_date": "2026-09-30",
+  "source_url": "https://www.drivendata.org/competitions/306/competition-doe-gems/leaderboard/",
+  "score_column": "Best public DW-Tversky",
+  "scope": "These are account-level best-public scores, not per-submission receipts and not scores attributable to any local GeoTIFF.",
+  "rows": [
+    {
+      "rank": 1,
+      "account": "DARD",
+      "best_public_dw_tversky": 0.3168
+    },
+    {
+      "rank": 2,
+      "account": "alexoktaba",
+      "best_public_dw_tversky": 0.3042
+    }
+  ]
+}

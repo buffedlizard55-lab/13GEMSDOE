@@ -12,23 +12,26 @@ What changed and why
    catalogue-dependent map built from that fold's VISIBLE catalogue.
    `R7_grain_full` is likewise submission-only and is never swept.
 
-2. **Lift is measured at the ACTUAL predicted pixel count.** Decimation can cut
-   a map's mass by up to 9x, so comparing a decimated map against a
-   full-coverage random control is not a comparison. Chance is evaluated at
-   `n_pred_px` for every row (closed form, validated against the empirical
-   random controls in the same run).
+2. **Direct DTI is the selection target.** Stage-one configurations are
+   shortlisted by worst-rule mean DTI and evaluated directly on the same folds.
+   Random-map controls are a limited, same-run local reference; they are not a
+   universal calibration, candidate-ranking metric, public/private baseline, or
+   submission gate.
 
-3. **Every candidate is reported on the CONCEALED subset too** -- the withheld
-   pixels with the weakest topographic expression, which is the closest
-   available analogue to the genuinely unmapped population (see
-   knowledge/02_irregularities.md I-10).
+3. **Every candidate is also reported on a LOW-SLOPE stress-test subset** --
+   withheld catalogue pixels in the lowest-slope third. This is a robustness
+   slice, not a validated analogue of the undisclosed new-fault population
+   (see knowledge/02_irregularities.md I-10/I-11).
 
 4. **Worst-rule, not mean.** A candidate that wins under one withholding rule
    is fragile and is reported as such.
 
-Scoring mirrors the organizers exactly: the VISIBLE catalogue is masked
-pixel-exactly (forum 11516 post 4), everything else inside the footprint can
-accrue FP_w, and DTI is computed on the withheld pixels alone.
+The folds use the organizer-confirmed pixel-exact visible-catalogue mask and
+score withheld catalogue truth only. This implementation conservatively removes
+predictions outside each fold's `eval_mask`; whether predictions on masked known
+pixels may still supply TP credit to nearby new truth is unresolved (Q-1 in
+`knowledge/02_irregularities.md`). Treat this as a local proxy protocol, not an
+exact reconstruction of the private evaluator.
 """
 from __future__ import annotations
 
@@ -51,7 +54,6 @@ sys.path.insert(0, str(ROOT / "scripts"))
 from gems import detectors as D                        # noqa: E402
 from gems.fastscore import FoldScorer, verify_against_reference  # noqa: E402
 from gems.holdout import build_folds                   # noqa: E402
-from chance_baseline import dti_chance                 # noqa: E402
 
 DER = ROOT / "data" / "derived"
 SCORED = ROOT / "data" / "scored"
@@ -153,7 +155,9 @@ def main() -> None:
             sf, sc = scorers(fn)
             a = sf.score(pred)
             row = {"tag": tag, "family": family, "fold": fn, "rule": f.rule,
-                   "n_hidden": f.n_hidden, "n_pred_px": int((pred > 0).sum()),
+                   "n_hidden": f.n_hidden, "n_visible": f.n_visible,
+                   "n_eval_px": int(f.eval_mask.sum()),
+                   "n_pred_px": int((pred > 0).sum()),
                    "dti": round(a["dti"], 6),
                    "precision_w": round(a["precision_w"], 6),
                    "recall_w": round(a["recall_w"], 6), "stage": stage}
@@ -188,14 +192,17 @@ def main() -> None:
             evaluate(f"CTRL_random|cov{cov}|rep{i}", "control_random",
                      lambda f, rk=rk, n=n: rk.topk(f.eval_mask.ravel(), n),
                      FOLDS5)
-    chance = defaultdict(list)
+    control_scores = defaultdict(list)
     for r in results:
         if r["family"] == "control_random":
-            chance[(float(r["tag"].split("|")[1][3:]), r["fold"])].append(r["dti"])
-    chance_mean = {k: float(np.mean(v)) for k, v in chance.items()}
+            control_scores[(float(r["tag"].split("|")[1][3:]),
+                            r["fold"])].append(r["dti"])
+    control_dti_by_cov_fold = {
+        k: float(np.mean(v)) for k, v in control_scores.items()
+    }
     for cov in COVERAGES:
-        vals = [v for (c, _), v in chance_mean.items() if c == cov]
-        print(f"      cov={cov:<6} chance DTI={np.mean(vals):.4f}")
+        vals = [v for (c, _), v in control_dti_by_cov_fold.items() if c == cov]
+        print(f"      cov={cov:<6} local random-control DTI={np.mean(vals):.4f}")
 
     st = ndi.generate_binary_structure(2, 2)
     for k in (1, 2):
@@ -249,27 +256,23 @@ def main() -> None:
             del s, rk
             gc.collect()
 
-    # ---------------- lift over chance, then confirm on all folds ---------
-    hidden_by_fold = {f.name: f.n_hidden for f in folds}
-
-    def lift(r, key="dti"):
-        g = (hidden_by_fold[r["fold"]] if key == "dti"
-             else r.get("n_hidden_concealed"))
-        if not g:
-            return None
-        c = dti_chance(r["n_pred_px"], g, n_valid)
-        return r[key] / c if c > 0 else None
-
-    agg = defaultdict(list)
+    # ---------------- direct-DTI screening, then confirmation -------------
+    by_tag_rule: dict[str, dict[str, list[float]]] = defaultdict(
+        lambda: defaultdict(list))
     for r in results:
         if r["family"] in ("control", "control_random", "prior_submission"):
             continue
-        L = lift(r)
-        if L is not None:
-            agg[r["tag"]].append(L)
-    ranked = sorted(((float(np.mean(v)), t) for t, v in agg.items()), reverse=True)
-    survivors = [t for _, t in ranked[:10]]
-    print(f"--- stage 2: {survivors} ({time.time()-t0:.0f}s)")
+        by_tag_rule[r["tag"]][r["rule"]].append(float(r["dti"]))
+
+    ranked = []
+    for tag, by_rule in by_tag_rule.items():
+        per_rule = [float(np.mean(values)) for values in by_rule.values()]
+        if per_rule:
+            ranked.append((min(per_rule), float(np.mean(per_rule)), tag))
+    ranked.sort(key=lambda row: (-row[0], -row[1], row[2]))
+    survivors = [tag for _, _, tag in ranked[:10]]
+    print(f"--- stage 2, shortlisted by worst-rule DTI: {survivors} "
+          f"({time.time()-t0:.0f}s)")
 
     allf = [f.name for f in folds]
     for tag in survivors:
@@ -305,9 +308,6 @@ def main() -> None:
         evaluate(f"CTRL_random|cov{cov}|rep0", "STAGE2:control_random",
                  lambda f, n=n: noise_rankers[0].topk(f.eval_mask.ravel(), n),
                  allf, stage="stage2")
-        evaluate(f"CTRL_random|cov{cov}|rep0", "STAGE2:control_random",
-                 lambda f, n=n: noise_rankers[0].topk(f.eval_mask.ravel(), n),
-                 allf, stage="stage2")
 
     out = {
         "generated_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
@@ -317,12 +317,28 @@ def main() -> None:
             "slope_percentile": 33.0, "threshold": float(thr),
             "n_px": int(concealed_zone.sum()),
             "catalogue_px_inside": int((known & concealed_zone).sum())},
+        "random_control_protocol": {
+            "status": "SAME_RUN_LOCAL_CONTROL_ONLY",
+            "method": "Random binary maps are restricted to each fold's eval_mask and use the same target mass settings as candidates.",
+            "selection_use": "Not used to rank candidates; stage-one shortlist uses worst-rule mean DTI.",
+            "scope": "One run-specific control is not a universal chance calibration or public/private baseline.",
+        },
+        "masked_prediction_policy": {
+            "status": "CONSERVATIVE_LOCAL_CHOICE",
+            "policy": "candidate predictions are clipped to eval_mask; FoldScorer ignores predictions outside eval_mask",
+            "uncertainty": "organizer wording does not resolve whether masked known-fault predictions can supply TP credit to nearby new truth; see knowledge/02_irregularities.md Q-1",
+        },
         "folds": [{"name": f.name, "rule": f.rule, "n_hidden": f.n_hidden,
-                   "n_visible": f.n_visible, **f.meta} for f in folds],
+                   "n_visible": f.n_visible,
+                   "n_eval_px": int(f.eval_mask.sum()), **f.meta}
+                  for f in folds],
         "coverages": COVERAGES, "spacings": SPACINGS,
+        "stage2_shortlist_metric": "worst_rule_mean_dti",
         "catalogue_detectors_rebuilt_per_fold": CATALOGUE_DETECTORS,
-        "chance_dti_by_cov_fold": {f"{k[0]}|{k[1]}": round(v2, 6)
-                                   for k, v2 in chance_mean.items()},
+        "random_control_dti_by_cov_fold": {
+            f"{k[0]}|{k[1]}": round(v2, 6)
+            for k, v2 in control_dti_by_cov_fold.items()
+        },
         "results": results, "runtime_s": round(time.time() - t0, 1)}
     (REP / "holdout_v3.json").write_text(json.dumps(out, indent=2))
     print(f"wrote {REP/'holdout_v3.json'} ({time.time()-t0:.0f}s)")
