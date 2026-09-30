@@ -11,6 +11,23 @@
 
 ---
 
+## Latest review — 2026-09-30
+
+The current checkout has no competition rasters. An ignored `.venv` was created
+and the metric audit was rerun; no data-dependent holdout or prediction could be
+reproduced in this session. The latest code review found and fixed two fail-open
+edges: serialization
+no longer clips out-of-range probabilities silently, and zero coverage can no
+longer accidentally select the full ranking. Regression tests are in
+[`tests/test_rio.py`](tests/test_rio.py). Full findings, source links, three-pass
+review, and blockers are in
+[`reports/repository_review_2026-09-30.md`](reports/repository_review_2026-09-30.md).
+
+The official leaderboard fetched on 2026-09-30 showed DARD 0.3168 (#1) and
+alexoktaba 0.3042 (#2), not the prompt's 0.3049. These are account-level best
+public scores, not receipts for our local TIFFs. Do not upload the current R8
+artifact: it is still **NOT_CLEARED** by the local holdout report.
+
 ## The 60-second orientation
 
 | Question | Answer | Where |
@@ -154,6 +171,7 @@ as of 2026-09-30; neither value is tied to a local TIFF.
 python3 -m venv .venv && . .venv/bin/activate
 pip install numpy scipy rasterio
 
+.venv/bin/python -m unittest discover -s tests # strict submission-write regression tests
 .venv/bin/python scripts/fetch_data.py        # data/raw (419 MB, gitignored)
 .venv/bin/python scripts/audit_metric.py      # proves the metric results
 .venv/bin/python scripts/audit_bands.py       # what the 19 bands actually are
@@ -170,6 +188,8 @@ duplicate (NaN and outside-footprint encodings normalize to zero). It also recor
 that distinct maps can still round to the same public score; no score uniqueness is
 promised. The script checks the one-band float32 grid, EPSG:32611, 3730×3292 shape,
 affine transform, finite in-footprint values in `[0,1]`, and supplied footprint mask.
+The writer now rejects invalid predictions before opening an output file; it does
+not clip bad values or silently turn in-footprint NaNs into zeros.
 The primary GeoTIFF and ZIP use NaN outside the footprint, as the official format
 text requires; an all-finite zero-fill twin is diagnostic only and is **not** treated
 as format-equivalent. Local checks do not prove remote acceptance. The historical

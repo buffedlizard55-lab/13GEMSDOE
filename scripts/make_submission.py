@@ -22,6 +22,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import re
 import shutil
 import sys
 import time
@@ -35,7 +36,8 @@ from scipy import ndimage as ndi
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 from gems import detectors as D                 # noqa: E402
-from gems.rio import read_band, validate_submission, write_submission  # noqa: E402
+from gems.rio import (EXPECTED_SHAPE, read_band, validate_submission,
+                     write_submission)  # noqa: E402
 
 DER = ROOT / "data" / "derived"
 
@@ -601,16 +603,27 @@ def build_r8_ensemble(reach: int = 20, spacing: int = 3,
 
 def build(detector: str, coverage: float, spacing: int,
           include_catalogue: bool) -> tuple[np.ndarray, np.ndarray, dict]:
-    valid = np.load(DER / "_valid.npy")
-    known = np.load(DER / "_known.npy")
+    if not np.isfinite(coverage) or not 0.0 < coverage <= 1.0:
+        raise ValueError(f"coverage must be in (0, 1]; got {coverage}")
+    if spacing < 1:
+        raise ValueError(f"spacing must be a positive integer; got {spacing}")
+
+    valid = np.load(DER / "_valid.npy").astype(bool)
+    known = np.load(DER / "_known.npy").astype(bool)
+    if valid.shape != EXPECTED_SHAPE or known.shape != EXPECTED_SHAPE:
+        raise ValueError("cached valid/known masks do not match the official grid")
     n_valid = int(valid.sum())
 
     score = np.load(DER / f"{detector}.npy")
+    if score.shape != EXPECTED_SHAPE:
+        raise ValueError(f"detector {detector!r} has wrong shape: {score.shape}")
     allowed = valid & ~known           # catalogue pixels are masked at scoring
-    n = int(coverage * n_valid)
+    n = max(1, int(coverage * n_valid))
 
-    flat = np.where(allowed, score, -np.inf).ravel()
+    flat = np.where(allowed & np.isfinite(score), score, -np.inf).ravel()
     n = min(n, int(np.isfinite(flat).sum()))
+    if n == 0:
+        raise ValueError(f"detector {detector!r} has no finite eligible pixels")
     idx = np.argpartition(flat, -n)[-n:]
     mask = np.zeros(flat.size, dtype=bool)
     mask[idx] = True
@@ -660,10 +673,21 @@ def main() -> None:
     ap.add_argument("--name")
     ap.add_argument("--no-catalogue", action="store_true")
     a = ap.parse_args()
+    if a.spacing is not None and a.spacing < 1:
+        ap.error("--spacing must be a positive integer")
+    if a.reach < 0:
+        ap.error("--reach must be non-negative")
+    if not 0.0 <= a.fill <= 1.0:
+        ap.error("--fill must be in [0, 1]")
+    if not 0.0 <= a.budget <= 1.0:
+        ap.error("--budget must be in [0, 1]")
 
     prov: dict = {}
     if a.detector:
-        det, cov, sp = a.detector, a.coverage or 0.05, a.spacing or 3
+        cov = 0.05 if a.coverage is None else a.coverage
+        if not np.isfinite(cov) or not 0.0 < cov <= 1.0:
+            ap.error("--coverage must be in (0, 1]")
+        det, sp = a.detector, a.spacing or 3
         print(f"recipe: detector={det} coverage={cov} spacing={sp}")
         pred, valid, stats = build(det, cov, sp, not a.no_catalogue)
         note_bits = (f"{det} top-{cov*100:g}% strike-decimated every {sp}px")
@@ -743,8 +767,13 @@ def main() -> None:
 
     stamp = time.strftime("%Y%m%dT%H%M%SZ", time.gmtime())
     name = a.name or f"13gems-{det.lower().replace('_','-')}-{stamp}"
-    if not name or Path(name).name != name or name in {".", ".."}:
-        raise ValueError("--name must be a plain, non-empty filename stem")
+    if (not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._-]{0,127}", name)
+            or name in {".", ".."}
+            or name.lower().endswith((".tif", ".tiff", ".zip"))):
+        raise ValueError(
+            "--name must be a 1-128 character filename stem using only "
+            "letters, digits, dot, underscore, or hyphen; omit extensions"
+        )
     OUT.mkdir(parents=True, exist_ok=True)
     reserved = [OUT / f"{name}.tif", OUT / f"{name}_allfinite.tif",
                 OUT / f"{name}.zip", OUT / f"{name}.json"]
