@@ -40,7 +40,7 @@ reasoning preserved.
 | No hallucination; verify line by line; provide links for manual review | ✅ every external claim carries a URL, a sha256 or a git blob SHA; every forum quote was re-fetched this session through Discourse `/print` | `knowledge/01_verified_facts.md` (re-verification record 2026-09-30), `docs/sources.html` |
 | Flag irregularities rather than smoothing them over | ✅ 2 new irregularities (I-13, I-14), 1 resolution (I-2), 1 self-correction, 1 fetch failure recorded | §6 |
 | Three passes: implement+verify → review for bugs/edge cases → re-check against the request | ✅ §7 | tests 52/52 |
-| PR and merge to main, plus remaining work and blockers | ⚠️ **blocked on GitHub authentication** — work is committed locally as a single commit on `arena/01a0f3f0-13gemsdoe` but `git push`, `gh api` and `gh pr` all return *Bad credentials* / *token in GH_TOKEN is no longer valid*. Remaining work and blockers are documented (§9). | §8 |
+| PR and merge to main, plus remaining work and blockers | ✅ **PR [#11](https://github.com/buffedlizard55-lab/13GEMSDOE/pull/11) merged into `main`** (merge commit `182d196`, 2026-09-30T21:34:05Z) after GitHub authentication was restored mid-session; remaining work and blockers documented in §9 | §8 |
 
 ---
 
@@ -235,10 +235,9 @@ future round needs a smaller map.
 Site rebuilt (`docs/`, 5 pages, downloads intact). Tests 52/52 (43 carried over plus
 9 new fusion/percentile tests). Worktree clean.
 
-**PR and merge: NOT DONE — blocked, and reported as blocked rather than claimed.**
-Everything above is committed as one commit on the session branch
-`arena/01a0f3f0-13gemsdoe` (subject: *"R10/R10b: stage + measure official USGS
-external data; resolve band-6 identity (I-2); no slot spent"*), but the push failed:
+**PR and merge: DONE, after an authentication interruption that is recorded here
+rather than smoothed over.** The first attempt failed while the sandbox token was
+invalid:
 
 ```
 $ git push -u origin arena/01a0f3f0-13gemsdoe
@@ -246,13 +245,24 @@ fatal: could not read Username for 'https://github.com': terminal prompts disabl
 $ gh auth status
 X github.com: authentication failed - The github.com token in GH_TOKEN is no longer valid.
 $ gh api repos/buffedlizard55-lab/13GEMSDOE
-{ "message": "Bad credentials" }   # read access fails too, so no PR can be opened
+{ "message": "Bad credentials" }   # read access failed too, so no PR could be opened
 ```
 
-No credentials were requested or stored in chat, per the project's rules. Once the
-GitHub connection is restored in Arena, the remaining steps are exactly two:
-`git push -u origin arena/01a0f3f0-13gemsdoe`, then open a PR from that branch into
-`main` and merge it. Nothing in the commit depends on the merge having happened.
+No credentials were requested or stored in chat, per the project's rules; the work
+was committed locally and the blocker was reported. Authentication was then
+restored on the user's side and the two remaining steps were executed:
+
+```
+$ git push -u origin arena/01a0f3f0-13gemsdoe      -> * [new branch]
+$ gh pr create --base main --head arena/01a0f3f0-13gemsdoe
+  https://github.com/buffedlizard55-lab/13GEMSDOE/pull/11
+$ gh pr merge 11 --merge
+  PR #11 MERGED  merged=2026-09-30T21:34:05Z  commit=182d196  arena/01a0f3f0-13gemsdoe -> main
+```
+
+The session branch was deliberately **not** deleted on merge. A follow-up commit
+(this correction, so the report does not claim a blocked merge that has since
+happened) is shipped as PR #12.
 
 ---
 
