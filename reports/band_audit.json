@@ -1,5 +1,5 @@
 {
-  "generated_utc": "2026-09-29T23:07:58Z",
+  "generated_utc": "2026-09-30T18:48:23Z",
   "source": "data/raw/gems-geodawn-numerical-features.tif",
   "band_descriptions": {
     "1": "mag_anom - Magnetic anomaly - deviation from expected Earth's magnetic field",
@@ -466,5 +466,5 @@
     ],
     "verdict": "No candidate in a bank of 51 physically standard transforms of the other 18 bands reaches |rho| = 0.5 against band 6 (best is gauss9_b13 at rho = -0.3547). Band 6 is therefore UNIDENTIFIED. The problem page's figure filename `gems_tc_tmi.png`, captioned 'radiometric (left) and magnetic (right)', is first-party evidence for the radiometric-total-count reading, but the measured band is bounded in [2.95, 88.57] with p99 = 29.1 and is smoother than the supplied gradient bands, which a count in CPS is not. Both cannot be true of the same array; the data-tab documentation is required to settle it."
   },
-  "runtime_s": 107.1
+  "runtime_s": 108.5
 }

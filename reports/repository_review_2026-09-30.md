@@ -4,12 +4,11 @@
 
 **Do not upload a new submission from this checkout.** The current downloadable
 R8 raster is explicitly review-only: its visible-catalogue reconstruction lost
-to the local topographic comparator in the reported confirmation folds. This
-checkout contains no `data/` directory. An ignored `.venv` was installed for
-this review, allowing the metric audit and new serialization tests to run; the
-holdout, historical TIFF audit, and fresh prediction generation remain blocked
-on missing rasters. Saved holdout/forensic results are prior-run measurements,
-not new experiments in this session.
+to the local topographic comparator in the confirmation folds, freshly rerun in
+this review. Competition rasters were staged into ignored `data/` from the
+team's public GitHub mirrors, not the authenticated first-party data tab. Grid
+metadata and local hashes were checked, but the feature stack's exact official
+provenance remains unverified. No weekly slot was used.
 
 The most actionable reliability defect found in code review was that
 `write_submission()` silently replaced non-finite inputs and clipped values to
@@ -45,6 +44,30 @@ to fail closed and adds regression tests.
   Neither account-level value can be attributed to a local TIFF or individual
   upload.
 
+### Input-data provenance and preparation
+
+- `scripts/fetch_data.py` staged 19-band features (418,912,844 bytes), the
+  fault label raster, sample file, and eight historical score-labeled rasters
+  from the team's public GitHub repositories. It does **not** fetch the
+  authenticated DrivenData source; its own header warns that these are mirrors
+  and that at least one mirrored file is mislabeled.
+- Raster inspection confirms the label/features share the expected 3730×3292
+  EPSG:32611 100 m grid. The copied feature TIFF has 19 float32 bands and
+  expected embedded descriptions. This is a structural check, not proof that
+  every mirrored feature byte is identical to the official data-tab download.
+- The mirrored `example_submission.tif` is not a valid test prediction: after
+  treating NaN as outside-footprint zero, its in-footprint values exactly match
+  `existing_faults.tif > 0` (all 60,988 known fault pixels). This reproduces the
+  repository's existing warning; do not submit or treat that mirror as an
+  independent prediction.
+- There is no `scripts/prepare_data.py` in this repository despite the old
+  README instruction. `scripts/build_detectors.py` performs the current cache
+  preparation by writing `_valid.npy`, `_known.npy`, and detector arrays.
+- The official USGS ComCat count endpoint was attempted directly from this
+  environment and the TLS connection closed before returning a response. The
+  previously researched count queries are not an acquired event dataset. Thus
+  ComCat focal-plane coherence remains blocked and is **not validated/viable**.
+
 ### Submission artifact and holdout
 
 - The site has an obvious landing-page download link to
@@ -52,18 +75,22 @@ to fail closed and adds regression tests.
   workflow. It clearly labels the raster **review only / NOT CLEARED**. This is
   the correct safety posture: local GeoTIFF format checks do not establish a
   holdout win, remote form acceptance, or leaderboard performance.
-- The archived provenance (`reports/latest_submission.json`) records the
-  NaN-outside TIFF as locally format-conformant (one float32 band, expected
-  grid/CRS/transform, finite valid-footprint values in `[0,1]`, no finite values
-  outside the footprint). It records the zero-filled version as diagnostic
-  only. The historical remote range rejection remains unexplained; this
-  checkout does not contain the original rejected file/receipt needed for a
-  direct forensic attribution.
-- `reports/holdout_candidate_r8_2026-09-30.json` documents a prior local
-  visible-catalogue rebuild and confirmation comparison. It reports R8 below
-  the topographic comparator (worst-rule mean DTI 0.05584 versus 0.08687) and
-  marks the scope as a local known-catalogue proxy, not private-test
-  performance. This is prior-run evidence; it was not regenerated here.
+- The archived NaN-outside TIFF was freshly checked against the staged label
+  footprint with `src/gems/rio.py::validate_submission`: single-band float32,
+  expected grid/CRS/transform, 5,167,373 finite in-footprint values, min 0.0,
+  max 1.0, no infinities or finite outside-footprint cells, and the ZIP contains
+  exactly that one TIFF. The zero-filled twin remains diagnostic only. This
+  establishes local conformance for this archived R8 file, not remote acceptance
+  or the cause of the earlier range rejection; the rejected original and its
+  receipt were not provided.
+- `scripts/build_detectors.py` completed from the mirrored feature raster in
+  478 seconds and rebuilt 29 detector maps. `scripts/validate_ensemble_holdout.py`
+  then reran the 18-fold comparison in 274 seconds (270 result rows). On its
+  held-back confirmation folds, the local topo baseline had worst-rule mean DTI
+  0.08687 / overall mean 0.09763; the R8 union had 0.05584 / 0.06615. R8's
+  recall was higher but its precision lower; the union did not beat the baseline.
+  The report explicitly limits these to a known-catalogue proxy, not hidden-test
+  performance. See `reports/holdout_candidate_r8_2026-09-30.json`.
 - `knowledge/05_hypothesis_screen_2026-09-30.md` already records four distinct
   geological directions (ComCat focal-plane coherence; repeated Landsat
   thermal/moisture residuals; groundwater-head compartments; cross-depth MT
@@ -100,37 +127,42 @@ Read `PROJECT_CHARTER.md` and the README standing brief first; mapped the
 submission generator/validator, docs landing page and executive summary,
 forensic evidence, metric audit, holdout summary, hypothesis screen, and input
 data conventions. Retrieved the official problem description and live
-leaderboard. Confirmed the supplied competition data and scientific Python
-dependencies are absent from this checkout (`data/` and `.venv/` do not exist).
+leaderboard. The initial checkout lacked `data/` and `.venv/`; fetched the team's
+mirrors, installed an ignored environment, and recorded the mirror provenance
+caveat before running data-dependent checks.
 
 ### Pass 2 — risk and edge-case audit
 
-Checked the recorded GEMSDOE1/8GEMSDOE map identity pair rather than inferring
-identity from equal 4-decimal labels. Audited handling of invalid values and
-found silent clipping in raster serialization and a zero-coverage top-k corner
-case. Also checked that the candidate's local holdout status and the page's
-review-only download warning agree; they do.
+Recomputed historical TIFF identity from the staged maps instead of inferring
+identity from equal 4-decimal labels. Audited invalid-value handling and found
+silent clipping in raster serialization plus a zero-coverage top-k corner
+case. Rebuilt 29 detectors, reran the multiple-rule R8 confirmation holdout,
+and checked that the landing page's review-only download warning matches the
+holdout outcome. Direct ComCat API transport failed at TLS; no substitute or
+synthetic event data was used.
 
 ### Pass 3 — correction and consistency review
 
 Made output validation fail closed, guarded the zero-coverage path and CLI
 parameters, and added focused regression tests. Re-read the changes against the
-official `[0,1]` requirement and NaN-outside format text. No new submission was
-generated, no submission slot was used, and no unvalidated candidate is
-recommended.
+official `[0,1]` requirement and NaN-outside format text. The rebuilt R8 recipe
+still failed to beat the comparator, so no candidate was marked cleared. No new
+submission was generated and no submission slot was used.
 
 ## Verification run and limitations
 
 - `.venv/bin/python -m py_compile src/gems/rio.py scripts/make_submission.py tests/test_rio.py` — PASS.
 - `git diff --check` — PASS.
-- `.venv/bin/python -m unittest discover -s tests -v` — 6 tests PASS,
+- `.venv/bin/python -m unittest discover -s tests -v` — 8 tests PASS,
   covering valid serialization, out-of-range values, NaNs, shape mismatches,
-  and invalid NoData fills.
+  invalid NoData fills, zero coverage, and nonpositive spacing.
 - `.venv/bin/python scripts/audit_metric.py` — all 12 checks PASS, including
   the official worked example and algebraic consequences.
-- Historical TIFF pixel reread, holdout rerun, and fresh GeoTIFF export remain
-  blocked on the absent competition data. Old JSON evidence must not be
-  represented as newly reproduced.
+- Historical TIFF identity and the targeted R8 holdout were rerun against the
+  staged group mirrors. Exact first-party feature provenance remains unresolved;
+  the complete official authenticated data-tab download was not available.
+- The new tests and audits do not validate the private-label distribution or
+  explain the old server-side rejection. No new submission TIFF was created.
 
 ## Open blockers and next actions
 
@@ -138,10 +170,9 @@ recommended.
    DrivenData data tab (or verify permitted local mirrors and checksums as
    described in `knowledge/02_irregularities.md`); do not claim training data
    were fetched by this review.
-2. The ignored `.venv` now contains NumPy, SciPy, and Rasterio; install any
-   remaining project dependencies as needed and rerun the multiple-rule holdout
-   with visible-
-   catalogue-only feature rebuilds.
+2. Use the authenticated DrivenData data tab to compare the staged feature
+   stack and labels against the first-party downloads; preserve byte checksums,
+   band metadata, and official provenance.
 3. Acquire candidate #1's official USGS ComCat products and inspect actual
    coverage/product completeness before deciding whether focal-plane coherence
    is testable. If transport fails, report it as an acquisition blocker rather
