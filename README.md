@@ -1,6 +1,9 @@
 # 13GEMSDOE — GEMS Prize Challenge working repository
 
-**Live site:** https://buffedlizard55-lab.github.io/13GEMSDOE/
+**Submission site (download-first hero, executive summary, evidence, sources):**
+https://buffedlizard55-lab.github.io/13GEMSDOE/docs/
+**Repository front page rendered by Pages (this README):**
+https://buffedlizard55-lab.github.io/13GEMSDOE/
 **Competition:** [DOE GEMS Prize on DrivenData](https://www.drivendata.org/competitions/306/competition-doe-gems/) · $300,000 · metric: distance-weighted Tversky index
 
 > **Read [`PROJECT_CHARTER.md`](PROJECT_CHARTER.md) at the start of every
@@ -200,7 +203,7 @@ scripts/
   validate_composite.py   two-regime validation of the shipped hedge
   make_submission.py      build + identity-check + format-validate; never grants score clearance
 reports/                  machine-readable evidence for every claim
-docs/                     generated GitHub Pages site (`scripts/build_site.py`)
+docs/                     generated GitHub Pages site (`scripts/build_site.py`), served at /docs/
 ```
 
 ---
