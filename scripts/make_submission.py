@@ -728,11 +728,59 @@ def build_topo_ref(coverage: float = 0.05, spacing: int = 3,
     return pred, valid, stats
 
 
+def build_greedy_r11(include_catalogue: bool = True
+                     ) -> tuple[np.ndarray, np.ndarray, dict]:
+    """R11-4 greedy marginal-precision assembly on the full grid.
+
+    Recipe is READ from reports/holdout_r11_2026-09-30.json (never hand-typed):
+    start from topo_05_sp3, then for each accepted (map, coverage) step select
+    the top `coverage * n_valid` pixels of that map among valid & ~known pixels
+    lying > 300 m (3 px Chebyshev) from the current assembly, decimate_grid at
+    3 px, and union. Mirrors scripts/validate_r11_holdout.py block() / far_from().
+    """
+    from scipy import ndimage as ndi
+    rep = json.loads((ROOT / "reports" / "holdout_r11_2026-09-30.json").read_text())
+    verdict = next(iter(rep["verdict_predeclared"].values()))
+    if rep["selected_on_tune"] != "greedy_r11" or not verdict.startswith("WINS"):
+        raise SystemExit(f"greedy_r11 is not the cleared R11 winner: {verdict}")
+    recipe = [(str(m), float(c)) for m, c in rep["greedy_recipe"]]
+    exclude = int(rep["exclude_px"])
+    pred_ref, valid, ref_stats = build_topo_ref(0.05, 3, include_catalogue=False)
+    known = np.load(DER / "_known.npy").astype(bool)
+    n_valid = int(valid.sum())
+    mask = pred_ref > 0
+    steps = []
+    for stem, cov in recipe:
+        score = np.load(DER / f"{stem}.npy").astype(np.float32)
+        far = ~ndi.binary_dilation(mask, structure=np.ones((2 * exclude + 1,) * 2, bool))
+        allowed = valid & ~known & np.isfinite(score) & far
+        n = int(cov * n_valid)
+        flat = np.where(allowed, score, -np.inf).ravel()
+        order = np.argsort(-flat, kind="stable")[:n]
+        order = order[np.isfinite(flat[order])]
+        blk = np.zeros(flat.size, dtype=bool)
+        blk[order] = True
+        blk = D.decimate_grid(blk.reshape(score.shape), score, 3) & allowed
+        steps.append({"map": stem, "coverage": cov, "n_added_px": int((blk & ~mask).sum())})
+        mask |= blk
+        del score, flat, far, allowed
+    pred = mask.astype(np.float32)
+    if include_catalogue:
+        pred = np.maximum(pred, known.astype(np.float32))
+    stats = {"recipe": "greedy_r11", "base": ref_stats, "greedy_steps": steps,
+             "exclude_px": exclude, "include_known_catalogue": include_catalogue,
+             "n_new_prediction_px": int(mask.sum()),
+             "n_predicted_px": int((pred > 0).sum()),
+             "pct_of_valid": round(100.0 * float((pred > 0).sum()) / n_valid, 4),
+             "max_value": float(pred.max()), "min_value": float(pred.min())}
+    return pred, valid, stats
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--recipe", default="composite",
                     choices=["composite", "composite_plus", "best", "r6", "r8",
-                             "ranked", "topo_ref"])
+                             "ranked", "topo_ref", "greedy_r11"])
     ap.add_argument("--budget", type=float, default=0.06,
                     help="ranked recipe: fraction of the valid footprint to "
                          "predict, before global decimation")
@@ -755,7 +803,28 @@ def main() -> None:
 
     prov: dict = {}
     clearance_override: dict | None = None
-    if a.recipe == "topo_ref":
+    if a.recipe == "greedy_r11":
+        print("recipe: greedy_r11 (R11-4, read from reports/holdout_r11_2026-09-30.json)")
+        pred, valid, stats = build_greedy_r11(include_catalogue=not a.no_catalogue)
+        det = "greedy-r11"
+        rep = json.loads((ROOT / "reports" / "holdout_r11_2026-09-30.json").read_text())
+        cs = rep["confirmation_summary"]
+        steps = "+".join(f"{s['map']}@{s['coverage']*100:g}%" for s in stats["greedy_steps"])
+        note_bits = (f"R11-4 greedy marginal-precision: topo top-5% sp3 + {steps} "
+                     f"(each >300 m from prior), binary, catalogue included")
+        prov = {"selected_by": ("predeclared R11 holdout WIN: "
+                                + next(iter(rep["verdict_predeclared"].values()))),
+                "holdout_report": "reports/holdout_r11_2026-09-30.json",
+                "confirm_worst_rule_mean": {k: v["dti_worst_rule_mean"] for k, v in cs.items()}}
+        clearance_override = {
+            "status": "CLEARED_LOCAL_HOLDOUT_WIN_NOT_PRIVATE_TEST_CLAIM",
+            "reason": ("greedy_r11 beat the in-run topo_05_sp3 reference on tune and "
+                       "confirmation worst-rule-mean DTI, won 6/6 confirmation rule "
+                       "means and 18/18 paired folds; gain exceeds 10x rebuild drift "
+                       "(I-15). Catalogue hide-and-recover proxy only."),
+            "holdout_report": "reports/holdout_r11_2026-09-30.json",
+            "private_test_claim": False, "upload_allowed": True}
+    elif a.recipe == "topo_ref":
         cov = 0.05 if a.coverage is None else a.coverage
         if not np.isfinite(cov) or not 0.0 < cov <= 1.0:
             ap.error("--coverage must be in (0, 1]")
@@ -935,7 +1004,9 @@ def main() -> None:
                (", binary 0/1"
                 + (", catalogue included (masked at scoring)"
                    if not a.no_catalogue else "")))
-            + ("; local holdout reference recipe, NOT a private-test claim"
+            + (("; R11 holdout WIN vs topo_05_sp3 (18/18 folds), NOT a private-test claim"
+                if clearance_override["status"].startswith("CLEARED")
+                else "; local holdout reference recipe, NOT a private-test claim")
                if clearance_override else
                "; generated for review only, NOT CLEARED by format/identity checks"))
 
@@ -943,7 +1014,9 @@ def main() -> None:
         "name": name, "generated_utc": stamp, "note_for_submission_form": note,
         "recipe_selection": prov or {"mode": "manual override"},
         "map_stats": stats, "validation": reports,
-        "artifact_status": ("BEST_LOCAL_REFERENCE_LOCAL_PROXY_ONLY"
+        "artifact_status": ((clearance_override["status"]
+                             if clearance_override["status"].startswith("CLEARED")
+                             else "BEST_LOCAL_REFERENCE_LOCAL_PROXY_ONLY")
                             if clearance_override else "REVIEW_ONLY_NOT_CLEARED"),
         "submission_clearance": clearance_override or {
             "status": "NOT_CLEARED",

@@ -10,25 +10,23 @@
   <nav class="site"><a href="index.html" class="on">Submit</a><a href="executive_summary.html" class="">How to submit</a><a href="evidence.html" class="">Evidence</a><a href="hypotheses.html" class="">Hypotheses</a><a href="sources.html" class="">Sources</a></nav>
 </div></header>
 <div class="hero"><div class="wrap">
-  <h1>Submission download — <span class="tag t-info">BEST LOCAL HOLDOUT REFERENCE</span></h1>
-  <p class="sub">This file is the <b>current local holdout reference recipe</b>
-  (<code>topo_05_sp3</code>): the configuration that re-confirmed as the local best in the
-  paired, predeclared R9, R10 and R10b validations — no tested variant beat it. It passes the repository's
+  <h1>Submission download — <span class="tag t-ok">CLEARED</span></h1>
+  <p class="sub">This file is <b>the first recipe in this repository to beat the local holdout reference</b>: <code>greedy_r11</code> (R11-4 greedy marginal-precision assembly) — confirmation worst-rule-mean DTI <b>0.09175</b> vs 0.08694 for <code>topo_05_sp3</code>, 6/6 rule means and 18/18 paired folds, under the rule predeclared in <code>knowledge/07_r11_hypotheses.md</code>. It passes the repository's
   official-format checks (single-band float32; EPSG:32611; 3730×3292; 100 m; finite values in
   [0,1] inside the survey footprint; null/NaN outside). <b>These are local
   catalogue-recovery results, not a predicted leaderboard score</b>, and remote acceptance
   is unverified until the form scores it.</p>
   <div class="dl">
     <div class="row">
-      <a class="btn" href="downloads/13gems-toporef-holdoutref.tif" download>⬇ Download submission GeoTIFF (13gems-toporef-holdoutref.tif)</a>
-      <a class="btn ghost" href="downloads/13gems-toporef-holdoutref.zip" download>⬇ ZIP (same single GeoTIFF)</a>
+      <a class="btn" href="downloads/13gems-r11-greedy-mp.tif" download>⬇ Download submission GeoTIFF (13gems-r11-greedy-mp.tif)</a>
+      <a class="btn ghost" href="downloads/13gems-r11-greedy-mp.zip" download>⬇ ZIP (same single GeoTIFF)</a>
     </div>
     <table class="small" style="margin-top:10px">
-      <tr><td><b>File to submit</b></td><td class="mono">13gems-toporef-holdoutref.tif &nbsp;<span class="small">(or the .zip — it contains exactly this one GeoTIFF)</span></td></tr>
-      <tr><td><b>Note (optional)</b></td><td class="mono">BASE_topo_ridge top-5% of valid, decimate_grid 3px (300 m), binary, catalogue included (masked at scoring); local holdout reference recipe, NOT a private-test claim</td></tr>
+      <tr><td><b>File to submit</b></td><td class="mono">13gems-r11-greedy-mp.tif &nbsp;<span class="small">(or the .zip — it contains exactly this one GeoTIFF)</span></td></tr>
+      <tr><td><b>Note (optional)</b></td><td class="mono">R11-4 greedy marginal-precision: topo top-5% sp3 + R10_vent@0.25%+R8_tpi@0.25%+R10_dzt_field@0.25% (each &gt;300 m from prior), binary, catalogue included; R11 holdout WIN vs topo_05_sp3 (18/18 folds), NOT a private-test claim</td></tr>
     </table>
     <p class="small">Fallback if the form repeats a range error:
-    <a href="downloads/13gems-toporef-holdoutref_allfinite.tif">13gems-toporef-holdoutref_allfinite.tif</a> — identical predictions,
+    <a href="downloads/13gems-r11-greedy-mp_allfinite.tif">13gems-r11-greedy-mp_allfinite.tif</a> — identical predictions,
     finite 0.0 outside the survey footprint instead of NaN. Record which file the
     form accepted. See the
     <a href="executive_summary.html#if-the-form-says-predicted-values-must-be-in-range-01">triage table</a>.</p>
@@ -40,7 +38,25 @@
 </div></div>
 <main class="wrap">
 <section>
-  <h2>This round: official external USGS data, staged and measured (R10 / R10b)</h2>
+  <h2>Session 5 (R11): first holdout WIN — greedy marginal-precision assembly</h2>
+  <p class="lede">R8–R10b showed 24 challengers losing because the pixels they added sat
+  <i>inside</i> neighbourhoods the topographic crest already covered, or had marginal
+  precision below the metric's inclusion bar. R11-4 turns that audited rule into the
+  construction procedure: each candidate block is restricted to pixels <b>more than
+  300 m from everything already predicted</b>, and is accepted only while its pooled
+  tune-fold marginal weighted precision exceeds <code>0.2 × DTI</code>. Selection used
+  tune folds only; the recipe was then applied unchanged to the 12 confirmation folds.</p>
+  <ul class="small"><li>step 1: best block <code>R10_vent</code> @ 0.25% — marginal precision 0.0284 vs bar 0.2×DTI = 0.0169 → <b>ACCEPT</b></li><li>step 2: best block <code>R8_tpi</code> @ 0.25% — marginal precision 0.0264 vs bar 0.2×DTI = 0.0172 → <b>ACCEPT</b></li><li>step 3: best block <code>R10_dzt_field</code> @ 0.25% — marginal precision 0.0269 vs bar 0.2×DTI = 0.0176 → <b>ACCEPT</b></li><li>step 4: best block <code>R10_dzt_field</code> @ 0.25% — marginal precision 0.0177 vs bar 0.2×DTI = 0.0179 → <b>STOP</b></li></ul>
+  <table class="small"><tr><th>config</th><th>tune worst-rule</th><th>confirm worst-rule</th><th>P_w</th><th>R_w</th></tr><tr><td class='mono'>topo_05_sp3</td><td>0.03852</td><td>0.08694</td><td>0.0276</td><td>0.2875</td></tr><tr><td class='mono'>topo05_plus_basinmag005_sp3</td><td>0.03793</td><td>0.08573</td><td>0.0269</td><td>0.2921</td></tr><tr><td class='mono'>topo05_plus_basinmag010_sp3</td><td>0.03760</td><td>0.08532</td><td>0.0267</td><td>0.2942</td></tr><tr><td class='mono'>greedy_r11</td><td>0.03992</td><td>0.09175</td><td>0.0282</td><td>0.3359</td></tr></table>
+  <p class="small">Verdict (predeclared): <b>{&quot;greedy_r11&quot;: &quot;WINS (confirmation rule-means won: 6/6)&quot;}</b>.
+  R11-2 basin-floor magnetic continuity is <b>INVALID, not lost</b>: its 7,610-pixel support is smaller than the 0.5 %/1 % masses requested, so the unions filled with zero-score pixels (irregularity I-14); retest at ≤ 0.14 %.
+  Irregularity I-15 flagged: the rebuilt detector cache reproduces the archived reference only to
+  ≤ 0.17% relative, so the
+  verdict is paired in-run and the gain had to exceed 10× that drift. Local proxy only — not a
+  leaderboard estimate. Report: <code>reports/holdout_r11_2026-09-30.json</code>.</p>
+</section>
+<section>
+  <h2>Previous round: official external USGS data, staged and measured (R10 / R10b)</h2>
   <p class="lede">For the first time the work went outside the provided 19 bands.
   Six free, official, public-domain USGS products were staged and verified twice each
   (sha256 from the sibling provenance record <b>and</b> git blob SHA-1 from the sibling
@@ -251,17 +267,19 @@
 
 <section>
   <div class="callout bad">
-    <p style="margin:0"><strong>Submission gate:</strong> the shipped download is the
-    local holdout <i>reference</i> — the best available recipe under the charter gate —
-    not a candidate that beat it. No challenger has cleared the gate this round. Treat
-    any upload of this file as the weekly baseline receipt, and spend the remaining
-    slots only on recipes that first beat it on the paired holdout.</p>
+    <p style="margin:0"><strong>Submission gate:</strong> the shipped download
+    (<code>greedy_r11</code>) is the first recipe that <b>cleared</b> the gate — it beat the
+    local reference <code>topo_05_sp3</code> on tune and confirmation folds under the
+    predeclared rule. It is still a catalogue hide-and-recover proxy, not a leaderboard
+    prediction: upload it, record the returned public score in
+    <code>reports/leaderboard_ledger.csv</code>, and treat that score as the new
+    comparison point for the next round.</p>
   </div>
 </section></main>
 <footer class="site"><div class="wrap">
   <p><strong>13GEMSDOE</strong> — working repository for the
   <a href="https://www.drivendata.org/competitions/306/competition-doe-gems/">DOE GEMS Prize Challenge</a>.
-  Page generated 2026-09-30 21:10 UTC from <code>reports/*.json</code>.</p>
+  Page generated 2026-09-30 22:24 UTC from <code>reports/*.json</code>.</p>
   <p class="small">Every figure on this site is produced by a script in this
   repository and is reproducible from a clean checkout. Claims that could not be
   verified against an official source are listed as irregularities rather than

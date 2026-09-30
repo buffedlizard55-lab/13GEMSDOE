@@ -123,11 +123,23 @@ def build_index() -> str:
     else:
         artifact_links = '<p class="small">No archived candidate file is currently registered.</p>'
 
+    r11 = load("holdout_r11_2026-09-30.json", {}) or {}
+    if str(clearance_status).startswith("CLEARED"):
+        cs11 = r11.get("confirmation_summary", {})
+        hero_what = (
+            "This file is <b>the first recipe in this repository to beat the local "
+            "holdout reference</b>: <code>greedy_r11</code> (R11-4 greedy marginal-precision "
+            "assembly) — confirmation worst-rule-mean DTI "
+            f"<b>{cs11.get('greedy_r11', {}).get('dti_worst_rule_mean', 0):.5f}</b> vs "
+            f"{cs11.get('topo_05_sp3', {}).get('dti_worst_rule_mean', 0):.5f} for "
+            "<code>topo_05_sp3</code>, 6/6 rule means and 18/18 paired folds, under the "
+            "rule predeclared in <code>knowledge/07_r11_hypotheses.md</code>.")
+    else:
+        hero_what = ("This file is the <b>current local holdout reference recipe</b> "
+                     "(<code>topo_05_sp3</code>).")
     hero = f"""<div class="hero"><div class="wrap">
   <h1>Submission download — <span class="tag {tag_cls}">{e(status_label)}</span></h1>
-  <p class="sub">This file is the <b>current local holdout reference recipe</b>
-  (<code>topo_05_sp3</code>): the configuration that re-confirmed as the local best in the
-  paired, predeclared R9, R10 and R10b validations — no tested variant beat it. It passes the repository's
+  <p class="sub">{hero_what} It passes the repository's
   official-format checks (single-band float32; EPSG:32611; 3730×3292; 100 m; finite values in
   [0,1] inside the survey footprint; null/NaN outside). <b>These are local
   catalogue-recovery results, not a predicted leaderboard score</b>, and remote acceptance
@@ -283,9 +295,41 @@ def build_index() -> str:
         else "not available"
     )
 
+    r11_rows = ""
+    ts11 = r11.get("tune_summary", {})
+    ca11 = r11.get("confirmation_summary_all_for_audit", {})
+    for cfg in ts11:
+        r11_rows += (f"<tr><td class='mono'>{e(cfg)}</td>"
+                     f"<td>{ts11[cfg]['dti_worst_rule_mean']:.5f}</td>"
+                     f"<td>{ca11.get(cfg, {}).get('dti_worst_rule_mean', 0):.5f}</td>"
+                     f"<td>{ca11.get(cfg, {}).get('precision_w_mean', 0):.4f}</td>"
+                     f"<td>{ca11.get(cfg, {}).get('recall_w_mean', 0):.4f}</td></tr>")
+    path11 = "".join(
+        f"<li>step {p['step']}: best block <code>{e(p['best']['map'])}</code> @ "
+        f"{p['best']['cov']*100:g}% — marginal precision {p['best']['marginal_precision']:.4f} "
+        f"vs bar 0.2×DTI = {p['bar_0.2xDTI']:.4f} → <b>{'ACCEPT' if p['accepted'] else 'STOP'}</b></li>"
+        for p in r11.get("greedy_path_tune_only", []))
     body = f"""
 <section>
-  <h2>This round: official external USGS data, staged and measured (R10 / R10b)</h2>
+  <h2>Session 5 (R11): first holdout WIN — greedy marginal-precision assembly</h2>
+  <p class="lede">R8–R10b showed 24 challengers losing because the pixels they added sat
+  <i>inside</i> neighbourhoods the topographic crest already covered, or had marginal
+  precision below the metric's inclusion bar. R11-4 turns that audited rule into the
+  construction procedure: each candidate block is restricted to pixels <b>more than
+  300 m from everything already predicted</b>, and is accepted only while its pooled
+  tune-fold marginal weighted precision exceeds <code>0.2 × DTI</code>. Selection used
+  tune folds only; the recipe was then applied unchanged to the 12 confirmation folds.</p>
+  <ul class="small">{path11}</ul>
+  <table class="small"><tr><th>config</th><th>tune worst-rule</th><th>confirm worst-rule</th><th>P_w</th><th>R_w</th></tr>{r11_rows}</table>
+  <p class="small">Verdict (predeclared): <b>{e(json.dumps(r11.get('verdict_predeclared', {})))}</b>.
+  R11-2 basin-floor magnetic continuity is <b>INVALID, not lost</b>: its 7,610-pixel support is smaller than the 0.5 %/1 % masses requested, so the unions filled with zero-score pixels (irregularity I-14); retest at ≤ 0.14 %.
+  Irregularity I-15 flagged: the rebuilt detector cache reproduces the archived reference only to
+  ≤ {r11.get('protocol_regression_check', {}).get('max_rel_deviation', 0)*100:.2f}% relative, so the
+  verdict is paired in-run and the gain had to exceed 10× that drift. Local proxy only — not a
+  leaderboard estimate. Report: <code>reports/holdout_r11_2026-09-30.json</code>.</p>
+</section>
+<section>
+  <h2>Previous round: official external USGS data, staged and measured (R10 / R10b)</h2>
   <p class="lede">For the first time the work went outside the provided 19 bands.
   Six free, official, public-domain USGS products were staged and verified twice each
   (sha256 from the sibling provenance record <b>and</b> git blob SHA-1 from the sibling
@@ -449,11 +493,13 @@ def build_index() -> str:
 
 <section>
   <div class="callout bad">
-    <p style="margin:0"><strong>Submission gate:</strong> the shipped download is the
-    local holdout <i>reference</i> — the best available recipe under the charter gate —
-    not a candidate that beat it. No challenger has cleared the gate this round. Treat
-    any upload of this file as the weekly baseline receipt, and spend the remaining
-    slots only on recipes that first beat it on the paired holdout.</p>
+    <p style="margin:0"><strong>Submission gate:</strong> the shipped download
+    (<code>greedy_r11</code>) is the first recipe that <b>cleared</b> the gate — it beat the
+    local reference <code>topo_05_sp3</code> on tune and confirmation folds under the
+    predeclared rule. It is still a catalogue hide-and-recover proxy, not a leaderboard
+    prediction: upload it, record the returned public score in
+    <code>reports/leaderboard_ledger.csv</code>, and treat that score as the new
+    comparison point for the next round.</p>
   </div>
 </section>"""
     return page("index.html", "Submission status", body, hero)
@@ -467,7 +513,7 @@ def build_exec() -> str:
     clearance = sub.get("submission_clearance", {})
     status = clearance.get("status", "UNKNOWN")
     reason = clearance.get("reason", "No current clearance record.")
-    holdout_link = "https://github.com/buffedlizard55-lab/13GEMSDOE/blob/main/reports/holdout_r10_2026-09-30.json"
+    holdout_link = "https://github.com/buffedlizard55-lab/13GEMSDOE/blob/main/reports/holdout_r11_2026-09-30.json"
     candidate_link = f"downloads/{e(name)}.tif" if sub else "#"
     zip_name = f"{e(name)}.zip" if sub else "the ZIP"
     fallback_link = f"downloads/{e(allfinite)}.tif" if sub else "#"
@@ -477,12 +523,11 @@ def build_exec() -> str:
   <h2>Submission workflow — the five steps, in order</h2>
   <div class="callout">
     <p style="margin:0"><b>Current artifact: <code>{e(name)}.tif</code></b> —
-    status <b>{e(status)}</b>. It implements the local holdout reference recipe
-    (the best available under the charter gate; a catalogue hide-and-recover proxy,
-    not a predicted leaderboard score). {e(reason)}
+    status <b>{e(status)}</b> (a catalogue hide-and-recover proxy result, not a
+    predicted leaderboard score). {e(reason)}
     Download it from the <a href="index.html">front page</a> or directly
     <a href="{candidate_link}">here</a>. Full comparison:
-    <a href="{holdout_link}">R10 holdout report</a> (R9:
+    <a href="{holdout_link}">R11 holdout report</a> (R9:
     <a href="https://github.com/buffedlizard55-lab/13GEMSDOE/blob/main/reports/holdout_r9_2026-09-30.json">here</a>).</p>
   </div>
   <ol class="steps">

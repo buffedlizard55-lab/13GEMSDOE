@@ -14,7 +14,51 @@ https://buffedlizard55-lab.github.io/13GEMSDOE/
 
 ---
 
-## Latest review — 2026-09-30, session 4 (R10 / R10b: official external data)
+## Latest review — 2026-09-30, session 5 (R11: first holdout WIN)
+
+**Download:** [`docs/downloads/13gems-r11-greedy-mp.tif`](docs/downloads/13gems-r11-greedy-mp.tif)
+(zip: `13gems-r11-greedy-mp.zip`; range-error fallback: `13gems-r11-greedy-mp_allfinite.tif`).
+Form name `13gems-r11-greedy-mp`; the note is printed on the
+[site front page](https://buffedlizard55-lab.github.io/13GEMSDOE/docs/) and in
+[`reports/latest_submission.json`](reports/latest_submission.json).
+
+**Why the group kept getting 0.1563.** Settled as far as public data allows (I-3): the GEMSDOE1 and
+8GEMSDOE 0.1563-labelled files are *different* maps (positive-support IoU 0.0670,
+re-measured this session from `data/scored/`); the 5GEMSDOE file that produced its 0.1563
+is **not mirrored** in any pinned source, so it cannot be compared (flagged). And the leaderboard column
+is an **account-level best**, not a per-file receipt — a new file that scores lower leaves
+the displayed value unchanged. Every earlier recipe was also a variant of the same
+topographic-crest idea. The new recipe is a different *mechanism*, not a re-tuning.
+
+**R11-4 greedy marginal-precision assembly — WINS** (predeclared in
+[`knowledge/07_r11_hypotheses.md`](knowledge/07_r11_hypotheses.md) before any fold was
+scored). Starting from `topo_05_sp3`, each candidate block is restricted to pixels
+**> 300 m from everything already predicted** and accepted only while its pooled tune-fold
+marginal weighted precision exceeds `0.2 × DTI` (audited inclusion rule). Accepted:
+`R10_vent`@0.25 % → `R8_tpi`@0.25 % → `R10_dzt_field`@0.25 %; step 4 failed the bar → stop.
+Confirmation worst-rule-mean DTI **0.09175 vs 0.08694** (+5.9 % mean), 6/6 rule means,
+**18/18 paired folds**. First recipe in 25 challengers (R8–R11) to clear the gate.
+Report: [`reports/holdout_r11_2026-09-30.json`](reports/holdout_r11_2026-09-30.json).
+
+**Flags for review.** I-15: rebuilt detector caches reproduce archived reference DTI only
+to ≤ 0.17 % (unpinned library versions) — verdicts are now paired in-run and the gain had
+to beat 10× drift; versions pinned in `requirements.txt`. I-16: the win is on hidden
+*known* faults; the public score is the real test. R11-2 (basin magnetics) is **invalid**,
+not lost (I-14 under-support). Still no DrivenData credentials here: the upload is a
+manual step (see the executive summary).
+
+### Next steps (ranked)
+1. **Upload `13gems-r11-greedy-mp.tif`** and log the score in `reports/leaderboard_ledger.csv`.
+2. **R11-2 retest** at ≤ 0.14 % (its support) — predeclared.
+3. **R12-1 greedy with a wider pool / finer steps** (0.1 % blocks, all catalogue-free maps
+   incl. R7/R8 families) — same gate, tune-only selection.
+4. **R12-2 per-region budget** — run the greedy separately per structural domain so the
+   bar is applied where the fault density differs.
+5. R11-1 basement-depth steps and R11-3 GDR-1391 paleo-geothermal halos (need egress to
+   [gdr.openei.org/submissions/1391](https://gdr.openei.org/submissions/1391)).
+6. Store map sha256 in `reports/detectors_manifest.json` (closes I-15).
+
+### Previous review — 2026-09-30, session 4 (R10 / R10b: official external data)
 
 This session went outside the provided 19 bands for the first time, under the
 standing rule that external data must be **free, official, licence-clean and

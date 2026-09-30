@@ -2064,3 +2064,42 @@ def vent_conjunction(scarp: np.ndarray, alteration: np.ndarray,
         n += 1
     out = np.power(prod, np.float32(1.0 / max(n, 1))).astype(np.float32)
     return np.where(m, out, 0.0).astype(np.float32)
+
+
+# ---------------------------------------------------------------------------
+# R11-2 -- basin-floor magnetic-continuity lineaments (provided bands only)
+# ---------------------------------------------------------------------------
+def basin_magnetic_continuity(rtp: np.ndarray, slope: np.ndarray,
+                              depth_to_base: np.ndarray,
+                              slope_pct: float = 33.3, depth_pct: float = 66.7,
+                              sigma_hp_px: float = 8.0,
+                              coherence_px: int = 9, min_coh: int = 5) -> np.ndarray:
+    """Along-strike-persistent crests of the high-passed RTP magnetic field,
+    emitted ONLY on the basin floor (lowest slope tercile AND deepest
+    depth-to-basement tercile).
+
+    Transform: |grad RTP| minus its sigma_hp_px Gaussian regional (positive part),
+    NMS-thinned ridge crests, along-strike persistence filter.
+
+    Physical signature: a range-front or intra-basin normal fault buried by
+    alluvium juxtaposes magnetically contrasting basement blocks, producing a
+    linear short-wavelength magnetic gradient crest with no topographic
+    expression. Restricting to the basin floor makes the output spatially
+    disjoint from the topographic-crest family (BASE_topo_ridge), which is the
+    only way a block can reach 300 m neighbourhoods the reference never touches
+    (irregularity I-13). Catalogue is NOT an input.
+    """
+    s = np.asarray(slope, dtype=np.float32)
+    d = np.asarray(depth_to_base, dtype=np.float32)
+    ok = np.isfinite(s) & np.isfinite(d) & np.isfinite(np.asarray(rtp))
+    if not ok.any():
+        return np.zeros(np.shape(rtp), dtype=np.float32)
+    s_thr = float(np.percentile(s[ok], slope_pct))
+    d_thr = float(np.percentile(d[ok], depth_pct))
+    gate = ok & (s <= s_thr) & (d >= d_thr)
+    # gradient FIRST, then high-pass the gradient magnitude and keep the positive
+    # part: high-passing the field first creates parallel side-lobe crests at
+    # ~sigma from a real step (caught by tests/test_r11.py).
+    hg = horizontal_gradient_mag(fill_nan_nearest(np.asarray(rtp, dtype=np.float32)))
+    hg = np.clip(hg - ndi.gaussian_filter(hg, sigma_hp_px, mode="nearest"), 0, None)
+    return _crest_lines(hg, mask=gate, coherence_px=coherence_px, min_coh=min_coh)
