@@ -848,3 +848,27 @@ sanity check that does not encode the exact spatial arrangement of the mask; it 
 a candidate-ranking metric, submission gate, or public/private baseline. The separate
 public chance calculation that inferred hidden `|G|` from leaderboard scores is also
 withdrawn; see [I-9 in `knowledge/02_irregularities.md`](02_irregularities.md).
+
+---
+
+## R11 shortlist — generated 2026-09-30 (session 4), constrained by what R10 measured
+
+Ranked by expected ΔDTI × implementation cost. Every candidate below is filtered
+through the lesson recorded as irregularity **I-13**: under a distance-weighted F2
+(β = 2) with a 300 m kernel, only a block whose pixels land within 300 m of faults
+the current recipe **never touches** can raise DTI, and its marginal weighted
+precision must exceed `0.2 × DTI` (measured bar: 0.0169 tune / 0.0195
+confirmation). Re-ranking or tightening neighbourhoods the topographic crest
+already hits is now a measured dead end (24 configurations, R8–R10b).
+
+| # | Candidate | Layers | Physical signature / transform | Why it can reach untouched faults | Difference from existing work | Cost |
+|---|---|---|---|---|---|---|
+| 1 | **R11-4 greedy marginal-precision assembly** | cached crest + curvature + `hs_lineament` + external `slope_std`, `rad_uk` | rank blocks by measured marginal precision on **tune** folds; add a block only while `ΔTP_w/(ΔTP_w+ΔFP_w) > 0.2 × DTI`, stop at the first block that fails | it cannot add a losing block by construction; it converts the audited inclusion rule from a post-hoc diagnosis into the assembly procedure | R8/R9/R10 guessed coverages and unions *then* measured them; nothing in the repo has used the rule as the stopping criterion. Caveat: greedy order-dependence, so the tune-fold path must be reported in full | **Low** (no new data, all maps cached) |
+| 2 | **R11-2 basin-floor magnetic-continuity lineaments** | provided bands 2 `rtp`, 4 `tmi_hg`, 5 `tmi_vg`, 15 `depth_to_base_surf`; gate = lowest slope tercile **and** deepest conductive base | oriented persistence of short-wavelength magnetic gradient *along strike*, not gradient magnitude; emit only where the crest detector is silent | range-front faults under alluvium juxtapose magnetically contrasting units; the crest family has ~zero coverage there, so any hit is a **new** 300 m neighbourhood | `BASE_tmi_hg` is magnitude-only and domain-wide; R7 cross-gradient is a product gate. This is strike-continuity restricted to the disjoint basin-floor region | **Low** (provided bands only) |
+| 3 | **R11-1 basement-depth juxtaposition edges** | provided band 15 `depth_to_base_surf`, bands 11/18 isostatic gravity derivatives; optional official depth-to-basement grids (DOI 10.5066/P9Z6SA1Z) | lateral *offset* (step) in basement depth along a linear feature, i.e. fault juxtaposition, rather than the gradient magnitude already tried | buried, basin-fill-bounded faults have no topographic expression at all — the single largest un-sampled region of the footprint | `R6_condbase` used a product of gradients; `R8_isocoherence` used windowed decorrelation. Neither tests for a *step in basement depth* nor restricts to the basin floor | **Medium** — provided-band version first; the official grids are 12 GB and their obtainability must be verified before any code is written |
+| 4 | **R11-3 paleo-geothermal feature halos** | INGENIOUS GDR 1391 (CC-BY-4.0) paleo-geothermal features: sinter/tufa deposits, hot springs | sparse 300–900 m halos around each *mapped* feature, scored as a small additive block | a sinter deposit is direct field evidence of a long-lived, fault-controlled upflow conduit; the block is tiny, so its marginal precision can clear the bar where a 2 % field cannot | `R8_intersections` used ridge intersections as a vent *proxy*; this uses mapped geothermal features as ground evidence, an independent data source | **Medium** — egress to `gdr.openei.org` is blocked from this sandbox; per the standing brief the source must be verified obtainable (mirror or manual download) before implementation |
+
+Screened out and not to be retried: QFFDB-minus-catalogue difference (1 px),
+LiDAR coherence (AUC 0.4608), any further union of the R10 maps at 0.5–2 %
+coverage (marginal precision 0.0094–0.0166, measured twice), and any fixed-budget
+rank fusion of the R10 maps (measured: precision-for-recall wash).

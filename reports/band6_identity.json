@@ -1,0 +1,336 @@
+{
+  "generated_utc": "2026-09-30T21:13:39Z",
+  "purpose": "settle I-2: is provided band 6 (`tc`) the official USGS radiometric total count, a tilt angle, or a curvature?",
+  "feature_file": "gems-geodawn-numerical-features.tif",
+  "band_index": 6,
+  "band6_full_footprint_stats": {
+    "min": 2.953424,
+    "p1": 7.722299,
+    "p50": 18.4817,
+    "p99": 29.100453,
+    "max": 88.566544
+  },
+  "band6_distinct_values_full": 4017092,
+  "footprint_px": 5167373,
+  "catalogue_px_not_used_here": 60988,
+  "candidates": {
+    "radiometric::rad_tc": {
+      "n_common_valid_px": 5164300,
+      "spearman_rho": 0.999978,
+      "pearson_r": 0.999018,
+      "ols_slope_band6_per_channel_unit": 1.00729453,
+      "ols_intercept": -0.127633,
+      "ols_r2": 0.998037,
+      "ols_rmse_in_band6_units": 0.19577,
+      "median_ratio_band6_over_channel": 0.99999857,
+      "iqr_ratio": [
+        0.99866543,
+        1.00133729
+      ],
+      "band6_stats_on_mask": {
+        "min": 2.953424,
+        "p1": 7.722299,
+        "p50": 18.4817,
+        "p99": 29.100453,
+        "max": 88.566544
+      },
+      "channel_stats_on_mask": {
+        "min": 5.46792,
+        "p1": 7.713965,
+        "p50": 18.455917,
+        "p99": 29.100216,
+        "max": 30.272064
+      },
+      "band6_distinct_values": 4017092,
+      "channel_distinct_values": 255
+    },
+    "geodawn_rad::TC": {
+      "n_common_valid_px": 5164300,
+      "spearman_rho": 0.999951,
+      "pearson_r": 0.99714,
+      "ols_slope_band6_per_channel_unit": 21.85455252,
+      "ols_intercept": 7.479651,
+      "ols_r2": 0.994288,
+      "ols_rmse_in_band6_units": 0.333913,
+      "median_ratio_band6_over_channel": 36.63914052,
+      "iqr_ratio": [
+        33.3301214,
+        43.14418111
+      ],
+      "band6_stats_on_mask": {
+        "min": 2.953424,
+        "p1": 7.722299,
+        "p50": 18.4817,
+        "p99": 29.100453,
+        "max": 88.566544
+      },
+      "channel_stats_on_mask": {
+        "min": 0.0,
+        "p1": 0.0,
+        "p50": 0.503937,
+        "p99": 1.0,
+        "max": 1.0
+      },
+      "band6_distinct_values": 4017092,
+      "channel_distinct_values": 255
+    },
+    "radiometric::rad_th": {
+      "n_common_valid_px": 5164300,
+      "spearman_rho": 0.913037,
+      "pearson_r": 0.916574,
+      "ols_slope_band6_per_channel_unit": 14.99705969,
+      "ols_intercept": -2.104227,
+      "ols_r2": 0.840109,
+      "ols_rmse_in_band6_units": 1.766686,
+      "median_ratio_band6_over_channel": 13.41566886,
+      "iqr_ratio": [
+        12.49715489,
+        14.31838379
+      ],
+      "band6_stats_on_mask": {
+        "min": 2.953424,
+        "p1": 7.722299,
+        "p50": 18.4817,
+        "p99": 29.100453,
+        "max": 88.566544
+      },
+      "channel_stats_on_mask": {
+        "min": 0.550076,
+        "p1": 0.65993,
+        "p50": 1.364289,
+        "p99": 2.088033,
+        "max": 2.191425
+      },
+      "band6_distinct_values": 4017092,
+      "channel_distinct_values": 255
+    },
+    "geodawn_rad::Th": {
+      "n_common_valid_px": 5164300,
+      "spearman_rho": 0.913009,
+      "pearson_r": 0.91531,
+      "ols_slope_band6_per_channel_unit": 21.73157159,
+      "ols_intercept": 7.614983,
+      "ols_r2": 0.837792,
+      "ols_rmse_in_band6_units": 1.77944,
+      "median_ratio_band6_over_channel": 37.3438958,
+      "iqr_ratio": [
+        33.46816269,
+        42.79704074
+      ],
+      "band6_stats_on_mask": {
+        "min": 2.953424,
+        "p1": 7.722299,
+        "p50": 18.4817,
+        "p99": 29.100453,
+        "max": 88.566544
+      },
+      "channel_stats_on_mask": {
+        "min": 0.0,
+        "p1": 0.0,
+        "p50": 0.492126,
+        "p99": 1.0,
+        "max": 1.0
+      },
+      "band6_distinct_values": 4017092,
+      "channel_distinct_values": 255
+    },
+    "radiometric::rad_k": {
+      "n_common_valid_px": 5164300,
+      "spearman_rho": 0.88569,
+      "pearson_r": 0.882209,
+      "ols_slope_band6_per_channel_unit": 16.26095728,
+      "ols_intercept": -17.797134,
+      "ols_r2": 0.778293,
+      "ols_rmse_in_band6_units": 2.080351,
+      "median_ratio_band6_over_channel": 8.23506261,
+      "iqr_ratio": [
+        7.32246752,
+        9.07582968
+      ],
+      "band6_stats_on_mask": {
+        "min": 2.953424,
+        "p1": 7.722299,
+        "p50": 18.4817,
+        "p99": 29.100453,
+        "max": 88.566544
+      },
+      "channel_stats_on_mask": {
+        "min": 1.633718,
+        "p1": 1.664352,
+        "p50": 2.23619,
+        "p99": 2.823345,
+        "max": 2.930565
+      },
+      "band6_distinct_values": 4017092,
+      "channel_distinct_values": 255
+    },
+    "geodawn_rad::K": {
+      "n_common_valid_px": 5164300,
+      "spearman_rho": 0.885665,
+      "pearson_r": 0.881676,
+      "ols_slope_band6_per_channel_unit": 19.11060028,
+      "ols_intercept": 9.15132,
+      "ols_r2": 0.777352,
+      "ols_rmse_in_band6_units": 2.084759,
+      "median_ratio_band6_over_channel": 37.74434439,
+      "iqr_ratio": [
+        33.0371022,
+        45.54797785
+      ],
+      "band6_stats_on_mask": {
+        "min": 2.953424,
+        "p1": 7.722299,
+        "p50": 18.4817,
+        "p99": 29.100453,
+        "max": 88.566544
+      },
+      "channel_stats_on_mask": {
+        "min": 0.0,
+        "p1": 0.0,
+        "p50": 0.492126,
+        "p99": 1.0,
+        "max": 1.0
+      },
+      "band6_distinct_values": 4017092,
+      "channel_distinct_values": 255
+    },
+    "radiometric::rad_u": {
+      "n_common_valid_px": 5164300,
+      "spearman_rho": 0.717949,
+      "pearson_r": 0.713445,
+      "ols_slope_band6_per_channel_unit": 18.57629361,
+      "ols_intercept": -14.826048,
+      "ols_r2": 0.509004,
+      "ols_rmse_in_band6_units": 3.095892,
+      "median_ratio_band6_over_channel": 10.32046348,
+      "iqr_ratio": [
+        8.93687048,
+        11.53706618
+      ],
+      "band6_stats_on_mask": {
+        "min": 2.953424,
+        "p1": 7.722299,
+        "p50": 18.4817,
+        "p99": 29.100453,
+        "max": 88.566544
+      },
+      "channel_stats_on_mask": {
+        "min": 1.333544,
+        "p1": 1.392495,
+        "p50": 1.781571,
+        "p99": 2.264968,
+        "max": 2.331779
+      },
+      "band6_distinct_values": 4017092,
+      "channel_distinct_values": 255
+    },
+    "geodawn_rad::U": {
+      "n_common_valid_px": 5164300,
+      "spearman_rho": 0.717923,
+      "pearson_r": 0.715073,
+      "ols_slope_band6_per_channel_unit": 16.48853981,
+      "ols_intercept": 10.937407,
+      "ols_r2": 0.511329,
+      "ols_rmse_in_band6_units": 3.088554,
+      "median_ratio_band6_over_channel": 40.93112616,
+      "iqr_ratio": [
+        34.46337144,
+        50.18079175
+      ],
+      "band6_stats_on_mask": {
+        "min": 2.953424,
+        "p1": 7.722299,
+        "p50": 18.4817,
+        "p99": 29.100453,
+        "max": 88.566544
+      },
+      "channel_stats_on_mask": {
+        "min": 0.0,
+        "p1": 0.0,
+        "p50": 0.444882,
+        "p99": 1.0,
+        "max": 1.0
+      },
+      "band6_distinct_values": 4017092,
+      "channel_distinct_values": 255
+    }
+  },
+  "sum_closure_tests": {
+    "radiometric::(rad_k + rad_th + rad_u)": {
+      "n_common_valid_px": 5164300,
+      "spearman_rho": 0.995773,
+      "pearson_r": 0.995104,
+      "ols_slope_band6_per_channel_unit": 7.54280605,
+      "ols_intercept": -22.217913,
+      "ols_r2": 0.990232,
+      "ols_rmse_in_band6_units": 0.436668,
+      "median_ratio_band6_over_channel": 3.42783835,
+      "iqr_ratio": [
+        3.06269845,
+        3.71150883
+      ],
+      "band6_stats_on_mask": {
+        "min": 2.953424,
+        "p1": 7.722299,
+        "p50": 18.4817,
+        "p99": 29.100453,
+        "max": 88.566544
+      },
+      "channel_stats_on_mask": {
+        "min": 3.517339,
+        "p1": 3.987283,
+        "p50": 5.391848,
+        "p99": 6.793949,
+        "max": 7.453769
+      },
+      "band6_distinct_values": 4017092,
+      "channel_distinct_values": 1906655
+    },
+    "geodawn_rad::(K + Th + U)": {
+      "n_common_valid_px": 5164300,
+      "spearman_rho": 0.991517,
+      "pearson_r": 0.989711,
+      "ols_slope_band6_per_channel_unit": 8.88545766,
+      "ols_intercept": 5.64251,
+      "ols_r2": 0.979528,
+      "ols_rmse_in_band6_units": 0.632155,
+      "median_ratio_band6_over_channel": 12.83649584,
+      "iqr_ratio": [
+        12.00078271,
+        14.15263457
+      ],
+      "band6_stats_on_mask": {
+        "min": 2.953424,
+        "p1": 7.722299,
+        "p50": 18.4817,
+        "p99": 29.100453,
+        "max": 88.566544
+      },
+      "channel_stats_on_mask": {
+        "min": 0.0,
+        "p1": 0.307087,
+        "p50": 1.440945,
+        "p99": 2.586614,
+        "max": 3.0
+      },
+      "band6_distinct_values": 4017092,
+      "channel_distinct_values": 1823
+    }
+  },
+  "external_provenance": "reports/external_manifest.json",
+  "verdict": {
+    "band6_is_official_radiometric_total_count": true,
+    "criterion_channel": "radiometric::rad_tc",
+    "best_single_channel_match": {
+      "channel": "radiometric::rad_tc",
+      "spearman_rho": 0.999978,
+      "pearson_r": 0.999018,
+      "ols_r2": 0.998037,
+      "ols_slope_band6_per_channel_unit": 1.00729453,
+      "median_ratio_band6_over_channel": 0.99999857
+    },
+    "sum_closure_best_rho": 0.995773,
+    "sum_closure_best_r2": 0.990232,
+    "criterion": "Spearman rho > 0.999 AND linear-fit R^2 > 0.99 against the official TC channel AND rho > 0.99 against K+Th+U from the same release; a tilt angle or curvature cannot satisfy the sum-closure test"
+  }
+}

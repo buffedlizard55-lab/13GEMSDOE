@@ -166,18 +166,23 @@ DTI  = 0.6028 → 0.60  ✓</code></pre>
       accounts. The repository makes no allegation of shared ownership or an
       eligibility violation; see the official rules and resolve only from verified
       account records.</p></div>
-    <div class="panel"><h3 style="margin-top:0"><span class="tag t-warn">🟠 I-2</span>
-      Band 6 <code>tc</code> is <b>UNIDENTIFIED</b></h3>
-      <p class="small">Its embedded description says “Tilt angle <i>or</i> total
-      curvature”. The problem page's figure is <code>gems_tc_tmi.png</code>, captioned
-      “radiometric (left) and magnetic (right)” — first-party evidence for the
-      radiometric-total-count reading. But the measured band is bounded in
-      [2.95°, 88.57°] with p99 = 29.1°, is smoother than the supplied gradient bands,
-      and matches <b>none</b> of 8 standard magnetic edge angles (all |r| &lt; 0.04) nor
-      any of 51 transforms of the other 18 bands (best |ρ| = 0.35). A
-      count in CPS is not bounded at 88. Both readings cannot be true of the same array;
-      the data-tab documentation is required to settle it.
-      Measured by <code>scripts/audit_bands.py</code>.</p></div>
+    <div class="panel"><h3 style="margin-top:0"><span class="tag t-ok">🟢 I-2 RESOLVED</span>
+      Band 6 <code>tc</code> <b>is</b> the radiometric total count</h3>
+      <p class="small">Measured against the official USGS GeoDAWN radiometric grid
+      (<code>radiometric::rad_tc</code>, DOI 10.5066/P93LGLVQ): Spearman
+      ρ <b>0.99998</b>, Pearson r 0.99902,
+      OLS slope 1.0073,
+      R² 0.9980, RMSE 0.196 band-6
+      units, median ratio 1.00000. The physical
+      closure test also passes — band6 ≈ 7.54 × (K + Th + U) at ρ 0.99577 —
+      which no tilt angle or curvature can satisfy. Its embedded description
+      (“Tilt angle <i>or</i> total curvature — magnetic field derivative for edge
+      detection”) does not describe the array: that is a documentation defect worth
+      raising with the organisers. The earlier “disproved” verdict relied on an unverified
+      units assumption (that a count rate must be 10²–10⁴ cps); the official grid itself
+      spans 5.47–30.27 here, and band 6 keeps a tail to 88.57 that the 8-bit product
+      clips. Measured by <code>scripts/audit_band6_identity.py</code> →
+      <code>reports/band6_identity.json</code>.</p></div>
     <div class="panel"><h3 style="margin-top:0"><span class="tag t-warn">🟡 I-6</span>
       Dated leaderboard snapshot</h3>
       <p class="small">Fetched 2026-09-30: <b>0.3168</b> (DARD) and
@@ -186,11 +191,62 @@ DTI  = 0.6028 → 0.60  ✓</code></pre>
   </div>
   <p class="small">Full list with evidence and actions:
   <a href="https://github.com/buffedlizard55-lab/13GEMSDOE/blob/main/knowledge/02_irregularities.md">knowledge/02_irregularities.md</a>.</p>
+</section>
+
+<section>
+  <h2>6 · Official external data — staging, verification, measurement</h2>
+  <p class="lede">Everything below is free, official and public domain. Each file was
+  verified twice before use, and every map built from them was measured on the same
+  paired holdout protocol as the internal detectors.</p>
+  <div class="scroll"><table><thead><tr><th>file</th><th class="num">bytes</th>
+    <th>sha256 (prefix)</th><th>git blob (prefix)</th><th>official source</th>
+    <th>double-verified</th></tr></thead><tbody><tr><td class='mono small'>lidar_scarp_features_u8.tif</td><td class='num'>36,943,606</td><td class='mono small'>d580bb8bdcdb941e…</td><td class='mono small'>da733b53147e…</td><td class='small'>USGS 3DEP 1 m DEM (716 tiles) -&gt; 2 m morphometrics -&gt; 100 m aggregate</td><td>✅ both</td></tr><tr><td class='mono small'>geodawn_rad_u8.tif</td><td class='num'>26,612,970</td><td class='mono small'>c22420f75999030d…</td><td class='mono small'>80704748f974…</td><td class='small'>https://doi.org/10.5066/P93LGLVQ (K, Th, U, TC)</td><td>✅ both</td></tr><tr><td class='mono small'>geodawn_extensions_u8.tif</td><td class='num'>27,132,925</td><td class='mono small'>a35a9c6d2a14786f…</td><td class='mono small'>2fb1d57fdd33…</td><td class='small'>https://doi.org/10.5066/P93LGLVQ (Th/K, U/K, U/Th, TMI up-150 m)</td><td>✅ both</td></tr><tr><td class='mono small'>qfaults_prior_u8.tif</td><td class='num'>873,834</td><td class='mono small'>538b45735833b341…</td><td class='mono small'>b6b4c2193fad…</td><td class='small'>https://earthquake.usgs.gov/static/lfs/nshm/qfaults/Qfaults_GIS.zip (https://doi.org/10.5066/P9BCVRCK)</td><td>✅ both</td></tr><tr><td class='mono small'>topo_u8.tif</td><td class='num'>32,523,329</td><td class='mono small'>a6398d9950965dec…</td><td class='mono small'>5388687c1396…</td><td class='small'>USGS 3DEP DEM -&gt; 9 topographic channels at 100 m</td><td>✅ both</td></tr><tr><td class='mono small'>radiometric_u8.tif</td><td class='num'>25,475,158</td><td class='mono small'>6cb051f70f941fd7…</td><td class='mono small'>dfc512ff03c0…</td><td class='small'>https://doi.org/10.5066/P93LGLVQ -&gt; 7 radiometric channels at 100 m</td><td>✅ both</td></tr></tbody></table></div>
+  <p class="small">Licence: USGS public domain (U.S. Government works); attribution required: &#x27;Map services and data available from U.S. Geological Survey, National Geospatial Program.&#x27; and the GeoDAWN data-release citation Glen, J.M.G., and Earney, T.E., 2024, https://doi.org/10.5066/P93LGLVQ.
+  Egress caveat: sciencebase.gov / usgs.gov / prd-tnm.s3.amazonaws.com are TLS-blocked from this sandbox (limitation L-2); files are fetched from the sibling-repo GitHub mirrors that staged them in open-egress runners. Pins:
+  <code>reports/external_manifest.json</code>; per-file provenance records:
+  <code>reports/external_provenance/</code>.</p>
+  <div class="grid g2">
+    <div class="panel"><h3 style="margin-top:0">Grid and catalogue checks</h3>
+      <p class="small">All six products conform exactly to the competition grid
+      (EPSG:32611, 100 m, 3730×3292, transform 243350 / 4508550). The
+      QFFDB-minus-provided-catalogue difference — the “missing faults are just the
+      national database” hypothesis — measures <b>{&#x27;source&#x27;: &#x27;USGS Quaternary fault and fold database (QFFDB), https://earthquake.usgs.gov/static/lfs/nshm/qfaults/Qfaults_GIS.zip, https://doi.org/10.5066/P9BCVRCK, re-gridded onto the competition grid by buffedlizard55-lab/7GEMSDOE (sha256-pinned)&#x27;, &#x27;R_px&#x27;: 3, &#x27;R_m&#x27;: 300, &#x27;definition&#x27;: &#x27;a QFFDB trace pixel with no PROVIDED training label within R px (Euclidean distance transform)&#x27;, &#x27;coarse_trace&#x27;: {&#x27;px_total&#x27;: 138416, &#x27;px_inside_footprint&#x27;: 58251, &#x27;px_outside_footprint&#x27;: 80165, &#x27;px_inside_footprint_with_no_label_within_R&#x27;: 0}, &#x27;fine_trace&#x27;: {&#x27;px_total&#x27;: 30877, &#x27;px_inside_footprint&#x27;: 2754, &#x27;px_outside_footprint&#x27;: 28123, &#x27;px_inside_footprint_with_no_label_within_R&#x27;: 1}, &#x27;lower_certainty_trace&#x27;: {&#x27;px_total&#x27;: 670, &#x27;px_inside_footprint&#x27;: 0, &#x27;px_outside_footprint&#x27;: 670, &#x27;px_inside_footprint_with_no_label_within_R&#x27;: 0}, &#x27;union_all_bands&#x27;: {&#x27;px_total&#x27;: 169115, &#x27;px_inside_footprint&#x27;: 60939, &#x27;px_outside_footprint&#x27;: 108176, &#x27;px_inside_footprint_with_no_label_within_R&#x27;: 1, &#x27;fraction_of_in_footprint_traces_already_covered_within_R&#x27;: 0.99998359}, &#x27;gap_distance_to_nearest_label_px&#x27;: {&#x27;n&#x27;: 1, &#x27;min&#x27;: 3.605551275463989, &#x27;p50&#x27;: 3.605551275463989, &#x27;p90&#x27;: 3.605551275463989, &#x27;max&#x27;: 3.605551275463989}, &#x27;gap_components&#x27;: {&#x27;n&#x27;: 1, &#x27;largest_px&#x27;: 1, &#x27;median_px&#x27;: 1.0, &#x27;total_px&#x27;: 1}} pixel(s)</b>:
+      the hypothesis is dead, and the QFFDB product is used for analysis only because
+      training on it would leak the catalogue. Common domain across all products:
+      3,205,306 px
+      (62.0% of the
+      footprint). Report: <code>reports/external_audit.json</code>.</p></div>
+    <div class="panel"><h3 style="margin-top:0">Band-6 identity verdict</h3>
+      <p class="small">Criterion written before the run: ρ &gt; 0.999 <b>and</b> linear-fit
+      R² &gt; 0.99 against the official TC channel <b>and</b> ρ &gt; 0.99 against K + Th + U.
+      Result: <b>PASS — band 6 is the radiometric total count</b>.
+      Best single-channel match: <code>radiometric::rad_tc</code>.
+      Side benefit: because the competition's own band 6 reproduces the sibling
+      re-gridding of the USGS release to R² 0.9980, the external staging
+      pipeline is validated against first-party data.</p></div>
+  </div>
+  <h3>R10 — all sixteen configurations, confirmation folds</h3>
+  <div class="scroll"><table><thead><tr><th>configuration</th><th class="num">worst-rule DTI</th>
+    <th class="num">mean DTI</th><th class="num">P_w</th><th class="num">R_w</th>
+    <th class="num">predicted px</th><th class="num">Δ vs ref</th>
+    <th class="num">tie fraction</th><th>predeclared verdict</th></tr></thead>
+    <tbody><tr><td class='mono small'>topo_05_sp3</td><td class='num'>0.08687</td><td class='num'>0.09763</td><td class='num'>0.0276</td><td class='num'>0.2874</td><td class='num'>185,290</td><td class='num'>+0.00000</td><td class='num'>0.00</td><td class='small'>REFERENCE</td></tr><tr><td class='mono small'>topo05_plus_alter02_sp3</td><td class='num'>0.08593</td><td class='num'>0.09651</td><td class='num'>0.0257</td><td class='num'>0.3363</td><td class='num'>233,565</td><td class='num'>-0.00113</td><td class='num'>0.00</td><td class='small'>LOSES (confirmation rule-means won: 1/6)</td></tr><tr><td class='mono small'>topo05_plus_vent02_sp3</td><td class='num'>0.08443</td><td class='num'>0.09633</td><td class='num'>0.0260</td><td class='num'>0.3229</td><td class='num'>221,844</td><td class='num'>-0.00130</td><td class='num'>0.00</td><td class='small'>LOSES (confirmation rule-means won: 1/6)</td></tr><tr><td class='mono small'>ventdzt_08_sp3</td><td class='num'>0.08396</td><td class='num'>0.09311</td><td class='num'>0.0292</td><td class='num'>0.2198</td><td class='num'>134,376</td><td class='num'>-0.00452</td><td class='num'>0.00</td><td class='small'>LOSES (confirmation rule-means won: 1/6)</td></tr><tr><td class='mono small'>topo05_plus_scarp02_sp3</td><td class='num'>0.08099</td><td class='num'>0.09269</td><td class='num'>0.0250</td><td class='num'>0.3121</td><td class='num'>223,079</td><td class='num'>-0.00494</td><td class='num'>0.00</td><td class='small'>LOSES (confirmation rule-means won: 0/6)</td></tr><tr><td class='mono small'>topo05_plus_dzt02_sp3</td><td class='num'>0.07937</td><td class='num'>0.09083</td><td class='num'>0.0242</td><td class='num'>0.3179</td><td class='num'>234,913</td><td class='num'>-0.00681</td><td class='num'>0.00</td><td class='small'>LOSES (confirmation rule-means won: 0/6)</td></tr><tr><td class='mono small'>ventdzt_05_sp3</td><td class='num'>0.07643</td><td class='num'>0.08548</td><td class='num'>0.0310</td><td class='num'>0.1613</td><td class='num'>92,904</td><td class='num'>-0.01215</td><td class='num'>0.00</td><td class='small'>LOSES (confirmation rule-means won: 0/6)</td></tr><tr><td class='mono small'>vent_08_sp3</td><td class='num'>0.07526</td><td class='num'>0.09075</td><td class='num'>0.0293</td><td class='num'>0.2031</td><td class='num'>124,009</td><td class='num'>-0.00688</td><td class='num'>0.00</td><td class='small'>LOSES (confirmation rule-means won: 1/6)</td></tr><tr><td class='mono small'>dztC_02_sp3</td><td class='num'>0.07490</td><td class='num'>0.08536</td><td class='num'>0.0335</td><td class='num'>0.1460</td><td class='num'>77,139</td><td class='num'>-0.01227</td><td class='num'>0.00</td><td class='small'>LOSES (confirmation rule-means won: 0/6)</td></tr><tr><td class='mono small'>alter_05_sp3</td><td class='num'>0.07337</td><td class='num'>0.08202</td><td class='num'>0.0282</td><td class='num'>0.1670</td><td class='num'>106,146</td><td class='num'>-0.01562</td><td class='num'>0.00</td><td class='small'>LOSES (confirmation rule-means won: 0/6)</td></tr><tr><td class='mono small'>vent_05_sp3</td><td class='num'>0.06784</td><td class='num'>0.08397</td><td class='num'>0.0318</td><td class='num'>0.1497</td><td class='num'>84,098</td><td class='num'>-0.01366</td><td class='num'>0.00</td><td class='small'>LOSES (confirmation rule-means won: 0/6)</td></tr><tr><td class='mono small'>alterC_015_sp3</td><td class='num'>0.06411</td><td class='num'>0.07273</td><td class='num'>0.0328</td><td class='num'>0.1092</td><td class='num'>59,444</td><td class='num'>-0.02491</td><td class='num'>0.00</td><td class='small'>LOSES (confirmation rule-means won: 0/6)</td></tr><tr><td class='mono small'>dzt_08_sp3</td><td class='num'>0.06334</td><td class='num'>0.07585</td><td class='num'>0.0231</td><td class='num'>0.1888</td><td class='num'>145,501</td><td class='num'>-0.02178</td><td class='num'>0.00</td><td class='small'>LOSES (confirmation rule-means won: 0/6)</td></tr><tr><td class='mono small'>scarpC_015_sp3</td><td class='num'>0.06020</td><td class='num'>0.07443</td><td class='num'>0.0339</td><td class='num'>0.1101</td><td class='num'>57,320</td><td class='num'>-0.02321</td><td class='num'>0.00</td><td class='small'>LOSES (confirmation rule-means won: 0/6)</td></tr><tr><td class='mono small'>dzt_05_sp3</td><td class='num'>0.05747</td><td class='num'>0.06848</td><td class='num'>0.0234</td><td class='num'>0.1399</td><td class='num'>106,364</td><td class='num'>-0.02915</td><td class='num'>0.00</td><td class='small'>LOSES (confirmation rule-means won: 0/6)</td></tr><tr><td class='mono small'>scarp_08_sp3</td><td class='num'>0.05632</td><td class='num'>0.07265</td><td class='num'>0.0247</td><td class='num'>0.1491</td><td class='num'>107,600</td><td class='num'>-0.02498</td><td class='num'>0.00</td><td class='small'>LOSES (confirmation rule-means won: 0/6)</td></tr><tr><td class='mono small'>scarp_05_sp3</td><td class='num'>0.05103</td><td class='num'>0.06373</td><td class='num'>0.0249</td><td class='num'>0.1095</td><td class='num'>78,370</td><td class='num'>-0.03390</td><td class='num'>0.00</td><td class='small'>LOSES (confirmation rule-means won: 0/6)</td></tr></tbody></table></div>
+  <h3>R10b — refinement round (selected on tune folds, then confirmed)</h3>
+  <p class="small">Selected on tune folds only: <code>fuse_vent_w050_sp3</code>. Confirmation
+  worst-rule mean <b>0.08286</b> vs reference
+  0.08687, mean 0.09771 vs 0.09763
+  (paired Δ +0.00008,
+  6/12 folds won) →
+  <b>LOSES (confirmation rule-means won: 2/6)</b>. Low-coverage unions (0.5–1%) measured marginal precision
+  0.0136–0.0166, still below the 0.0169 tune inclusion bar: the external maps have no
+  high-precision head. Reports: <code>reports/holdout_r10_2026-09-30.json</code>,
+  <code>reports/holdout_r10b_2026-09-30.json</code>; per-map signal statistics:
+  <code>reports/external_detectors_manifest.json</code>.</p>
 </section></main>
 <footer class="site"><div class="wrap">
   <p><strong>13GEMSDOE</strong> — working repository for the
   <a href="https://www.drivendata.org/competitions/306/competition-doe-gems/">DOE GEMS Prize Challenge</a>.
-  Page generated 2026-09-30 19:51 UTC from <code>reports/*.json</code>.</p>
+  Page generated 2026-09-30 21:10 UTC from <code>reports/*.json</code>.</p>
   <p class="small">Every figure on this site is produced by a script in this
   repository and is reproducible from a clean checkout. Claims that could not be
   verified against an official source are listed as irregularities rather than

@@ -1,0 +1,233 @@
+{
+ "status": "archives_inspected",
+ "item": "657e1d85d34e23d3533209f7",
+ "doi": "10.5066/P93LGLVQ",
+ "observed_files": [
+  {
+   "name": "22103_mag_a1_csv.zip",
+   "size": 434561618
+  },
+  {
+   "name": "22103_ternary_a1_pdf.zip",
+   "size": 4998474
+  },
+  {
+   "name": "22103_ternary_a2_pdf.zip",
+   "size": 6357793
+  },
+  {
+   "name": "GeoDAWN_data_extent.zip",
+   "size": 2774
+  },
+  {
+   "name": "22103_area1_grids.zip",
+   "size": 44487393
+  },
+  {
+   "name": "22103_area2_grids.zip",
+   "size": 238439415
+  },
+  {
+   "name": "22103_mag_a1_gdb.zip",
+   "size": 367466663
+  },
+  {
+   "name": "22103_spec_a1_gdb.zip",
+   "size": 397005818
+  },
+  {
+   "name": "area1_flight_path.zip",
+   "size": 33672176
+  },
+  {
+   "name": "area2_flight_path.zip",
+   "size": 305715436
+  },
+  {
+   "name": "GeoDAWN_area1_outline.zip",
+   "size": 1190
+  },
+  {
+   "name": "GeoDAWN_area2_outline.zip",
+   "size": 1497
+  },
+  {
+   "name": "Figure1_index.PNG",
+   "size": 2975249
+  },
+  {
+   "name": "Figure2_tmi.PNG",
+   "size": 4268231
+  },
+  {
+   "name": "Figure3_tc.PNG",
+   "size": 4338960
+  },
+  {
+   "name": "GeoDAWN Metadata FINAL.csv",
+   "size": 9515
+  },
+  {
+   "name": "22103_spec_a2_csv.zip",
+   "size": 448087867
+  },
+  {
+   "name": "Index.PNG",
+   "size": 2529945
+  },
+  {
+   "name": "22103_mag_a2_csv.zip",
+   "size": 4015906213
+  },
+  {
+   "name": "22103_mag_a2_gdb.zip",
+   "size": 3287598115
+  },
+  {
+   "name": "22103_area1_tiffs.zip",
+   "size": 45685879
+  },
+  {
+   "name": "22103_area2_tiffs.zip",
+   "size": 241738690
+  },
+  {
+   "name": "22103_ternary_a1_map.zip",
+   "size": 10149448
+  },
+  {
+   "name": "22103_ternary_a2_map.zip",
+   "size": 53865992
+  },
+  {
+   "name": "GeoDAWN_NV_WestCentral_Geophysical_2020_D21_Report.pdf",
+   "size": 7638184
+  },
+  {
+   "name": "GeoDAWN_ReadMe.pdf",
+   "size": 305151
+  },
+  {
+   "name": "22103_spec_a2_gdb.zip",
+   "size": 3176792491
+  },
+  {
+   "name": "GeoDAWN.xml",
+   "size": 31655
+  },
+  {
+   "name": "22103_spec_a1_csv.zip",
+   "size": 51525956
+  }
+ ],
+ "observed_tiff_members": {
+  "2": [
+   {
+    "name": "22103_area2_tiffs/22103_dem_a2.tif",
+    "size": 49531304
+   },
+   {
+    "name": "22103_area2_tiffs/22103_k_a2.tif",
+    "size": 49531308
+   },
+   {
+    "name": "22103_area2_tiffs/22103_rtp_a2.tif",
+    "size": 49531364
+   },
+   {
+    "name": "22103_area2_tiffs/22103_tc_a2.tif",
+    "size": 49531354
+   },
+   {
+    "name": "22103_area2_tiffs/22103_th_a2.tif",
+    "size": 49531284
+   },
+   {
+    "name": "22103_area2_tiffs/22103_thk_a2.tif",
+    "size": 49531416
+   },
+   {
+    "name": "22103_area2_tiffs/22103_tmi_a2.tif",
+    "size": 49531366
+   },
+   {
+    "name": "22103_area2_tiffs/22103_tmi_hg_a2.tif",
+    "size": 49531420
+   },
+   {
+    "name": "22103_area2_tiffs/22103_tmi_vg_a2.tif",
+    "size": 49531426
+   },
+   {
+    "name": "22103_area2_tiffs/22103_u_a2.tif",
+    "size": 49531302
+   },
+   {
+    "name": "22103_area2_tiffs/22103_uk_a2.tif",
+    "size": 49531606
+   },
+   {
+    "name": "22103_area2_tiffs/22103_upcont_tmi150_a2.tif",
+    "size": 49531368
+   },
+   {
+    "name": "22103_area2_tiffs/22103_uth_a2.tif",
+    "size": 49531312
+   }
+  ],
+  "1": [
+   {
+    "name": "22103_area1_tiffs/22103_dem_a1.tif",
+    "size": 5309326
+   },
+   {
+    "name": "22103_area1_tiffs/22103_k_a1.tif",
+    "size": 5289136
+   },
+   {
+    "name": "22103_area1_tiffs/22103_rtp_a1.tif",
+    "size": 5289116
+   },
+   {
+    "name": "22103_area1_tiffs/22103_tc_a1.tif",
+    "size": 5289096
+   },
+   {
+    "name": "22103_area1_tiffs/22103_th_a1.tif",
+    "size": 5289098
+   },
+   {
+    "name": "22103_area1_tiffs/22103_thk_a1.tif",
+    "size": 5289116
+   },
+   {
+    "name": "22103_area1_tiffs/22103_tmi_a1.tif",
+    "size": 5289114
+   },
+   {
+    "name": "22103_area1_tiffs/22103_tmi_hg_a1.tif",
+    "size": 5289122
+   },
+   {
+    "name": "22103_area1_tiffs/22103_tmi_vg_a1.tif",
+    "size": 5289110
+   },
+   {
+    "name": "22103_area1_tiffs/22103_u_a1.tif",
+    "size": 5289098
+   },
+   {
+    "name": "22103_area1_tiffs/22103_uk_a1.tif",
+    "size": 5289144
+   },
+   {
+    "name": "22103_area1_tiffs/22103_upcont_tmi150_a1.tif",
+    "size": 5301390
+   },
+   {
+    "name": "22103_area1_tiffs/22103_uth_a1.tif",
+    "size": 5289104
+   }
+  ]
+ }
+}

@@ -1,0 +1,911 @@
+{
+  "generated_utc": "2026-09-30T20:23:55Z",
+  "purpose": "measurement audit of externally sourced official products",
+  "expected_grid": {
+    "crs": "EPSG:32611",
+    "transform": [
+      100.0,
+      0.0,
+      243350.0,
+      0.0,
+      -100.0,
+      4508550.0
+    ],
+    "shape_rows_cols": [
+      3730,
+      3292
+    ]
+  },
+  "sample_pixels": 300000,
+  "competition_labels": {
+    "valid_px": 5167373,
+    "known_fault_px": 60988
+  },
+  "grid_conformance": {
+    "geodawn_rad_u8.tif": {
+      "shape_ok": true,
+      "crs_ok": true,
+      "transform_ok": true,
+      "bands": [
+        "K",
+        "Th",
+        "U",
+        "TC"
+      ],
+      "dtype": "uint8",
+      "nodata": 0.0,
+      "all_ok": true
+    },
+    "geodawn_extensions_u8.tif": {
+      "shape_ok": true,
+      "crs_ok": true,
+      "transform_ok": true,
+      "bands": [
+        "ThK",
+        "UK",
+        "UTh",
+        "TMI_up150"
+      ],
+      "dtype": "uint8",
+      "nodata": 0.0,
+      "all_ok": true
+    },
+    "lidar_scarp_features_u8.tif": {
+      "shape_ok": true,
+      "crs_ok": true,
+      "transform_ok": true,
+      "bands": [
+        "ex_max",
+        "ex_mean",
+        "step_max",
+        "lapneg_max",
+        "lappos_max",
+        "downface_max",
+        "upface_max",
+        "cross_max",
+        "relief",
+        "coh100",
+        "strike",
+        "valid"
+      ],
+      "dtype": "uint8",
+      "nodata": 0.0,
+      "all_ok": true
+    },
+    "radiometric_u8.tif": {
+      "shape_ok": true,
+      "crs_ok": true,
+      "transform_ok": true,
+      "bands": [
+        "rad_k",
+        "rad_th",
+        "rad_u",
+        "rad_tc",
+        "rad_thk",
+        "rad_uk",
+        "rad_uth"
+      ],
+      "dtype": "uint8",
+      "nodata": 0.0,
+      "all_ok": true
+    },
+    "topo_u8.tif": {
+      "shape_ok": true,
+      "crs_ok": true,
+      "transform_ok": true,
+      "bands": [
+        "slope_p90",
+        "slope_max",
+        "steep_frac",
+        "slope_std",
+        "relief_local",
+        "curv_prof_absmax",
+        "aspect_coherence",
+        "hs_lineament",
+        "dem_mean"
+      ],
+      "dtype": "uint8",
+      "nodata": 0.0,
+      "all_ok": true
+    },
+    "qfaults_prior_u8.tif": {
+      "shape_ok": true,
+      "crs_ok": true,
+      "transform_ok": true,
+      "bands": [
+        "coarse_trace",
+        "fine_trace",
+        "lower_certainty_trace"
+      ],
+      "dtype": "uint8",
+      "nodata": 0.0,
+      "all_ok": true
+    }
+  },
+  "qffdb_catalogue_gap": {
+    "source": "USGS Quaternary fault and fold database (QFFDB), https://earthquake.usgs.gov/static/lfs/nshm/qfaults/Qfaults_GIS.zip, https://doi.org/10.5066/P9BCVRCK, re-gridded onto the competition grid by buffedlizard55-lab/7GEMSDOE (sha256-pinned)",
+    "R_px": 3,
+    "R_m": 300,
+    "definition": "a QFFDB trace pixel with no PROVIDED training label within R px (Euclidean distance transform)",
+    "coarse_trace": {
+      "px_total": 138416,
+      "px_inside_footprint": 58251,
+      "px_outside_footprint": 80165,
+      "px_inside_footprint_with_no_label_within_R": 0
+    },
+    "fine_trace": {
+      "px_total": 30877,
+      "px_inside_footprint": 2754,
+      "px_outside_footprint": 28123,
+      "px_inside_footprint_with_no_label_within_R": 1
+    },
+    "lower_certainty_trace": {
+      "px_total": 670,
+      "px_inside_footprint": 0,
+      "px_outside_footprint": 670,
+      "px_inside_footprint_with_no_label_within_R": 0
+    },
+    "union_all_bands": {
+      "px_total": 169115,
+      "px_inside_footprint": 60939,
+      "px_outside_footprint": 108176,
+      "px_inside_footprint_with_no_label_within_R": 1,
+      "fraction_of_in_footprint_traces_already_covered_within_R": 0.99998359
+    },
+    "gap_distance_to_nearest_label_px": {
+      "n": 1,
+      "min": 3.605551275463989,
+      "p50": 3.605551275463989,
+      "p90": 3.605551275463989,
+      "max": 3.605551275463989
+    },
+    "gap_components": {
+      "n": 1,
+      "largest_px": 1,
+      "median_px": 1.0,
+      "total_px": 1
+    }
+  },
+  "channel_coverage_inside_footprint_px": {
+    "geodawn_rad::K": 5166085,
+    "geodawn_rad::Th": 5166085,
+    "geodawn_rad::U": 5166085,
+    "geodawn_rad::TC": 5166085,
+    "geodawn_extensions::ThK": 5166085,
+    "geodawn_extensions::UK": 5166085,
+    "geodawn_extensions::UTh": 5166085,
+    "geodawn_extensions::TMI_up150": 5164312,
+    "lidar_scarp_features::ex_max": 3893184,
+    "lidar_scarp_features::ex_mean": 3893184,
+    "lidar_scarp_features::step_max": 3893184,
+    "lidar_scarp_features::lapneg_max": 3893184,
+    "lidar_scarp_features::lappos_max": 3893184,
+    "lidar_scarp_features::downface_max": 3207200,
+    "lidar_scarp_features::upface_max": 3207200,
+    "lidar_scarp_features::cross_max": 3207200,
+    "lidar_scarp_features::relief": 3893184,
+    "lidar_scarp_features::coh100": 3882902,
+    "lidar_scarp_features::strike": 3893184,
+    "lidar_scarp_features::valid": 3894460,
+    "radiometric::rad_k": 5166085,
+    "radiometric::rad_th": 5166085,
+    "radiometric::rad_u": 5166085,
+    "radiometric::rad_tc": 5166085,
+    "radiometric::rad_thk": 5166085,
+    "radiometric::rad_uk": 5166085,
+    "radiometric::rad_uth": 5166085,
+    "topo::slope_p90": 5167373,
+    "topo::slope_max": 5167373,
+    "topo::steep_frac": 5167373,
+    "topo::slope_std": 5167373,
+    "topo::relief_local": 5167373,
+    "topo::curv_prof_absmax": 5167373,
+    "topo::aspect_coherence": 5111794,
+    "topo::hs_lineament": 5167373,
+    "topo::dem_mean": 5167373
+  },
+  "common_domain_px": 3205306,
+  "common_domain_fraction_of_footprint": 0.620297,
+  "sample": {
+    "n": 300000,
+    "known_fault_px_in_sample": 3999
+  },
+  "band_identity_vs_official_channels": {
+    "mag_anom": {
+      "best_matches": [
+        {
+          "channel": "geodawn_extensions::TMI_up150",
+          "spearman_rho": 0.80382
+        },
+        {
+          "channel": "lidar_scarp_features::relief",
+          "spearman_rho": 0.15071
+        },
+        {
+          "channel": "topo::relief_local",
+          "spearman_rho": 0.15068
+        },
+        {
+          "channel": "topo::slope_p90",
+          "spearman_rho": 0.14761
+        }
+      ]
+    },
+    "rtp": {
+      "best_matches": [
+        {
+          "channel": "geodawn_extensions::TMI_up150",
+          "spearman_rho": 0.66812
+        },
+        {
+          "channel": "topo::relief_local",
+          "spearman_rho": 0.17803
+        },
+        {
+          "channel": "lidar_scarp_features::relief",
+          "spearman_rho": 0.17747
+        },
+        {
+          "channel": "topo::steep_frac",
+          "spearman_rho": 0.17272
+        }
+      ]
+    },
+    "tmi_hg": {
+      "best_matches": [
+        {
+          "channel": "geodawn_extensions::TMI_up150",
+          "spearman_rho": 0.23229
+        },
+        {
+          "channel": "geodawn_extensions::ThK",
+          "spearman_rho": -0.18428
+        },
+        {
+          "channel": "radiometric::rad_thk",
+          "spearman_rho": -0.18406
+        },
+        {
+          "channel": "topo::slope_std",
+          "spearman_rho": 0.16314
+        }
+      ]
+    },
+    "geod_2ndinv": {
+      "best_matches": [
+        {
+          "channel": "geodawn_rad::K",
+          "spearman_rho": 0.25532
+        },
+        {
+          "channel": "radiometric::rad_k",
+          "spearman_rho": 0.25526
+        },
+        {
+          "channel": "radiometric::rad_uk",
+          "spearman_rho": -0.21588
+        },
+        {
+          "channel": "geodawn_extensions::UK",
+          "spearman_rho": -0.21578
+        }
+      ]
+    },
+    "iso_grav_anom_slope": {
+      "best_matches": [
+        {
+          "channel": "topo::dem_mean",
+          "spearman_rho": -0.31416
+        },
+        {
+          "channel": "lidar_scarp_features::relief",
+          "spearman_rho": -0.28295
+        },
+        {
+          "channel": "topo::relief_local",
+          "spearman_rho": -0.28254
+        },
+        {
+          "channel": "topo::steep_frac",
+          "spearman_rho": -0.28049
+        }
+      ]
+    },
+    "tc": {
+      "best_matches": [
+        {
+          "channel": "radiometric::rad_tc",
+          "spearman_rho": 0.99998
+        },
+        {
+          "channel": "geodawn_rad::TC",
+          "spearman_rho": 0.99994
+        },
+        {
+          "channel": "radiometric::rad_th",
+          "spearman_rho": 0.91831
+        },
+        {
+          "channel": "geodawn_rad::Th",
+          "spearman_rho": 0.9183
+        }
+      ]
+    },
+    "geod_shearrate": {
+      "best_matches": [
+        {
+          "channel": "geodawn_rad::K",
+          "spearman_rho": 0.2591
+        },
+        {
+          "channel": "radiometric::rad_k",
+          "spearman_rho": 0.25905
+        },
+        {
+          "channel": "radiometric::rad_uk",
+          "spearman_rho": -0.23802
+        },
+        {
+          "channel": "geodawn_extensions::UK",
+          "spearman_rho": -0.2379
+        }
+      ]
+    },
+    "geod_dilaterate": {
+      "best_matches": [
+        {
+          "channel": "geodawn_extensions::TMI_up150",
+          "spearman_rho": -0.06127
+        },
+        {
+          "channel": "radiometric::rad_uk",
+          "spearman_rho": 0.0451
+        },
+        {
+          "channel": "geodawn_extensions::UK",
+          "spearman_rho": 0.04497
+        },
+        {
+          "channel": "lidar_scarp_features::lapneg_max",
+          "spearman_rho": 0.04044
+        }
+      ]
+    },
+    "tmi_vg": {
+      "best_matches": [
+        {
+          "channel": "geodawn_extensions::TMI_up150",
+          "spearman_rho": 0.55379
+        },
+        {
+          "channel": "topo::steep_frac",
+          "spearman_rho": 0.04841
+        },
+        {
+          "channel": "topo::relief_local",
+          "spearman_rho": 0.04781
+        },
+        {
+          "channel": "lidar_scarp_features::relief",
+          "spearman_rho": 0.0478
+        }
+      ]
+    },
+    "deq_n100a15": {
+      "best_matches": [
+        {
+          "channel": "topo::dem_mean",
+          "spearman_rho": 0.15697
+        },
+        {
+          "channel": "geodawn_rad::K",
+          "spearman_rho": 0.14532
+        },
+        {
+          "channel": "radiometric::rad_k",
+          "spearman_rho": 0.14524
+        },
+        {
+          "channel": "geodawn_rad::TC",
+          "spearman_rho": 0.12842
+        }
+      ]
+    },
+    "iso_grav_anom_vg": {
+      "best_matches": [
+        {
+          "channel": "lidar_scarp_features::relief",
+          "spearman_rho": -0.03875
+        },
+        {
+          "channel": "topo::relief_local",
+          "spearman_rho": -0.03819
+        },
+        {
+          "channel": "topo::slope_p90",
+          "spearman_rho": -0.03781
+        },
+        {
+          "channel": "topo::slope_max",
+          "spearman_rho": -0.03705
+        }
+      ]
+    },
+    "det_elev": {
+      "best_matches": [
+        {
+          "channel": "topo::dem_mean",
+          "spearman_rho": 0.76614
+        },
+        {
+          "channel": "lidar_scarp_features::relief",
+          "spearman_rho": 0.68094
+        },
+        {
+          "channel": "topo::relief_local",
+          "spearman_rho": 0.68054
+        },
+        {
+          "channel": "topo::slope_p90",
+          "spearman_rho": 0.66186
+        }
+      ]
+    },
+    "iso_grav_anom": {
+      "best_matches": [
+        {
+          "channel": "geodawn_rad::TC",
+          "spearman_rho": -0.41334
+        },
+        {
+          "channel": "radiometric::rad_tc",
+          "spearman_rho": -0.41327
+        },
+        {
+          "channel": "geodawn_rad::K",
+          "spearman_rho": -0.38639
+        },
+        {
+          "channel": "radiometric::rad_k",
+          "spearman_rho": -0.38631
+        }
+      ]
+    },
+    "tmi": {
+      "best_matches": [
+        {
+          "channel": "geodawn_extensions::TMI_up150",
+          "spearman_rho": 0.98106
+        },
+        {
+          "channel": "topo::dem_mean",
+          "spearman_rho": 0.15332
+        },
+        {
+          "channel": "topo::relief_local",
+          "spearman_rho": 0.15165
+        },
+        {
+          "channel": "lidar_scarp_features::relief",
+          "spearman_rho": 0.15159
+        }
+      ]
+    },
+    "depth_to_base_surf": {
+      "best_matches": [
+        {
+          "channel": "lidar_scarp_features::relief",
+          "spearman_rho": -0.39192
+        },
+        {
+          "channel": "topo::relief_local",
+          "spearman_rho": -0.39071
+        },
+        {
+          "channel": "topo::slope_p90",
+          "spearman_rho": -0.37876
+        },
+        {
+          "channel": "topo::slope_max",
+          "spearman_rho": -0.37122
+        }
+      ]
+    },
+    "ieq_n100a15": {
+      "best_matches": [
+        {
+          "channel": "topo::dem_mean",
+          "spearman_rho": 0.16313
+        },
+        {
+          "channel": "geodawn_rad::K",
+          "spearman_rho": 0.11884
+        },
+        {
+          "channel": "radiometric::rad_k",
+          "spearman_rho": 0.11879
+        },
+        {
+          "channel": "geodawn_extensions::UK",
+          "spearman_rho": -0.11232
+        }
+      ]
+    },
+    "cond_surf": {
+      "best_matches": [
+        {
+          "channel": "radiometric::rad_uth",
+          "spearman_rho": 0.14111
+        },
+        {
+          "channel": "geodawn_extensions::UTh",
+          "spearman_rho": 0.14109
+        },
+        {
+          "channel": "geodawn_rad::Th",
+          "spearman_rho": -0.13426
+        },
+        {
+          "channel": "radiometric::rad_th",
+          "spearman_rho": -0.13425
+        }
+      ]
+    },
+    "iso_grav_anom_hg": {
+      "best_matches": [
+        {
+          "channel": "topo::relief_local",
+          "spearman_rho": -0.03436
+        },
+        {
+          "channel": "lidar_scarp_features::relief",
+          "spearman_rho": -0.03414
+        },
+        {
+          "channel": "geodawn_rad::K",
+          "spearman_rho": 0.03323
+        },
+        {
+          "channel": "radiometric::rad_k",
+          "spearman_rho": 0.0332
+        }
+      ]
+    },
+    "det_elev_slope": {
+      "best_matches": [
+        {
+          "channel": "topo::relief_local",
+          "spearman_rho": 0.96514
+        },
+        {
+          "channel": "lidar_scarp_features::relief",
+          "spearman_rho": 0.96427
+        },
+        {
+          "channel": "topo::slope_p90",
+          "spearman_rho": 0.93074
+        },
+        {
+          "channel": "topo::slope_max",
+          "spearman_rho": 0.90973
+        }
+      ]
+    }
+  },
+  "provided_band_auc_vs_catalogue": {
+    "geod_shearrate": 0.56152,
+    "geod_2ndinv": 0.56027,
+    "ieq_n100a15": 0.55799,
+    "tc": 0.44244,
+    "iso_grav_anom": 0.45275,
+    "det_elev_slope": 0.54691,
+    "det_elev": 0.45449,
+    "iso_grav_anom_slope": 0.54516,
+    "depth_to_base_surf": 0.5351,
+    "deq_n100a15": 0.53115,
+    "iso_grav_anom_vg": 0.5282,
+    "tmi_vg": 0.48299,
+    "geod_dilaterate": 0.51638,
+    "tmi": 0.48567,
+    "mag_anom": 0.48978,
+    "tmi_hg": 0.50956,
+    "iso_grav_anom_hg": 0.49268,
+    "rtp": 0.49287,
+    "cond_surf": 0.49924
+  },
+  "best_provided_band_univariate": {
+    "band": "geod_shearrate",
+    "auc": 0.56152
+  },
+  "external_channel_novelty": {
+    "geodawn_rad::K": {
+      "auc_vs_provided_catalogue": 0.43025,
+      "catalogue_recall_in_own_top5pct": 0.02401,
+      "catalogue_precision_in_own_top5pct": 0.0064,
+      "coverage_inside_footprint_px": 5166085,
+      "max_abs_spearman_vs_provided_bands": 0.88487,
+      "most_redundant_with": "tc"
+    },
+    "geodawn_rad::Th": {
+      "auc_vs_provided_catalogue": 0.44467,
+      "catalogue_recall_in_own_top5pct": 0.03626,
+      "catalogue_precision_in_own_top5pct": 0.00967,
+      "coverage_inside_footprint_px": 5166085,
+      "max_abs_spearman_vs_provided_bands": 0.9183,
+      "most_redundant_with": "tc"
+    },
+    "geodawn_rad::U": {
+      "auc_vs_provided_catalogue": 0.48078,
+      "catalogue_recall_in_own_top5pct": 0.04476,
+      "catalogue_precision_in_own_top5pct": 0.01193,
+      "coverage_inside_footprint_px": 5166085,
+      "max_abs_spearman_vs_provided_bands": 0.71597,
+      "most_redundant_with": "tc"
+    },
+    "geodawn_rad::TC": {
+      "auc_vs_provided_catalogue": 0.44245,
+      "catalogue_recall_in_own_top5pct": 0.03026,
+      "catalogue_precision_in_own_top5pct": 0.00807,
+      "coverage_inside_footprint_px": 5166085,
+      "max_abs_spearman_vs_provided_bands": 0.99994,
+      "most_redundant_with": "tc"
+    },
+    "geodawn_extensions::ThK": {
+      "auc_vs_provided_catalogue": 0.48234,
+      "catalogue_recall_in_own_top5pct": 0.04476,
+      "catalogue_precision_in_own_top5pct": 0.01193,
+      "coverage_inside_footprint_px": 5166085,
+      "max_abs_spearman_vs_provided_bands": 0.58493,
+      "most_redundant_with": "tc"
+    },
+    "geodawn_extensions::UK": {
+      "auc_vs_provided_catalogue": 0.54987,
+      "catalogue_recall_in_own_top5pct": 0.09652,
+      "catalogue_precision_in_own_top5pct": 0.02573,
+      "coverage_inside_footprint_px": 5166085,
+      "max_abs_spearman_vs_provided_bands": -0.24588,
+      "most_redundant_with": "tc"
+    },
+    "geodawn_extensions::UTh": {
+      "auc_vs_provided_catalogue": 0.5522,
+      "catalogue_recall_in_own_top5pct": 0.08177,
+      "catalogue_precision_in_own_top5pct": 0.0218,
+      "coverage_inside_footprint_px": 5166085,
+      "max_abs_spearman_vs_provided_bands": -0.67923,
+      "most_redundant_with": "tc"
+    },
+    "geodawn_extensions::TMI_up150": {
+      "auc_vs_provided_catalogue": 0.48519,
+      "catalogue_recall_in_own_top5pct": 0.05201,
+      "catalogue_precision_in_own_top5pct": 0.01387,
+      "coverage_inside_footprint_px": 5164312,
+      "max_abs_spearman_vs_provided_bands": 0.98106,
+      "most_redundant_with": "tmi"
+    },
+    "lidar_scarp_features::ex_max": {
+      "auc_vs_provided_catalogue": 0.56202,
+      "catalogue_recall_in_own_top5pct": 0.04426,
+      "catalogue_precision_in_own_top5pct": 0.0118,
+      "coverage_inside_footprint_px": 3893184,
+      "max_abs_spearman_vs_provided_bands": 0.66449,
+      "most_redundant_with": "det_elev_slope"
+    },
+    "lidar_scarp_features::ex_mean": {
+      "auc_vs_provided_catalogue": 0.54769,
+      "catalogue_recall_in_own_top5pct": 0.04676,
+      "catalogue_precision_in_own_top5pct": 0.01247,
+      "coverage_inside_footprint_px": 3893184,
+      "max_abs_spearman_vs_provided_bands": 0.67371,
+      "most_redundant_with": "det_elev_slope"
+    },
+    "lidar_scarp_features::step_max": {
+      "auc_vs_provided_catalogue": 0.557,
+      "catalogue_recall_in_own_top5pct": 0.04201,
+      "catalogue_precision_in_own_top5pct": 0.0112,
+      "coverage_inside_footprint_px": 3893184,
+      "max_abs_spearman_vs_provided_bands": 0.75399,
+      "most_redundant_with": "det_elev_slope"
+    },
+    "lidar_scarp_features::lapneg_max": {
+      "auc_vs_provided_catalogue": 0.56255,
+      "catalogue_recall_in_own_top5pct": 0.04601,
+      "catalogue_precision_in_own_top5pct": 0.01227,
+      "coverage_inside_footprint_px": 3893184,
+      "max_abs_spearman_vs_provided_bands": 0.73319,
+      "most_redundant_with": "det_elev_slope"
+    },
+    "lidar_scarp_features::lappos_max": {
+      "auc_vs_provided_catalogue": 0.56951,
+      "catalogue_recall_in_own_top5pct": 0.04776,
+      "catalogue_precision_in_own_top5pct": 0.01273,
+      "coverage_inside_footprint_px": 3893184,
+      "max_abs_spearman_vs_provided_bands": 0.74923,
+      "most_redundant_with": "det_elev_slope"
+    },
+    "lidar_scarp_features::downface_max": {
+      "auc_vs_provided_catalogue": 0.5616,
+      "catalogue_recall_in_own_top5pct": 0.04351,
+      "catalogue_precision_in_own_top5pct": 0.0116,
+      "coverage_inside_footprint_px": 3207200,
+      "max_abs_spearman_vs_provided_bands": 0.77022,
+      "most_redundant_with": "det_elev_slope"
+    },
+    "lidar_scarp_features::upface_max": {
+      "auc_vs_provided_catalogue": 0.57038,
+      "catalogue_recall_in_own_top5pct": 0.04626,
+      "catalogue_precision_in_own_top5pct": 0.01233,
+      "coverage_inside_footprint_px": 3207200,
+      "max_abs_spearman_vs_provided_bands": 0.64468,
+      "most_redundant_with": "det_elev_slope"
+    },
+    "lidar_scarp_features::cross_max": {
+      "auc_vs_provided_catalogue": 0.55545,
+      "catalogue_recall_in_own_top5pct": 0.04551,
+      "catalogue_precision_in_own_top5pct": 0.01213,
+      "coverage_inside_footprint_px": 3207200,
+      "max_abs_spearman_vs_provided_bands": 0.80649,
+      "most_redundant_with": "det_elev_slope"
+    },
+    "lidar_scarp_features::relief": {
+      "auc_vs_provided_catalogue": 0.54911,
+      "catalogue_recall_in_own_top5pct": 0.02551,
+      "catalogue_precision_in_own_top5pct": 0.0068,
+      "coverage_inside_footprint_px": 3893184,
+      "max_abs_spearman_vs_provided_bands": 0.96427,
+      "most_redundant_with": "det_elev_slope"
+    },
+    "lidar_scarp_features::coh100": {
+      "auc_vs_provided_catalogue": 0.46079,
+      "catalogue_recall_in_own_top5pct": 0.04101,
+      "catalogue_precision_in_own_top5pct": 0.01093,
+      "coverage_inside_footprint_px": 3882902,
+      "max_abs_spearman_vs_provided_bands": -0.10571,
+      "most_redundant_with": "det_elev_slope"
+    },
+    "lidar_scarp_features::strike": {
+      "auc_vs_provided_catalogue": 0.51083,
+      "catalogue_recall_in_own_top5pct": 0.04076,
+      "catalogue_precision_in_own_top5pct": 0.01087,
+      "coverage_inside_footprint_px": 3893184,
+      "max_abs_spearman_vs_provided_bands": -0.04145,
+      "most_redundant_with": "geod_2ndinv"
+    },
+    "lidar_scarp_features::valid": {
+      "auc_vs_provided_catalogue": 0.50006,
+      "catalogue_recall_in_own_top5pct": 0.018,
+      "catalogue_precision_in_own_top5pct": 0.0048,
+      "coverage_inside_footprint_px": 3894460,
+      "max_abs_spearman_vs_provided_bands": 0.01281,
+      "most_redundant_with": "deq_n100a15"
+    },
+    "radiometric::rad_k": {
+      "auc_vs_provided_catalogue": 0.4301,
+      "catalogue_recall_in_own_top5pct": 0.02501,
+      "catalogue_precision_in_own_top5pct": 0.00667,
+      "coverage_inside_footprint_px": 5166085,
+      "max_abs_spearman_vs_provided_bands": 0.88491,
+      "most_redundant_with": "tc"
+    },
+    "radiometric::rad_th": {
+      "auc_vs_provided_catalogue": 0.44451,
+      "catalogue_recall_in_own_top5pct": 0.03626,
+      "catalogue_precision_in_own_top5pct": 0.00967,
+      "coverage_inside_footprint_px": 5166085,
+      "max_abs_spearman_vs_provided_bands": 0.91831,
+      "most_redundant_with": "tc"
+    },
+    "radiometric::rad_u": {
+      "auc_vs_provided_catalogue": 0.48125,
+      "catalogue_recall_in_own_top5pct": 0.04451,
+      "catalogue_precision_in_own_top5pct": 0.01187,
+      "coverage_inside_footprint_px": 5166085,
+      "max_abs_spearman_vs_provided_bands": 0.71585,
+      "most_redundant_with": "tc"
+    },
+    "radiometric::rad_tc": {
+      "auc_vs_provided_catalogue": 0.44251,
+      "catalogue_recall_in_own_top5pct": 0.03026,
+      "catalogue_precision_in_own_top5pct": 0.00807,
+      "coverage_inside_footprint_px": 5166085,
+      "max_abs_spearman_vs_provided_bands": 0.99998,
+      "most_redundant_with": "tc"
+    },
+    "radiometric::rad_thk": {
+      "auc_vs_provided_catalogue": 0.48209,
+      "catalogue_recall_in_own_top5pct": 0.04476,
+      "catalogue_precision_in_own_top5pct": 0.01193,
+      "coverage_inside_footprint_px": 5166085,
+      "max_abs_spearman_vs_provided_bands": 0.58488,
+      "most_redundant_with": "tc"
+    },
+    "radiometric::rad_uk": {
+      "auc_vs_provided_catalogue": 0.55042,
+      "catalogue_recall_in_own_top5pct": 0.09752,
+      "catalogue_precision_in_own_top5pct": 0.026,
+      "coverage_inside_footprint_px": 5166085,
+      "max_abs_spearman_vs_provided_bands": -0.24604,
+      "most_redundant_with": "tc"
+    },
+    "radiometric::rad_uth": {
+      "auc_vs_provided_catalogue": 0.55258,
+      "catalogue_recall_in_own_top5pct": 0.08152,
+      "catalogue_precision_in_own_top5pct": 0.02173,
+      "coverage_inside_footprint_px": 5166085,
+      "max_abs_spearman_vs_provided_bands": -0.6791,
+      "most_redundant_with": "tc"
+    },
+    "topo::slope_p90": {
+      "auc_vs_provided_catalogue": 0.55348,
+      "catalogue_recall_in_own_top5pct": 0.03276,
+      "catalogue_precision_in_own_top5pct": 0.00873,
+      "coverage_inside_footprint_px": 5167373,
+      "max_abs_spearman_vs_provided_bands": 0.93074,
+      "most_redundant_with": "det_elev_slope"
+    },
+    "topo::slope_max": {
+      "auc_vs_provided_catalogue": 0.55733,
+      "catalogue_recall_in_own_top5pct": 0.03701,
+      "catalogue_precision_in_own_top5pct": 0.00987,
+      "coverage_inside_footprint_px": 5167373,
+      "max_abs_spearman_vs_provided_bands": 0.90973,
+      "most_redundant_with": "det_elev_slope"
+    },
+    "topo::steep_frac": {
+      "auc_vs_provided_catalogue": 0.53912,
+      "catalogue_recall_in_own_top5pct": 0.03101,
+      "catalogue_precision_in_own_top5pct": 0.00827,
+      "coverage_inside_footprint_px": 5167373,
+      "max_abs_spearman_vs_provided_bands": 0.89772,
+      "most_redundant_with": "det_elev_slope"
+    },
+    "topo::slope_std": {
+      "auc_vs_provided_catalogue": 0.57545,
+      "catalogue_recall_in_own_top5pct": 0.05926,
+      "catalogue_precision_in_own_top5pct": 0.0158,
+      "coverage_inside_footprint_px": 5167373,
+      "max_abs_spearman_vs_provided_bands": 0.75126,
+      "most_redundant_with": "det_elev_slope"
+    },
+    "topo::relief_local": {
+      "auc_vs_provided_catalogue": 0.54916,
+      "catalogue_recall_in_own_top5pct": 0.02476,
+      "catalogue_precision_in_own_top5pct": 0.0066,
+      "coverage_inside_footprint_px": 5167373,
+      "max_abs_spearman_vs_provided_bands": 0.96514,
+      "most_redundant_with": "det_elev_slope"
+    },
+    "topo::curv_prof_absmax": {
+      "auc_vs_provided_catalogue": 0.56936,
+      "catalogue_recall_in_own_top5pct": 0.04101,
+      "catalogue_precision_in_own_top5pct": 0.01093,
+      "coverage_inside_footprint_px": 5167373,
+      "max_abs_spearman_vs_provided_bands": 0.64762,
+      "most_redundant_with": "det_elev_slope"
+    },
+    "topo::aspect_coherence": {
+      "auc_vs_provided_catalogue": 0.49003,
+      "catalogue_recall_in_own_top5pct": 0.03551,
+      "catalogue_precision_in_own_top5pct": 0.00947,
+      "coverage_inside_footprint_px": 5111794,
+      "max_abs_spearman_vs_provided_bands": -0.0762,
+      "most_redundant_with": "det_elev"
+    },
+    "topo::hs_lineament": {
+      "auc_vs_provided_catalogue": 0.55531,
+      "catalogue_recall_in_own_top5pct": 0.03676,
+      "catalogue_precision_in_own_top5pct": 0.0098,
+      "coverage_inside_footprint_px": 5167373,
+      "max_abs_spearman_vs_provided_bands": 0.79337,
+      "most_redundant_with": "det_elev_slope"
+    },
+    "topo::dem_mean": {
+      "auc_vs_provided_catalogue": 0.49119,
+      "catalogue_recall_in_own_top5pct": 0.02826,
+      "catalogue_precision_in_own_top5pct": 0.00753,
+      "coverage_inside_footprint_px": 5167373,
+      "max_abs_spearman_vs_provided_bands": 0.76614,
+      "most_redundant_with": "det_elev"
+    }
+  },
+  "runtime_s": 139.2
+}

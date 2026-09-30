@@ -1,0 +1,130 @@
+{
+  "purpose": "external official geoscience products, re-staged and hash-verified",
+  "licence": "USGS public domain (U.S. Government works); attribution required: 'Map services and data available from U.S. Geological Survey, National Geospatial Program.' and the GeoDAWN data-release citation Glen, J.M.G., and Earney, T.E., 2024, https://doi.org/10.5066/P93LGLVQ",
+  "egress_note": "sciencebase.gov / usgs.gov / prd-tnm.s3.amazonaws.com are TLS-blocked from this sandbox (limitation L-2); files are fetched from the sibling-repo GitHub mirrors that staged them in open-egress runners",
+  "files": {
+    "lidar_scarp_features_u8.tif": {
+      "bytes": 36943606,
+      "sha256": "d580bb8bdcdb941e32fefb8b38044bc5bf04e199bf2e83498c3576e6fc465568",
+      "git_blob_sha1": "da733b53147efad5c141ffdb96e469ec5b4da8b8",
+      "mirror": "https://github.com/buffedlizard55-lab/7GEMSDOE/blob/HEAD/external/dem/lidar_scarp_features_u8.tif",
+      "official_source": "USGS 3DEP 1 m DEM (716 tiles) -> 2 m morphometrics -> 100 m aggregate",
+      "sha256_matches_sibling_provenance": true,
+      "blob_matches_sibling_git_tree": true,
+      "pinned_sha256": null,
+      "pinned_git_blob_sha1": "da733b53147efad5c141ffdb96e469ec5b4da8b8"
+    },
+    "geodawn_rad_u8.tif": {
+      "bytes": 26612970,
+      "sha256": "c22420f75999030d7cc65c9e31e50d232ea6158423bca051613a18a8b20ba682",
+      "git_blob_sha1": "80704748f974ea9dbc002924ddf971a957186ae6",
+      "mirror": "https://github.com/buffedlizard55-lab/7GEMSDOE/blob/HEAD/external/geodawn_rad/geodawn_rad_u8.tif",
+      "official_source": "https://doi.org/10.5066/P93LGLVQ (K, Th, U, TC)",
+      "sha256_matches_sibling_provenance": true,
+      "blob_matches_sibling_git_tree": true,
+      "pinned_sha256": "c22420f75999030d7cc65c9e31e50d232ea6158423bca051613a18a8b20ba682",
+      "pinned_git_blob_sha1": "80704748f974ea9dbc002924ddf971a957186ae6"
+    },
+    "geodawn_extensions_u8.tif": {
+      "bytes": 27132925,
+      "sha256": "a35a9c6d2a14786f4dab85481ee59769213072f5dab5b2535ea82ae4d9bb7d9b",
+      "git_blob_sha1": "2fb1d57fdd33b0bdea51f2abef58fb5cddf53aa5",
+      "mirror": "https://github.com/buffedlizard55-lab/7GEMSDOE/blob/HEAD/external/geodawn_extensions/geodawn_extensions_u8.tif",
+      "official_source": "https://doi.org/10.5066/P93LGLVQ (Th/K, U/K, U/Th, TMI up-150 m)",
+      "sha256_matches_sibling_provenance": true,
+      "blob_matches_sibling_git_tree": true,
+      "pinned_sha256": "a35a9c6d2a14786f4dab85481ee59769213072f5dab5b2535ea82ae4d9bb7d9b",
+      "pinned_git_blob_sha1": "2fb1d57fdd33b0bdea51f2abef58fb5cddf53aa5"
+    },
+    "qfaults_prior_u8.tif": {
+      "bytes": 873834,
+      "sha256": "538b45735833b341fc455dbbf06c47bc82a8bd8943c254ae6d3a5a07e72e22ca",
+      "git_blob_sha1": "b6b4c2193fad0b9266849d0838e27dee640a03d4",
+      "mirror": "https://github.com/buffedlizard55-lab/7GEMSDOE/blob/HEAD/external/qfaults/qfaults_prior_u8.tif",
+      "official_source": "https://earthquake.usgs.gov/static/lfs/nshm/qfaults/Qfaults_GIS.zip (https://doi.org/10.5066/P9BCVRCK)",
+      "sha256_matches_sibling_provenance": true,
+      "blob_matches_sibling_git_tree": true,
+      "pinned_sha256": "538b45735833b341fc455dbbf06c47bc82a8bd8943c254ae6d3a5a07e72e22ca",
+      "pinned_git_blob_sha1": "b6b4c2193fad0b9266849d0838e27dee640a03d4"
+    },
+    "topo_u8.tif": {
+      "bytes": 32523329,
+      "sha256": "a6398d9950965dec6aae6ccecdaa6ced48645d133eab222cbdd11def9bdabfa4",
+      "git_blob_sha1": "5388687c1396d98ba4a2298af431361eabd213f1",
+      "mirror": "https://github.com/buffedlizard55-lab/5GEMSDOE/blob/HEAD/data/aux_bridge/topo/topo_u8.tif.part-000",
+      "official_source": "USGS 3DEP DEM -> 9 topographic channels at 100 m",
+      "sha256_matches_sibling_provenance": true,
+      "blob_matches_sibling_git_tree": true,
+      "pinned_sha256": "a6398d9950965dec6aae6ccecdaa6ced48645d133eab222cbdd11def9bdabfa4",
+      "pinned_git_blob_sha1": "5388687c1396d98ba4a2298af431361eabd213f1"
+    },
+    "radiometric_u8.tif": {
+      "bytes": 25475158,
+      "sha256": "6cb051f70f941fd78028fe66a9f71e87204fcd8d9a85903df0b94993bad1ec4d",
+      "git_blob_sha1": "dfc512ff03c0b610653217cf21ab9196b051b4ad",
+      "mirror": "https://github.com/buffedlizard55-lab/5GEMSDOE/blob/HEAD/data/aux_bridge/radiometric/radiometric_u8.tif.part-000",
+      "official_source": "https://doi.org/10.5066/P93LGLVQ -> 7 radiometric channels at 100 m",
+      "sha256_matches_sibling_provenance": true,
+      "blob_matches_sibling_git_tree": true,
+      "pinned_sha256": "6cb051f70f941fd78028fe66a9f71e87204fcd8d9a85903df0b94993bad1ec4d",
+      "pinned_git_blob_sha1": "dfc512ff03c0b610653217cf21ab9196b051b4ad"
+    }
+  },
+  "provenance_records": {
+    "7GEMSDOE__external_qfaults_qfaults_prior.json": {
+      "mirror": "https://github.com/buffedlizard55-lab/7GEMSDOE/blob/HEAD/external/qfaults/qfaults_prior.json",
+      "bytes": 2056,
+      "sha256": "06007c3d35c79660dc2018f32743847dc434d3e310414638915928340cb434a2"
+    },
+    "7GEMSDOE__external_qfaults_observed_schema.json": {
+      "mirror": "https://github.com/buffedlizard55-lab/7GEMSDOE/blob/HEAD/external/qfaults/observed_schema.json",
+      "bytes": 1974,
+      "sha256": "726e8bb41e7a9a3b7d7b75942bdf6a488c221c2fde0cdf198c91ab0bdacbac62"
+    },
+    "7GEMSDOE__external_dem_lidar_scarp_features.json": {
+      "mirror": "https://github.com/buffedlizard55-lab/7GEMSDOE/blob/HEAD/external/dem/lidar_scarp_features.json",
+      "bytes": 3531,
+      "sha256": "9ef0df6e87598a8b0cd52fe821661e5fdb3a00568c5d9b1c5d61fd6b242dcd41"
+    },
+    "7GEMSDOE__external_geodawn_rad_geodawn_rad.json": {
+      "mirror": "https://github.com/buffedlizard55-lab/7GEMSDOE/blob/HEAD/external/geodawn_rad/geodawn_rad.json",
+      "bytes": 7985,
+      "sha256": "d917fd08f89c160d2a0ba91af9c3321c8c8b5677fcdba39b10e684384cbc7488"
+    },
+    "7GEMSDOE__external_geodawn_extensions_geodawn_extensions.json": {
+      "mirror": "https://github.com/buffedlizard55-lab/7GEMSDOE/blob/HEAD/external/geodawn_extensions/geodawn_extensions.json",
+      "bytes": 8927,
+      "sha256": "56556f24c051043fd7a85587786118f8064624f2ad0604aaa3e6614f1a9f6d2f"
+    },
+    "7GEMSDOE__external_geodawn_rad_observed_files.json": {
+      "mirror": "https://github.com/buffedlizard55-lab/7GEMSDOE/blob/HEAD/external/geodawn_rad/observed_files.json",
+      "bytes": 4203,
+      "sha256": "b4fb1f66c7f3147a4789dac5b92a2a8232fab12da38e6d93796ce0f89026804c"
+    },
+    "7GEMSDOE__knowledge_inherited_evidence_qfaults_stats.json": {
+      "mirror": "https://github.com/buffedlizard55-lab/7GEMSDOE/blob/HEAD/knowledge/inherited_evidence/qfaults_stats.json",
+      "bytes": 5290,
+      "sha256": "847b7b5a74026b439db08657fc4f7e32f4e9a22ccf52901941efbced2fbfe89a"
+    },
+    "7GEMSDOE__knowledge_dem_pilot_source.json": {
+      "mirror": "https://github.com/buffedlizard55-lab/7GEMSDOE/blob/HEAD/knowledge/dem_pilot_source.json",
+      "bytes": 836,
+      "sha256": "cc79cde8e8307b064158380143d39faf94ae30c779a71bc359ed7dbb562d640a"
+    },
+    "5GEMSDOE__data_aux_bridge_topo_manifest.json": {
+      "mirror": "https://github.com/buffedlizard55-lab/5GEMSDOE/blob/HEAD/data/aux_bridge/topo/manifest.json",
+      "bytes": 2720,
+      "sha256": "181d5527ba7ed2990031918a8b6c9d5d94e3998b2daf656de0c33322ca94120a"
+    },
+    "5GEMSDOE__data_aux_bridge_radiometric_manifest.json": {
+      "mirror": "https://github.com/buffedlizard55-lab/5GEMSDOE/blob/HEAD/data/aux_bridge/radiometric/manifest.json",
+      "bytes": 2406,
+      "sha256": "cbae64e3bcd5adacd4bb9f0d400cef1f38d08449cae0a7f445a11208f7402ffb"
+    },
+    "5GEMSDOE__data_evidence_radiometric_radiometric_channel.report.json": {
+      "mirror": "https://github.com/buffedlizard55-lab/5GEMSDOE/blob/HEAD/data/evidence/radiometric/radiometric_channel.report.json",
+      "bytes": 10371,
+      "sha256": "64959c5865acfb8370c3274c5935cf8bf1f6c009ea5289cc3a59c8b264ed8400"
+    }
+  }
+}

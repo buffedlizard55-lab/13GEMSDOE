@@ -46,7 +46,7 @@ mislabelled, or the official sample is not what the page describes.
 
 ---
 
-## I‑2 🟠 Band descriptions in the feature GeoTIFF look machine-written, and band 6 is still UNIDENTIFIED — the "radiometric total count" reading is now **disproved**
+## I‑2 🟢 RESOLVED 2026-09-30 — band 6 **is** the radiometric total count; the embedded description is wrong (and this file's own "disproved" verdict is retracted below)
 
 **Measured.** The 19 band descriptions embedded in
 `gems-geodawn-numerical-features.tif` contain hedged, non-geophysical phrasing:
@@ -129,6 +129,68 @@ settle its meaning. `HE_lin_tc` is treated as an unlabelled-input lineament feat
 not as a verified radiometric or tilt measurement. Its historical chance/lift values
 are withdrawn: they used a mismatched evaluation-domain denominator and should not
 be cited as evidence for the feature or either geological interpretation.
+
+**Addendum 2026‑09‑30 (session 4) — RESOLVED by direct measurement against the official USGS release.**
+
+`scripts/audit_band6_identity.py` → `reports/band6_identity.json` (28 s). The
+test was written before it was run and its criterion is stated in the JSON:
+band 6 is the total count iff Spearman rho > 0.999 **and** linear‑fit
+R² > 0.99 against the official TC channel **and** rho > 0.99 against K + Th + U
+from the same release. A tilt angle or a curvature cannot satisfy the closure
+test. All three conditions pass:
+
+| measurement | band 6 vs `radiometric::rad_tc` |
+|---|---|
+| Spearman rho | **0.99998** |
+| Pearson r | 0.99902 |
+| OLS band6 = a·rad_tc + b | a = **1.00729**, b = −0.12763 |
+| R² / RMSE | **0.99804** / 0.19577 band‑6 units |
+| median ratio (IQR) | 1.00000 (0.99867–1.00134) |
+| percentiles p1 / p50 / p99 | 7.7223 / 18.4817 / 29.1005 vs 7.7140 / 18.4559 / 29.1002 |
+| distinct values | 4,017,092 (float32) vs 255 (8‑bit product) |
+
+Cross‑checks: the independently staged, percentile‑quantised `geodawn_rad::TC`
+agrees in rank (rho 0.99995); the closure test gives band6 ≈ 7.543·(K + Th + U),
+rho 0.99577, R² 0.99023 (`radiometric_u8`) and rho 0.99152 (`geodawn_rad_u8`).
+Individual windows fall off exactly as physics requires — Th rho 0.913,
+K 0.886, U 0.718.
+
+**Why the earlier "disproof" was wrong, precisely.** Its first pillar was a units
+assumption that was never checked against an official file: *"Airborne
+radiometric total count is an unbounded intensity in counts per second, typically
+10²–10⁴."* The official GeoDAWN radiometric TC grid itself lives in 5.47–30.27
+over the footprint (p50 18.46), and band 6 spans 2.95–88.57 because it keeps a
+tail that the 8‑bit product clips at its p0.5–p99.5 quantisation limits. The
+slope of 1.007 and the ratio IQR of ±0.13 % say the two arrays are in the **same
+units**, not merely the same ranks. The second pillar (band 6 is smoother than
+the magnetic gradient bands) was correct and in fact *supports* the total‑count
+reading: a raw radiometric intensity is smoother than a magnetic derivative. The
+51‑candidate search inside the provided 18 bands could not find band 6 because
+band 6 is not a transform of them — it is an independent survey channel.
+
+**Consequences, all three recorded against ourselves.**
+
+1. **Band 6 = radiometric total count.** The embedded description
+   (`tc - Tilt angle or total curvature - magnetic field derivative for edge
+   detection`) does not describe the array. That is a real documentation defect
+   in the provided data and is worth raising with the organisers; it is not
+   something we may silently reinterpret.
+2. **`HE_lin_tc` is restored as a radiometric lineament detector.** The
+   instruction above to treat it as an unlabelled‑input feature is withdrawn.
+   Its holdout numbers were always measurements of this array; only the label was
+   wrong.
+3. **Band 6 is not new information.** It is the same field as the official TC we
+   already staged, so the external‑data programme gains nothing from it — and any
+   detector built on band 6 is built on provided data, which is what the R10
+   audit assumed.
+
+**Bonus finding (provenance).** Because the competition's own band 6 reproduces
+the sibling‑repository re‑gridding of the USGS radiometric release to R² 0.998 on
+the same 100 m grid, the staging pipeline in `scripts/fetch_external_data.py` is
+independently validated against first‑party data: our dequantisation
+(linear lo/hi from the provenance record) recovers the same field the organisers
+shipped. That materially de‑risks every external product in
+`data/external/`, not just the radiometric one.
 
 ---
 
@@ -357,3 +419,70 @@ recipe comparison and its limitations are recorded in
 **Action.** Fixed in code; recorded here because the earlier
 `reports/holdout_v2.json` and `reports/holdout_verdict.json` numbers for these
 families are not trustworthy.
+
+---
+
+## I-13 🟠 (new, 2026-09-30 session 4) — univariate signal ranking does NOT predict holdout DTI in this competition
+
+**Measured.** The R10 external detectors are, as pixel classifiers against the
+full provided catalogue, **better than any provided band**: AUC 0.5282–0.5770
+(`reports/external_detectors_manifest.json`) against 0.5615 for the best provided
+band (`geod_shearrate`) and 0.5755 for the best single external channel
+(`topo::slope_std`). Ranked by AUC or by top-5 % catalogue recall, the predeclared
+order was dzt > scarp > alter > vent.
+
+**All 16 R10 configurations and all 8 R10b configurations nevertheless LOSE** to
+`topo_05_sp3` on the paired hide-and-recover holdout (confirmation worst-rule mean
+0.08687; best challenger 0.08593, best fusion 0.08286 — `reports/holdout_r10_2026-09-30.json`,
+`reports/holdout_r10b_2026-09-30.json`).
+
+**Why — and this is the irregularity to carry forward.** DTI is a distance-weighted
+F2 (β = 2) over truth pixels with a 300 m kernel, so what a candidate adds is
+measured by the **marginal weighted precision of the pixels it changes**, and the
+audited inclusion threshold is 0.2 × DTI (0.0169 tune / 0.0195 confirmation). The
+marginal precision of every external block we measured — 0.0094 (dzt), 0.0096
+(scarp), 0.0138 (vent), 0.0141 (alter) at 2 % coverage; 0.0136–0.0166 at 0.5–1 %
+coverage — sits **below** that threshold. AUC in the 0.50–0.58 band is simply not
+enough separation to pay for pixels at a 1.2 % base rate under β = 2.
+
+**Consequences.**
+
+1. **Do not use AUC / top-k recall as a go–no-go signal again.** It ranked R10-3
+   first and R10-4 last; the measured holdout order was almost the reverse
+   (the vent conjunction was the best union partner and the best standalone of the
+   family). Screening on univariate signal cost a full build-and-validate cycle.
+2. **The binding constraint is recall, not precision.** External evidence raises
+   precision (the w = 0.5 vent fusion reaches P_w 0.0294 vs 0.0276 with 19 % fewer
+   pixels) and *lowers* recall (R_w 0.2487 vs 0.2874), which under β = 2 is at best
+   a wash. Only an external product that puts pixels inside **300 m neighbourhoods
+   of faults the topographic crest never touches** can raise DTI. Re-ranking or
+   tightening the neighbourhoods we already hit cannot.
+3. This is **not** a defect in the external data, which is hash-verified,
+   licence-clean and — per I-2's provenance bonus — faithful to the same USGS
+   release the organisers used. It is a property of the metric. Recorded so that
+   nobody re-derives the same 24 configurations expecting a different answer.
+
+---
+
+## I-14 🟡 (new, 2026-09-30 session 4) — top-k over a sparse crest map silently selects by row-major position
+
+**Measured.** The thinned crest variants carry very little mass: `R10_scarp`
+89,438 non-zero pixels, `R10_alter` 81,972, `R10_dzt` 124,079 out of 5,167,373
+valid (1.6–2.4 %). A "top 5 %" selection requests 258,369 pixels, so ~134k–177k
+of the selected pixels would all have score exactly 0 and are chosen by
+`np.argsort(..., kind="stable")` — i.e. by **position in the flattened grid**, a
+spatial bias towards the top-left of the domain that has nothing to do with
+evidence. The resulting map looks like a legitimate 5 % prediction and scores as
+if it were one.
+
+**Detected and handled, not smoothed over.** Every holdout row in R10 and R10b now
+records `n_selected_at_zero_score` and `tie_fraction` per component; crest
+configurations were capped at or below their own support mass (`scarpC_015`,
+`dztC_02`, `alterC_015`). Across all 468 scored rows in the two runs,
+`max_tie_fraction` = 0.00 and `max_zero_score_selections` = 0, so no verdict in
+either run rests on tie order.
+
+**Standing rule.** Never request a top-k mass larger than a map's non-zero support;
+if a configuration needs it, ship the tie diagnostics with the row or discard the
+row. `scripts/validate_r10_holdout.py` and `scripts/validate_r10b_holdout.py`
+both enforce the reporting half of this rule.

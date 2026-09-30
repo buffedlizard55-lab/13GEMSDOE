@@ -1,0 +1,64 @@
+{
+ "product": "external/qfaults/qfaults_prior_u8.tif",
+ "bands": [
+  "coarse_trace",
+  "fine_trace",
+  "lower_certainty_trace"
+ ],
+ "source": "https://earthquake.usgs.gov/static/lfs/nshm/qfaults/Qfaults_GIS.zip",
+ "zip_sha256": "447eadc5926256710d988c30e5996ba540604caa0154f9746c48bad637926893",
+ "product_sha256": "538b45735833b341fc455dbbf06c47bc82a8bd8943c254ae6d3a5a07e72e22ca",
+ "grid": {
+  "width": 3292,
+  "height": 3730,
+  "crs": "EPSG:32611",
+  "transform": [
+   100.0,
+   0.0,
+   243350.0,
+   0.0,
+   -100.0,
+   4508550.0
+  ],
+  "dtype": "uint8"
+ },
+ "retrieved_utc": "2026-09-26T22:13:57.296512+00:00",
+ "rights": "USGS-authored source data; verify source attribution and terms before reuse.",
+ "coarse_definition": "mapped scale denominator >= 250000 (or scale unknown / mixed-scale)",
+ "limitations": [
+  "QFFDB is an existing fault catalogue, not an independent discovery signal; direct model use risks catalogue/label leakage.",
+  "lower_certainty_trace means source certainty contains inferred, moderate, approximate, poor or unknown; it is not a verified probability.",
+  "Use for catalogue-gap/sensitivity analysis only unless spatial overlap and source-independence controls are passed."
+ ],
+ "observed_fields": [
+  "fault_name",
+  "section_na",
+  "fault_id",
+  "section_id",
+  "Location",
+  "linetype",
+  "age",
+  "dip_direct",
+  "slip_rate",
+  "slip_sense",
+  "scale",
+  "class",
+  "certainty",
+  "strike",
+  "fault_leng",
+  "cooperator",
+  "earthquake",
+  "review_dat",
+  "fault_url",
+  "symbology",
+  "ref_id",
+  "Shape_Leng"
+ ],
+ "scale_field": "scale",
+ "certainty_field": "certainty",
+ "src_crs": "GEOGCS[\"WGS 84\",DATUM[\"WGS_1984\",SPHEROID[\"WGS 84\",6378137,298.257223563,AUTHORITY[\"EPSG\",\"7030\"]],AUTHORITY[\"EPSG\",\"6326\"]],PRIMEM[\"Greenwich\",0,AUTHORITY[\"EPSG\",\"8901\"]],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]],AXIS[\"Latitude\",NORTH],AXIS[\"Longitude\",EAST],AUTHORITY[\"EPSG\",\"4326\"]]",
+ "n_features": 112809,
+ "coarse_px": 138416,
+ "fine_px": 30877,
+ "lower_certainty_px": 670
+}
