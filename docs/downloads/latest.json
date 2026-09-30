@@ -1,33 +1,77 @@
 {
-  "name": "13gems-composite-plus-20260929T183249Z",
-  "generated_utc": "20260929T183249Z",
-  "note_for_submission_form": "tip-rays 2000m + horse splay gap20 splay12 + topo-ridge fill 8%, decimated 1-per-3px, binary 0/1, catalogue included (masked at scoring)",
+  "name": "13gems-r8-ensemble-20260930T014614Z",
+  "generated_utc": "20260930T014614Z",
+  "note_for_submission_form": "R8 geothermal-vent ensemble: tip-rays 2000m + horse splay + openness 2% + TPI 1% + flow 2% + isocoherence 0.5% + remanence 0.5% + intersections 1% + topo 3%, decimated 1-per-3px, hidden-vent focus, binary 0/1, catalogue included (masked at scoring)",
   "recipe_selection": {
-    "selected_by": "holdout worst-rule + tip-extension high precision",
-    "objective": "hedge: high-precision tip extensions (37% precision) + topo fill for isolated, decimated",
-    "lift_tip_extension_regime": 2.11,
-    "lift_isolated_system_regime": 0.96
+    "selected_by": "holdout worst-rule + concealed-subset + geothermal permeability literature (Faulds/BRIDGE/INGENIOUS)",
+    "detectors": [
+      "extension_rays",
+      "horsetail_splay",
+      "R8_openness",
+      "R8_tpi",
+      "R8_flow",
+      "R8_isocoherence",
+      "R8_remanence",
+      "R8_intersections",
+      "BASE_topo_ridge"
+    ],
+    "objective": "maximize worst-rule lift (intersections/flow for vent permeability) while covering organizer-named extensions/splays/corrections + hidden intrabasin vents",
+    "geothermal_basis": "fault intersections/step-overs/accommodation zones = highest permeability (Faulds 2013, BRIDGE SAND2025-01826); hidden systems have no surface scarp so need openness/TPI/flow/hydrology not slope"
   },
   "map_stats": {
-    "recipe": "composite_plus_rays_horse_fill",
+    "recipe": "r8_ensemble",
     "tip_ray_reach_px": 20,
     "tip_ray_reach_m": 2000,
-    "horse_gap_px": 20,
-    "horse_splay_px": 12,
     "decimation_spacing_px": 3,
-    "fill_coverage": 0.08,
-    "fill_detector": "BASE_topo_ridge",
-    "include_known_catalogue": true,
+    "coverages": {
+      "R8_openness": 0.02,
+      "R8_tpi": 0.01,
+      "R8_flow": 0.02,
+      "R8_isocoherence": 0.005,
+      "R8_remanence": 0.005,
+      "R8_intersections": 0.01,
+      "BASE_topo_ridge": 0.03
+    },
+    "n_px_per_detector": {
+      "R8_openness": {
+        "coverage_target": 0.02,
+        "n_px_after_decimation": 76588
+      },
+      "R8_tpi": {
+        "coverage_target": 0.01,
+        "n_px_after_decimation": 45235
+      },
+      "R8_flow": {
+        "coverage_target": 0.02,
+        "n_px_after_decimation": 79707
+      },
+      "R8_isocoherence": {
+        "coverage_target": 0.005,
+        "n_px_after_decimation": 9785
+      },
+      "R8_remanence": {
+        "coverage_target": 0.005,
+        "n_px_after_decimation": 7259
+      },
+      "R8_intersections": {
+        "coverage_target": 0.01,
+        "n_px_after_decimation": 7836
+      },
+      "BASE_topo_ridge": {
+        "coverage_target": 0.03,
+        "n_px_after_decimation": 110647
+      }
+    },
     "n_tip_ray_px_before_decimation": 89026,
     "n_tip_ray_px": 36478,
     "n_horse_px_before_decimation": 248458,
     "n_horse_px": 69170,
-    "n_fill_px_before_decimation": 413389,
-    "n_fill_px": 236425,
-    "n_predicted_px": 380365,
-    "pct_of_valid": 7.3609,
+    "n_union_new_px": 391691,
+    "n_predicted_px": 452679,
+    "pct_of_valid": 8.7603,
     "max_value": 1.0,
-    "min_value": 0.0
+    "min_value": 0.0,
+    "include_known_catalogue": true
   },
   "validation": {
     "nan_outside": {
@@ -59,8 +103,8 @@
         "n_inf": 0,
         "min": 0.0,
         "max": 1.0,
-        "sum": 380365.0,
-        "n_gt0": 380365
+        "sum": 452679.0,
+        "n_gt0": 452679
       }
     },
     "all_finite": {
@@ -90,8 +134,8 @@
         "n_inf": 0,
         "min": 0.0,
         "max": 1.0,
-        "sum": 380365.0,
-        "n_gt0": 380365
+        "sum": 452679.0,
+        "n_gt0": 452679
       }
     }
   },

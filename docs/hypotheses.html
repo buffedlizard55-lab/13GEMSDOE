@@ -141,7 +141,49 @@
           <td class="small">This is the only hypothesis here that LEARNS. Every other detector is a hand-written transform; a classifier can weight the 19 bands against each other and can pick up combinations no single transform expresses. It is also the approach the organizers' own reference solution takes (a U-Net), which this repo had never attempted.</td>
           <td class="small">Nothing in this repo was trained on the labels before. The classifier is re-trained for every holdout fold from that fold's visible catalogue, so the withheld segments are never training labels. Disclosed residual leakage: the 9×9 context mean of a training pixel can reach 4 px into the 5 px withheld buffer.</td>
           <td><span class="tag t-ok">Medium</span><br>
-              <span class="tag t-mut">cost Medium (first supervised model)</span></td></tr></tbody></table></div>
+              <span class="tag t-mut">cost Medium (first supervised model)</span></td></tr><tr>
+          <td><b>R8-1a</b><br><span class="small">Topographic openness / sky-view factor for subtle scarps</span><br><span class='tag t-info'>worst 0.0411 · best 0.0744</span></td>
+          <td class="small mono">det_elev (12)</td>
+          <td class="small">For each of 8 azimuths, maximum horizon inclination within 5 px (500 m); openness = 90° − mean(max_slope); edge is Hessian ridge + NMS of |∇ openness|.</td>
+          <td class="small">Illumination-invariant horizon geometry. A decimetre intrabasin scarp on flat playa produces openness edge while det_elev_slope ≈0; QFaults misses it. Dominant hidden-fault habitat in Lahontan basins (BRIDGE/3DEP lidar).</td>
+          <td class="small">BASE_topo_ridge uses slope curvature; R6_shore uses Laplacian curvature. Openness uses horizon angle, not derivative — orthogonal.</td>
+          <td><span class="tag t-ok">Medium</span><br>
+              <span class="tag t-mut">cost Low</span></td></tr><tr>
+          <td><b>R8-1b</b><br><span class="small">Multi-scale Topographic Position Index (TPI)</span><br><span class='tag t-info'>worst 0.0438 · best 0.0761</span></td>
+          <td class="small mono">det_elev (12)</td>
+          <td class="small">TPI = elev − mean(elev in window) at 3/6/12 px (300 m/600 m/1.2 km); gradient of TPI → ridge → NMS; stack across scales.</td>
+          <td class="small">Elevation residual crosses zero at scarp with high gradient; multi-scale captures short+ broad fault topography. Complementary to openness (INGENIOUS/BRIDGE).</td>
+          <td class="small">Openness uses horizon; TPI uses elevation residual — different geomorphic operator.</td>
+          <td><span class="tag t-ok">Medium-Low</span><br>
+              <span class="tag t-mut">cost Low</span></td></tr><tr>
+          <td><b>R8-2</b><br><span class="small">Fault-controlled drainage deflection (hydrologic lineament)</span><br><span class='tag t-info'>worst 0.0280 · best 0.0734</span></td>
+          <td class="small mono">det_elev (12) + det_elev_slope (19)</td>
+          <td class="small">D8 steepest-descent flow direction on det_elev, flow accumulation by descending elevation order, log(1+acc) → |∇ log| → ridge + flat gate (45th pct) → directional coherence.</td>
+          <td class="small">Buried fault ponds/truncates low-gradient playa drainages; hydrologic deficit is blind-fault indicator invisible to slope/magnetics. Only flat ground gated, so cannot fire on range fronts already mapped.</td>
+          <td class="small"><b>No prior detector uses hydrology</b> — first hydrologic detector in repo. Orthogonal to every potential-field/topographic operator.</td>
+          <td><span class="tag t-ok">Medium</span><br>
+              <span class="tag t-mut">cost Medium</span></td></tr><tr>
+          <td><b>R8-3</b><br><span class="small">Isostatic coherence breakdown (buried basin)</span><br><span class='tag t-info'>worst 0.0221 · best 0.0329</span></td>
+          <td class="small mono">iso_grav_anom (13) + det_elev (12)</td>
+          <td class="small">Windowed Pearson r between gravity and topography (σ=6 px≈600 m): r = cov/σgσt; breakdown = 1−|r|; modulated by joint gradient; ridge-thin.</td>
+          <td class="small">Isostatically compensated terrain correlates gravity and topography at long wavelength; buried fault-bounded basin offsets basement (gravity) without scarp (topo) → decorrelation. Classic hidden-basin detector (INGENIOUS/BRIDGE).</td>
+          <td class="small">H-C/R6-3 need gradient magnitude of depth_to_base; R7-1 needs parallel gradients; this needs decorrelation of amplitudes — orthogonal.</td>
+          <td><span class="tag t-ok">Low-Medium</span><br>
+              <span class="tag t-mut">cost Low</span></td></tr><tr>
+          <td><b>R8-4</b><br><span class="small">Magnetic remanence divergence</span><br><span class='tag t-info'>worst 0.0204 · best 0.0486</span></td>
+          <td class="small mono">rtp (2) + tmi (14) + mag_anom (1)</td>
+          <td class="small">|robust_norm(rtp)−robust_norm(tmi)| and vs mag_anom; max; gradient → ridge.</td>
+          <td class="small">RTP assumes induced magnetization; remanent magnetization across fault juxtaposing Q volcanics mispositions RTP vs TMI/mag_anom. Divergence highlights lithologic contacts often fault-bounded.</td>
+          <td class="small">H-A worms and H-B TDR operate on one field; R7-1 needs parallel gradients; remanence needs position mismatch/anti-correlation.</td>
+          <td><span class="tag t-ok">Low-Medium</span><br>
+              <span class="tag t-mut">cost Low</span></td></tr><tr>
+          <td><b>R8-5</b><br><span class="small">Fault-intersection density (geothermal permeability)</span><br><span class='tag t-info'>worst 0.0099 · best 0.0254</span></td>
+          <td class="small mono">secondary on ridge maps e.g. BASE_topo_ridge, HA_worms_rtp, R7_crossgrad</td>
+          <td class="small">Threshold each ridge at 85th pct → binary line → dilate 1 px → pairwise intersections (AND) → kernel density Gaussian σ=6 px (600 m halo) → robust_norm_nonzero → multiply by ridge skeleton.</td>
+          <td class="small">Geothermal vents sit at intersections/step-overs/accommodation zones where fracture density highest (Faulds 2013, BRIDGE). High intersection density = permeability node = vent proxy. Single trace without intersection is poor conduit (clay gouge).</td>
+          <td class="small">Every prior detector is a <i>line</i> detector; this is first <i>secondary</i> detector targeting junctions. No prior code computes intersections.</td>
+          <td><span class="tag t-ok">Medium</span><br>
+              <span class="tag t-mut">cost Low</span></td></tr></tbody></table></div>
 </section>
 
 <section>
@@ -172,7 +214,7 @@
 <footer class="site"><div class="wrap">
   <p><strong>13GEMSDOE</strong> — working repository for the
   <a href="https://www.drivendata.org/competitions/306/competition-doe-gems/">DOE GEMS Prize Challenge</a>.
-  Page generated 2026-09-30 00:04 UTC from <code>reports/*.json</code>.</p>
+  Page generated 2026-09-30 01:51 UTC from <code>reports/*.json</code>.</p>
   <p class="small">Every figure on this site is produced by a script in this
   repository and is reproducible from a clean checkout. Claims that could not be
   verified against an official source are listed as irregularities rather than
