@@ -42,6 +42,33 @@ def e(x) -> str:
     return html.escape(str(x))
 
 
+def front() -> dict:
+    """The front-door manifest written by src/gems/frontdoor.py (single source of truth
+    for the download button, file names, hashes and the note). Fails the build if it is
+    missing, so the site can never ship without a working download."""
+    p = DL / "submit.json"
+    if not p.exists():
+        raise SystemExit("docs/downloads/submit.json missing - run scripts/publish_front_door.py "
+                         "(or make_submission.py) before building the site")
+    return json.loads(p.read_text())
+
+
+def mb(n: int) -> str:
+    return f"{n / 1e6:.1f} MB"
+
+
+def dlbar() -> str:
+    """Slim bar under the header of EVERY page: the download is never more than a glance away."""
+    m = front()
+    a = m["primary_A"]
+    return f"""<div class="dlbar"><div class="wrap">
+  <span class="lbl">SUBMISSION FILE</span>
+  <a class="dlb" href="downloads/{e(a['file'])}" download>⬇ Download {e(a['file'])} ({mb(a['bytes'])})</a>
+  <a class="dlz" href="downloads/{e(a['zip'])}" download>.zip</a>
+  <a class="dlh" href="executive_summary.html">How to submit →</a>
+</div></div>"""
+
+
 def page(active: str, title: str, body: str, hero: str = "") -> str:
     nav = "".join(
         f'<a href="{h}" class="{"on" if h == active else ""}">{e(t)}</a>'
@@ -57,6 +84,7 @@ def page(active: str, title: str, body: str, hero: str = "") -> str:
   <a class="brand" href="index.html">13<span>GEMS</span>DOE</a>
   <nav class="site">{nav}</nav>
 </div></header>
+{dlbar() if active != "index.html" else ""}
 {hero}
 <main class="wrap">{body}</main>
 <footer class="site"><div class="wrap">
@@ -82,6 +110,7 @@ def build_index() -> str:
     r9 = load("holdout_r9_2026-09-30.json", {}) or {}
     r10 = load("holdout_r10_2026-09-30.json", {}) or {}
     r10b = load("holdout_r10b_2026-09-30.json", {}) or {}
+    r11 = load("holdout_r11_2026-09-30.json", {}) or {}
     extdet = load("external_detectors_manifest.json", {}) or {}
     extman = load("external_manifest.json", {}) or {}
     band6 = load("band6_identity.json", {}) or {}
@@ -101,79 +130,42 @@ def build_index() -> str:
     local_format_text = "passes local format checks" if local_format_ok else "local format checks incomplete"
     name = sub.get("name")
     note = sub.get("note_for_submission_form", "not recorded")
-    flip = load("primary_flip_2026-09-30.json", {}) or {}
-    fin_ver = flip.get("finite_verification") or {}
-    if fin_ver:
-        fin_fact = (f"verified in-workspace: 0 NaN, 0 Inf, every cell in "
-                    f"[{fin_ver.get('min')}, {fin_ver.get('max')}], "
-                    f"{fin_ver.get('n_positive'):,} positive cells")
-    else:
-        fin_fact = "all-finite encoding: every cell in [0,1], no NaN anywhere"
-    pu = sub.get("primary_upload") or {}
-    if name:
-        if pu.get("file"):
-            primary_name, zip_name = pu["file"], (pu.get("zip") or f"{name}.zip")
-            secondary_name = (pu.get("secondary_record_only") or {}).get(
-                "file", f"{name}_nanoutside.tif")
-        else:  # legacy manifest without the policy field: finite twin is the _allfinite file
-            primary_name, zip_name = f"{name}_allfinite.tif", f"{name}.zip"
-            secondary_name = f"{name}.tif"
-        primary_href = f"downloads/{e(primary_name)}"
-        zip_href = f"downloads/{e(zip_name)}"
-        secondary_href = f"downloads/{e(secondary_name)}"
-        artifact_links = f"""
-    <div class="row">
-      <a class="btn" href="{primary_href}" download>⬇ SUBMIT THIS FILE — {e(primary_name)}</a>
-      <a class="btn ghost" href="{zip_href}" download>⬇ ZIP (same GeoTIFF inside)</a>
-    </div>
-    <table class="small" style="margin-top:10px">
-      <tr><td><b>File to submit</b></td><td class="mono">{e(primary_name)} &nbsp;<span class="small">(or the .zip — it contains exactly this GeoTIFF)</span></td></tr>
-      <tr><td><b>Note (optional)</b></td><td class="mono">{e(note)}</td></tr>
-    </table>
-    <p class="small">✅ <b>{e(fin_fact)}</b>; single-band float32, EPSG:32611,
-    3730×3292, 100 m — identical predictions to the NaN-outside variant inside the
-    survey footprint, with score-neutral 0.0 outside it.<br>
-    <span class="tag t-bad">record only</span> The strict null/NaN-outside variant
-    <a href="{secondary_href}">{e(secondary_name)}</a> was <b>REJECTED by the form on
-    2026-09-30</b> (“Predicted values must be in range [0, 1]”) — do not upload it
-    first; it is kept for the record and A/B triage. Evidence log:
-    <code>reports/form_responses.json</code>. See the
-    <a href="executive_summary.html#if-the-form-says-predicted-values-must-be-in-range-01">triage table</a>.</p>""".strip()
-    else:
-        artifact_links = '<p class="small">No archived candidate file is currently registered.</p>'
-
-    r11 = load("holdout_r11_2026-09-30.json", {}) or {}
-    if str(clearance_status).startswith("CLEARED"):
-        cs11 = r11.get("confirmation_summary", {})
-        hero_what = (
-            "This file is <b>the first recipe in this repository to beat the local "
-            "holdout reference</b>: <code>greedy_r11</code> (R11-4 greedy marginal-precision "
-            "assembly) — confirmation worst-rule-mean DTI "
-            f"<b>{cs11.get('greedy_r11', {}).get('dti_worst_rule_mean', 0):.5f}</b> vs "
-            f"{cs11.get('topo_05_sp3', {}).get('dti_worst_rule_mean', 0):.5f} for "
-            "<code>topo_05_sp3</code>, 6/6 rule means and 18/18 paired folds, under the "
-            "rule predeclared in <code>knowledge/07_r11_hypotheses.md</code>.")
-    else:
-        hero_what = ("This file is the <b>current local holdout reference recipe</b> "
-                     "(<code>topo_05_sp3</code>).")
-    hero = f"""<div class="hero"><div class="wrap">
-  <h1>Submission download — <span class="tag {tag_cls}">{e(status_label)}</span></h1>
-  <p class="sub">{hero_what} The download below is the <b>all-finite upload-safe
-  encoding</b> (single-band float32; EPSG:32611; 3730×3292; 100 m; every cell in
-  [0,1]; 0.0 outside the survey footprint) — chosen because the form
-  <b>rejected the null/NaN-outside encoding on 2026-09-30</b>
-  (“Predicted values must be in range [0, 1]”), while this encoding family passes
-  both strict and naive validators and is score-neutral for a binary map.
-  <b>The holdout numbers are local catalogue-recovery results, not a predicted
-  leaderboard score</b>, and remote acceptance of this exact file is confirmed
-  only by the form's own response — record it in
-  <code>reports/leaderboard_ledger.csv</code> after upload.</p>
-  <div class="dl">
-    {artifact_links}
-    <div class="meta"><b>Primary file:</b> all-finite {e(fin_fact) if fin_fact else ""}.</div>
-    <p><a class="btn ghost" href="executive_summary.html">Exactly how to submit (5 steps)</a>
-    <a href="evidence.html">Metric, holdout evidence, and verdicts</a></p>
+    m = front()
+    A, B = m["primary_A"], m["fallback_B"]
+    lv = m["local_verification"]
+    fa = lv["A"]
+    note_form = m["note_for_form"]
+    hero = f"""<div class="hero front"><div class="wrap">
+  <p class="kicker">DOE GEMS Prize Challenge · submission file for DrivenData</p>
+  <h1>Download the submission file</h1>
+  <div class="dl big">
+    <a class="bigbtn" href="downloads/{e(A['file'])}" download>
+      <span class="ico">⬇</span>
+      <span><b>DOWNLOAD SUBMISSION .TIF</b><small>{e(A['file'])} · {mb(A['bytes'])} · single-band GeoTIFF</small></span>
+    </a>
+    <a class="btn ghost" href="downloads/{e(A['zip'])}" download>⬇ same file as .zip ({mb(A['zip_bytes'])})</a>
   </div>
+  <ol class="three">
+    <li><b>Download</b> the .tif above (nothing to build, nothing to edit).</li>
+    <li>Open the <a href="{e(m['form_url'])}" target="_blank" rel="noopener">DrivenData submissions page</a>
+        → <b>Submit file</b> → <b>File to submit</b> → choose the .tif (or the .zip).</li>
+    <li>Paste this into <b>Note</b>, then submit:
+      <div class="copyfield"><input id="note" readonly value="{e(note_form)}">
+      <button type="button" onclick="var i=document.getElementById('note');i.select();navigator.clipboard&amp;&amp;navigator.clipboard.writeText(i.value);this.textContent='Copied ✓'">Copy note</button></div></li>
+  </ol>
+  <div class="facts">
+    <b>Checked on these exact bytes:</b> float32 · 1 band · EPSG:32611 · 3,730 × 3,292 @ 100 m · every value in [0, 1] ·
+    <b>{fa['n_nan']} NaN / {fa['n_inf']} Inf</b> · {fa['n_positive']:,} predicted cells · LZW, no predictor (same layout as the official example) ·
+    decodes identically in 3 independent TIFF readers · SHA-256 <code>{A['sha256'][:16]}…</code>
+  </div>
+  <div class="fallback"><b>Only if the form rejects the file above:</b>
+    <a href="downloads/{e(B['file'])}" download>{e(B['file'])}</a> — same predictions, NaN outside the survey area
+    (the encoding the problem page describes). <a href="executive_summary.html#if-the-form-rejects-it">What to do on each error message →</a>
+  </div>
+  <p class="honest">What this file is: the repository's best <i>local hold-out</i> map (greedy marginal-precision recipe, R11).
+  It is <b>not</b> a predicted leaderboard score — the official board is
+  <a href="https://www.drivendata.org/competitions/306/competition-doe-gems/leaderboard/">here</a>.
+  Whether the form accepts it is only known from the form's own response; local checks cannot observe DrivenData's validator.</p>
 </div></div>"""
 
     rows = leaderboard.get("rows", [])
@@ -606,140 +598,112 @@ def build_index() -> str:
 
 # ---------------------------------------------------------------------------
 def build_exec() -> str:
-    sub = load("latest_submission.json", {}) or {}
-    name = sub.get("name", "(no candidate)")
-    pu = sub.get("primary_upload") or {}
-    if pu.get("file"):
-        primary_file, zip_file = pu["file"], (pu.get("zip") or f"{name}.zip")
-        strict_file = (pu.get("secondary_record_only") or {}).get("file", f"{name}_nanoutside.tif")
-    else:
-        primary_file, zip_file, strict_file = f"{name}_allfinite.tif", f"{name}.zip", f"{name}.tif"
-    clearance = sub.get("submission_clearance", {})
-    status = clearance.get("status", "UNKNOWN")
-    reason = clearance.get("reason", "No current clearance record.")
+    m = front()
+    A, B = m["primary_A"], m["fallback_B"]
+    lv = m["local_verification"]
+    fa, fb = lv["A"], lv["B"]
+    note = m["note_for_form"]
     holdout_link = "https://github.com/buffedlizard55-lab/13GEMSDOE/blob/main/reports/holdout_r11_2026-09-30.json"
-    candidate_link = f"downloads/{e(primary_file)}" if sub else "#"
-    fallback_link = f"downloads/{e(strict_file)}" if sub else "#"
-    note = sub.get("note_for_submission_form", "")
     body = f"""
 <section>
-  <h2>Submission workflow — the five steps, in order</h2>
-  <div class="callout">
-    <p style="margin:0"><b>Current artifact to upload: <code>{e(primary_file)}</code></b> —
-    status <b>{e(status)}</b> (a catalogue hide-and-recover proxy result, not a
-    predicted leaderboard score). {e(reason)}
-    Download it from the <a href="index.html">front page</a> or directly
-    <a href="{candidate_link}">here</a>. The all-finite encoding is the default
-    because the form <b>rejected the null/NaN-outside encoding on 2026-09-30</b>
-    (“Predicted values must be in range [0, 1]”) — evidence:
-    <code>reports/form_responses.json</code>. Full comparison:
-    <a href="{holdout_link}">R11 holdout report</a> (R9:
-    <a href="https://github.com/buffedlizard55-lab/13GEMSDOE/blob/main/reports/holdout_r9_2026-09-30.json">here</a>).</p>
+  <h2>Executive summary — how to submit, exactly</h2>
+  <p class="lede">One file to upload, one line to paste. Nothing to build or edit.</p>
+  <div class="panel pri">
+    <a class="bigbtn dark" href="downloads/{e(A['file'])}" download>
+      <span class="ico">⬇</span><span><b>DOWNLOAD SUBMISSION .TIF</b>
+      <small>{e(A['file'])} · {mb(A['bytes'])}</small></span></a>
+    <a class="btn ghost dark" href="downloads/{e(A['zip'])}" download>⬇ same file as .zip</a>
   </div>
   <ol class="steps">
-    <li><h4>1. Validate the candidate on the local holdout</h4>
-      <p>Use whole-system and raw-segment hide-and-recover folds with buffers,
-      visible-catalogue-only construction of catalogue-dependent features, the exact
-      visible known-fault mask, and DTI scored on withheld truth only. Compare multiple
-      withholding rules and report cutoff, support, precision, recall, and DTI.
-      The low-slope-third slice is a robustness stress test, not a hidden-test analogue.</p>
-      <p class="small">Do not spend a weekly submission slot unless the candidate beats
-      the current holdout best under more than one rule and improves the confirmation
-      summary—not only a tuning fold or a qualitative geological rationale. This round's
-      twenty-four challengers across R8, R9, R10 and R10b all failed that gate (see the
-      front-page tables). Note also that the three-submission allowance resets on a
-      <b>rolling window</b>, not a calendar week (forum 11524).</p></li>
-
-    <li><h4>2. Check map identity before proposing an upload</h4>
-      <p>Compare the complete raster and effective/chargeable positive support with all
-      prior candidates. Record file hash, canonical pixel hash, support hash and overlap.
-      An exact duplicate is different from a distinct map with the same rounded score;
-      neither outcome can be inferred from filenames or account-level leaderboard values.</p>
-      <p class="small">Use a new immutable file stem and note. The generator refuses a
-      stem collision. Never promise a unique score: distinct maps can round to the same
-      score. This round's artifact was checked against all eight archived historical
-      maps — no exact-duplicate match.</p></li>
-
-    <li><h4>3. Validate official GeoTIFF format</h4>
-      <p>The primary download is <b>all-finite by policy</b> (flipped 2026-09-30):
-      one float32 band, EPSG:32611, 100 m, 3730×3292, exact affine transform,
-      <b>every cell finite and in [0,1]</b>, and exactly 0.0 outside the survey
-      footprint. That passes both a NoData-honouring read and a naive raw
-      <code>all(0 ≤ v ≤ 1)</code> validator, and for a binary map the zero-fill is
-      score-neutral (0 is a non-prediction, so TP_w and FP_w are unchanged).
-      Recorded verification: <code>reports/primary_flip_2026-09-30.json</code> and
-      <code>reports/latest_submission.json</code>. The strict null/NaN-outside
-      variant (what the problem-page text describes) exists as
-      <code>{e(strict_file)}</code> — record-only, do <b>not</b> upload it first.</p></li>
-
-    <li><h4>4. Fill the DrivenData form</h4>
-      <p>On the
-      <a href="https://www.drivendata.org/competitions/306/competition-doe-gems/submissions/">official submissions page</a>,
-      click <b>Submit file</b> and fill the form exactly like this:</p>
+    <li><h4>1. Download</h4>
+      <p>Click the button above. The file is a single-band float32 GeoTIFF on the official grid.
+      A <code>.zip</code> that contains exactly this one GeoTIFF is also accepted by the form
+      (form text as copied by the team from the
+      <a href="https://www.drivendata.org/competitions/306/competition-doe-gems/submissions/">submissions page</a>,
+      which is login-gated and so cannot be fetched here: “a single-band GeoTIFF (.tif) file, or a .zip
+      file containing a single GeoTIFF … must match the submission format's CRS, shape, and geotransform”).</p></li>
+    <li><h4>2. Open the form</h4>
+      <p>Log in to DrivenData, open the
+      <a href="{e(m['form_url'])}">GEMS submissions page</a> and click <b>Submit file</b>.
+      (Login required — this site cannot do it for you, and no credentials are ever stored here.)</p></li>
+    <li><h4>3. Fill the two fields</h4>
       <table class="small">
-        <tr><td><b>File to submit</b></td>
-            <td>choose <code>{e(primary_file)}</code> (single-band GeoTIFF), or
-                <code>{e(zip_file)}</code> (a .zip containing that one GeoTIFF)</td></tr>
-        <tr><td><b>Note (optional)</b></td>
+        <tr><td><b>File to submit</b></td><td class="mono">{e(A['file'])} <span class="small">(or {e(A['zip'])})</span></td></tr>
+        <tr><td><b>Note (optional)</b><br><span class="small">“a short comment to help you or your team tell submissions apart later”</span></td>
             <td class="mono">{e(note)}</td></tr>
       </table>
-      <p class="small">The note must identify what was actually generated and must not
-      claim hidden-test performance or unsupported geothermal certainty. Submitting the
-      <i>same file twice</i> wastes a slot; the generator blocks byte-identical reuse.
-      The file name is unique per build; if the form ever rejects the finite encoding,
-      record the response in <code>reports/form_responses.json</code> and only then
-      A/B the strict variant.</p></li>
-
-    <li><h4>5. Upload, then record the receipt</h4>
-      <p>The competition allows three submissions per week per the
-      <a href="https://docs.nlr.gov/docs/fy26osti/96647.pdf">Official Rules §3.2</a>.</p>
-      <p>After scoring, record the authenticated per-submission score and submission ID
-      in <code>reports/leaderboard_ledger.csv</code>, tied to the exact file checksum.
-      The account-level “Best public DW-Tversky” leaderboard value is not a receipt for
-      that upload.</p></li>
+      <p class="small"><b>Unique name:</b> the file name above is unique to this build
+      (<code>{e(m['stem'])}</code> = project, date, recipe) and file names are never reused —
+      the generator refuses to overwrite one. The SHA-256 below identifies the exact bytes,
+      so a score shown on DrivenData can always be matched to a file.</p></li>
+    <li><h4>4. Submit and record the response</h4>
+      <p>Whatever the form answers — acceptance, a score, or an error — append it to
+      <code>reports/form_responses.json</code> and, once scored, the per-submission score to
+      <code>reports/leaderboard_ledger.csv</code>. The public leaderboard column “Best public
+      DW-Tversky” is an account-level best, not a receipt for one upload.</p>
+      <p class="small">Allowance: three scored submissions per week
+      (<a href="https://docs.nlr.gov/docs/fy26osti/96647.pdf">Official Rules §3.2</a>), resetting on a
+      <b>rolling window</b>, not a calendar week
+      (DrivenData staff, <a href="https://community.drivendata.org/t/weekly-submissions/11524">forum 11524</a>).
+      Whether a <i>rejected</i> upload consumes an allowance is <b>not documented</b> in anything this
+      project could fetch — ask <a href="mailto:info@drivendata.org">info@drivendata.org</a>
+      before relying on either answer.</p></li>
   </ol>
 </section>
 
-<section id="if-the-form-says-predicted-values-must-be-in-range-01">
-  <h2>If the form says “Predicted values must be in range [0, 1]”</h2>
-  <p class="lede"><b>Status 2026-09-30 (session 6): reproduced and answered for this
-  encoding.</b> The team uploaded this site's then-primary NaN-outside file
-  (<code>13gems-r11-greedy-mp.tif</code>) and the form returned this exact message —
-  the first platform response recorded against a known file from this repository.
-  The predeclared triage step 2 was executed the same day: the <b>all-finite twin is
-  now the primary download</b>. Notably, NaN-outside files from this group
-  <i>were</i> accepted and scored earlier (the pindrop trio, sha256 prefixes
-  <code>f347b70daa</code>, <code>37f9d5b855</code>, <code>4e03fc9705</code>,
-  re-verified against the archived bytes), so the platform validator changed or is
-  inconsistent — flagged in irregularity I-8. Current policy and the remaining
-  contingency:</p>
-  <div class="scroll"><table><thead><tr><th>encoding</th><th>validator behaviour</th>
-  <th>what to do</th></tr></thead><tbody>
-  <tr><td><b>All-finite (PRIMARY).</b> float32, no NoData tag, every cell in
-      [0,1], exactly 0.0 outside the survey footprint. Score-neutral for a binary
-      map: 0 is a non-prediction, so TP_w and FP_w are unchanged.</td>
-      <td>Passes BOTH readings: a NoData-honouring (masked) read and a naive raw
-      <code>all(0 ≤ v ≤ 1)</code> test. The team's round-12 upload
-      (<code>r7-nms3-dem10-scarp_…_allfinite</code>) was accepted under this
-      encoding family (team-recorded).</td>
-      <td><b>Upload this first, always.</b> The front-page primary button and the
-      .zip both serve it. If it is ever rejected, record the exact response in
-      <code>reports/form_responses.json</code> — that would be new evidence.</td></tr>
-  <tr><td><b>Null/NaN outside (record-only).</b> The problem-page text describes
-      null/NaN outside the data bounds; a validator that reads the raw array
-      without honouring the NoData tag and tests <code>all(0 ≤ v ≤ 1)</code>
-      rejects any such file — <b>measured on the form 2026-09-30</b>.</td>
-      <td>REJECTED with “Predicted values must be in range [0, 1]” on the R11
-      primary (user-reported, this session). Earlier NaN-outside uploads were
-      accepted, so the validator behaviour changed or is inconsistent (I-8).</td>
-      <td>Never upload first. Kept as <code>{e(strict_file)}</code> for the record
-      and A/B evidence only.</td></tr>
+<section id="if-the-form-rejects-it">
+  <h2>If the form rejects the file — one row per message</h2>
+  <div class="scroll"><table><thead><tr><th>What the form says</th><th>What it means / what we know</th><th>Do this</th></tr></thead><tbody>
+  <tr><td><code>Predicted values must be in range [0, 1]</code></td>
+      <td>The only response on record (user-reported 2026-09-30, on the NaN-outside file the site then
+      served; <code>reports/form_responses.json</code>). File A has <b>no NaN, no Inf, min {fa['min']}, max {fa['max']}</b>
+      (verified), so a value-range violation in the usual sense is impossible; a validator that
+      mishandles NaN would trip on a NaN file but not on A.</td>
+      <td>Upload <b>A</b>. If A itself returns this message, stop, copy the message and the time, and
+      email <a href="mailto:info@drivendata.org">info@drivendata.org</a> with the SHA-256
+      <code>{e(A['sha256'][:16])}…</code> — that would be new evidence, not a retry case.</td></tr>
+  <tr><td>Anything about NaN, null, NoData, mask or “outside the bounds”</td>
+      <td>The problem page says data outside the bounds “is null or nan”
+      (<a href="{e(m['format_source'])}">Submission format</a>). B follows that convention exactly and
+      matches the byte layout of the official example.</td>
+      <td>Upload <b>B</b>: <a href="downloads/{e(B['file'])}" download>{e(B['file'])}</a>
+      (<a href="downloads/{e(B['zip'])}" download>.zip</a>).</td></tr>
+  <tr><td>CRS, shape, transform, bands, dtype</td>
+      <td>Verified locally equal to the official grid (EPSG:32611, 3,730 × 3,292, 100 m, transform
+      {tuple(fa['transform'])}, 1 band, float32).</td>
+      <td>Do not re-export from GIS software (it changes the layout). Re-download from this page and
+      compare the SHA-256 (<code>sha256sum</code>) with the value below.</td></tr>
+  <tr><td>Not a valid GeoTIFF / cannot read</td>
+      <td>Usually a truncated download or an HTML error page saved as .tif (file would be a few KB).</td>
+      <td>Re-download; the size must be {A['bytes']:,} bytes. Or use the .zip.</td></tr>
   </tbody></table></div>
-  <p class="small">If the all-finite primary <i>also</i> fails, stop spending slots
-  and capture the exact response: that would be the first evidence that neither
-  NoData encoding is the issue, and the next suspects are the ZIP wrapper or
-  CRS/transform. Local checks cannot prove remote acceptance — only the recorded
-  form response can.</p>
+  <p class="small">History and open questions (not hidden): NaN-outside files from this group were
+  recorded as accepted and scored on ~2026-09-27, and a NaN-outside file was reported rejected on
+  2026-09-30, so the platform's validator may have changed or may be inconsistent
+  (irregularity I-8). Separately, every file this repository generated before 2026-10-01 used an
+  unusual TIFF predictor (PREDICTOR=2 on float32) that no file the platform is recorded as scoring
+  used; the current files use the official example's layout (I-18). Neither is proven to be the cause —
+  <b>only the form's response can establish acceptance.</b></p>
+</section>
+
+<section>
+  <h2>Exactly what was verified on these bytes</h2>
+  <div class="scroll"><table class="small"><thead><tr><th></th><th>A — upload first</th><th>B — fallback</th></tr></thead><tbody>
+    <tr><td>File</td><td class="mono">{e(A['file'])}</td><td class="mono">{e(B['file'])}</td></tr>
+    <tr><td>Size · SHA-256</td><td class="mono">{A['bytes']:,} B<br>{e(A['sha256'])}</td><td class="mono">{B['bytes']:,} B<br>{e(B['sha256'])}</td></tr>
+    <tr><td>Outside the survey footprint</td><td>0.0, no NoData tag</td><td>NaN, NoData = nan</td></tr>
+    <tr><td>NaN / Inf cells</td><td>{fa['n_nan']} / {fa['n_inf']}</td><td>{fb['n_nan']:,} (all outside footprint) / {fb['n_inf']}</td></tr>
+    <tr><td>Value range</td><td>[{fa['min']}, {fa['max']}]</td><td>[{fb['min']}, {fb['max']}] (finite cells)</td></tr>
+    <tr><td>Predicted cells (&gt; 0)</td><td>{fa['n_positive']:,}</td><td>{fb['n_positive']:,}</td></tr>
+    <tr><td>Grid</td><td colspan="2">GTiff · 1 band · float32 · {e(fa['crs'])} · {fa['shape'][1]} × {fa['shape'][0]} · transform {tuple(fa['transform'])} — equals the official grid</td></tr>
+    <tr><td>TIFF layout</td><td colspan="2">LZW, {"tiled" if fa['layout']['tiled'] else "one-row strips"}, predictor: {fa['layout']['predictor'] or "none"} — same as the official <code>example_submission.tif</code></td></tr>
+    <tr><td>A = B inside the footprint</td><td colspan="2">{"yes" if lv['A_equals_B_inside_footprint'] else "NO"} ({lv['footprint_cells']:,} footprint cells; footprint equals the official label raster's)</td></tr>
+    <tr><td>Independent readers agree</td><td colspan="2">{", ".join(lv['readers_used'])}: {"all decode identically" if lv['all_readers_agree_A'] and lv['all_readers_agree_B'] else "MISMATCH"}</td></tr>
+  </tbody></table></div>
+  <p class="small">Re-run it yourself: <code>python scripts/verify_download.py</code> (add <code>--live</code> to
+  fetch the published file and compare its hash). Not verifiable from this repository:
+  DrivenData's own validator and the hidden labels. Generated {e(m['generated_utc'])} ·
+  manifest <a href="downloads/submit.json">downloads/submit.json</a>.</p>
 </section>
 
 <section>
@@ -747,36 +711,27 @@ def build_exec() -> str:
   <div class="panel">
     <ul class="small">
       <li>Same projected CRS and bounds as training data: <b>EPSG:32611</b></li>
-      <li>Same resolution: <b>100 m</b>; 3730×3292 grid and matching transform</li>
-      <li>One layer, <b>float32</b>, values between <b>0 and 1</b></li>
-      <li>Outside the data bounds: <b>null/NaN per the problem description — but the
-          form's validator REJECTED that encoding on 2026-09-30</b>, so this
-          repository now ships the score-neutral all-finite encoding (0.0 outside
-          the footprint) as the primary upload</li>
+      <li>Same resolution: <b>100 m</b></li>
+      <li>Data outside the bounds: <b>null or nan</b> (A uses 0.0 instead — see the table above for why and for B)</li>
+      <li>One layer, <b>float32</b>, values between <b>0 and 1</b> (higher = more likely a fault)</li>
     </ul>
     <p class="small">Official source:
-    <a href="https://www.drivendata.org/competitions/306/competition-doe-gems/page/967/">DrivenData problem description → Submission format</a>.
-    The shipped all-finite file passes the repository's local grid/range/footprint
-    checks (recorded in <code>reports/primary_flip_2026-09-30.json</code>); that does
-    not clear its prediction map or fully verify server acceptance — the form's own
-    response, recorded in <code>reports/form_responses.json</code>, is the receipt.</p>
+    <a href="{e(m['format_source'])}">DrivenData problem description → Submission format</a>;
+    submission-entry rules: <a href="https://docs.nlr.gov/docs/fy26osti/96647.pdf">Official Rules PDF</a>.</p>
   </div>
 </section>
 
 <section>
-  <h2>Why the holdout gate matters</h2>
-  <p>Competition organizers define a new fault to include uncaptured extensions,
-  splays, parallel strands, and corrections, and say known training pixels are masked
-  pixel-exactly. Predictions near known traces but far from new-fault truth are
-  penalized. These are reasons to test plausible detectors locally, not permission to
-  treat catalogue hide-and-recover results as a reconstruction of the undisclosed
-  test distribution.</p>
-  <p>Keep the scientific rationale and the scoring evidence separate. Every challenger
-  tested so far (R8 ensemble, R9 gap-completion, epicentral alignment, parallel-offset
-  corrections) raised recall but lost DTI against the reference in confirmation folds —
-  which is exactly why none of them replaced the shipped reference recipe.</p>
+  <h2>Before a slot is spent on a <i>different</i> file</h2>
+  <p>The file above is the best <i>local</i> recipe: it beat the reference under the predeclared
+  hide-and-recover protocol (<a href="{holdout_link}">R11 report</a>). That is catalogue recovery on
+  hidden <i>known</i> faults, not the undisclosed new-fault test set, and it is not a leaderboard
+  prediction. A new candidate gets a slot only if it beats the current holdout best under more than one
+  withholding rule on the confirmation folds, its pixels are not an exact duplicate of any earlier map
+  (<code>scripts/make_submission.py</code> blocks that), and the front-door verifier passes.
+  Distinct maps can still round to the same public score — never promise unique scores.</p>
 </section>"""
-    return page("executive_summary.html", "Submission workflow", body)
+    return page("executive_summary.html", "Executive summary — how to submit", body)
 
 
 # ---------------------------------------------------------------------------
@@ -1699,6 +1654,46 @@ def build_sources() -> str:
     return page("sources.html", "Sources", body)
 
 
+def build_root_index() -> str:
+    """Landing page served at the Pages root. Standalone (inline CSS) so that the very first
+    thing anyone sees at https://buffedlizard55-lab.github.io/13GEMSDOE/ is the download."""
+    m = front()
+    A, B = m["primary_A"], m["fallback_B"]
+    return f"""<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>13GEMSDOE — download the GEMS submission file</title>
+<meta name="description" content="One-click GeoTIFF submission file for the DOE GEMS Prize Challenge on DrivenData.">
+<style>
+body{{margin:0;font:16px/1.6 -apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:#0b1f3f;color:#fff}}
+.w{{max-width:860px;margin:0 auto;padding:36px 20px}}
+h1{{font-size:34px;margin:0 0 20px;letter-spacing:-.02em}}
+.k{{font-size:12.5px;letter-spacing:.09em;text-transform:uppercase;opacity:.8;font-weight:650;margin:0 0 6px}}
+a.big{{display:flex;gap:16px;align-items:center;background:#12d17f;color:#04301c;border:2px solid #fff;border-radius:14px;padding:20px 26px;text-decoration:none;box-shadow:0 6px 22px rgba(0,0,0,.35)}}
+a.big .i{{font-size:38px}} a.big b{{display:block;font-size:24px}} a.big small{{display:block;font-size:13px;word-break:break-all;opacity:.85}}
+ol{{padding-left:22px}} li{{margin:8px 0}} a{{color:#bcd5ff}}
+input{{width:100%;box-sizing:border-box;background:rgba(0,0,0,.3);color:#fff;border:1px solid rgba(255,255,255,.3);border-radius:8px;padding:10px;font:13px ui-monospace,Menlo,monospace;margin-top:6px}}
+.f{{background:rgba(255,200,60,.16);border:1px solid rgba(255,200,60,.5);padding:10px 14px;border-radius:10px;margin-top:16px;font-size:14px}}
+.s{{font-size:13px;opacity:.8;margin-top:18px}}
+nav a{{display:inline-block;margin:18px 14px 0 0;font-weight:600}}
+</style></head><body><div class="w">
+<p class="k">DOE GEMS Prize Challenge · DrivenData</p>
+<h1>Download the submission file</h1>
+<a class="big" href="docs/downloads/{e(A['file'])}" download><span class="i">⬇</span>
+<span><b>DOWNLOAD SUBMISSION .TIF</b><small>{e(A['file'])} · {mb(A['bytes'])}</small></span></a>
+<ol>
+<li>Download the .tif above (or the <a href="docs/downloads/{e(A['zip'])}" download>.zip</a>).</li>
+<li>Open the <a href="{e(m['form_url'])}">DrivenData submissions page</a> → <b>Submit file</b> → choose the file.</li>
+<li>Paste this into <b>Note</b>:<input readonly value="{e(m['note_for_form'])}" onclick="this.select()"></li>
+</ol>
+<div class="f"><b>Only if the form rejects it:</b> <a href="docs/downloads/{e(B['file'])}" download>{e(B['file'])}</a>
+(same predictions, NaN outside the survey area).</div>
+<nav><a href="docs/">Full site →</a><a href="docs/executive_summary.html">Executive summary: how to submit →</a>
+<a href="https://github.com/buffedlizard55-lab/13GEMSDOE">Repository →</a></nav>
+<p class="s">Local hold-out recipe, not a leaderboard prediction. SHA-256 <code>{A['sha256'][:16]}…</code> ·
+generated {e(m['generated_utc'])} · verified by <code>scripts/verify_download.py</code>.</p>
+</div></body></html>"""
+
+
 def main() -> None:
     DOCS.mkdir(exist_ok=True)
     DL.mkdir(parents=True, exist_ok=True)
@@ -1710,6 +1705,8 @@ def main() -> None:
                         ("sources.html", build_sources())]:
         (DOCS / fn).write_text(content)
         print(f"  wrote docs/{fn}  ({len(content):,} bytes)")
+    (ROOT / "index.html").write_text(build_root_index())
+    print("  wrote index.html (repo root = GitHub Pages '/')")
     print("site built")
 
 

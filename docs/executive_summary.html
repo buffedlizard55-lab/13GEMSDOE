@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Submission workflow — 13GEMSDOE</title>
+<title>Executive summary — how to submit — 13GEMSDOE</title>
 <meta name="description" content="GEMS Prize Challenge: download the current submission GeoTIFF from the front page, plus the audited scoring metric, holdout evidence, and the recorded DrivenData form responses behind it.">
 <link rel="stylesheet" href="assets/style.css">
 </head><body>
@@ -9,126 +9,113 @@
   <a class="brand" href="index.html">13<span>GEMS</span>DOE</a>
   <nav class="site"><a href="index.html" class="">Submit</a><a href="executive_summary.html" class="on">How to submit</a><a href="evidence.html" class="">Evidence</a><a href="hypotheses.html" class="">Hypotheses</a><a href="sources.html" class="">Sources</a></nav>
 </div></header>
+<div class="dlbar"><div class="wrap">
+  <span class="lbl">SUBMISSION FILE</span>
+  <a class="dlb" href="downloads/13gems_20261001_r11-greedy-mp_A_zerofill.tif" download>⬇ Download 13gems_20261001_r11-greedy-mp_A_zerofill.tif (1.2 MB)</a>
+  <a class="dlz" href="downloads/13gems_20261001_r11-greedy-mp_A_zerofill.zip" download>.zip</a>
+  <a class="dlh" href="executive_summary.html">How to submit →</a>
+</div></div>
 
 <main class="wrap">
 <section>
-  <h2>Submission workflow — the five steps, in order</h2>
-  <div class="callout">
-    <p style="margin:0"><b>Current artifact to upload: <code>13gems-r11-greedy-mp_allfinite.tif</code></b> —
-    status <b>CLEARED_LOCAL_HOLDOUT_WIN_NOT_PRIVATE_TEST_CLAIM</b> (a catalogue hide-and-recover proxy result, not a
-    predicted leaderboard score). greedy_r11 beat the in-run topo_05_sp3 reference on tune and confirmation worst-rule-mean DTI, won 6/6 confirmation rule means and 18/18 paired folds; gain exceeds 10x rebuild drift (I-15). Catalogue hide-and-recover proxy only.
-    Download it from the <a href="index.html">front page</a> or directly
-    <a href="downloads/13gems-r11-greedy-mp_allfinite.tif">here</a>. The all-finite encoding is the default
-    because the form <b>rejected the null/NaN-outside encoding on 2026-09-30</b>
-    (“Predicted values must be in range [0, 1]”) — evidence:
-    <code>reports/form_responses.json</code>. Full comparison:
-    <a href="https://github.com/buffedlizard55-lab/13GEMSDOE/blob/main/reports/holdout_r11_2026-09-30.json">R11 holdout report</a> (R9:
-    <a href="https://github.com/buffedlizard55-lab/13GEMSDOE/blob/main/reports/holdout_r9_2026-09-30.json">here</a>).</p>
+  <h2>Executive summary — how to submit, exactly</h2>
+  <p class="lede">One file to upload, one line to paste. Nothing to build or edit.</p>
+  <div class="panel pri">
+    <a class="bigbtn dark" href="downloads/13gems_20261001_r11-greedy-mp_A_zerofill.tif" download>
+      <span class="ico">⬇</span><span><b>DOWNLOAD SUBMISSION .TIF</b>
+      <small>13gems_20261001_r11-greedy-mp_A_zerofill.tif · 1.2 MB</small></span></a>
+    <a class="btn ghost dark" href="downloads/13gems_20261001_r11-greedy-mp_A_zerofill.zip" download>⬇ same file as .zip</a>
   </div>
   <ol class="steps">
-    <li><h4>1. Validate the candidate on the local holdout</h4>
-      <p>Use whole-system and raw-segment hide-and-recover folds with buffers,
-      visible-catalogue-only construction of catalogue-dependent features, the exact
-      visible known-fault mask, and DTI scored on withheld truth only. Compare multiple
-      withholding rules and report cutoff, support, precision, recall, and DTI.
-      The low-slope-third slice is a robustness stress test, not a hidden-test analogue.</p>
-      <p class="small">Do not spend a weekly submission slot unless the candidate beats
-      the current holdout best under more than one rule and improves the confirmation
-      summary—not only a tuning fold or a qualitative geological rationale. This round's
-      twenty-four challengers across R8, R9, R10 and R10b all failed that gate (see the
-      front-page tables). Note also that the three-submission allowance resets on a
-      <b>rolling window</b>, not a calendar week (forum 11524).</p></li>
-
-    <li><h4>2. Check map identity before proposing an upload</h4>
-      <p>Compare the complete raster and effective/chargeable positive support with all
-      prior candidates. Record file hash, canonical pixel hash, support hash and overlap.
-      An exact duplicate is different from a distinct map with the same rounded score;
-      neither outcome can be inferred from filenames or account-level leaderboard values.</p>
-      <p class="small">Use a new immutable file stem and note. The generator refuses a
-      stem collision. Never promise a unique score: distinct maps can round to the same
-      score. This round's artifact was checked against all eight archived historical
-      maps — no exact-duplicate match.</p></li>
-
-    <li><h4>3. Validate official GeoTIFF format</h4>
-      <p>The primary download is <b>all-finite by policy</b> (flipped 2026-09-30):
-      one float32 band, EPSG:32611, 100 m, 3730×3292, exact affine transform,
-      <b>every cell finite and in [0,1]</b>, and exactly 0.0 outside the survey
-      footprint. That passes both a NoData-honouring read and a naive raw
-      <code>all(0 ≤ v ≤ 1)</code> validator, and for a binary map the zero-fill is
-      score-neutral (0 is a non-prediction, so TP_w and FP_w are unchanged).
-      Recorded verification: <code>reports/primary_flip_2026-09-30.json</code> and
-      <code>reports/latest_submission.json</code>. The strict null/NaN-outside
-      variant (what the problem-page text describes) exists as
-      <code>13gems-r11-greedy-mp.tif</code> — record-only, do <b>not</b> upload it first.</p></li>
-
-    <li><h4>4. Fill the DrivenData form</h4>
-      <p>On the
-      <a href="https://www.drivendata.org/competitions/306/competition-doe-gems/submissions/">official submissions page</a>,
-      click <b>Submit file</b> and fill the form exactly like this:</p>
+    <li><h4>1. Download</h4>
+      <p>Click the button above. The file is a single-band float32 GeoTIFF on the official grid.
+      A <code>.zip</code> that contains exactly this one GeoTIFF is also accepted by the form
+      (form text as copied by the team from the
+      <a href="https://www.drivendata.org/competitions/306/competition-doe-gems/submissions/">submissions page</a>,
+      which is login-gated and so cannot be fetched here: “a single-band GeoTIFF (.tif) file, or a .zip
+      file containing a single GeoTIFF … must match the submission format's CRS, shape, and geotransform”).</p></li>
+    <li><h4>2. Open the form</h4>
+      <p>Log in to DrivenData, open the
+      <a href="https://www.drivendata.org/competitions/306/competition-doe-gems/submissions/">GEMS submissions page</a> and click <b>Submit file</b>.
+      (Login required — this site cannot do it for you, and no credentials are ever stored here.)</p></li>
+    <li><h4>3. Fill the two fields</h4>
       <table class="small">
-        <tr><td><b>File to submit</b></td>
-            <td>choose <code>13gems-r11-greedy-mp_allfinite.tif</code> (single-band GeoTIFF), or
-                <code>13gems-r11-greedy-mp.zip</code> (a .zip containing that one GeoTIFF)</td></tr>
-        <tr><td><b>Note (optional)</b></td>
-            <td class="mono">R11-4 greedy marginal-precision: topo top-5% sp3 + R10_vent@0.25%+R8_tpi@0.25%+R10_dzt_field@0.25% (each &gt;300 m from prior), binary, catalogue included; R11 holdout WIN vs topo_05_sp3 (18/18 folds), NOT a private-test claim</td></tr>
+        <tr><td><b>File to submit</b></td><td class="mono">13gems_20261001_r11-greedy-mp_A_zerofill.tif <span class="small">(or 13gems_20261001_r11-greedy-mp_A_zerofill.zip)</span></td></tr>
+        <tr><td><b>Note (optional)</b><br><span class="small">“a short comment to help you or your team tell submissions apart later”</span></td>
+            <td class="mono">r11 greedy-mp A-zerofill 20261001 | topo ridge 5% + 3 greedy blocks | local holdout win, not a LB claim</td></tr>
       </table>
-      <p class="small">The note must identify what was actually generated and must not
-      claim hidden-test performance or unsupported geothermal certainty. Submitting the
-      <i>same file twice</i> wastes a slot; the generator blocks byte-identical reuse.
-      The file name is unique per build; if the form ever rejects the finite encoding,
-      record the response in <code>reports/form_responses.json</code> and only then
-      A/B the strict variant.</p></li>
-
-    <li><h4>5. Upload, then record the receipt</h4>
-      <p>The competition allows three submissions per week per the
-      <a href="https://docs.nlr.gov/docs/fy26osti/96647.pdf">Official Rules §3.2</a>.</p>
-      <p>After scoring, record the authenticated per-submission score and submission ID
-      in <code>reports/leaderboard_ledger.csv</code>, tied to the exact file checksum.
-      The account-level “Best public DW-Tversky” leaderboard value is not a receipt for
-      that upload.</p></li>
+      <p class="small"><b>Unique name:</b> the file name above is unique to this build
+      (<code>13gems_20261001_r11-greedy-mp</code> = project, date, recipe) and file names are never reused —
+      the generator refuses to overwrite one. The SHA-256 below identifies the exact bytes,
+      so a score shown on DrivenData can always be matched to a file.</p></li>
+    <li><h4>4. Submit and record the response</h4>
+      <p>Whatever the form answers — acceptance, a score, or an error — append it to
+      <code>reports/form_responses.json</code> and, once scored, the per-submission score to
+      <code>reports/leaderboard_ledger.csv</code>. The public leaderboard column “Best public
+      DW-Tversky” is an account-level best, not a receipt for one upload.</p>
+      <p class="small">Allowance: three scored submissions per week
+      (<a href="https://docs.nlr.gov/docs/fy26osti/96647.pdf">Official Rules §3.2</a>), resetting on a
+      <b>rolling window</b>, not a calendar week
+      (DrivenData staff, <a href="https://community.drivendata.org/t/weekly-submissions/11524">forum 11524</a>).
+      Whether a <i>rejected</i> upload consumes an allowance is <b>not documented</b> in anything this
+      project could fetch — ask <a href="mailto:info@drivendata.org">info@drivendata.org</a>
+      before relying on either answer.</p></li>
   </ol>
 </section>
 
-<section id="if-the-form-says-predicted-values-must-be-in-range-01">
-  <h2>If the form says “Predicted values must be in range [0, 1]”</h2>
-  <p class="lede"><b>Status 2026-09-30 (session 6): reproduced and answered for this
-  encoding.</b> The team uploaded this site's then-primary NaN-outside file
-  (<code>13gems-r11-greedy-mp.tif</code>) and the form returned this exact message —
-  the first platform response recorded against a known file from this repository.
-  The predeclared triage step 2 was executed the same day: the <b>all-finite twin is
-  now the primary download</b>. Notably, NaN-outside files from this group
-  <i>were</i> accepted and scored earlier (the pindrop trio, sha256 prefixes
-  <code>f347b70daa</code>, <code>37f9d5b855</code>, <code>4e03fc9705</code>,
-  re-verified against the archived bytes), so the platform validator changed or is
-  inconsistent — flagged in irregularity I-8. Current policy and the remaining
-  contingency:</p>
-  <div class="scroll"><table><thead><tr><th>encoding</th><th>validator behaviour</th>
-  <th>what to do</th></tr></thead><tbody>
-  <tr><td><b>All-finite (PRIMARY).</b> float32, no NoData tag, every cell in
-      [0,1], exactly 0.0 outside the survey footprint. Score-neutral for a binary
-      map: 0 is a non-prediction, so TP_w and FP_w are unchanged.</td>
-      <td>Passes BOTH readings: a NoData-honouring (masked) read and a naive raw
-      <code>all(0 ≤ v ≤ 1)</code> test. The team's round-12 upload
-      (<code>r7-nms3-dem10-scarp_…_allfinite</code>) was accepted under this
-      encoding family (team-recorded).</td>
-      <td><b>Upload this first, always.</b> The front-page primary button and the
-      .zip both serve it. If it is ever rejected, record the exact response in
-      <code>reports/form_responses.json</code> — that would be new evidence.</td></tr>
-  <tr><td><b>Null/NaN outside (record-only).</b> The problem-page text describes
-      null/NaN outside the data bounds; a validator that reads the raw array
-      without honouring the NoData tag and tests <code>all(0 ≤ v ≤ 1)</code>
-      rejects any such file — <b>measured on the form 2026-09-30</b>.</td>
-      <td>REJECTED with “Predicted values must be in range [0, 1]” on the R11
-      primary (user-reported, this session). Earlier NaN-outside uploads were
-      accepted, so the validator behaviour changed or is inconsistent (I-8).</td>
-      <td>Never upload first. Kept as <code>13gems-r11-greedy-mp.tif</code> for the record
-      and A/B evidence only.</td></tr>
+<section id="if-the-form-rejects-it">
+  <h2>If the form rejects the file — one row per message</h2>
+  <div class="scroll"><table><thead><tr><th>What the form says</th><th>What it means / what we know</th><th>Do this</th></tr></thead><tbody>
+  <tr><td><code>Predicted values must be in range [0, 1]</code></td>
+      <td>The only response on record (user-reported 2026-09-30, on the NaN-outside file the site then
+      served; <code>reports/form_responses.json</code>). File A has <b>no NaN, no Inf, min 0.0, max 1.0</b>
+      (verified), so a value-range violation in the usual sense is impossible; a validator that
+      mishandles NaN would trip on a NaN file but not on A.</td>
+      <td>Upload <b>A</b>. If A itself returns this message, stop, copy the message and the time, and
+      email <a href="mailto:info@drivendata.org">info@drivendata.org</a> with the SHA-256
+      <code>e7f0d4b9fd58b90e…</code> — that would be new evidence, not a retry case.</td></tr>
+  <tr><td>Anything about NaN, null, NoData, mask or “outside the bounds”</td>
+      <td>The problem page says data outside the bounds “is null or nan”
+      (<a href="https://www.drivendata.org/competitions/306/competition-doe-gems/page/967/">Submission format</a>). B follows that convention exactly and
+      matches the byte layout of the official example.</td>
+      <td>Upload <b>B</b>: <a href="downloads/13gems_20261001_r11-greedy-mp_B_nan-outside.tif" download>13gems_20261001_r11-greedy-mp_B_nan-outside.tif</a>
+      (<a href="downloads/13gems_20261001_r11-greedy-mp_B_nan-outside.zip" download>.zip</a>).</td></tr>
+  <tr><td>CRS, shape, transform, bands, dtype</td>
+      <td>Verified locally equal to the official grid (EPSG:32611, 3,730 × 3,292, 100 m, transform
+      (100.0, 0.0, 243350.0, 0.0, -100.0, 4508550.0), 1 band, float32).</td>
+      <td>Do not re-export from GIS software (it changes the layout). Re-download from this page and
+      compare the SHA-256 (<code>sha256sum</code>) with the value below.</td></tr>
+  <tr><td>Not a valid GeoTIFF / cannot read</td>
+      <td>Usually a truncated download or an HTML error page saved as .tif (file would be a few KB).</td>
+      <td>Re-download; the size must be 1,184,786 bytes. Or use the .zip.</td></tr>
   </tbody></table></div>
-  <p class="small">If the all-finite primary <i>also</i> fails, stop spending slots
-  and capture the exact response: that would be the first evidence that neither
-  NoData encoding is the issue, and the next suspects are the ZIP wrapper or
-  CRS/transform. Local checks cannot prove remote acceptance — only the recorded
-  form response can.</p>
+  <p class="small">History and open questions (not hidden): NaN-outside files from this group were
+  recorded as accepted and scored on ~2026-09-27, and a NaN-outside file was reported rejected on
+  2026-09-30, so the platform's validator may have changed or may be inconsistent
+  (irregularity I-8). Separately, every file this repository generated before 2026-10-01 used an
+  unusual TIFF predictor (PREDICTOR=2 on float32) that no file the platform is recorded as scoring
+  used; the current files use the official example's layout (I-18). Neither is proven to be the cause —
+  <b>only the form's response can establish acceptance.</b></p>
+</section>
+
+<section>
+  <h2>Exactly what was verified on these bytes</h2>
+  <div class="scroll"><table class="small"><thead><tr><th></th><th>A — upload first</th><th>B — fallback</th></tr></thead><tbody>
+    <tr><td>File</td><td class="mono">13gems_20261001_r11-greedy-mp_A_zerofill.tif</td><td class="mono">13gems_20261001_r11-greedy-mp_B_nan-outside.tif</td></tr>
+    <tr><td>Size · SHA-256</td><td class="mono">1,184,786 B<br>e7f0d4b9fd58b90e67538e595680315fb9861e08d8d093c1617b10a584f28b5a</td><td class="mono">1,954,898 B<br>033df94ceef16350030a69d5cfdec0afe7bc605bb155d8f3b98b203aabf80abd</td></tr>
+    <tr><td>Outside the survey footprint</td><td>0.0, no NoData tag</td><td>NaN, NoData = nan</td></tr>
+    <tr><td>NaN / Inf cells</td><td>0 / 0</td><td>7,111,787 (all outside footprint) / 0</td></tr>
+    <tr><td>Value range</td><td>[0.0, 1.0]</td><td>[0.0, 1.0] (finite cells)</td></tr>
+    <tr><td>Predicted cells (&gt; 0)</td><td>272,853</td><td>272,853</td></tr>
+    <tr><td>Grid</td><td colspan="2">GTiff · 1 band · float32 · EPSG:32611 · 3292 × 3730 · transform (100.0, 0.0, 243350.0, 0.0, -100.0, 4508550.0) — equals the official grid</td></tr>
+    <tr><td>TIFF layout</td><td colspan="2">LZW, one-row strips, predictor: none — same as the official <code>example_submission.tif</code></td></tr>
+    <tr><td>A = B inside the footprint</td><td colspan="2">yes (5,167,373 footprint cells; footprint equals the official label raster's)</td></tr>
+    <tr><td>Independent readers agree</td><td colspan="2">Pillow, rasterio/GDAL, tifffile: all decode identically</td></tr>
+  </tbody></table></div>
+  <p class="small">Re-run it yourself: <code>python scripts/verify_download.py</code> (add <code>--live</code> to
+  fetch the published file and compare its hash). Not verifiable from this repository:
+  DrivenData's own validator and the hidden labels. Generated 2026-10-01T00:55:02Z ·
+  manifest <a href="downloads/submit.json">downloads/submit.json</a>.</p>
 </section>
 
 <section>
@@ -136,39 +123,30 @@
   <div class="panel">
     <ul class="small">
       <li>Same projected CRS and bounds as training data: <b>EPSG:32611</b></li>
-      <li>Same resolution: <b>100 m</b>; 3730×3292 grid and matching transform</li>
-      <li>One layer, <b>float32</b>, values between <b>0 and 1</b></li>
-      <li>Outside the data bounds: <b>null/NaN per the problem description — but the
-          form's validator REJECTED that encoding on 2026-09-30</b>, so this
-          repository now ships the score-neutral all-finite encoding (0.0 outside
-          the footprint) as the primary upload</li>
+      <li>Same resolution: <b>100 m</b></li>
+      <li>Data outside the bounds: <b>null or nan</b> (A uses 0.0 instead — see the table above for why and for B)</li>
+      <li>One layer, <b>float32</b>, values between <b>0 and 1</b> (higher = more likely a fault)</li>
     </ul>
     <p class="small">Official source:
-    <a href="https://www.drivendata.org/competitions/306/competition-doe-gems/page/967/">DrivenData problem description → Submission format</a>.
-    The shipped all-finite file passes the repository's local grid/range/footprint
-    checks (recorded in <code>reports/primary_flip_2026-09-30.json</code>); that does
-    not clear its prediction map or fully verify server acceptance — the form's own
-    response, recorded in <code>reports/form_responses.json</code>, is the receipt.</p>
+    <a href="https://www.drivendata.org/competitions/306/competition-doe-gems/page/967/">DrivenData problem description → Submission format</a>;
+    submission-entry rules: <a href="https://docs.nlr.gov/docs/fy26osti/96647.pdf">Official Rules PDF</a>.</p>
   </div>
 </section>
 
 <section>
-  <h2>Why the holdout gate matters</h2>
-  <p>Competition organizers define a new fault to include uncaptured extensions,
-  splays, parallel strands, and corrections, and say known training pixels are masked
-  pixel-exactly. Predictions near known traces but far from new-fault truth are
-  penalized. These are reasons to test plausible detectors locally, not permission to
-  treat catalogue hide-and-recover results as a reconstruction of the undisclosed
-  test distribution.</p>
-  <p>Keep the scientific rationale and the scoring evidence separate. Every challenger
-  tested so far (R8 ensemble, R9 gap-completion, epicentral alignment, parallel-offset
-  corrections) raised recall but lost DTI against the reference in confirmation folds —
-  which is exactly why none of them replaced the shipped reference recipe.</p>
+  <h2>Before a slot is spent on a <i>different</i> file</h2>
+  <p>The file above is the best <i>local</i> recipe: it beat the reference under the predeclared
+  hide-and-recover protocol (<a href="https://github.com/buffedlizard55-lab/13GEMSDOE/blob/main/reports/holdout_r11_2026-09-30.json">R11 report</a>). That is catalogue recovery on
+  hidden <i>known</i> faults, not the undisclosed new-fault test set, and it is not a leaderboard
+  prediction. A new candidate gets a slot only if it beats the current holdout best under more than one
+  withholding rule on the confirmation folds, its pixels are not an exact duplicate of any earlier map
+  (<code>scripts/make_submission.py</code> blocks that), and the front-door verifier passes.
+  Distinct maps can still round to the same public score — never promise unique scores.</p>
 </section></main>
 <footer class="site"><div class="wrap">
   <p><strong>13GEMSDOE</strong> — working repository for the
   <a href="https://www.drivendata.org/competitions/306/competition-doe-gems/">DOE GEMS Prize Challenge</a>.
-  Page generated 2026-09-30 23:49 UTC from <code>reports/*.json</code>.</p>
+  Page generated 2026-10-01 00:57 UTC from <code>reports/*.json</code>.</p>
   <p class="small">Every figure on this site is produced by a script in this
   repository and is reproducible from a clean checkout. Claims that could not be
   verified against an official source are listed as irregularities rather than

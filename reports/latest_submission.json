@@ -200,20 +200,10 @@
     }
   },
   "primary_upload": {
-    "encoding": "all_finite_zero_fill",
-    "file": "13gems-r11-greedy-mp_allfinite.tif",
-    "zip": "13gems-r11-greedy-mp.zip",
-    "zip_contains": "13gems-r11-greedy-mp_allfinite.tif",
-    "latest_aliases": {
-      "latest.tif": "all-finite primary",
-      "latest_allfinite.tif": "all-finite primary (alias)",
-      "latest_nan.tif": "record-only NaN-outside secondary"
-    },
-    "secondary_record_only": {
-      "encoding": "nan_outside_strict",
-      "file": "13gems-r11-greedy-mp.tif"
-    },
-    "policy_source": "reports/form_responses.json; reports/primary_flip_2026-09-30.json; knowledge/02_irregularities.md I-8; user-reported form rejection of the NaN-outside encoding, 2026-09-30"
+    "front_door_manifest": "docs/downloads/submit.json",
+    "primary_A": "13gems_20261001_r11-greedy-mp_A_zerofill.tif",
+    "fallback_B": "13gems_20261001_r11-greedy-mp_B_nan-outside.tif",
+    "supersedes": "primary_upload from session 6 (13gems-r11-greedy-mp_allfinite.tif, PREDICTOR=2 layout) - same pixels, new byte layout"
   },
   "encoding_policy_note": "Primary download/upload encoding flipped to all-finite 2026-09-30 (session 6). This JSON was produced by make_submission.py under the old NaN-outside-primary policy and then patched by scripts/flip_primary_encoding.py; predictions are byte-identical inside the survey footprint in both variants."
 }

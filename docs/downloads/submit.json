@@ -1,0 +1,139 @@
+{
+  "schema": 1,
+  "generated_utc": "2026-10-01T00:55:02Z",
+  "stem": "13gems_20261001_r11-greedy-mp",
+  "note_for_form": "r11 greedy-mp A-zerofill 20261001 | topo ridge 5% + 3 greedy blocks | local holdout win, not a LB claim",
+  "form_url": "https://www.drivendata.org/competitions/306/competition-doe-gems/submissions/",
+  "format_source": "https://www.drivendata.org/competitions/306/competition-doe-gems/page/967/",
+  "primary_A": {
+    "file": "13gems_20261001_r11-greedy-mp_A_zerofill.tif",
+    "bytes": 1184786,
+    "sha256": "e7f0d4b9fd58b90e67538e595680315fb9861e08d8d093c1617b10a584f28b5a",
+    "zip": "13gems_20261001_r11-greedy-mp_A_zerofill.zip",
+    "zip_bytes": 674736,
+    "zip_sha256": "d892195876204c087c49efcff0a18ac6d057c46ad6d63d7703d923d152fc2f66",
+    "zip_contains": "13gems_20261001_r11-greedy-mp_A_zerofill.tif",
+    "encoding": "float32, 0.0 outside footprint, no NoData tag, no NaN",
+    "use": "UPLOAD THIS FIRST"
+  },
+  "fallback_B": {
+    "file": "13gems_20261001_r11-greedy-mp_B_nan-outside.tif",
+    "bytes": 1954898,
+    "sha256": "033df94ceef16350030a69d5cfdec0afe7bc605bb155d8f3b98b203aabf80abd",
+    "zip": "13gems_20261001_r11-greedy-mp_B_nan-outside.zip",
+    "zip_bytes": 888248,
+    "zip_sha256": "fd80b997bb3886975934848a34b0db3e170002491e79143dd042ad260a1ef497",
+    "zip_contains": "13gems_20261001_r11-greedy-mp_B_nan-outside.tif",
+    "encoding": "float32, NaN outside footprint, NoData=nan (official-text convention)",
+    "use": "ONLY if the form rejects A"
+  },
+  "aliases": {
+    "latest.tif": "= primary A",
+    "latest.zip": "= primary A zip",
+    "latest_nan.tif": "= fallback B",
+    "latest_nan.zip": "= fallback B zip"
+  },
+  "local_verification": {
+    "readers_used": [
+      "Pillow",
+      "rasterio/GDAL",
+      "tifffile"
+    ],
+    "all_readers_agree_A": true,
+    "all_readers_agree_B": true,
+    "A": {
+      "driver": "GTiff",
+      "count": 1,
+      "dtype": "float32",
+      "crs": "EPSG:32611",
+      "shape": [
+        3730,
+        3292
+      ],
+      "transform": [
+        100.0,
+        0.0,
+        243350.0,
+        0.0,
+        -100.0,
+        4508550.0
+      ],
+      "grid_matches_official": true,
+      "n_nan": 0,
+      "n_inf": 0,
+      "min": 0.0,
+      "max": 1.0,
+      "n_positive": 272853,
+      "naive_all_in_0_1": true,
+      "nan_aware_all_in_0_1": true,
+      "n_nan_inside_footprint": 0,
+      "n_finite_outside_footprint": 7111787,
+      "layout": {
+        "compression": "LZW",
+        "predictor": null,
+        "tiled": false,
+        "blockysize": 1,
+        "nodata": null
+      }
+    },
+    "B": {
+      "driver": "GTiff",
+      "count": 1,
+      "dtype": "float32",
+      "crs": "EPSG:32611",
+      "shape": [
+        3730,
+        3292
+      ],
+      "transform": [
+        100.0,
+        0.0,
+        243350.0,
+        0.0,
+        -100.0,
+        4508550.0
+      ],
+      "grid_matches_official": true,
+      "n_nan": 7111787,
+      "n_inf": 0,
+      "min": 0.0,
+      "max": 1.0,
+      "n_positive": 272853,
+      "naive_all_in_0_1": false,
+      "nan_aware_all_in_0_1": true,
+      "n_nan_inside_footprint": 0,
+      "n_finite_outside_footprint": 0,
+      "layout": {
+        "compression": "LZW",
+        "predictor": null,
+        "tiled": false,
+        "blockysize": 1,
+        "nodata": "nan"
+      }
+    },
+    "A_equals_B_inside_footprint": true,
+    "A_outside_all_zero": true,
+    "B_outside_all_nan": true,
+    "footprint_cells": 5167373
+  },
+  "source_artifact": {
+    "recipe": "greedy_r11 (R11-4 greedy marginal-precision assembly)",
+    "archived_sources": [
+      "docs/downloads/archive/13gems-r11-greedy-mp.tif",
+      "docs/downloads/archive/13gems-r11-greedy-mp_allfinite.tif"
+    ],
+    "footprint_check": "equals official label raster footprint (existing_faults.tif >= 0)",
+    "pixels_identical_to_archived_allfinite": true,
+    "positive_cells": 272853,
+    "holdout_report": "reports/holdout_r11_2026-09-30.json",
+    "provenance_manifest": "reports/latest_submission.json",
+    "selection_note": "predeclared R11 holdout WIN: WINS (confirmation rule-means won: 6/6)",
+    "reencoding_reason": "I-18 (predictor 2 on float32) and I-19 (latest.tif was the NaN file)"
+  },
+  "status": {
+    "holdout_claim": "Local hide-and-recover catalogue-recovery win vs topo_05_sp3 (confirm worst-rule-mean DTI 0.09175 vs 0.08694, 18/18 paired folds). NOT a leaderboard or private-test claim.",
+    "form_response_recorded": null,
+    "form_responses_log": "reports/form_responses.json"
+  },
+  "limits": "Verified locally with rasterio/GDAL, tifffile and Pillow. The DrivenData validator itself cannot be observed from here; acceptance is established only by the form's own response (reports/form_responses.json)."
+}

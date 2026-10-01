@@ -1,9 +1,19 @@
 # 13GEMSDOE — GEMS Prize Challenge working repository
 
-**Submission site (download-first hero, executive summary, evidence, sources):**
-https://buffedlizard55-lab.github.io/13GEMSDOE/docs/
-**Repository front page rendered by Pages (this README):**
-https://buffedlizard55-lab.github.io/13GEMSDOE/
+## ⬇ DOWNLOAD THE SUBMISSION TIF (upload this to DrivenData)
+
+| | file | use |
+|---|---|---|
+| **A — primary** | [`docs/downloads/13gems_20261001_r11-greedy-mp_A_zerofill.tif`](docs/downloads/13gems_20261001_r11-greedy-mp_A_zerofill.tif) (1.2 MB) · [.zip](docs/downloads/13gems_20261001_r11-greedy-mp_A_zerofill.zip) | **Upload this first.** float32, EPSG:32611, 3730×3292, 0 NaN, values 0–1 |
+| B — fallback | [`docs/downloads/13gems_20261001_r11-greedy-mp_B_nan-outside.tif`](docs/downloads/13gems_20261001_r11-greedy-mp_B_nan-outside.tif) · [.zip](docs/downloads/13gems_20261001_r11-greedy-mp_B_nan-outside.zip) | Only if the form rejects A (NaN outside the survey footprint) |
+
+* **Unique file name:** the name above is already unique (`13gems_<date>_<recipe>_<A|B>`). Never re-upload an old name.
+* **Short note to paste:** `r11 greedy-mp A-zerofill 20261001 | topo ridge 5% + 3 greedy blocks | local holdout win, not a LB claim`
+* Fixed aliases: [`latest.tif`](docs/downloads/latest.tif) = A, [`latest_nan.tif`](docs/downloads/latest_nan.tif) = B. Manifest + hashes: [`docs/downloads/submit.json`](docs/downloads/submit.json).
+* Form: <https://www.drivendata.org/competitions/306/competition-doe-gems/submissions/> · step-by-step: [executive summary](https://buffedlizard55-lab.github.io/13GEMSDOE/docs/executive_summary.html).
+* Honest status: A and B carry the same predictions inside the footprint. Neither has passed DrivenData's own validator — the earlier NaN file was rejected with "Predicted values must be in range [0, 1]" and the cause cannot be observed from here. A is a hedge (no NaN, no NoData tag, no TIFF predictor), not a proven fix. Re-check the live files any time with `python scripts/verify_download.py`.
+
+**Submission site:** https://buffedlizard55-lab.github.io/13GEMSDOE/ (download page) · https://buffedlizard55-lab.github.io/13GEMSDOE/docs/ (evidence, hypotheses, sources)
 **Competition:** [DOE GEMS Prize on DrivenData](https://www.drivendata.org/competitions/306/competition-doe-gems/) · $300,000 · metric: distance-weighted Tversky index
 
 > **Read [`PROJECT_CHARTER.md`](PROJECT_CHARTER.md) at the start of every
@@ -14,24 +24,19 @@ https://buffedlizard55-lab.github.io/13GEMSDOE/
 
 ---
 
-## Latest review — 2026-09-30, session 6 (R12: the gate held; download encoding FIXED)
+## Latest review — 2026-10-01, session 7 (download front door; R13)
 
-**Working download, at the very top of the site.** The team uploaded the
-NaN-outside primary `13gems-r11-greedy-mp.tif` and the DrivenData form rejected it
-with **“Predicted values must be in range [0, 1]”** — the first platform response
-recorded against a known file from this repository. Evidence log:
-[`reports/form_responses.json`](reports/form_responses.json). The predeclared I-8
-triage step 2 was executed the same day and made the **default**: the front page's
-first button now serves the **all-finite** encoding —
-[`docs/downloads/13gems-r11-greedy-mp_allfinite.tif`](docs/downloads/13gems-r11-greedy-mp_allfinite.tif)
-— byte-verified in-workspace (0 NaN, every cell in [0, 1], exactly 0.0 outside the
-survey footprint, in-footprint pixels identical to the NaN variant, EPSG:32611,
-3730×3292, single-band float32). Zero-fill outside the footprint is score-neutral
-for a binary map (0 is a non-prediction; TP_w and FP_w unchanged under any scorer).
-Both .zip files now wrap the finite file. `scripts/make_submission.py` writes this
-policy for every future build (`{name}.tif` all-finite; `{name}_nanoutside.tif`
-record-only). Flip record:
-[`reports/primary_flip_2026-09-30.json`](reports/primary_flip_2026-09-30.json).
+__S7__
+
+## Previous review — 2026-09-30, session 6 (R12: the gate held; download encoding changed)
+
+The team uploaded the NaN-outside primary `13gems-r11-greedy-mp.tif` and the DrivenData
+form rejected it with **"Predicted values must be in range [0, 1]"**
+([`reports/form_responses.json`](reports/form_responses.json)). Session 6 served an
+"all-finite" variant (`..._allfinite.tif`) as the default. **Correction (session 7):**
+that variant was never confirmed accepted by the form, and `latest.tif` was found to be
+byte-identical to the *rejected* NaN file (irregularity I-19). Both legacy files now live
+in `docs/downloads/archive/`; use the A/B files above.
 
 **Irregularity I-8 partially resolved, new flag.** NaN-outside files from this
 group *were* accepted and scored earlier — the pindrop trio recorded by sha256
@@ -69,9 +74,8 @@ alexoktaba 0.3042 (#2), joeyfezster 0.2919 (#3) —
 [`reports/leaderboard_snapshot_2026-09-30.json`](reports/leaderboard_snapshot_2026-09-30.json).
 Account-level bests, not receipts.
 
-### Next steps (ranked)
-1. **Upload the all-finite `13gems-r11-greedy-mp_allfinite.tif`** (or the .zip),
-   with the printed name/note; append the form response to
+### Next steps (session 6 list; item 1 superseded by the A/B files at the top)
+1. **Upload file A at the top of this page** (or its .zip), with the printed name/note; append the form response to
    `reports/form_responses.json` and the score to `reports/leaderboard_ledger.csv`.
 2. **New physics, not finer re-cuts** (R12's closing finding): candidates that can
    reach neighbourhoods the ridge family never touches — R12-4 Euler

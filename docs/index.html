@@ -9,40 +9,38 @@
   <a class="brand" href="index.html">13<span>GEMS</span>DOE</a>
   <nav class="site"><a href="index.html" class="on">Submit</a><a href="executive_summary.html" class="">How to submit</a><a href="evidence.html" class="">Evidence</a><a href="hypotheses.html" class="">Hypotheses</a><a href="sources.html" class="">Sources</a></nav>
 </div></header>
-<div class="hero"><div class="wrap">
-  <h1>Submission download — <span class="tag t-ok">CLEARED</span></h1>
-  <p class="sub">This file is <b>the first recipe in this repository to beat the local holdout reference</b>: <code>greedy_r11</code> (R11-4 greedy marginal-precision assembly) — confirmation worst-rule-mean DTI <b>0.09175</b> vs 0.08694 for <code>topo_05_sp3</code>, 6/6 rule means and 18/18 paired folds, under the rule predeclared in <code>knowledge/07_r11_hypotheses.md</code>. The download below is the <b>all-finite upload-safe
-  encoding</b> (single-band float32; EPSG:32611; 3730×3292; 100 m; every cell in
-  [0,1]; 0.0 outside the survey footprint) — chosen because the form
-  <b>rejected the null/NaN-outside encoding on 2026-09-30</b>
-  (“Predicted values must be in range [0, 1]”), while this encoding family passes
-  both strict and naive validators and is score-neutral for a binary map.
-  <b>The holdout numbers are local catalogue-recovery results, not a predicted
-  leaderboard score</b>, and remote acceptance of this exact file is confirmed
-  only by the form's own response — record it in
-  <code>reports/leaderboard_ledger.csv</code> after upload.</p>
-  <div class="dl">
-    <div class="row">
-      <a class="btn" href="downloads/13gems-r11-greedy-mp_allfinite.tif" download>⬇ SUBMIT THIS FILE — 13gems-r11-greedy-mp_allfinite.tif</a>
-      <a class="btn ghost" href="downloads/13gems-r11-greedy-mp.zip" download>⬇ ZIP (same GeoTIFF inside)</a>
-    </div>
-    <table class="small" style="margin-top:10px">
-      <tr><td><b>File to submit</b></td><td class="mono">13gems-r11-greedy-mp_allfinite.tif &nbsp;<span class="small">(or the .zip — it contains exactly this GeoTIFF)</span></td></tr>
-      <tr><td><b>Note (optional)</b></td><td class="mono">R11-4 greedy marginal-precision: topo top-5% sp3 + R10_vent@0.25%+R8_tpi@0.25%+R10_dzt_field@0.25% (each &gt;300 m from prior), binary, catalogue included; R11 holdout WIN vs topo_05_sp3 (18/18 folds), NOT a private-test claim</td></tr>
-    </table>
-    <p class="small">✅ <b>verified in-workspace: 0 NaN, 0 Inf, every cell in [0.0, 1.0], 272,853 positive cells</b>; single-band float32, EPSG:32611,
-    3730×3292, 100 m — identical predictions to the NaN-outside variant inside the
-    survey footprint, with score-neutral 0.0 outside it.<br>
-    <span class="tag t-bad">record only</span> The strict null/NaN-outside variant
-    <a href="downloads/13gems-r11-greedy-mp.tif">13gems-r11-greedy-mp.tif</a> was <b>REJECTED by the form on
-    2026-09-30</b> (“Predicted values must be in range [0, 1]”) — do not upload it
-    first; it is kept for the record and A/B triage. Evidence log:
-    <code>reports/form_responses.json</code>. See the
-    <a href="executive_summary.html#if-the-form-says-predicted-values-must-be-in-range-01">triage table</a>.</p>
-    <div class="meta"><b>Primary file:</b> all-finite verified in-workspace: 0 NaN, 0 Inf, every cell in [0.0, 1.0], 272,853 positive cells.</div>
-    <p><a class="btn ghost" href="executive_summary.html">Exactly how to submit (5 steps)</a>
-    <a href="evidence.html">Metric, holdout evidence, and verdicts</a></p>
+
+<div class="hero front"><div class="wrap">
+  <p class="kicker">DOE GEMS Prize Challenge · submission file for DrivenData</p>
+  <h1>Download the submission file</h1>
+  <div class="dl big">
+    <a class="bigbtn" href="downloads/13gems_20261001_r11-greedy-mp_A_zerofill.tif" download>
+      <span class="ico">⬇</span>
+      <span><b>DOWNLOAD SUBMISSION .TIF</b><small>13gems_20261001_r11-greedy-mp_A_zerofill.tif · 1.2 MB · single-band GeoTIFF</small></span>
+    </a>
+    <a class="btn ghost" href="downloads/13gems_20261001_r11-greedy-mp_A_zerofill.zip" download>⬇ same file as .zip (0.7 MB)</a>
   </div>
+  <ol class="three">
+    <li><b>Download</b> the .tif above (nothing to build, nothing to edit).</li>
+    <li>Open the <a href="https://www.drivendata.org/competitions/306/competition-doe-gems/submissions/" target="_blank" rel="noopener">DrivenData submissions page</a>
+        → <b>Submit file</b> → <b>File to submit</b> → choose the .tif (or the .zip).</li>
+    <li>Paste this into <b>Note</b>, then submit:
+      <div class="copyfield"><input id="note" readonly value="r11 greedy-mp A-zerofill 20261001 | topo ridge 5% + 3 greedy blocks | local holdout win, not a LB claim">
+      <button type="button" onclick="var i=document.getElementById('note');i.select();navigator.clipboard&amp;&amp;navigator.clipboard.writeText(i.value);this.textContent='Copied ✓'">Copy note</button></div></li>
+  </ol>
+  <div class="facts">
+    <b>Checked on these exact bytes:</b> float32 · 1 band · EPSG:32611 · 3,730 × 3,292 @ 100 m · every value in [0, 1] ·
+    <b>0 NaN / 0 Inf</b> · 272,853 predicted cells · LZW, no predictor (same layout as the official example) ·
+    decodes identically in 3 independent TIFF readers · SHA-256 <code>e7f0d4b9fd58b90e…</code>
+  </div>
+  <div class="fallback"><b>Only if the form rejects the file above:</b>
+    <a href="downloads/13gems_20261001_r11-greedy-mp_B_nan-outside.tif" download>13gems_20261001_r11-greedy-mp_B_nan-outside.tif</a> — same predictions, NaN outside the survey area
+    (the encoding the problem page describes). <a href="executive_summary.html#if-the-form-rejects-it">What to do on each error message →</a>
+  </div>
+  <p class="honest">What this file is: the repository's best <i>local hold-out</i> map (greedy marginal-precision recipe, R11).
+  It is <b>not</b> a predicted leaderboard score — the official board is
+  <a href="https://www.drivendata.org/competitions/306/competition-doe-gems/leaderboard/">here</a>.
+  Whether the form accepts it is only known from the form's own response; local checks cannot observe DrivenData's validator.</p>
 </div></div>
 <main class="wrap">
 
@@ -325,7 +323,7 @@
 <footer class="site"><div class="wrap">
   <p><strong>13GEMSDOE</strong> — working repository for the
   <a href="https://www.drivendata.org/competitions/306/competition-doe-gems/">DOE GEMS Prize Challenge</a>.
-  Page generated 2026-09-30 23:49 UTC from <code>reports/*.json</code>.</p>
+  Page generated 2026-10-01 00:57 UTC from <code>reports/*.json</code>.</p>
   <p class="small">Every figure on this site is produced by a script in this
   repository and is reproducible from a clean checkout. Claims that could not be
   verified against an official source are listed as irregularities rather than
