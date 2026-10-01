@@ -235,8 +235,13 @@ def write_submission(path: str | Path, values: np.ndarray,
         "crs": rasterio.crs.CRS.from_string(EXPECTED_CRS),
         "transform": rasterio.transform.Affine(*EXPECTED_TRANSFORM),
         "nodata": float("nan") if outside_value is None else None,
-        "compress": "deflate", "predictor": 2, "zlevel": 9,
-        "tiled": True, "blockxsize": 256, "blockysize": 256,
+        # Layout deliberately copies the official example_submission.tif and
+        # every file the platform has scored for this group: LZW, one-row
+        # strips, NO predictor. Builds before 2026-10-01 used deflate +
+        # PREDICTOR=2 (integer differencing) on float32, which no previously
+        # scored file used (irregularity I-18). Pixel values are unaffected by
+        # this choice; only the byte layout is.
+        "compress": "lzw", "tiled": False, "blockysize": 1,
     }
     with rasterio.open(path, "w", **profile) as dst:
         dst.write(out, 1)

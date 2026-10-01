@@ -1,0 +1,151 @@
+{
+  "name": "13gems-r6-ensemble-20260929T182914Z",
+  "generated_utc": "20260929T182914Z",
+  "note_for_submission_form": "R6 ensemble: tip-rays 2000m + horse splay + topo 3% + gravterm 1% + transt 1% + tdr 1% + shore 0.5% + cond 0.5%, decimated 1-per-3px, binary 0/1, catalogue included (masked at scoring). Archived review artifact; NOT CLEARED for upload.",
+  "recipe_selection": {
+    "selected_by": "Historical exploratory recipe; not cleared under the current direct-DTI confirmation protocol.",
+    "detectors": [
+      "extension_rays",
+      "horsetail_splay",
+      "BASE_topo_ridge",
+      "R6_gravterm",
+      "R6_transt",
+      "HB_tdr_rtp",
+      "R6_shore",
+      "R6_condbase"
+    ],
+    "objective": "Legacy construction retained for audit/review; prior chance/lift-based ranking is withdrawn."
+  },
+  "map_stats": {
+    "recipe": "r6_ensemble",
+    "tip_ray_reach_px": 20,
+    "tip_ray_reach_m": 2000,
+    "decimation_spacing_px": 3,
+    "coverages": {
+      "BASE_topo_ridge": 0.03,
+      "R6_gravterm": 0.01,
+      "R6_transt": 0.01,
+      "HB_tdr_rtp": 0.01,
+      "R6_shore": 0.005,
+      "R6_condbase": 0.005
+    },
+    "n_px_per_detector": {
+      "BASE_topo_ridge": {
+        "coverage_target": 0.03,
+        "n_px_after_decimation": 110647
+      },
+      "R6_gravterm": {
+        "coverage_target": 0.01,
+        "n_px_after_decimation": 33418
+      },
+      "R6_transt": {
+        "coverage_target": 0.01,
+        "n_px_after_decimation": 8168
+      },
+      "HB_tdr_rtp": {
+        "coverage_target": 0.01,
+        "n_px_after_decimation": 37659
+      },
+      "R6_shore": {
+        "coverage_target": 0.005,
+        "n_px_after_decimation": 6708
+      },
+      "R6_condbase": {
+        "coverage_target": 0.005,
+        "n_px_after_decimation": 6300
+      }
+    },
+    "n_tip_ray_px_before_decimation": 89026,
+    "n_tip_ray_px": 36478,
+    "n_horse_px_before_decimation": 248458,
+    "n_horse_px": 69170,
+    "n_union_new_px": 283053,
+    "n_predicted_px": 344041,
+    "pct_of_valid": 6.6579,
+    "max_value": 1.0,
+    "min_value": 0.0,
+    "include_known_catalogue": true
+  },
+  "validation": {
+    "nan_outside": {
+      "ok": true,
+      "errors": [],
+      "warnings": [
+        "7111787 NaN cells. Official format permits nan OUTSIDE the data bounds, but some validators reject nan. An all-finite twin is written alongside every submission for exactly this reason."
+      ],
+      "stats": {
+        "driver": "GTiff",
+        "shape": [
+          3730,
+          3292
+        ],
+        "count": 1,
+        "dtype": "float32",
+        "crs": "EPSG:32611",
+        "nodata": "nan",
+        "transform": [
+          100.0,
+          0.0,
+          243350.0,
+          0.0,
+          -100.0,
+          4508550.0
+        ],
+        "n_finite": 5167373,
+        "n_nan": 7111787,
+        "n_inf": 0,
+        "min": 0.0,
+        "max": 1.0,
+        "sum": 344041.0,
+        "n_gt0": 344041
+      }
+    },
+    "all_finite": {
+      "ok": true,
+      "errors": [],
+      "warnings": [],
+      "stats": {
+        "driver": "GTiff",
+        "shape": [
+          3730,
+          3292
+        ],
+        "count": 1,
+        "dtype": "float32",
+        "crs": "EPSG:32611",
+        "nodata": null,
+        "transform": [
+          100.0,
+          0.0,
+          243350.0,
+          0.0,
+          -100.0,
+          4508550.0
+        ],
+        "n_finite": 12279160,
+        "n_nan": 0,
+        "n_inf": 0,
+        "min": 0.0,
+        "max": 1.0,
+        "sum": 344041.0,
+        "n_gt0": 344041
+      }
+    }
+  },
+  "metric_facts": {
+    "DTI_is_distance_weighted_F2": true,
+    "marginal_precision_needed_to_help": "0.2 x current DTI",
+    "binary_is_optimal": "DTI(c*p) strictly increases in c"
+  },
+  "official_format_source": "https://www.drivendata.org/competitions/306/competition-doe-gems/page/967/",
+  "artifact_status": "ARCHIVED_REVIEW_ONLY_NOT_CLEARED",
+  "historical_chance_lift_status": {
+    "status": "WITHDRAWN",
+    "reason": "The prior candidate-to-chance comparisons used a mismatched fold evaluation-domain denominator; do not use them for ranking or submission decisions."
+  },
+  "submission_clearance": {
+    "status": "NOT_CLEARED",
+    "reason": "This archived map has not been shown to beat the current local holdout best under the current visible-only multi-rule confirmation protocol.",
+    "private_test_claim": false
+  }
+}

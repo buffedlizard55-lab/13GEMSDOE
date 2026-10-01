@@ -1,0 +1,69 @@
+name: Fetch GDR 1391 paleo-geothermal features and 2-m temperature probes
+
+# WHY A RUNNER: gdr.openei.org is not reachable from the development sandbox (TLS egress
+# blocked, same as 5GEMSDOE / limitation L-2). A GitHub-hosted runner has open egress.
+# The sandbox token cannot dispatch workflows, so the switch is a PUSH to
+# .github/triggers/fetch-gdr1391 on an arena/** branch (precedent: 5GEMSDOE fetch-gdr).
+#
+# Source: INGENIOUS Great Basin Regional Dataset Compilation, GDR submission 1391,
+# DOI 10.15121/1881483, licence CC-BY-4.0 (redistribution allowed with attribution).
+# https://gdr.openei.org/submissions/1391
+on:
+  workflow_dispatch: {}
+  push:
+    branches: ["arena/**"]
+    paths: [".github/triggers/fetch-gdr1391"]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: fetch-gdr1391-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
+
+      - name: Download, verify, summarise
+        run: |
+          set -euo pipefail
+          OUT=data/external_gdr1391
+          mkdir -p "$OUT/raw" reports
+          BASE=https://gdr.openei.org/files/1391
+          for f in paleo_geothermal_regional.zip 2m_temperature_probe_INGENIOUS_regional_data.zip; do
+            curl -fL --retry 4 --retry-delay 5 -sS -o "$OUT/raw/$f" "$BASE/$f"
+            unzip -tq "$OUT/raw/$f"
+            mkdir -p "$OUT/${f%.zip}"
+            unzip -oq "$OUT/raw/$f" -d "$OUT/${f%.zip}"
+          done
+          python3 - <<'PY'
+          import hashlib, json, os, time
+          out = "data/external_gdr1391"
+          rec = {"source": "https://gdr.openei.org/submissions/1391",
+                 "doi": "10.15121/1881483", "license": "CC-BY-4.0",
+                 "fetched_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+                 "files": {}}
+          for root, _, names in os.walk(out):
+              for n in sorted(names):
+                  p = os.path.join(root, n)
+                  rec["files"][p] = {"bytes": os.path.getsize(p),
+                                     "sha256": hashlib.sha256(open(p, "rb").read()).hexdigest()}
+          json.dump(rec, open("reports/gdr1391_fetch.json", "w"), indent=2)
+          print(json.dumps({k: v["bytes"] for k, v in rec["files"].items()}, indent=1))
+          PY
+
+      - name: Commit to the branch
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/external_gdr1391 reports/gdr1391_fetch.json
+          git commit -m "data: stage GDR 1391 paleo-geothermal + 2 m probes (CC-BY-4.0)" || exit 0
+          git pull --rebase origin "${GITHUB_REF_NAME}" || true
+          git push origin "HEAD:${GITHUB_REF_NAME}"

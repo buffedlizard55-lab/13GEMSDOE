@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>13GEMSDOE — download the GEMS submission file</title>
+<meta name="description" content="One-click GeoTIFF submission file for the DOE GEMS Prize Challenge on DrivenData.">
+<style>
+body{margin:0;font:16px/1.6 -apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:#0b1f3f;color:#fff}
+.w{max-width:860px;margin:0 auto;padding:36px 20px}
+h1{font-size:34px;margin:0 0 20px;letter-spacing:-.02em}
+.k{font-size:12.5px;letter-spacing:.09em;text-transform:uppercase;opacity:.8;font-weight:650;margin:0 0 6px}
+a.big{display:flex;gap:16px;align-items:center;background:#12d17f;color:#04301c;border:2px solid #fff;border-radius:14px;padding:20px 26px;text-decoration:none;box-shadow:0 6px 22px rgba(0,0,0,.35)}
+a.big .i{font-size:38px} a.big b{display:block;font-size:24px} a.big small{display:block;font-size:13px;word-break:break-all;opacity:.85}
+ol{padding-left:22px} li{margin:8px 0} a{color:#bcd5ff}
+input{width:100%;box-sizing:border-box;background:rgba(0,0,0,.3);color:#fff;border:1px solid rgba(255,255,255,.3);border-radius:8px;padding:10px;font:13px ui-monospace,Menlo,monospace;margin-top:6px}
+.f{background:rgba(255,200,60,.16);border:1px solid rgba(255,200,60,.5);padding:10px 14px;border-radius:10px;margin-top:16px;font-size:14px}
+.s{font-size:13px;opacity:.8;margin-top:18px}
+nav a{display:inline-block;margin:18px 14px 0 0;font-weight:600}
+</style></head><body><div class="w">
+<p class="k">DOE GEMS Prize Challenge · DrivenData</p>
+<h1>Download the submission file</h1>
+<a class="big" href="docs/downloads/13gems_20261001_r13-lattice-s5_A_zerofill.tif" download><span class="i">⬇</span>
+<span><b>DOWNLOAD SUBMISSION .TIF</b><small>13gems_20261001_r13-lattice-s5_A_zerofill.tif · 1.0 MB</small></span></a>
+<ol>
+<li>Download the .tif above (or the <a href="docs/downloads/13gems_20261001_r13-lattice-s5_A_zerofill.zip" download>.zip</a>).</li>
+<li>Open the <a href="https://www.drivendata.org/competitions/306/competition-doe-gems/submissions/">DrivenData submissions page</a> → <b>Submit file</b> → choose the file.</li>
+<li>Paste this into <b>Note</b>:<input readonly value="r13 lattice-s5 A-zerofill 20261001 | fault-blind every-5th-px grid, coverage baseline | local holdout 18/18 win, not a LB claim" onclick="this.select()"></li>
+</ol>
+<div class="f"><b>Only if the form rejects it:</b> <a href="docs/downloads/13gems_20261001_r13-lattice-s5_B_nan-outside.tif" download>13gems_20261001_r13-lattice-s5_B_nan-outside.tif</a>
+(same predictions, NaN outside the survey area).</div>
+<div class="fallback"><b>Second candidate for your next slot — R11 greedy recipe (second candidate):</b>
+    <a href="docs/downloads/13gems_20261001_r11-greedy-mp_A_zerofill.tif" download>13gems_20261001_r11-greedy-mp_A_zerofill.tif</a>
+    (<a href="docs/downloads/13gems_20261001_r11-greedy-mp_A_zerofill.zip" download>.zip</a>) — the R11 greedy marginal-precision recipe (topographic ridge 5 % + three greedy blocks): the previous holdout best, a real map built from the geophysics/topography bands.
+    Note to paste: <code>r11 greedy-mp A-zerofill 20261001 | topo ridge 5% + 3 greedy blocks | local holdout win, not a LB claim</code>
+    If the form rejects it: <a href="docs/downloads/13gems_20261001_r11-greedy-mp_B_nan-outside.tif" download>NaN-outside variant</a>.</div>
+<nav><a href="docs/">Full site →</a><a href="docs/executive_summary.html">Executive summary: how to submit →</a>
+<a href="https://github.com/buffedlizard55-lab/13GEMSDOE">Repository →</a></nav>
+<p class="s">Local hold-out candidate, not a leaderboard prediction. SHA-256 <code>c12533bb980234c3…</code> ·
+generated 2026-10-01T01:17:59Z · verified by <code>scripts/verify_download.py</code>.</p>
+</div></body></html>

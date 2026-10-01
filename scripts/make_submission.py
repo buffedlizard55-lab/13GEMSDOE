@@ -11,11 +11,12 @@ minimum DTI across its stored withholding rules (not the highest mean). It is
 not automatically updated from newer holdouts and is not an upload gate; every
 artifact remains NOT_CLEARED until current paired direct-DTI confirmation.
 
-Outputs, into docs/downloads/:
-    <name>.tif           NaN outside the data bounds (per official format text)
-    <name>_allfinite.tif zero-filled diagnostic twin; not assumed NoData-equivalent
-    <name>.zip           zip of the official-format NaN-outside .tif
-    <name>.json          provenance + a descriptive note for the form
+Outputs, into docs/downloads/ (session 7: written by gems.frontdoor.publish):
+    <stem>_A_zerofill.tif/.zip     PRIMARY: 0.0 outside the footprint, no NaN, no NoData tag
+    <stem>_B_nan-outside.tif/.zip  FALLBACK: NaN outside the footprint, NoData=nan
+    latest.tif/.zip = A, latest_nan.tif/.zip = B, submit.json (manifest + form note)
+    <name>.json, latest.json       provenance + a descriptive note for the form
+Both layouts: LZW striped, no TIFF predictor (the layout of the example submission).
 """
 from __future__ import annotations
 
@@ -36,6 +37,7 @@ from scipy import ndimage as ndi
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 from gems import detectors as D                 # noqa: E402
+from gems import frontdoor                      # noqa: E402
 from gems.rio import (EXPECTED_SHAPE, read_band, validate_submission,
                      write_submission)  # noqa: E402
 
@@ -951,8 +953,9 @@ def main() -> None:
             "letters, digits, dot, underscore, or hyphen; omit extensions"
         )
     OUT.mkdir(parents=True, exist_ok=True)
-    reserved = [OUT / f"{name}.tif", OUT / f"{name}_allfinite.tif",
-                OUT / f"{name}.zip", OUT / f"{name}.json"]
+    reserved = [OUT / f"{name}_A_zerofill.tif", OUT / f"{name}_A_zerofill.zip",
+                OUT / f"{name}_B_nan-outside.tif", OUT / f"{name}_B_nan-outside.zip",
+                OUT / f"{name}.json"]
     collisions = [str(path) for path in reserved if path.exists()]
     if collisions:
         raise FileExistsError(
@@ -962,59 +965,39 @@ def main() -> None:
 
     identity = check_existing_prediction_identity(pred, valid)
 
-    # --- Encoding policy (flipped 2026-09-30, session 6; evidence:
-    # reports/form_responses.json, reports/primary_flip_2026-09-30.json,
-    # irregularity I-8) ---
-    # The team uploaded the NaN-outside primary of 13gems-r11-greedy-mp.tif and
-    # the form rejected it with "Predicted values must be in range [0, 1]".
-    # Historically NaN-outside files WERE accepted (the pindrop trio the team
-    # recorded by sha256 prefix: f347b70daa, 37f9d5b855, 4e03fc9705), so the
-    # platform validator changed or is inconsistent — either way the platform is
-    # the arbiter. The all-finite encoding (0.0 outside the survey footprint, no
-    # NoData tag) passes BOTH a masked read and a naive raw range test, and for
-    # a binary {0,1} map zero-fill outside the footprint is score-neutral: 0 is
-    # a non-prediction, so TP_w/FP_w are unchanged under any scorer. It is
-    # therefore written as the PRIMARY {name}.tif and is what latest.* and the
-    # .zip carry. The strict null/NaN-outside variant (what the problem page
-    # text describes) is still produced, secondary, for the record:
-    # {name}_nanoutside.tif. Record every form response in
-    # reports/form_responses.json.
-    tif = write_submission(OUT / f"{name}.tif", pred, valid, outside_value=0.0)
-    strict = write_submission(OUT / f"{name}_nanoutside.tif", pred, valid,
-                              outside_value=None)
+    # Short, one-line note for the DrivenData "Note" field (<= 160 chars).
+    flavour = ("local holdout win, not a LB claim"
+               if clearance_override and clearance_override["status"].startswith("CLEARED")
+               else "local reference only, not a LB claim" if clearance_override
+               else "review only, NOT cleared")
+    short_note = f"{name} A-zerofill | {note_bits} | {flavour}"
+    if len(short_note) > frontdoor.MAX_NOTE_CHARS:
+        room = frontdoor.MAX_NOTE_CHARS - len(f"{name} A-zerofill |  | {flavour}") - 1
+        short_note = f"{name} A-zerofill | {note_bits[:max(room, 0)].rstrip()}~ | {flavour}"
+    short_note = short_note[:frontdoor.MAX_NOTE_CHARS]
 
-    reports = {}
-    ok = True
-    for label, path, allow_nan, require_nodata in (
-        ("all_finite_primary", tif, False, False),
-        ("nan_outside_strict", strict, True, True),
-    ):
-        r = validate_submission(
-            path, allow_nan=allow_nan, valid_mask=valid,
-            require_nodata_outside=require_nodata,
-        )
-        official_format_conformant = bool(
-            r.ok and r.stats.get("outside_nodata_ok", True)
-        )
-        reports[label] = {
-            "ok": r.ok,
-            "official_format_conformant": official_format_conformant,
-            "errors": r.errors,
-            "warnings": r.warnings,
-            "stats": r.stats,
-        }
-        print(f"\n[{label}] " + r.render())
-        ok &= r.ok
-        if label == "nan_outside_strict":
-            ok &= official_format_conformant
-    if not ok:
-        raise SystemExit("OFFICIAL-FORMAT VALIDATION FAILED - nothing released")
-
-    # The .zip must carry the PRIMARY (all-finite) GeoTIFF: the form accepts a
-    # zip containing a single GeoTIFF, and wrapping the rejected NaN encoding
-    # here is what produced a wasted upload on 2026-09-30.
-    with zipfile.ZipFile(OUT / f"{name}.zip", "w", zipfile.ZIP_DEFLATED) as z:
-        z.write(tif, arcname=f"{name}.tif")
+    # --- Front door (session 7). Policy and evidence: knowledge/02_irregularities.md
+    # I-8, I-18, I-19; src/gems/frontdoor.py. Two encodings of the SAME map are
+    # written in the official example's byte layout (LZW, one-row strips, NO predictor):
+    #   A  {name}_A_zerofill.tif      0.0 outside the footprint, no NoData tag -> UPLOAD FIRST
+    #   B  {name}_B_nan-outside.tif   NaN outside, NoData=nan (problem-page convention)
+    # frontdoor.publish() re-reads the written bytes with three TIFF readers, refuses to
+    # release on any failure, refreshes latest.* and writes docs/downloads/submit.json
+    # (which the site, README and scripts/verify_download.py all read).
+    manifest = frontdoor.publish(
+        OUT, name, pred, valid, note=short_note,
+        source={"recipe": det, "artifact_json": f"docs/downloads/{name}.json",
+                "prediction_identity": identity},
+        status={"artifact_status": ((clearance_override["status"]
+                                     if clearance_override["status"].startswith("CLEARED")
+                                     else "BEST_LOCAL_REFERENCE_LOCAL_PROXY_ONLY")
+                                    if clearance_override else "REVIEW_ONLY_NOT_CLEARED"),
+                "form_response_recorded": None,
+                "form_responses_log": "reports/form_responses.json"})
+    for label in ("A", "B"):
+        f = manifest["local_verification"][label]
+        print(f"\n[{label}] {f['layout']} nan={f['n_nan']} range=[{f['min']}, {f['max']}] "
+              f"positive={f['n_positive']:,}")
 
     note = (note_bits
             + ("" if clearance_override else
@@ -1028,9 +1011,12 @@ def main() -> None:
                "; generated for review only, NOT CLEARED by format/identity checks"))
 
     prov_out = {
-        "name": name, "generated_utc": stamp, "note_for_submission_form": note,
+        "name": name, "generated_utc": stamp, "note_for_submission_form": short_note,
+        "long_description": note,
         "recipe_selection": prov or {"mode": "manual override"},
-        "map_stats": stats, "validation": reports,
+        "map_stats": stats,
+        "front_door_manifest": "docs/downloads/submit.json",
+        "local_verification": manifest["local_verification"],
         "artifact_status": ((clearance_override["status"]
                              if clearance_override["status"].startswith("CLEARED")
                              else "BEST_LOCAL_REFERENCE_LOCAL_PROXY_ONLY")
@@ -1042,6 +1028,11 @@ def main() -> None:
             "upload_allowed": False,
         },
         "prediction_identity": identity,
+        "primary_upload": {
+            "front_door_manifest": "docs/downloads/submit.json",
+            "primary_A": manifest["primary_A"]["file"],
+            "fallback_B": manifest["fallback_B"]["file"],
+        },
         "metric_facts": {
             "DTI_is_distance_weighted_F2": True,
             "marginal_precision_needed_to_help": "0.2 x current DTI",
@@ -1051,71 +1042,11 @@ def main() -> None:
             "https://www.drivendata.org/competitions/306/competition-doe-gems/page/967/",
     }
     (OUT / f"{name}.json").write_text(json.dumps(prov_out, indent=2))
-
-    # --- simulated platform checks (diagnostic for the historical remote
-    # "Predicted values must be in range [0, 1]" rejection; NOT proof of
-    # remote acceptance) -----------------------------------------------
-    import rasterio as _rio
-    with _rio.open(tif) as src:
-        raw_fin = src.read(1)
-    with _rio.open(strict) as src:
-        raw_nan = src.read(1)
-        masked = src.read(1, masked=True)
-        nodata_tag = None if src.nodata is None else str(src.nodata)
-    sim = {
-        "all_finite_primary": {
-            "n_nan_raw": int(np.isnan(raw_fin).sum()),
-            "raw_all_in_[0,1]_naive": bool(np.all((raw_fin >= 0) & (raw_fin <= 1))),
-            "nodata_tag": None,
-            "note": ("PRIMARY upload encoding: passes a naive raw range check "
-                     "AND a masked read; outside-footprint cells are exactly 0.0, "
-                     "which is score-neutral for a binary map. Form-verified as "
-                     "the accepted encoding family on 2026-09-30 (see "
-                     "reports/form_responses.json)."),
-        },
-        "nan_outside_variant": {
-            "nodata_tag": nodata_tag,
-            "n_nan_raw": int(np.isnan(raw_nan).sum()),
-            "n_nan_inside_footprint": int((np.isnan(raw_nan) & valid).sum()),
-            "raw_all_in_[0,1]_naive": bool(np.all((raw_nan >= 0) & (raw_nan <= 1))),
-            "raw_finite_minmax": [float(np.nanmin(raw_nan)), float(np.nanmax(raw_nan))],
-            "masked_min": float(masked.min()) if masked.count() else None,
-            "masked_max": float(masked.max()) if masked.count() else None,
-            "note": ("REJECTED by the form on 2026-09-30 with 'Predicted values "
-                     "must be in range [0, 1]' (team upload of "
-                     "13gems-r11-greedy-mp.tif). Kept secondary for the record "
-                     f"as {name}_nanoutside.tif; do NOT upload first."),
-        },
-    }
-    prov_out["platform_check_simulation"] = sim
-    prov_out["primary_upload"] = {
-        "encoding": "all_finite_zero_fill",
-        "file": f"{name}.tif",
-        "zip": f"{name}.zip",
-        "zip_contains": f"{name}.tif",
-        "secondary_record_only": {"encoding": "nan_outside_strict",
-                                  "file": f"{name}_nanoutside.tif"},
-        "policy_source": ("reports/form_responses.json; reports/primary_flip_2026-09-30.json; "
-                          "knowledge/02_irregularities.md I-8; user-reported form "
-                          "rejection of the NaN-outside encoding, 2026-09-30"),
-    }
-    (OUT / f"{name}.json").write_text(json.dumps(prov_out, indent=2))
-
-    # Primary = all-finite upload-safe encoding; the strict NaN-outside variant
-    # is retained under an explicit name for the record and for an A/B response
-    # if the platform ever rejects the finite encoding instead.
-    shutil.copyfile(OUT / f"{name}.tif", OUT / f"latest.tif")
-    shutil.copyfile(OUT / f"{name}.tif", OUT / f"latest_allfinite.tif")  # compat alias
-    shutil.copyfile(OUT / f"{name}_nanoutside.tif", OUT / f"latest_nan.tif")
-    with zipfile.ZipFile(OUT / f"latest.zip", "w", zipfile.ZIP_DEFLATED) as z:
-        z.write(OUT / f"{name}.tif", arcname=f"{name}.tif")
-    with zipfile.ZipFile(OUT / f"latest_nan.zip", "w", zipfile.ZIP_DEFLATED) as z:
-        z.write(OUT / f"{name}_nanoutside.tif", arcname=f"{name}_nanoutside.tif")
-    shutil.copyfile(OUT / f"{name}.json", OUT / f"latest.json")
-
+    shutil.copyfile(OUT / f"{name}.json", OUT / "latest.json")
     (REP / "latest_submission.json").write_text(json.dumps(prov_out, indent=2))
-    print(f"\nWROTE {OUT}/{name}.tif (all-finite PRIMARY; + _nanoutside strict, .zip, .json, latest.*)")
-    print(f"NOTE  {note}")
+    print(f"\nWROTE {OUT}/{name}_A_zerofill.tif (PRIMARY) + _B_nan-outside.tif, zips, submit.json, latest.*")
+    print(f"NOTE  {short_note}")
+    print("NEXT  python scripts/build_site.py && python scripts/verify_download.py")
 
 
 if __name__ == "__main__":

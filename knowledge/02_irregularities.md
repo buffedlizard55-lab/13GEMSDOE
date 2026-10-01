@@ -290,7 +290,7 @@ The rejection message is `Predicted values must be in range [0, 1]`.
    `f347b70daa`, `37f9d5b855`, `4e03fc9705`; each re-verified against the archived
    bytes in `data/scored/` on 2026-09-30 — the prefixes in the team's own
    submission notes match the files bit-for-bit). The team's round-12 upload was
-   named `…_allfinite`, i.e. the finite encoding family. Conclusion: the platform's
+   named `…_allfinite`; **session-7 correction: the only record of an accepted `_allfinite` upload is a team note for a 12GEMSDOE file (`team_recorded_not_receipt`); no receipt exists for any 13GEMSDOE all-finite file, so "the finite encoding is form-verified" is withdrawn.** Conclusion: the platform's
    range validation changed or is inconsistent; we cannot observe which (no
    access to the validator). **Flagged for review — this is an external,
    unverifiable-from-here behaviour change.**
@@ -529,3 +529,51 @@ hide **known** faults (I-10). The public score of the uploaded file is the only
 independent check. Record it in `reports/leaderboard_ledger.csv`; if it does not
 exceed the group's best public score (0.1563), the proxy/leaderboard gap, not the
 recipe, becomes the top research priority.
+
+## I-17 🟡 (2026-09-30 session 6) — RAM cap of the development sandbox
+
+3.9 GB RAM caps the in-memory pool of ranked maps at about twelve 3730×3292 float32 maps
+(score + int32 argsort each). A 30-map greedy needs a larger runner. Details in
+`knowledge/08_r12_hypotheses.md`.
+
+## I-18 🟡 UNTESTED (2026-10-01 session 7) — TIFF PREDICTOR=2 on float32 is the only layout difference we found
+
+Every legacy file served by the site (`13gems-r6/r8/r11/composite/toporef…`) was written with
+`PREDICTOR=2` (horizontal differencing). None of the eight previously *scored* files
+(`data/scored/`) uses predictor 2 (pindrop: deflate PREDICTOR=3; others: none), nor does the
+official `example_submission.tif` (LZW, untiled, no predictor). GDAL, Pillow and tifffile all
+decode the predictor-2 files to values in [0, 1] (checked), so predictor 2 is **not** a generic
+reader failure and is **not** established as the cause of the form's "[0, 1]" rejection; the NaN
+cells are the other candidate. `src/gems/rio.py` now writes LZW, striped, no predictor, and the
+front door ships an A (zero-fill) and a B (NaN-outside) file in that layout. Only the form's own
+response can settle it. `src/gems/frontdoor.py` + `tests/test_frontdoor.py` pin the layout.
+
+## I-19 🔴 FIXED (2026-10-01 session 7) — `latest.tif` was the file the form rejected
+
+`docs/downloads/latest.tif` and `latest.zip` were byte-identical to the rejected NaN file
+`13gems-r11-greedy-mp.tif` (sha256 prefix `e8f148d08d3d`), while the README and site text said
+the all-finite file was the default. The site's primary button therefore kept serving the
+rejected bytes. Fixed by the A/B front door; `scripts/verify_download.py` now fails if
+`latest.tif != primary A` and every page's first 4 KB of body must link the primary file.
+
+## I-20 🟠 VERIFIED (2026-10-01 session 7) — the same 570,890-byte file sits in three sibling repos
+
+Git blob `812e61b74050d1350cc2bde1fab0c76ead32e0c4` is `GEMSDOE`'s
+`data/evidence/runs/ens12-adopted-floor0.1-w0/submission.tif`, also present in `5GEMSDOE`
+(that path and `data/evidence/leaderboard_anchor/gemsdoe-ens12-adopted-7f00890a.tif`) and in
+`GEMSDOE2` (that path and `docs/gemsdoe2-recall-arm-7f00890a.tif`) — and it is
+`data/scored/gemsdoe1_ens12_LB0.1563.tif` here. Identical bytes cannot score differently, so a
+0.1563 in any repo that uploaded this blob is a **copy, not an independent result**. 8GEMSDOE's
+0.1563 file (`gems8_apex`, blob `d3aac36c…`) is a *different* map (support IoU 0.067). No
+upload receipt exists for any of them (I-3). Method: GitHub git-trees API, blob SHA-1 compare,
+`git hash-object` on `data/scored/`.
+
+## I-21 🔴 (2026-10-01 session 7) — the local proxy is coverage-dominated: a fault-blind lattice beats every recipe
+
+`scripts/null_baseline_holdout.py` (same 18 folds, same scorer): random 5 % → DTI 0.0902,
+`topo_05_sp3` 0.0933, `greedy_r11` 0.0988, a **stride-5 lattice 0.1122**, everywhere-1 0.0165.
+The R10–R12 "wins" were relative to weak references. Under the frozen R13-6 rule the lattice
+WINS (18/18 paired folds vs `greedy_r11`). The proxy hides *known* faults (I-10, I-16), so
+whether coverage transfers to the new-fault test set is unproven. **Action:** the lattice is the
+front-door A file as the cheapest decisive experiment; build a new-fault proxy before trusting
+any further hold-out "win" (README suggestion 6).
