@@ -20,6 +20,36 @@ EXPECTED_CRS = "EPSG:32611"
 EXPECTED_TRANSFORM = (100.0, 0.0, 243350.0, 0.0, -100.0, 4508550.0)
 
 
+#: The official rasters are filed under two names in this project: the names the
+#: DrivenData data tab uses (`existing_faults.tif`, `example_submission.tif`,
+#: `gems-geodawn-numerical-features.tif`) and the canonical names the
+#: competition problem page uses (`labels.tif`, `sample_submission.tif`,
+#: `training_features.tif`). Both are correct; the mapping is published in the
+#: mirror's own `data/bridge/manifest.json`. Scripts must accept either, or a
+#: fresh clone staged by one fetcher breaks under another.
+RAW_ALIASES = {
+    "labels": ("labels.tif", "existing_faults.tif"),
+    "template": ("sample_submission.tif", "example_submission.tif"),
+    "features": ("training_features.tif", "gems-geodawn-numerical-features.tif"),
+}
+RAW_DIR = Path(__file__).resolve().parents[2] / "data" / "raw"
+
+
+def resolve_raw(kind: str, raw_dir: str | Path | None = None) -> Path:
+    """Path to one of `labels` / `template` / `features`, under either name.
+
+    Raises FileNotFoundError naming the fetcher to run, rather than failing
+    later with an opaque rasterio error.
+    """
+    d = Path(raw_dir) if raw_dir is not None else RAW_DIR
+    for name in RAW_ALIASES[kind]:
+        if (d / name).exists():
+            return d / name
+    raise FileNotFoundError(
+        f"no {kind} raster in {d} (looked for {', '.join(RAW_ALIASES[kind])}); "
+        "run: bash scripts/download_competition_data.sh")
+
+
 def read_band(path: str | Path, band: int = 1) -> np.ndarray:
     with rasterio.open(path) as src:
         a = src.read(band).astype(np.float32)
@@ -235,13 +265,15 @@ def write_submission(path: str | Path, values: np.ndarray,
         "crs": rasterio.crs.CRS.from_string(EXPECTED_CRS),
         "transform": rasterio.transform.Affine(*EXPECTED_TRANSFORM),
         "nodata": float("nan") if outside_value is None else None,
-        # Layout deliberately copies the official example_submission.tif and
-        # every file the platform has scored for this group: LZW, one-row
-        # strips, NO predictor. Builds before 2026-10-01 used deflate +
-        # PREDICTOR=2 (integer differencing) on float32, which no previously
-        # scored file used (irregularity I-18). Pixel values are unaffected by
-        # this choice; only the byte layout is.
-        "compress": "lzw", "tiled": False, "blockysize": 1,
+        # Layout deliberately copies the official sample_submission.tif and the
+        # nine files the platform has scored for this group: LZW, one-row
+        # strips, PREDICTOR pinned to 1 (none). The one file the form rejected
+        # with "Predicted values must be in range [0, 1]" is the only file in
+        # this project's history written with PREDICTOR=2 (integer horizontal
+        # differencing) on IEEE-float samples; a reader that does not run the
+        # accumulator decodes it to [-4.0, 3.0]. See src/gems/encoding.py and
+        # reports/platform_encoding_evidence.json (irregularities I-18, I-22).
+        "compress": "lzw", "tiled": False, "blockysize": 1, "predictor": 1,
     }
     with rasterio.open(path, "w", **profile) as dst:
         dst.write(out, 1)

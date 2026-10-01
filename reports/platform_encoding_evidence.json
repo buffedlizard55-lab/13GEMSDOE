@@ -1,0 +1,1038 @@
+{
+  "generated_utc": "2026-10-01T01:40:18Z",
+  "question": "Which GeoTIFF encoding has a DrivenData acceptance receipt?",
+  "score_label_note": "Scores are team-recorded public leaderboard values, not per-submission receipts (see reports/leaderboard_ledger.csv, column `verified` = NO). What IS verified here is the byte encoding of each file.",
+  "official_template": {
+    "path": "data/raw/sample_submission.tif",
+    "sha256": "2176d08e485aa2cd2860ce8df539db4faf4d76163b38a4dd8c30a40454d35cbc",
+    "sha256_matches_published_pin": true,
+    "pin_source": "GEMSDOE repo data/bridge/manifest.json (generated on a GitHub-hosted runner from the official data tab) and 16GEMSDOE evidence/submission_validation_report.json",
+    "footprint_pixels": 5167373,
+    "outside_pixels": 7111787,
+    "labels_raster_sha256": "7ba308ccdc4418b31a178f4f1ef21aaa6e152e4028f2f6f64b01f7eb25ae4093",
+    "labels_raster_matches_published_pin": true,
+    "footprint_equals_labels_ge_0": true
+  },
+  "files": {
+    "official_template/sample_submission.tif": {
+      "file": "sample_submission.tif",
+      "bytes": 1599597,
+      "profile": {
+        "driver": "GTiff",
+        "count": 1,
+        "dtype": "float32",
+        "crs": "EPSG:32611",
+        "shape": [
+          3730,
+          3292
+        ],
+        "transform": [
+          100.0,
+          0.0,
+          243350.0,
+          0.0,
+          -100.0,
+          4508550.0
+        ],
+        "nodata": "nan"
+      },
+      "layout": {
+        "compression_code": 5,
+        "compression": "LZW",
+        "predictor": 1,
+        "sample_format": 3,
+        "bits_per_sample": 32,
+        "tiled": false,
+        "rows_per_strip": 1,
+        "tile_width": null
+      },
+      "placement": {
+        "n_nan_total": 7111787,
+        "n_nan_inside_footprint": 0,
+        "n_finite_outside_footprint": 0,
+        "n_nan_outside_footprint": 7111787,
+        "finite_min": 0.0,
+        "finite_max": 1.0,
+        "n_positive": 60988
+      },
+      "range_checks": {
+        "naive_all_in_0_1": false,
+        "nan_aware_all_in_0_1": true,
+        "has_nan": true,
+        "n_nan": 7111787,
+        "n_inf": 0
+      },
+      "matches_accepted_pattern": true,
+      "deviations_from_accepted_pattern": [],
+      "sha256": "2176d08e485aa2cd2860ce8df539db4faf4d76163b38a4dd8c30a40454d35cbc",
+      "group": "official_template"
+    },
+    "platform_scored/gems12_r7nms3_LB0.1294.tif": {
+      "file": "gems12_r7nms3_LB0.1294.tif",
+      "bytes": 469858,
+      "profile": {
+        "driver": "GTiff",
+        "count": 1,
+        "dtype": "float32",
+        "crs": "EPSG:32611",
+        "shape": [
+          3730,
+          3292
+        ],
+        "transform": [
+          100.0,
+          0.0,
+          243350.0,
+          0.0,
+          -100.0,
+          4508550.0
+        ],
+        "nodata": "nan"
+      },
+      "layout": {
+        "compression_code": 8,
+        "compression": "ADOBE_DEFLATE",
+        "predictor": 1,
+        "sample_format": 3,
+        "bits_per_sample": 32,
+        "tiled": false,
+        "rows_per_strip": 1,
+        "tile_width": null
+      },
+      "placement": {
+        "n_nan_total": 7111787,
+        "n_nan_inside_footprint": 0,
+        "n_finite_outside_footprint": 0,
+        "n_nan_outside_footprint": 7111787,
+        "finite_min": 0.0,
+        "finite_max": 1.0,
+        "n_positive": 103347
+      },
+      "range_checks": {
+        "naive_all_in_0_1": false,
+        "nan_aware_all_in_0_1": true,
+        "has_nan": true,
+        "n_nan": 7111787,
+        "n_inf": 0
+      },
+      "matches_accepted_pattern": true,
+      "deviations_from_accepted_pattern": [],
+      "sha256": "0c9199f14e625d7b2539a0a045803b74d6494ce568d185abecc193fe7e93c6f2",
+      "group": "platform_scored"
+    },
+    "platform_scored/gems12_r7nms3_allfinite_LB0.1294.tif": {
+      "file": "gems12_r7nms3_allfinite_LB0.1294.tif",
+      "bytes": 412700,
+      "profile": {
+        "driver": "GTiff",
+        "count": 1,
+        "dtype": "float32",
+        "crs": "EPSG:32611",
+        "shape": [
+          3730,
+          3292
+        ],
+        "transform": [
+          100.0,
+          0.0,
+          243350.0,
+          0.0,
+          -100.0,
+          4508550.0
+        ],
+        "nodata": "nan"
+      },
+      "layout": {
+        "compression_code": 8,
+        "compression": "ADOBE_DEFLATE",
+        "predictor": 1,
+        "sample_format": 3,
+        "bits_per_sample": 32,
+        "tiled": false,
+        "rows_per_strip": 1,
+        "tile_width": null
+      },
+      "placement": {
+        "n_nan_total": 0,
+        "n_nan_inside_footprint": 0,
+        "n_finite_outside_footprint": 7111787,
+        "n_nan_outside_footprint": 0,
+        "finite_min": 0.0,
+        "finite_max": 1.0,
+        "n_positive": 103347
+      },
+      "range_checks": {
+        "naive_all_in_0_1": true,
+        "nan_aware_all_in_0_1": true,
+        "has_nan": false,
+        "n_nan": 0,
+        "n_inf": 0
+      },
+      "matches_accepted_pattern": false,
+      "deviations_from_accepted_pattern": [
+        "7111787 finite cells outside the footprint where the official template is NaN",
+        "0 NaN outside != 7111787"
+      ],
+      "sha256": "ce3f70fa2e1e7bbea60c8c62a2f805c22d15b8a8905ebec757259617ceb02fbc",
+      "group": "platform_scored"
+    },
+    "platform_scored/gems3_pindrop_discovery_LB0.0830.tif": {
+      "file": "gems3_pindrop_discovery_LB0.0830.tif",
+      "bytes": 777446,
+      "profile": {
+        "driver": "GTiff",
+        "count": 1,
+        "dtype": "float32",
+        "crs": "EPSG:32611",
+        "shape": [
+          3730,
+          3292
+        ],
+        "transform": [
+          100.0,
+          0.0,
+          243350.0,
+          0.0,
+          -100.0,
+          4508550.0
+        ],
+        "nodata": "nan"
+      },
+      "layout": {
+        "compression_code": 8,
+        "compression": "ADOBE_DEFLATE",
+        "predictor": 3,
+        "sample_format": 3,
+        "bits_per_sample": 32,
+        "tiled": true,
+        "rows_per_strip": null,
+        "tile_width": 256
+      },
+      "placement": {
+        "n_nan_total": 7111787,
+        "n_nan_inside_footprint": 0,
+        "n_finite_outside_footprint": 0,
+        "n_nan_outside_footprint": 7111787,
+        "finite_min": 0.0,
+        "finite_max": 1.0,
+        "n_positive": 155021
+      },
+      "range_checks": {
+        "naive_all_in_0_1": false,
+        "nan_aware_all_in_0_1": true,
+        "has_nan": true,
+        "n_nan": 7111787,
+        "n_inf": 0
+      },
+      "matches_accepted_pattern": true,
+      "deviations_from_accepted_pattern": [],
+      "sha256": "37f9d5b855ee1b6c302cb81cdae1414db94db427f5dc9da3538474df37cf1cad",
+      "group": "platform_scored"
+    },
+    "platform_scored/gems3_pindrop_nodes_LB0.1193.tif": {
+      "file": "gems3_pindrop_nodes_LB0.1193.tif",
+      "bytes": 777822,
+      "profile": {
+        "driver": "GTiff",
+        "count": 1,
+        "dtype": "float32",
+        "crs": "EPSG:32611",
+        "shape": [
+          3730,
+          3292
+        ],
+        "transform": [
+          100.0,
+          0.0,
+          243350.0,
+          0.0,
+          -100.0,
+          4508550.0
+        ],
+        "nodata": "nan"
+      },
+      "layout": {
+        "compression_code": 8,
+        "compression": "ADOBE_DEFLATE",
+        "predictor": 3,
+        "sample_format": 3,
+        "bits_per_sample": 32,
+        "tiled": true,
+        "rows_per_strip": null,
+        "tile_width": 256
+      },
+      "placement": {
+        "n_nan_total": 7111787,
+        "n_nan_inside_footprint": 0,
+        "n_finite_outside_footprint": 0,
+        "n_nan_outside_footprint": 7111787,
+        "finite_min": 0.0,
+        "finite_max": 1.0,
+        "n_positive": 155021
+      },
+      "range_checks": {
+        "naive_all_in_0_1": false,
+        "nan_aware_all_in_0_1": true,
+        "has_nan": true,
+        "n_nan": 7111787,
+        "n_inf": 0
+      },
+      "matches_accepted_pattern": true,
+      "deviations_from_accepted_pattern": [],
+      "sha256": "f347b70daa95170bfc967b1c0b6bbf951496c2b74764a7102848ad6178829aca",
+      "group": "platform_scored"
+    },
+    "platform_scored/gems3_pindrop_ridge_LB0.1152.tif": {
+      "file": "gems3_pindrop_ridge_LB0.1152.tif",
+      "bytes": 651948,
+      "profile": {
+        "driver": "GTiff",
+        "count": 1,
+        "dtype": "float32",
+        "crs": "EPSG:32611",
+        "shape": [
+          3730,
+          3292
+        ],
+        "transform": [
+          100.0,
+          0.0,
+          243350.0,
+          0.0,
+          -100.0,
+          4508550.0
+        ],
+        "nodata": "nan"
+      },
+      "layout": {
+        "compression_code": 8,
+        "compression": "ADOBE_DEFLATE",
+        "predictor": 3,
+        "sample_format": 3,
+        "bits_per_sample": 32,
+        "tiled": true,
+        "rows_per_strip": null,
+        "tile_width": 256
+      },
+      "placement": {
+        "n_nan_total": 7111787,
+        "n_nan_inside_footprint": 0,
+        "n_finite_outside_footprint": 0,
+        "n_nan_outside_footprint": 7111787,
+        "finite_min": 0.0,
+        "finite_max": 1.0,
+        "n_positive": 155021
+      },
+      "range_checks": {
+        "naive_all_in_0_1": false,
+        "nan_aware_all_in_0_1": true,
+        "has_nan": true,
+        "n_nan": 7111787,
+        "n_inf": 0
+      },
+      "matches_accepted_pattern": true,
+      "deviations_from_accepted_pattern": [],
+      "sha256": "4e03fc97052e9bd673e48f1923ad17f15926f8db26d2befc033e1722381dc9b7",
+      "group": "platform_scored"
+    },
+    "platform_scored/gems6_hgb88_LB0.0286.tif": {
+      "file": "gems6_hgb88_LB0.0286.tif",
+      "bytes": 1652883,
+      "profile": {
+        "driver": "GTiff",
+        "count": 1,
+        "dtype": "float32",
+        "crs": "EPSG:32611",
+        "shape": [
+          3730,
+          3292
+        ],
+        "transform": [
+          100.0,
+          0.0,
+          243350.0,
+          0.0,
+          -100.0,
+          4508550.0
+        ],
+        "nodata": "nan"
+      },
+      "layout": {
+        "compression_code": 5,
+        "compression": "LZW",
+        "predictor": 1,
+        "sample_format": 3,
+        "bits_per_sample": 32,
+        "tiled": false,
+        "rows_per_strip": 1,
+        "tile_width": null
+      },
+      "placement": {
+        "n_nan_total": 7111787,
+        "n_nan_inside_footprint": 0,
+        "n_finite_outside_footprint": 0,
+        "n_nan_outside_footprint": 7111787,
+        "finite_min": 0.0,
+        "finite_max": 1.0,
+        "n_positive": 155021
+      },
+      "range_checks": {
+        "naive_all_in_0_1": false,
+        "nan_aware_all_in_0_1": true,
+        "has_nan": true,
+        "n_nan": 7111787,
+        "n_inf": 0
+      },
+      "matches_accepted_pattern": true,
+      "deviations_from_accepted_pattern": [],
+      "sha256": "33cec71ff00b3f32d0d59c81c156f3f1488ffef46baa4b6499094e24ea1875ab",
+      "group": "platform_scored"
+    },
+    "platform_scored/gems7_halo15_LB0.1461.tif": {
+      "file": "gems7_halo15_LB0.1461.tif",
+      "bytes": 3036264,
+      "profile": {
+        "driver": "GTiff",
+        "count": 1,
+        "dtype": "float32",
+        "crs": "EPSG:32611",
+        "shape": [
+          3730,
+          3292
+        ],
+        "transform": [
+          100.0,
+          0.0,
+          243350.0,
+          0.0,
+          -100.0,
+          4508550.0
+        ],
+        "nodata": "nan"
+      },
+      "layout": {
+        "compression_code": 8,
+        "compression": "ADOBE_DEFLATE",
+        "predictor": 1,
+        "sample_format": 3,
+        "bits_per_sample": 32,
+        "tiled": false,
+        "rows_per_strip": 1,
+        "tile_width": null
+      },
+      "placement": {
+        "n_nan_total": 7111787,
+        "n_nan_inside_footprint": 0,
+        "n_finite_outside_footprint": 0,
+        "n_nan_outside_footprint": 7111787,
+        "finite_min": 0.0,
+        "finite_max": 0.949999988079071,
+        "n_positive": 1828699
+      },
+      "range_checks": {
+        "naive_all_in_0_1": false,
+        "nan_aware_all_in_0_1": true,
+        "has_nan": true,
+        "n_nan": 7111787,
+        "n_inf": 0
+      },
+      "matches_accepted_pattern": true,
+      "deviations_from_accepted_pattern": [],
+      "sha256": "90fb7dc0fc1f6e7d3dbb20927417c6af7d110ca41167329d792c75c145f75b6a",
+      "group": "platform_scored"
+    },
+    "platform_scored/gems8_apex_LB0.1563.tif": {
+      "file": "gems8_apex_LB0.1563.tif",
+      "bytes": 1285731,
+      "profile": {
+        "driver": "GTiff",
+        "count": 1,
+        "dtype": "float32",
+        "crs": "EPSG:32611",
+        "shape": [
+          3730,
+          3292
+        ],
+        "transform": [
+          100.0,
+          0.0,
+          243350.0,
+          0.0,
+          -100.0,
+          4508550.0
+        ],
+        "nodata": "nan"
+      },
+      "layout": {
+        "compression_code": 8,
+        "compression": "ADOBE_DEFLATE",
+        "predictor": 1,
+        "sample_format": 3,
+        "bits_per_sample": 32,
+        "tiled": false,
+        "rows_per_strip": 1,
+        "tile_width": null
+      },
+      "placement": {
+        "n_nan_total": 7111787,
+        "n_nan_inside_footprint": 0,
+        "n_finite_outside_footprint": 0,
+        "n_nan_outside_footprint": 7111787,
+        "finite_min": 0.0,
+        "finite_max": 0.949999988079071,
+        "n_positive": 427862
+      },
+      "range_checks": {
+        "naive_all_in_0_1": false,
+        "nan_aware_all_in_0_1": true,
+        "has_nan": true,
+        "n_nan": 7111787,
+        "n_inf": 0
+      },
+      "matches_accepted_pattern": true,
+      "deviations_from_accepted_pattern": [],
+      "sha256": "b83ea0e7074882ceee31de89695281c00ade51f26a0a7048f628f60058755356",
+      "group": "platform_scored"
+    },
+    "platform_scored/gemsdoe1_ens12_LB0.1563.tif": {
+      "file": "gemsdoe1_ens12_LB0.1563.tif",
+      "bytes": 570890,
+      "profile": {
+        "driver": "GTiff",
+        "count": 1,
+        "dtype": "float32",
+        "crs": "EPSG:32611",
+        "shape": [
+          3730,
+          3292
+        ],
+        "transform": [
+          100.0,
+          0.0,
+          243350.0,
+          0.0,
+          -100.0,
+          4508550.0
+        ],
+        "nodata": "nan"
+      },
+      "layout": {
+        "compression_code": 5,
+        "compression": "LZW",
+        "predictor": 1,
+        "sample_format": 3,
+        "bits_per_sample": 32,
+        "tiled": true,
+        "rows_per_strip": null,
+        "tile_width": 256
+      },
+      "placement": {
+        "n_nan_total": 7111787,
+        "n_nan_inside_footprint": 0,
+        "n_finite_outside_footprint": 0,
+        "n_nan_outside_footprint": 7111787,
+        "finite_min": 0.0,
+        "finite_max": 1.0,
+        "n_positive": 172974
+      },
+      "range_checks": {
+        "naive_all_in_0_1": false,
+        "nan_aware_all_in_0_1": true,
+        "has_nan": true,
+        "n_nan": 7111787,
+        "n_inf": 0
+      },
+      "matches_accepted_pattern": true,
+      "deviations_from_accepted_pattern": [],
+      "sha256": "7f00890a62878d612fb5eef67a9a364a2df819433dde74b6762ce4fc0fc4fe15",
+      "group": "platform_scored"
+    },
+    "platform_scored/gemsdoe2_dualunion_LB0.1560.tif": {
+      "file": "gemsdoe2_dualunion_LB0.1560.tif",
+      "bytes": 568065,
+      "profile": {
+        "driver": "GTiff",
+        "count": 1,
+        "dtype": "float32",
+        "crs": "EPSG:32611",
+        "shape": [
+          3730,
+          3292
+        ],
+        "transform": [
+          100.0,
+          0.0,
+          243350.0,
+          0.0,
+          -100.0,
+          4508550.0
+        ],
+        "nodata": "nan"
+      },
+      "layout": {
+        "compression_code": 8,
+        "compression": "ADOBE_DEFLATE",
+        "predictor": 1,
+        "sample_format": 3,
+        "bits_per_sample": 32,
+        "tiled": false,
+        "rows_per_strip": 1,
+        "tile_width": null
+      },
+      "placement": {
+        "n_nan_total": 7111787,
+        "n_nan_inside_footprint": 0,
+        "n_finite_outside_footprint": 0,
+        "n_nan_outside_footprint": 7111787,
+        "finite_min": 0.0,
+        "finite_max": 1.0,
+        "n_positive": 183642
+      },
+      "range_checks": {
+        "naive_all_in_0_1": false,
+        "nan_aware_all_in_0_1": true,
+        "has_nan": true,
+        "n_nan": 7111787,
+        "n_inf": 0
+      },
+      "matches_accepted_pattern": true,
+      "deviations_from_accepted_pattern": [],
+      "sha256": "f68e590f8534d036872f18170819b52366c728e68619f17c648dce9629b0aaf2",
+      "group": "platform_scored"
+    },
+    "form_rejected/13gems-r11-greedy-mp.tif": {
+      "file": "13gems-r11-greedy-mp.tif",
+      "bytes": 576102,
+      "profile": {
+        "driver": "GTiff",
+        "count": 1,
+        "dtype": "float32",
+        "crs": "EPSG:32611",
+        "shape": [
+          3730,
+          3292
+        ],
+        "transform": [
+          100.0,
+          0.0,
+          243350.0,
+          0.0,
+          -100.0,
+          4508550.0
+        ],
+        "nodata": "nan"
+      },
+      "layout": {
+        "compression_code": 8,
+        "compression": "ADOBE_DEFLATE",
+        "predictor": 2,
+        "sample_format": 3,
+        "bits_per_sample": 32,
+        "tiled": true,
+        "rows_per_strip": null,
+        "tile_width": 256
+      },
+      "placement": {
+        "n_nan_total": 7111787,
+        "n_nan_inside_footprint": 0,
+        "n_finite_outside_footprint": 0,
+        "n_nan_outside_footprint": 7111787,
+        "finite_min": 0.0,
+        "finite_max": 1.0,
+        "n_positive": 272853
+      },
+      "range_checks": {
+        "naive_all_in_0_1": false,
+        "nan_aware_all_in_0_1": true,
+        "has_nan": true,
+        "n_nan": 7111787,
+        "n_inf": 0
+      },
+      "matches_accepted_pattern": false,
+      "deviations_from_accepted_pattern": [
+        "Predictor=2 (horizontal differencing) on IEEE-float samples; no platform-accepted file in this group's history uses it"
+      ],
+      "predictor2_simulation": {
+        "decoded_min": -4.0,
+        "decoded_max": 3.0,
+        "all_in_0_1": false,
+        "fraction_in_0_1": 0.978880721482577,
+        "verdict": "produces values outside [0, 1] -> the exact form error 'Predicted values must be in range [0, 1]'"
+      },
+      "sha256": "e8f148d08d3d67035a457cb95bdede26242009ea5f50d4322f57da41f690d00c",
+      "group": "form_rejected"
+    },
+    "currently_shipped/13gems_20261001_r11-greedy-mp_A_zerofill.tif": {
+      "file": "13gems_20261001_r11-greedy-mp_A_zerofill.tif",
+      "bytes": 1184786,
+      "profile": {
+        "driver": "GTiff",
+        "count": 1,
+        "dtype": "float32",
+        "crs": "EPSG:32611",
+        "shape": [
+          3730,
+          3292
+        ],
+        "transform": [
+          100.0,
+          0.0,
+          243350.0,
+          0.0,
+          -100.0,
+          4508550.0
+        ],
+        "nodata": null
+      },
+      "layout": {
+        "compression_code": 5,
+        "compression": "LZW",
+        "predictor": 1,
+        "sample_format": 3,
+        "bits_per_sample": 32,
+        "tiled": false,
+        "rows_per_strip": 1,
+        "tile_width": null
+      },
+      "placement": {
+        "n_nan_total": 0,
+        "n_nan_inside_footprint": 0,
+        "n_finite_outside_footprint": 7111787,
+        "n_nan_outside_footprint": 0,
+        "finite_min": 0.0,
+        "finite_max": 1.0,
+        "n_positive": 272853
+      },
+      "range_checks": {
+        "naive_all_in_0_1": true,
+        "nan_aware_all_in_0_1": true,
+        "has_nan": false,
+        "n_nan": 0,
+        "n_inf": 0
+      },
+      "matches_accepted_pattern": false,
+      "deviations_from_accepted_pattern": [
+        "nodata None != 'nan' (all nine accepted files declare nan)",
+        "7111787 finite cells outside the footprint where the official template is NaN",
+        "0 NaN outside != 7111787"
+      ],
+      "sha256": "e7f0d4b9fd58b90e67538e595680315fb9861e08d8d093c1617b10a584f28b5a",
+      "group": "currently_shipped"
+    },
+    "currently_shipped/13gems_20261001_r11-greedy-mp_B_nan-outside.tif": {
+      "file": "13gems_20261001_r11-greedy-mp_B_nan-outside.tif",
+      "bytes": 1954898,
+      "profile": {
+        "driver": "GTiff",
+        "count": 1,
+        "dtype": "float32",
+        "crs": "EPSG:32611",
+        "shape": [
+          3730,
+          3292
+        ],
+        "transform": [
+          100.0,
+          0.0,
+          243350.0,
+          0.0,
+          -100.0,
+          4508550.0
+        ],
+        "nodata": "nan"
+      },
+      "layout": {
+        "compression_code": 5,
+        "compression": "LZW",
+        "predictor": 1,
+        "sample_format": 3,
+        "bits_per_sample": 32,
+        "tiled": false,
+        "rows_per_strip": 1,
+        "tile_width": null
+      },
+      "placement": {
+        "n_nan_total": 7111787,
+        "n_nan_inside_footprint": 0,
+        "n_finite_outside_footprint": 0,
+        "n_nan_outside_footprint": 7111787,
+        "finite_min": 0.0,
+        "finite_max": 1.0,
+        "n_positive": 272853
+      },
+      "range_checks": {
+        "naive_all_in_0_1": false,
+        "nan_aware_all_in_0_1": true,
+        "has_nan": true,
+        "n_nan": 7111787,
+        "n_inf": 0
+      },
+      "matches_accepted_pattern": true,
+      "deviations_from_accepted_pattern": [],
+      "sha256": "033df94ceef16350030a69d5cfdec0afe7bc605bb155d8f3b98b203aabf80abd",
+      "group": "currently_shipped"
+    },
+    "currently_shipped/13gems_20261001_r13-lattice-s5_A_zerofill.tif": {
+      "file": "13gems_20261001_r13-lattice-s5_A_zerofill.tif",
+      "bytes": 969784,
+      "profile": {
+        "driver": "GTiff",
+        "count": 1,
+        "dtype": "float32",
+        "crs": "EPSG:32611",
+        "shape": [
+          3730,
+          3292
+        ],
+        "transform": [
+          100.0,
+          0.0,
+          243350.0,
+          0.0,
+          -100.0,
+          4508550.0
+        ],
+        "nodata": null
+      },
+      "layout": {
+        "compression_code": 5,
+        "compression": "LZW",
+        "predictor": 1,
+        "sample_format": 3,
+        "bits_per_sample": 32,
+        "tiled": false,
+        "rows_per_strip": 1,
+        "tile_width": null
+      },
+      "placement": {
+        "n_nan_total": 0,
+        "n_nan_inside_footprint": 0,
+        "n_finite_outside_footprint": 7111787,
+        "n_nan_outside_footprint": 0,
+        "finite_min": 0.0,
+        "finite_max": 1.0,
+        "n_positive": 206895
+      },
+      "range_checks": {
+        "naive_all_in_0_1": true,
+        "nan_aware_all_in_0_1": true,
+        "has_nan": false,
+        "n_nan": 0,
+        "n_inf": 0
+      },
+      "matches_accepted_pattern": false,
+      "deviations_from_accepted_pattern": [
+        "nodata None != 'nan' (all nine accepted files declare nan)",
+        "7111787 finite cells outside the footprint where the official template is NaN",
+        "0 NaN outside != 7111787"
+      ],
+      "sha256": "c12533bb980234c3a706af641d4f1d514bbbe482714b2ebcac3b10f3e72a7a3f",
+      "group": "currently_shipped"
+    },
+    "currently_shipped/13gems_20261001_r13-lattice-s5_B_nan-outside.tif": {
+      "file": "13gems_20261001_r13-lattice-s5_B_nan-outside.tif",
+      "bytes": 1706456,
+      "profile": {
+        "driver": "GTiff",
+        "count": 1,
+        "dtype": "float32",
+        "crs": "EPSG:32611",
+        "shape": [
+          3730,
+          3292
+        ],
+        "transform": [
+          100.0,
+          0.0,
+          243350.0,
+          0.0,
+          -100.0,
+          4508550.0
+        ],
+        "nodata": "nan"
+      },
+      "layout": {
+        "compression_code": 5,
+        "compression": "LZW",
+        "predictor": 1,
+        "sample_format": 3,
+        "bits_per_sample": 32,
+        "tiled": false,
+        "rows_per_strip": 1,
+        "tile_width": null
+      },
+      "placement": {
+        "n_nan_total": 7111787,
+        "n_nan_inside_footprint": 0,
+        "n_finite_outside_footprint": 0,
+        "n_nan_outside_footprint": 7111787,
+        "finite_min": 0.0,
+        "finite_max": 1.0,
+        "n_positive": 206895
+      },
+      "range_checks": {
+        "naive_all_in_0_1": false,
+        "nan_aware_all_in_0_1": true,
+        "has_nan": true,
+        "n_nan": 7111787,
+        "n_inf": 0
+      },
+      "matches_accepted_pattern": true,
+      "deviations_from_accepted_pattern": [],
+      "sha256": "b4570b406efec198eb2f4d142ad8d0d6184b14b66f2f52b5c4d697f0647dc9b2",
+      "group": "currently_shipped"
+    },
+    "currently_shipped/latest.tif": {
+      "file": "latest.tif",
+      "bytes": 969784,
+      "profile": {
+        "driver": "GTiff",
+        "count": 1,
+        "dtype": "float32",
+        "crs": "EPSG:32611",
+        "shape": [
+          3730,
+          3292
+        ],
+        "transform": [
+          100.0,
+          0.0,
+          243350.0,
+          0.0,
+          -100.0,
+          4508550.0
+        ],
+        "nodata": null
+      },
+      "layout": {
+        "compression_code": 5,
+        "compression": "LZW",
+        "predictor": 1,
+        "sample_format": 3,
+        "bits_per_sample": 32,
+        "tiled": false,
+        "rows_per_strip": 1,
+        "tile_width": null
+      },
+      "placement": {
+        "n_nan_total": 0,
+        "n_nan_inside_footprint": 0,
+        "n_finite_outside_footprint": 7111787,
+        "n_nan_outside_footprint": 0,
+        "finite_min": 0.0,
+        "finite_max": 1.0,
+        "n_positive": 206895
+      },
+      "range_checks": {
+        "naive_all_in_0_1": true,
+        "nan_aware_all_in_0_1": true,
+        "has_nan": false,
+        "n_nan": 0,
+        "n_inf": 0
+      },
+      "matches_accepted_pattern": false,
+      "deviations_from_accepted_pattern": [
+        "nodata None != 'nan' (all nine accepted files declare nan)",
+        "7111787 finite cells outside the footprint where the official template is NaN",
+        "0 NaN outside != 7111787"
+      ],
+      "sha256": "c12533bb980234c3a706af641d4f1d514bbbe482714b2ebcac3b10f3e72a7a3f",
+      "group": "currently_shipped"
+    },
+    "currently_shipped/latest_nan.tif": {
+      "file": "latest_nan.tif",
+      "bytes": 1706456,
+      "profile": {
+        "driver": "GTiff",
+        "count": 1,
+        "dtype": "float32",
+        "crs": "EPSG:32611",
+        "shape": [
+          3730,
+          3292
+        ],
+        "transform": [
+          100.0,
+          0.0,
+          243350.0,
+          0.0,
+          -100.0,
+          4508550.0
+        ],
+        "nodata": "nan"
+      },
+      "layout": {
+        "compression_code": 5,
+        "compression": "LZW",
+        "predictor": 1,
+        "sample_format": 3,
+        "bits_per_sample": 32,
+        "tiled": false,
+        "rows_per_strip": 1,
+        "tile_width": null
+      },
+      "placement": {
+        "n_nan_total": 7111787,
+        "n_nan_inside_footprint": 0,
+        "n_finite_outside_footprint": 0,
+        "n_nan_outside_footprint": 7111787,
+        "finite_min": 0.0,
+        "finite_max": 1.0,
+        "n_positive": 206895
+      },
+      "range_checks": {
+        "naive_all_in_0_1": false,
+        "nan_aware_all_in_0_1": true,
+        "has_nan": true,
+        "n_nan": 7111787,
+        "n_inf": 0
+      },
+      "matches_accepted_pattern": true,
+      "deviations_from_accepted_pattern": [],
+      "sha256": "b4570b406efec198eb2f4d142ad8d0d6184b14b66f2f52b5c4d697f0647dc9b2",
+      "group": "currently_shipped"
+    }
+  },
+  "summary": {
+    "n_platform_scored_files_audited": 10,
+    "n_platform_scored_files_with_nan_outside_nodata_nan": 9,
+    "n_platform_scored_files_with_predictor2": 0,
+    "official_template_uses_nan_outside_and_nodata_nan": true,
+    "official_template_predictor": 1,
+    "official_template_compression": "LZW",
+    "rejected_file_deviations": [
+      "Predictor=2 (horizontal differencing) on IEEE-float samples; no platform-accepted file in this group's history uses it"
+    ],
+    "rejected_file_predictor2_simulation": {
+      "decoded_min": -4.0,
+      "decoded_max": 3.0,
+      "all_in_0_1": false,
+      "fraction_in_0_1": 0.978880721482577,
+      "verdict": "produces values outside [0, 1] -> the exact form error 'Predicted values must be in range [0, 1]'"
+    },
+    "shipped_files_matching_accepted_pattern": {
+      "13gems_20261001_r11-greedy-mp_A_zerofill.tif": false,
+      "13gems_20261001_r11-greedy-mp_B_nan-outside.tif": true,
+      "13gems_20261001_r13-lattice-s5_A_zerofill.tif": false,
+      "13gems_20261001_r13-lattice-s5_B_nan-outside.tif": true,
+      "latest.tif": false,
+      "latest_nan.tif": true
+    },
+    "policy": {
+      "primary_encoding": "NaN outside the footprint, GDAL_NODATA=nan, all footprint values finite and in [0, 1], Predictor != 2",
+      "why": "9/10 platform-scored files use it and the official template uses it; 0 platform-scored files use Predictor=2; the single form-rejected file is the only one that does.",
+      "hedge_encoding": "all-finite zero-fill outside the footprint, no NoData tag. Kept as a labelled fallback. It is NOT baseless: one all-finite file is team-recorded as accepted (12GEMSDOE r7-nms3-dem10-scarp_0c9199f14e62_allfinite, account SDCF9, score 0.1294 -- the same score as its NaN-outside twin, which is expected because encoding does not change footprint pixels; reports/form_responses.json entry 5, 16GEMSDOE registry/submissions.json). That is a team record, not a platform receipt, and cannot be distinguished from one upload recorded twice.",
+      "falsified_hypothesis": "'NaN cells caused the [0,1] rejection' -- the official template and all nine scored files are NaN-outside.",
+      "tenth_audited_file": {
+        "file": "data/scored/gems12_r7nms3_allfinite_LB0.1294.tif",
+        "sha256": "ce3f70fa2e1e7bbea60c8c62a2f805c22d15b8a8905ebec757259617ceb02fbc",
+        "why_it_deviates": "0 NaN total and 7,111,787 finite cells where the official template is NaN, although it still declares GDAL_NODATA=nan",
+        "recorded_score": 0.1294,
+        "recorded_account": "SDCF9",
+        "evidence_class": "team_recorded_not_receipt",
+        "note": "the all-finite twin of gems12_r7nms3_LB0.1294.tif (sha256 0c9199f1...), which carries the same recorded score. Both may have been uploaded, or one upload may have been recorded twice; nothing available here can distinguish them."
+      },
+      "counting_note": "Phrased as '9 of the 10 audited scored files', not 'all 9 accepted files': the 10th is the all-finite twin above and is team-recorded as accepted too, so the denominator is 10 and the NaN-outside count is 9."
+    }
+  }
+}

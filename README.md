@@ -4,16 +4,16 @@
 
 | | file | use |
 |---|---|---|
-| **A — primary** | [`docs/downloads/13gems_20261001_r13-lattice-s5_A_zerofill.tif`](docs/downloads/13gems_20261001_r13-lattice-s5_A_zerofill.tif) (1.0 MB) · [.zip](docs/downloads/13gems_20261001_r13-lattice-s5_A_zerofill.zip) | **Upload this first.** float32, EPSG:32611, 3730×3292, 0 NaN, values 0–1. Fault-blind stride-5 lattice (R13-6) — best local hold-out map under the frozen R13 rule; a coverage baseline, **not** a geological prediction |
-| B — fallback | [`docs/downloads/13gems_20261001_r13-lattice-s5_B_nan-outside.tif`](docs/downloads/13gems_20261001_r13-lattice-s5_B_nan-outside.tif) · [.zip](docs/downloads/13gems_20261001_r13-lattice-s5_B_nan-outside.zip) | Only if the form rejects A (same predictions, NaN outside the survey footprint) |
-| **2nd candidate** | [`docs/downloads/13gems_20261001_r11-greedy-mp_A_zerofill.tif`](docs/downloads/13gems_20261001_r11-greedy-mp_A_zerofill.tif) (1.2 MB) · [.zip](docs/downloads/13gems_20261001_r11-greedy-mp_A_zerofill.zip) | Next slot: the R11 greedy recipe (real map from the geophysics/topography bands). NaN variant: [`13gems_20261001_r11-greedy-mp_B_nan-outside.tif`](docs/downloads/13gems_20261001_r11-greedy-mp_B_nan-outside.tif) |
+| **PRIMARY — upload this** | [`docs/downloads/13gems_20261001_r13-lattice-s5_v2_nan-outside.tif`](docs/downloads/13gems_20261001_r13-lattice-s5_v2_nan-outside.tif) (1.7 MB) · [.zip](docs/downloads/13gems_20261001_r13-lattice-s5_v2_nan-outside.zip) | float32 · EPSG:32611 · 3730×3292 · **NaN outside the survey footprint, `GDAL_NODATA=nan`, every footprint value finite and in [0, 1]** · LZW, one-row strips, **no predictor** — the byte encoding of the official `sample_submission.tif` **and of 9 of the 10 files this group has a public DrivenData score for** (the 10th is an all-finite twin, team-recorded not receipted). Content: fault-blind stride-5 lattice (R13-6), best local hold-out map; a coverage baseline, **not** a geological prediction |
+| HEDGE — only if the form rejects the primary | [`docs/downloads/13gems_20261001_r13-lattice-s5_v2_zerofill.tif`](docs/downloads/13gems_20261001_r13-lattice-s5_v2_zerofill.tif) (1.0 MB) · [.zip](docs/downloads/13gems_20261001_r13-lattice-s5_v2_zerofill.zip) | Same predictions, 0.0 instead of NaN outside the footprint, no NoData tag, so it also passes a naive whole-array `[0, 1]` test. **Not** the official template's encoding. One all-finite file *is* team-recorded as accepted (12GEMSDOE `r7-nms3-dem10-scarp_0c9199f14e62_allfinite`, account SDCF9, score 0.1294 — the same score as its NaN-outside twin, as expected because encoding does not change footprint pixels; [`reports/form_responses.json`](reports/form_responses.json) entry 5). That is a team record, not a platform receipt, and it cannot be told apart from one upload recorded twice |
+| **2nd candidate** | [`docs/downloads/13gems_20261001_r11-greedy-mp_v2_nan-outside.tif`](docs/downloads/13gems_20261001_r11-greedy-mp_v2_nan-outside.tif) (2.0 MB) · [.zip](docs/downloads/13gems_20261001_r11-greedy-mp_v2_nan-outside.zip) | Next slot: the R11 greedy recipe (a real map built from the geophysics/topography bands). Hedge: [`13gems_20261001_r11-greedy-mp_v2_zerofill.tif`](docs/downloads/13gems_20261001_r11-greedy-mp_v2_zerofill.tif) |
 
-* **Unique file names:** `13gems_<date>_<recipe>_<A|B>`; never re-upload an old name.
-* **Short note to paste (A):** `r13 lattice-s5 A-zerofill 20261001 | fault-blind every-5th-px grid, coverage baseline | local holdout 18/18 win, not a LB claim`
-* **Short note to paste (2nd candidate):** `r11 greedy-mp A-zerofill 20261001 | topo ridge 5% + 3 greedy blocks | local holdout win, not a LB claim`
-* Fixed aliases: [`latest.tif`](docs/downloads/latest.tif) = A, [`latest_nan.tif`](docs/downloads/latest_nan.tif) = B. Manifest + hashes: [`docs/downloads/submit.json`](docs/downloads/submit.json).
+* **Unique file names:** `13gems_<date>_<recipe>_v<n>_<nan-outside|zerofill>`; never re-upload an old name (the generator refuses to overwrite one).
+* **Short note to paste (primary):** `r13 lattice-s5 v2 20261001 | fault-blind every-5th-px grid, coverage baseline | local holdout 18/18 win, not a LB claim`
+* **Short note to paste (2nd candidate):** `r11 greedy-mp v2 20261001 | topo ridge 5% + 3 greedy blocks | local holdout win, not a LB claim`
+* Fixed aliases: [`latest.tif`](docs/downloads/latest.tif) = PRIMARY, [`latest_zerofill.tif`](docs/downloads/latest_zerofill.tif) = HEDGE. The old `latest_nan.*` / `latest_allfinite.*` aliases are **retired** — they inverted the roles (I-19). Manifest + hashes: [`docs/downloads/submit.json`](docs/downloads/submit.json) (schema 2).
 * Form: <https://www.drivendata.org/competitions/306/competition-doe-gems/submissions/> · step-by-step: [executive summary](https://buffedlizard55-lab.github.io/13GEMSDOE/docs/executive_summary.html).
-* **Honest status:** no file here has passed DrivenData's own validator. The earlier NaN file was rejected with "Predicted values must be in range [0, 1]" and the cause cannot be observed from here; A is a hedge (no NaN, no NoData tag, no TIFF predictor, the layout of the official example), not a proven fix. Re-check the bytes any time: `python scripts/verify_download.py` (47 checks).
+* **Honest status:** no file from *this* repository has yet passed DrivenData's own validator — acceptance is only ever established by the form's own response, logged in [`reports/form_responses.json`](reports/form_responses.json). What *is* established, from bytes: the primary's encoding is the one the official template uses and the one all nine platform-scored group files use, and the one file the form rejected is the only file in this project's history written with `PREDICTOR=2`. Re-check any time: `python scripts/verify_download.py` (68 checks) and `python scripts/audit_platform_encoding.py`.
 
 **Submission site:** https://buffedlizard55-lab.github.io/13GEMSDOE/ (download page) · https://buffedlizard55-lab.github.io/13GEMSDOE/docs/ (evidence, hypotheses, sources)
 **Competition:** [DOE GEMS Prize on DrivenData](https://www.drivendata.org/competitions/306/competition-doe-gems/) · $300,000 · metric: distance-weighted Tversky index
@@ -25,6 +25,254 @@
 > bottom of this file so that this page is self-contained.
 
 ---
+
+## Latest review — 2026-10-01, session 8 (the rejection's real cause; the data blocker closed; R14/R15)
+
+### 0. The one thing that matters most: the download is now the encoding the platform has actually accepted
+
+The front door had the two encodings **backwards**. Sessions 6–7 shipped the zero-filled file as
+primary because they believed the NaN cells caused the form's
+`Predicted values must be in range [0, 1]` rejection. That belief is falsified by measurement
+(`scripts/audit_platform_encoding.py` → [`reports/platform_encoding_evidence.json`](reports/platform_encoding_evidence.json)):
+
+| | rejected file<br>`archive/13gems-r11-greedy-mp.tif` | official `sample_submission.tif`<br>sha256 `2176d08e…` | all 9 platform-scored group files |
+|---|---|---|---|
+| NaN inside the 5,167,373-px footprint | **0** | 0 | 0 |
+| finite cells outside the footprint | **0** | 0 | 0 |
+| NaN outside the footprint | **7,111,787** | 7,111,787 | 7,111,787 |
+| `GDAL_NODATA` | **nan** | nan | nan |
+| finite value range | **[0.0, 1.0]** | [0.0, 1.0] | [0.0, ≤1.0] |
+| dtype / CRS / shape / transform | **identical** | float32 · EPSG:32611 · 3730×3292 · (100,0,243350,0,−100,4508550) | identical |
+| Compression / tiling | DEFLATE / tiled | LZW / striped | DEFLATE (7) **and** LZW (2); tiled **and** striped |
+| **TIFF `Predictor`** | **2** | **1 (none)** | **1 (6 files) and 3 (3 files) — never 2** |
+
+The rejected file's NaN placement is *identical* to the official template's and to every file the
+platform has scored. (The 10th audited file, `gems12_r7nms3_allfinite`, is the all-finite twin of a scored
+NaN-outside submission and shares its recorded 0.1294 — see the HEDGE row above; it is team-recorded, not
+receipted.) Its one deviation is `Predictor=2` — TIFF 6.0 horizontal differencing, defined
+for **integer** samples; the floating-point predictor is `Predictor=3` (TIFF Technical Note 3), which
+three of the nine scored files use correctly. A reader that decompresses but never runs the
+accumulator returns the stored differences reinterpreted as float32: for this exact file that decodes
+to **min −4.0, max 3.0** — outside `[0, 1]`, i.e. precisely the message the form returned. Reproduced,
+not asserted: `src/gems/encoding.simulate_ignored_predictor2`, pinned by
+`tests/test_encoding.py::TheRejectedFile`.
+
+**Actions taken.** Primary is now the NaN-outside file; the zero-filled file is a labelled hedge.
+`src/gems/rio.write_submission` pins `predictor=1`; `frontdoor._all_ok` refuses to release any file
+whose predictor is not none; `submit.json` is schema 2 (`primary` / `hedge`, with a `schema_note`
+explaining the swap); the aliases `latest_nan.*` and `latest_allfinite.*` are **retired and deleted**
+because they inverted the roles (I-19); `latest.tif` is now the NaN-outside primary.
+`scripts/verify_download.py` runs **80 checks** and all pass; `pytest tests -q` is **114 passed,
+4 skipped**. Session-7 files are archived under `docs/downloads/archive/session7-superseded-*`, not
+deleted. Irregularities **I-8 and I-18 are closed**; **I-22** records the evidence.
+
+**Still honest:** no file *from this repository* has passed DrivenData's own validator. Acceptance is
+established only by the form's own response, logged in [`reports/form_responses.json`](reports/form_responses.json).
+What is established is that this encoding is the one DrivenData's own template uses and the one every
+scored group file uses.
+
+### 1. The data blocker named in the standing brief is closed
+
+The brief said training was blocked on `bash scripts/download_competition_data.sh` +
+`python scripts/prepare_data.py`. **Neither script existed in this repository.** Both now do, and both ran:
+
+* [`scripts/download_competition_data.sh`](scripts/download_competition_data.sh) — places all three
+  official rasters in `data/raw/` **without a DrivenData login**, from this group's own public mirror
+  (`buffedlizard55-lab/GEMSDOE`, `data/bridge/`, itself populated on a GitHub-hosted runner from the
+  official data tab), verifying every part and the reassembled file against published SHA-256 pins.
+  `training_features.tif` 418,912,844 B sha256 `4371c82e3b8339b807bdffcf4ef59a225520fe2988d521be208ae33743123bc5`;
+  `sample_submission.tif` sha256 `2176d08e…`; `labels.tif` sha256 `7ba308cc…`. All three match.
+  The canonical-name mapping (`gems-geodawn-numerical-features.tif` == `training_features.tif`, etc.)
+  comes from that repo's `data/bridge/manifest.json`, which also **resolves I-1**: the file we called
+  `example_submission.tif` *is* the official `sample_submission.tif`, independently pinned to the same
+  sha256 by 16GEMSDOE's CI. The official sample really does carry 1.0 at the 60,988 catalogue pixels,
+  contradicting the problem page's "predicts total fault absence" — a discrepancy in the official
+  material, not a mislabelled mirror.
+* [`scripts/prepare_data.py`](scripts/prepare_data.py) — audits all 19 bands from the stack's own GDAL
+  tags (never typed) → `data/derived/{band_index,band_stats,prepare_manifest}.json`. **Every band
+  carries the float32 sentinel `-3.4028235e38` on 3,061 pixels inside the scored footprint**
+  (band 6: 3,073). That is the mechanism by which invalid values reach a submission and produce the
+  range error, and it is now asserted on placement rather than remembered.
+
+### 2. Two organiser statements, verified verbatim, that change the strategy
+
+1. **Known faults are masked out of scoring, in both rounds.** “Pixels corresponding to known
+   USGS/INGENIOUS faults are masked / excluded from evaluation, so they do not count towards penalty
+   terms.” “Re-evaluation will also mask/exclude the existing USGS/INGENIOUS faults.” “for scoring
+   purposes it should not matter whether these known faults are included with predictions or not.” —
+   `chrisk-dd`, **DrivenData Staff**, 2026-09-16,
+   [forum 11516 post 2](https://community.drivendata.org/t/scoring-clarification-are-known-usgs-ingenious-faults-masked-when-scoring-and-are-they-in-the-final-round-label-set/11516/2).
+   ⇒ every R8–R13 recipe here that advertised `include_known_catalogue: true` was buying **exactly
+   zero** (**I-27**). New gate D4 requires every candidate to be ≥ 95 % off-catalogue.
+2. **Phase 2 rewards credible geology, not only Phase-1 score.** “We're not sharing details about the
+   data sources, fault types, or coverage behind the test faults beyond what's in the problem
+   description. Note that the largest prize pool (Phase 2) will use a test set that is updated by
+   expert review of all Phase 1 submissions, so your fault predictions have an impact on final
+   evaluation even if they are not the most performant in Phase 1.” — `chrisk-dd`, 2026-09-23,
+   [forum 11527 post 7](https://community.drivendata.org/t/how-were-the-new-test-faults-identified-data-sources-and-fault-types/11527/7).
+   ⇒ a fault-blind lattice is not a claim an expert can verify and add to the label set. $250,000 sits
+   on that round versus $50,000 on Phase 1. This is a real, organiser-stated argument for shipping
+   geologically interpretable traces even at some Phase-1 cost.
+
+### 3. No local truth set predicts the recorded public scores (**I-26**)
+
+`scripts/calibrate_truth_sets.py` re-scored the 9 independent platform-scored files against 7 truth
+sets × 2 masking policies and Spearman-correlated each with the recorded public score
+([`reports/truthset_calibration.json`](reports/truthset_calibration.json)):
+
+| truth set | px | ρ (masked) | p | ρ (unmasked) | p |
+|---|---|---|---|---|---|
+| `known_hidden25` | 15,352 | 0.326 | 0.391 | **0.393** | 0.295 |
+| `known_dense` | 60,988 | 0.343 | 0.366 | 0.343 | 0.366 |
+| `sgmc_offcat_r32` | 34,907 | −0.368 | 0.330 | −0.368 | 0.330 |
+| `sgmc_offcat_r8` | 70,762 | −0.418 | 0.262 | −0.418 | 0.262 |
+| `sgmc_offcat_r3` | 83,636 | −0.444 | 0.232 | −0.444 | 0.232 |
+| `sgmc_offcat_r0` | 105,589 | −0.452 | 0.222 | −0.452 | 0.222 |
+| `sgmc_offcat_r16` | 56,917 | −0.502 | 0.168 | −0.502 | 0.168 |
+
+**Nothing reaches significance at n = 9** (smallest p = 0.168) and the USGS State Geologic Map (SGMC)
+off-catalogue variants correlate *negatively*. 16GEMSDOE reports ρ = +0.518 (p = 0.048, n = 15) for its
+own `sgmc_gap`; **not reproduced here** — my `sgmc_offcat_r16` is similar in size but defined by
+distance from the catalogue rather than by geologic-map attributes, and it comes out with the opposite
+sign. Unresolved, and flagged rather than reconciled by assertion. The SGMC raster itself is committed
+(`data/external_sgmc/derived_sgmc_faults_100m_u8.tif`, 226,663 B, sha256 `d569d553…`, provenance and
+official source URLs in [`scripts/fetch_sgmc_truth.py`](scripts/fetch_sgmc_truth.py)).
+
+**Consequence, accepted:** the doctrine “the holdout best gets the slot” cannot be used to claim any
+local win will transfer, and the lattice's 18/18 win (I-21) is **not** evidence of leaderboard value.
+
+### 4. The old proxy is structurally blind to the mechanism that matters (**I-24**)
+
+`gems.holdout.group_systems(link_px=8)` dilates the catalogue by 8 px before labelling, so any two
+traces within ~1.6 km become ONE system and are hidden together: whatever is withheld is ≥ ~16 px from
+everything visible — four to five times the metric's 300 m kernel. Measured over 15 folds × 2 buffer
+settings ([`reports/r14_budget_curve.json`](reports/r14_budget_curve.json),
+[`scripts/r14_budget_curve.py`](scripts/r14_budget_curve.py)): ranking pixels by distance to the
+visible catalogue scores DTI ≤ **0.0146** at *every* budget from 0.5 % to 100 %, while a fault-blind
+stride-5 lattice scores **0.1063**. Real new faults are continuations, stepovers and parallel strands
+of mapped ones — inside the forbidden ring. `buffer_px` 5 vs 0 changes almost nothing
+(random@4 % 0.08417 vs 0.08361), so the blindness comes from `link_px`, not the buffer.
+
+Raw geophysical **magnitude** rankings are also worse than uniform random at every budget:
+detrended-elevation slope peaks at DTI 0.0254 (15 % coverage), TMI horizontal gradient 0.0265,
+gravity slope 0.0203, strain-rate second invariant 0.0503, max second directional derivative of
+elevation 0.0281 — against 0.0842 for random at 4 %. That is why six rounds of feature engineering
+never moved the needle.
+
+Fix: `gems.holdout.tip_folds` — withhold only the outermost 8/16/32 px of every trace ≥ 20 px, with
+**no** `link_px` grouping, so hidden truth abuts visible catalogue (max distance 6 px, inside the
+kernel). 9 folds; every catalogue pixel is accounted for as hidden **or** visible, never neither.
+
+### 5. R14 result — along-strike propagation is real, but the predeclared gate was not passed
+
+Register: [`knowledge/10_r14_hypotheses.md`](knowledge/10_r14_hypotheses.md) (predeclared, with
+addendum B written before the corrected run was read). Report:
+[`reports/holdout_r14_2026-10-01.json`](reports/holdout_r14_2026-10-01.json).
+
+| map | tip folds<br>worst-rule | tip folds<br>mean | 15 old folds<br>worst-rule | SGMC ≥16 px | paired tip wins | verdict |
+|---|---|---|---|---|---|---|
+| **`lattice_s5` (reference, shipped)** | 0.08801 | 0.11276 | **0.10657** | **0.23913** | — | reference |
+| `halo@0.01` / `@0.02` / `@0.04` | 0.02095 / 0.02620 / 0.03871 | 0.04784 / 0.04950 / 0.05673 | 0.00000 | 0.00000 | 2/9 · 0/9 · 0/9 | fail |
+| `tips_L5@0.01` / `L10` / `L20` | 0.06701 / 0.07859 / **0.09394** | 0.14770 / 0.16268 / **0.17433** | 0.00000 | ≈0 | 5/9 · 5/9 · 6/9 | fail D2, D3 |
+| `tips_L20@0.02` | **0.10271** | 0.16396 | 0.00000 | 0.00227 | 6/9 | fail D2, D3 |
+| `tips_L5@0.04` / `L10` / `L20` | 0.10197 / 0.10146 / 0.09822 | 0.11861 / 0.12991 / 0.13285 | 0.06079 / 0.04158 / 0.00000 | 0.12057 / 0.05820 / 0.00773 | 3/9 · 5/9 · 6/9 | fail D2, D3 |
+| `union_tipsL20_1pct+lat7_4pct` | 0.12160 | 0.13985 | 0.06569 | 0.14042 | 6/9 | fail D2, D3, D5 |
+| `union_tipsL20_2pct+lat7_4pct` | 0.11895 | 0.13668 | 0.05336 | 0.12549 | 6/9 | fail D2, D3, D5 |
+| **`union_tipsL10_1pct+lat6_4pct`** | **0.12253** | 0.13203 | 0.07865 | 0.17339 | 6/9 | fail D2, D3, D5 |
+
+**Winners: none.** Per the predeclared rule no submission slot is spent and the primary stays
+`lattice_s5`. What the run *did* establish:
+
+* **Direction carries information that proximity does not** (predeclared prediction **P2, confirmed**):
+  at every equal budget the along-strike ribbons beat the isotropic halo on the tip folds — at 1 %,
+  0.1477 / 0.1627 / 0.1743 (L = 5/10/20 px) against 0.0478; at 4 %, 0.1186 / 0.1299 / 0.1329 against
+  0.0567. Mechanism: at a 1 % budget the halo spends everything on the ~1-px ring around the whole
+  visible catalogue (~150,000 px), of which only the pixels that actually *continue* a trace are truth.
+* **P1 was falsified** and is recorded as falsified: the isotropic halo does *not* beat the lattice on
+  the tip folds.
+* **The best hedged candidate** is `union_tipsL10_1pct+lat6_4pct` (along-strike ribbons at 1 %, then a
+  stride-6 lattice filling a fixed 4 % total): **+39 %** over the reference on the tip-fold worst rule
+  (0.12253 vs 0.08801), **−0.0279** on the old folds' worst rule (gate D3 allows 0.002), 6/9 paired
+  tip wins (gate D2 wants 7), and 100 % off-catalogue in deployment (192,231 px, 3.7201 % of the
+  footprint). It is published as a **listed second candidate** — an experiment arm, not a
+  recommendation — because the two fold families disagree *by construction* (I-24) and no local truth
+  set can adjudicate (I-26).
+* **A tie-breaking bug was found, measured and fixed rather than hidden** (addendum B.1): the first run
+  selected top-K with a bare `argpartition`, which on a massively tied field put **959 of 1000**
+  selections in the first row decile and never sampled 7 of 10 deciles (I-14 recurring; now pinned by
+  `tests/test_r14.py::TieBreaking`). Adding a fixed seeded spatially uniform tie-break moved some
+  candidates by up to **11×** (`tips_L5@0.04` on SGMC 0.01126 → 0.12057) and left the tie-free
+  reference untouched, so the entire first run is void and only the corrected numbers are reported.
+  Also stated plainly: the jitter does **not** explain the halo's weakness (it moved it ≤ 24 %).
+
+### 6. Why 0.1563 repeats, and why 0.3049 is the wrong target
+
+* The leaderboard target in the standing brief is **stale**. Fetched once on 2026-10-01 from the
+  official public page ([`reports/leaderboard_snapshot_2026-10-01.json`](reports/leaderboard_snapshot_2026-10-01.json)):
+  **#1 DARD 0.3168** (11 submissions), #2 alexoktaba 0.3042 (18), #3 joeyfezster 0.2919 (16),
+  #4 xiaofanhu 0.2901, #5 HardcoreTechGod 0.2854. `0.3049` does not appear anywhere in the snapshot.
+  One group account is visible: **smrtdoog5 at rank 23 with 0.1894 on only 4 submissions** — higher
+  than the 0.1563 this project's ledger records as the group's best. `extradr19` is at rank 25
+  (score not captured, recorded as not-captured rather than guessed).
+* **Duplication is part of it, and it is verified**: git blob `812e61b74050d1350cc2bde1fab0c76ead32e0c4`
+  (570,890 B) sits in `GEMSDOE`, `5GEMSDOE` and `GEMSDOE2` under names asserting 0.1563 (**I-20**).
+  Identical bytes cannot score differently, so at least one of those labels is a copied artefact.
+  `gems8_apex`'s 0.1563 is a *different* map (6.7 % shared positive support, Pearson −0.55), so
+  duplication does not explain that one.
+* **The leaderboard column is an account-level best**, so a run of weaker uploads leaves an old number
+  on display (**I-3**), and no per-submission receipt exists for any row
+  (`reports/leaderboard_ledger.csv`, `verified = NO` for all 10).
+* **New, from the metric algebra:** `DTI = 1/(0.2/P_w + 0.8/R_w)`. Solving for the leader's 0.3168
+  requires P_w ≈ 0.10–0.13 at R_w ≈ 0.5–0.7. The two group data points that bracket it are
+  `gems7_halo15` (1,828,699 px = 35.4 % coverage, 0.1461 — recall-rich, precision-poor) and
+  `gemsdoe1_ens12` (172,974 px = 3.3 %, 0.1563 — the reverse). **Neither is near the optimum, and
+  0.3168 is not reachable by coverage geometry at all**: a blind lattice's arithmetic ceiling is
+  ≈ 0.28 and only if the private truth set is as large as the entire public catalogue. The remaining
+  gap is information, not budget.
+
+### 7. Recommended way to spend the three weekly uploads (a designed experiment, not three guesses)
+
+Allowance: three scored submissions per **rolling** 7-day window (Official Rules §3.2; staff, forum
+11524). Whether a *rejected* upload consumes an allowance is undocumented in anything this project
+could fetch — ask <info@drivendata.org> before relying on either answer. All three arms below are
+format-proven, uniquely named and uniquely noted, so one public score each settles what no local proxy
+can (I-26):
+
+| arm | file | what one score tells us |
+|---|---|---|
+| **A — coverage** | `13gems_20261001_r13-lattice-s5_v2_nan-outside.tif` | whether the coverage plateau reproduces; also the first receipt for the corrected encoding |
+| **B — propagation** | (build with `scripts/publish_r14_union.py`-style tips-only at 1 %) | whether along-strike continuation transfers, which P2 says is real information |
+| **C — union** | `13gems_20261001_r14-union-tips10-lat6_nan-outside.tif` | whether the hedge dominates both, i.e. whether I-24's disagreement is resolvable by mixing |
+
+Order matters: **A first**, because it is the encoding receipt; then C; then B. Record every response
+in `reports/form_responses.json` and every score in `reports/leaderboard_ledger.csv` with its file
+sha256, or the next session inherits the same ambiguity.
+
+### 8. Limitations of this session (what I could not do or verify)
+
+* **No DrivenData credentials.** Cannot submit, cannot read the data tab, cannot see the validator or
+  the private labels. Acceptance remains unestablished for every file here.
+* **Egress is blocked** for `www.dropbox.com`, `gdr.openei.org`, `mrdata.usgs.gov` and
+  `buffedlizard55-lab.github.io` (`curl: (35) SSL_ERROR_SYSCALL`), so the live Pages URL could not be
+  fetched from here; the download was verified against the committed bytes and the Pages build status
+  (`gh api … /pages/builds/latest` → `built`, commit `ff76c37`). The user-supplied Dropbox mirrors were
+  **not** used: the group's own hash-pinned mirror was, and all three pins matched.
+* **No GPU, 2 CPUs, 3 GB RAM.** The official reference solution is a U-Net (ResNet-18 encoder,
+  128-px patches, 5 Monte-Carlo splits); it cannot be trained here. Nothing supervised was trained
+  this session — the R14 candidates are geometry-only by design, which is also what makes them
+  auditable.
+* **Band 6's identity is still contested** (**I-25**): its own GDAL tag says “tilt angle or total
+  curvature”, 16GEMSDOE measured r = +0.997 against USGS GeoDAWN radiometric total count, 12GEMSDOE
+  concluded it is the top-of-crustal magnetic source depth. Not re-derived here (no external
+  radiometric raster staged), so the register uses it only as a positive-valued scalar.
+* **H-R14-2/3/4/5 were predeclared but not implemented or measured** — no result for them exists and
+  none is implied. H-R14-5 additionally needs a runner to fetch the 1 m 3DEP DEM; obtainability from
+  this sandbox is **unverified**.
+* The SGMC ≥16 px truth set inherits I-24's bias (it excludes everything near the catalogue by
+  construction), so its column above is *not* an unbiased external check; `sgmc_offcat_r0` should be
+  added next session.
+* Root `/.nojekyll` added (**I-23**): Pages source is the repo root, so `docs/.nojekyll` was inert and
+  Jekyll was processing every page and asset on every build.
 
 ## Latest review — 2026-10-01, session 7 (download front door; R13)
 

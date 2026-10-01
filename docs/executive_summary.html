@@ -11,8 +11,8 @@
 </div></header>
 <div class="dlbar"><div class="wrap">
   <span class="lbl">SUBMISSION FILE</span>
-  <a class="dlb" href="downloads/13gems_20261001_r13-lattice-s5_A_zerofill.tif" download>⬇ Download 13gems_20261001_r13-lattice-s5_A_zerofill.tif (1.0 MB)</a>
-  <a class="dlz" href="downloads/13gems_20261001_r13-lattice-s5_A_zerofill.zip" download>.zip</a>
+  <a class="dlb" href="downloads/13gems_20261001_r13-lattice-s5_v2_nan-outside.tif" download>⬇ Download 13gems_20261001_r13-lattice-s5_v2_nan-outside.tif (1.7 MB)</a>
+  <a class="dlz" href="downloads/13gems_20261001_r13-lattice-s5_v2_nan-outside.zip" download>.zip</a>
   <a class="dlh" href="executive_summary.html">How to submit →</a>
 </div></div>
 
@@ -21,16 +21,20 @@
   <h2>Executive summary — how to submit, exactly</h2>
   <p class="lede">One file to upload, one line to paste. Nothing to build or edit.</p>
   <div class="panel pri">
-    <a class="bigbtn dark" href="downloads/13gems_20261001_r13-lattice-s5_A_zerofill.tif" download>
+    <a class="bigbtn dark" href="downloads/13gems_20261001_r13-lattice-s5_v2_nan-outside.tif" download>
       <span class="ico">⬇</span><span><b>DOWNLOAD SUBMISSION .TIF</b>
-      <small>13gems_20261001_r13-lattice-s5_A_zerofill.tif · 1.0 MB</small></span></a>
-    <a class="btn ghost dark" href="downloads/13gems_20261001_r13-lattice-s5_A_zerofill.zip" download>⬇ same file as .zip</a>
+      <small>13gems_20261001_r13-lattice-s5_v2_nan-outside.tif · 1.7 MB</small></span></a>
+    <a class="btn ghost dark" href="downloads/13gems_20261001_r13-lattice-s5_v2_nan-outside.zip" download>⬇ same file as .zip</a>
   </div>
-  <div class="panel"><b>Second candidate for your next slot — R11 greedy recipe (second candidate):</b>
-    <a href="downloads/13gems_20261001_r11-greedy-mp_A_zerofill.tif" download>13gems_20261001_r11-greedy-mp_A_zerofill.tif</a>
-    (<a href="downloads/13gems_20261001_r11-greedy-mp_A_zerofill.zip" download>.zip</a>) — the R11 greedy marginal-precision recipe (topographic ridge 5 % + three greedy blocks): the previous holdout best, a real map built from the geophysics/topography bands.
-    Note to paste: <code>r11 greedy-mp A-zerofill 20261001 | topo ridge 5% + 3 greedy blocks | local holdout win, not a LB claim</code>
-    If the form rejects it: <a href="downloads/13gems_20261001_r11-greedy-mp_B_nan-outside.tif" download>NaN-outside variant</a>.</div>
+  <div class="panel"><b>Second candidate for your next slot — R11-4 greedy marginal-precision recipe (second candidate):</b>
+    <a href="downloads/13gems_20261001_r11-greedy-mp_v2_nan-outside.tif" download>13gems_20261001_r11-greedy-mp_v2_nan-outside.tif</a>
+    (<a href="downloads/13gems_20261001_r11-greedy-mp_v2_nan-outside.zip" download>.zip</a>) — the R11 greedy marginal-precision recipe (topographic ridge 5 % plus three greedy blocks): the previous holdout best, a real map built from the geophysics/topography bands.
+    Note to paste: <code>r11 greedy-mp v2 20261001 | topo ridge 5% + 3 greedy blocks | local holdout win, not a LB claim</code>
+    Only if the form rejects it: <a href="downloads/13gems_20261001_r11-greedy-mp_v2_zerofill.tif" download>zero-filled hedge variant</a> (no NaN anywhere).</div><div class="panel"><b>Second candidate for your next slot — R14 prioritised union — geological prior with a coverage floor:</b>
+    <a href="downloads/13gems_20261001_r14-union-tips10-lat6_nan-outside.tif" download>13gems_20261001_r14-union-tips10-lat6_nan-outside.tif</a>
+    (<a href="downloads/13gems_20261001_r14-union-tips10-lat6_nan-outside.zip" download>.zip</a>) — a geological prior with a coverage floor: along-strike propagation ribbons grown from every tip of the full public fault catalogue (1 % of the footprint), then a fault-blind stride-6 lattice filling the remainder of a fixed 4 % total budget. It did NOT pass the predeclared R14 gate (it wins the new tip folds&#x27; worst-rule mean by +39 % over the shipped reference and loses the 15 pre-existing folds by 0.028, beyond the 0.002 allowance), so it is a listed experiment arm, not a recommendation, and not a predicted leaderboard score.
+    Note to paste: <code>r14 union 20261001 | along-strike tips 1% + stride-6 lattice to 4% total | fails predeclared gate D2/D3, experiment arm</code>
+    Only if the form rejects it: <a href="downloads/13gems_20261001_r14-union-tips10-lat6_zerofill.tif" download>zero-filled hedge variant</a> (no NaN anywhere).<div class='small' style='margin-top:.35rem'><b>Predeclared gate: does NOT pass the predeclared gate (D2 6/9, D3 loses 0.0279)</b> — register <code>knowledge/10_r14_hypotheses.md (addendum B.2)</code>, report <code>reports/holdout_r14_2026-10-01.json</code>. Role: experiment arm, not a recommendation.</div></div>
   <ol class="steps">
     <li><h4>1. Download</h4>
       <p>Click the button above. The file is a single-band float32 GeoTIFF on the official grid.
@@ -45,12 +49,12 @@
       (Login required — this site cannot do it for you, and no credentials are ever stored here.)</p></li>
     <li><h4>3. Fill the two fields</h4>
       <table class="small">
-        <tr><td><b>File to submit</b></td><td class="mono">13gems_20261001_r13-lattice-s5_A_zerofill.tif <span class="small">(or 13gems_20261001_r13-lattice-s5_A_zerofill.zip)</span></td></tr>
+        <tr><td><b>File to submit</b></td><td class="mono">13gems_20261001_r13-lattice-s5_v2_nan-outside.tif <span class="small">(or 13gems_20261001_r13-lattice-s5_v2_nan-outside.zip)</span></td></tr>
         <tr><td><b>Note (optional)</b><br><span class="small">“a short comment to help you or your team tell submissions apart later”</span></td>
-            <td class="mono">r13 lattice-s5 A-zerofill 20261001 | fault-blind every-5th-px grid, coverage baseline | local holdout 18/18 win, not a LB claim</td></tr>
+            <td class="mono">r13 lattice-s5 v2 20261001 | fault-blind every-5th-px grid, coverage baseline | local holdout 18/18 win, not a LB claim</td></tr>
       </table>
       <p class="small"><b>Unique name:</b> the file name above is unique to this build
-      (<code>13gems_20261001_r13-lattice-s5</code> = project, date, recipe) and file names are never reused —
+      (<code>13gems_20261001_r13-lattice-s5_v2</code> = project, date, recipe) and file names are never reused —
       the generator refuses to overwrite one. The SHA-256 below identifies the exact bytes,
       so a score shown on DrivenData can always be matched to a file.</p></li>
     <li><h4>4. Submit and record the response</h4>
@@ -72,19 +76,26 @@
   <h2>If the form rejects the file — one row per message</h2>
   <div class="scroll"><table><thead><tr><th>What the form says</th><th>What it means / what we know</th><th>Do this</th></tr></thead><tbody>
   <tr><td><code>Predicted values must be in range [0, 1]</code></td>
-      <td>The only response on record (user-reported 2026-09-30, on the NaN-outside file the site then
-      served; <code>reports/form_responses.json</code>). File A has <b>no NaN, no Inf, min 0.0, max 1.0</b>
-      (verified), so a value-range violation in the usual sense is impossible; a validator that
-      mishandles NaN would trip on a NaN file but not on A.</td>
-      <td>Upload <b>A</b>. If A itself returns this message, stop, copy the message and the time, and
-      email <a href="mailto:info@drivendata.org">info@drivendata.org</a> with the SHA-256
-      <code>c12533bb980234c3…</code> — that would be new evidence, not a retry case.</td></tr>
+      <td><b>Root cause found (2026-10-01).</b> The rejected file was
+      <code>docs/downloads/archive/13gems-r11-greedy-mp.tif</code>: its NaN placement was already
+      perfect (0 NaN inside the footprint, all 7,111,787 NaN outside it, NoData = nan, every finite
+      value in [0, 1]) — identical to the official template. Its <b>only</b> deviation from the nine
+      platform-scored group files was TIFF <code>PREDICTOR=2</code> (integer horizontal differencing)
+      on IEEE-float samples. A reader that does not run that accumulator decodes the stream to
+      <b>[−4.0, 3.0]</b>: reproduced in <code>src/gems/encoding.simulate_ignored_predictor2</code> and
+      recorded in <code>reports/platform_encoding_evidence.json</code>. The earlier “NaN caused it” story
+      is <b>falsified</b>: the official template and all nine scored files carry those NaN cells.</td>
+      <td>Upload <b>A</b> — it has no predictor and the template's exact layout. If A itself returns this
+      message, stop, copy the message and the time, and email
+      <a href="mailto:info@drivendata.org">info@drivendata.org</a> with the SHA-256
+      <code>b4570b406efec198…</code> — that would be new evidence, not a retry case.</td></tr>
   <tr><td>Anything about NaN, null, NoData, mask or “outside the bounds”</td>
       <td>The problem page says data outside the bounds “is null or nan”
-      (<a href="https://www.drivendata.org/competitions/306/competition-doe-gems/page/967/">Submission format</a>). B follows that convention exactly and
-      matches the byte layout of the official example.</td>
-      <td>Upload <b>B</b>: <a href="downloads/13gems_20261001_r13-lattice-s5_B_nan-outside.tif" download>13gems_20261001_r13-lattice-s5_B_nan-outside.tif</a>
-      (<a href="downloads/13gems_20261001_r13-lattice-s5_B_nan-outside.zip" download>.zip</a>).</td></tr>
+      (<a href="https://www.drivendata.org/competitions/306/competition-doe-gems/page/967/">Submission format</a>). A already follows that convention exactly.
+      B is the opposite convention (0.0 outside, no NoData tag) and is only a hedge for a validator that
+      rejects NaN itself.</td>
+      <td>Upload <b>B</b>: <a href="downloads/13gems_20261001_r13-lattice-s5_v2_zerofill.tif" download>13gems_20261001_r13-lattice-s5_v2_zerofill.tif</a>
+      (<a href="downloads/13gems_20261001_r13-lattice-s5_v2_zerofill.zip" download>.zip</a>).</td></tr>
   <tr><td>CRS, shape, transform, bands, dtype</td>
       <td>Verified locally equal to the official grid (EPSG:32611, 3,730 × 3,292, 100 m, transform
       (100.0, 0.0, 243350.0, 0.0, -100.0, 4508550.0), 1 band, float32).</td>
@@ -92,24 +103,30 @@
       compare the SHA-256 (<code>sha256sum</code>) with the value below.</td></tr>
   <tr><td>Not a valid GeoTIFF / cannot read</td>
       <td>Usually a truncated download or an HTML error page saved as .tif (file would be a few KB).</td>
-      <td>Re-download; the size must be 969,784 bytes. Or use the .zip.</td></tr>
+      <td>Re-download; the size must be 1,706,456 bytes. Or use the .zip.</td></tr>
   </tbody></table></div>
-  <p class="small">History and open questions (not hidden): NaN-outside files from this group were
-  recorded as accepted and scored on ~2026-09-27, and a NaN-outside file was reported rejected on
-  2026-09-30, so the platform's validator may have changed or may be inconsistent
-  (irregularity I-8). Separately, every file this repository generated before 2026-10-01 used an
-  unusual TIFF predictor (PREDICTOR=2 on float32) that no file the platform is recorded as scoring
-  used; the current files use the official example's layout (I-18). Neither is proven to be the cause —
-  <b>only the form's response can establish acceptance.</b></p>
+  <p class="small">History and open questions (not hidden): the apparent contradiction in irregularity
+  I-8 — “NaN-outside files were scored on ~2026-09-27, and a NaN-outside file was rejected on
+  2026-09-30” — is resolved. The rejected file is not comparable to the scored ones on NaN placement at
+  all: it matches them exactly. It differs in one structural respect, <code>PREDICTOR=2</code>, which no
+  scored file uses (three of them use <code>PREDICTOR=3</code>, the correct floating-point predictor, and
+  the rest use none). I-8 is closed as “validator is neither changed nor inconsistent”; I-18 is closed as
+  “the predictor, not the NaN, and specifically <code>PREDICTOR=2</code> on float samples”. Recorded in
+  <code>knowledge/02_irregularities.md</code> as I-22. <b>Acceptance is still only ever established by the
+  form's own response</b>, logged in <code>reports/form_responses.json</code>.</p>
 </section>
 
 <section>
   <h2>Exactly what was verified on these bytes</h2>
   <div class="scroll"><table class="small"><thead><tr><th></th><th>A — upload first</th><th>B — fallback</th></tr></thead><tbody>
-    <tr><td>File</td><td class="mono">13gems_20261001_r13-lattice-s5_A_zerofill.tif</td><td class="mono">13gems_20261001_r13-lattice-s5_B_nan-outside.tif</td></tr>
-    <tr><td>Size · SHA-256</td><td class="mono">969,784 B<br>c12533bb980234c3a706af641d4f1d514bbbe482714b2ebcac3b10f3e72a7a3f</td><td class="mono">1,706,456 B<br>b4570b406efec198eb2f4d142ad8d0d6184b14b66f2f52b5c4d697f0647dc9b2</td></tr>
-    <tr><td>Outside the survey footprint</td><td>0.0, no NoData tag</td><td>NaN, NoData = nan</td></tr>
-    <tr><td>NaN / Inf cells</td><td>0 / 0</td><td>7,111,787 (all outside footprint) / 0</td></tr>
+    <tr><td>File</td><td class="mono">13gems_20261001_r13-lattice-s5_v2_nan-outside.tif</td><td class="mono">13gems_20261001_r13-lattice-s5_v2_zerofill.tif</td></tr>
+    <tr><td>Size · SHA-256</td><td class="mono">1,706,456 B<br>b4570b406efec198eb2f4d142ad8d0d6184b14b66f2f52b5c4d697f0647dc9b2</td><td class="mono">969,784 B<br>c12533bb980234c3a706af641d4f1d514bbbe482714b2ebcac3b10f3e72a7a3f</td></tr>
+    <tr><td>Outside the survey footprint</td><td>NaN, NoData = nan <b>(the official template's encoding)</b></td><td>0.0, no NoData tag</td></tr>
+    <tr><td>NaN / Inf cells</td><td>7,111,787 (all outside the footprint) / 0</td><td>0 / 0</td></tr>
+    <tr><td>NaN inside the footprint</td><td>0</td><td>0</td></tr>
+    <tr><td>Matches the empirically accepted platform encoding</td>
+        <td>YES</td>
+        <td>no (expected: it is the hedge)</td></tr>
     <tr><td>Value range</td><td>[0.0, 1.0]</td><td>[0.0, 1.0] (finite cells)</td></tr>
     <tr><td>Predicted cells (&gt; 0)</td><td>206,895</td><td>206,895</td></tr>
     <tr><td>Grid</td><td colspan="2">GTiff · 1 band · float32 · EPSG:32611 · 3292 × 3730 · transform (100.0, 0.0, 243350.0, 0.0, -100.0, 4508550.0) — equals the official grid</td></tr>
@@ -119,7 +136,7 @@
   </tbody></table></div>
   <p class="small">Re-run it yourself: <code>python scripts/verify_download.py</code> (add <code>--live</code> to
   fetch the published file and compare its hash). Not verifiable from this repository:
-  DrivenData's own validator and the hidden labels. Generated 2026-10-01T01:17:59Z ·
+  DrivenData's own validator and the hidden labels. Generated 2026-10-01T01:54:02Z ·
   manifest <a href="downloads/submit.json">downloads/submit.json</a>.</p>
 </section>
 
@@ -129,7 +146,7 @@
     <ul class="small">
       <li>Same projected CRS and bounds as training data: <b>EPSG:32611</b></li>
       <li>Same resolution: <b>100 m</b></li>
-      <li>Data outside the bounds: <b>null or nan</b> (A uses 0.0 instead — see the table above for why and for B)</li>
+      <li>Data outside the bounds: <b>null or nan</b> — A does exactly this; B is the 0.0-filled hedge</li>
       <li>One layer, <b>float32</b>, values between <b>0 and 1</b> (higher = more likely a fault)</li>
     </ul>
     <p class="small">Official source:
@@ -151,7 +168,7 @@
 <footer class="site"><div class="wrap">
   <p><strong>13GEMSDOE</strong> — working repository for the
   <a href="https://www.drivendata.org/competitions/306/competition-doe-gems/">DOE GEMS Prize Challenge</a>.
-  Page generated 2026-10-01 01:20 UTC from <code>reports/*.json</code>.</p>
+  Page generated 2026-10-01 02:43 UTC from <code>reports/*.json</code>.</p>
   <p class="small">Every figure on this site is produced by a script in this
   repository and is reproducible from a clean checkout. Claims that could not be
   verified against an official source are listed as irregularities rather than

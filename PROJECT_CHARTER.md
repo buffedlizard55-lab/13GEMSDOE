@@ -124,13 +124,61 @@ the supplied feature bounds and test chunks come from the same region, but the
 label-generating process and fault types may differ. We do not claim the local
 holdout reproduces that shift.
 
+### 6.1 Session-8 amendments (2026-10-01) — read these before trusting any holdout
+
+Added because measurement, not argument, changed three standing assumptions.
+Evidence: `knowledge/02_irregularities.md` I-22, I-24, I-26, I-27;
+`reports/platform_encoding_evidence.json`, `reports/truthset_calibration.json`,
+`reports/r14_budget_curve.json`.
+
+1. **Encoding is settled and is not a matter of opinion.** The upload encoding
+   is NaN outside the footprint, `GDAL_NODATA=nan`, every footprint value finite
+   and in `[0, 1]`, and **never TIFF `PREDICTOR=2`**. That is the official
+   `sample_submission.tif`'s encoding and the encoding of 9 of the 10 audited
+   scored files; the one file the form ever rejected is the only one in the
+   project's history written with `Predictor=2`. The zero-filled all-finite file
+   is a labelled hedge only. `scripts/verify_download.py` enforces tag-for-tag
+   equality with the template on every build.
+2. **Catalogue mass is worth exactly zero.** Known USGS/INGENIOUS fault pixels
+   are masked out of evaluation in both rounds (organiser staff, forum 11516
+   post 2). No recipe may present "includes the catalogue" as a property, and
+   every candidate must be ≥ 95 % off-catalogue (gate D4).
+3. **`link_px=8` system folds are blind to near-catalogue mechanisms.** They
+   guarantee that nothing hidden lies within ~1.6 km of anything visible — four
+   to five times the metric's 300 m kernel — so proximity- and
+   continuation-based strategies score ~0 there *by construction*, not because
+   they are wrong. Any such candidate must also be measured on
+   `gems.holdout.tip_folds`, which withholds only trace tips.
+4. **No local truth set has demonstrated predictive power for the public
+   score.** At n = 9 the best Spearman ρ was 0.393 (p = 0.295) and the SGMC
+   off-catalogue variants were *negative*. Therefore a holdout win licenses the
+   words "passes the predeclared local gate" and nothing stronger, and the
+   doctrine "the holdout best gets the slot" is a tie-breaker between local
+   candidates — **not** a prediction. Where local evidence cannot adjudicate,
+   the three weekly uploads are the instrument: spend them as a designed
+   experiment with uniquely named, uniquely noted, hash-recorded files.
+5. **Tie-breaking is part of the experiment, not an implementation detail.**
+   Budget selection over a tied intensity field must use the fixed seeded
+   spatially uniform jitter in `gems.propagation.make_jitter`. A bare
+   `argpartition` concentrated 959 of 1000 selections in the first row decile
+   and moved some candidates by up to 11×, voiding a whole run (I-14).
+
 ## 7. Standing to-do at the start of each session
 
-1. Re-read this charter.
-2. Re-check the leaderboard — the target moves.
+1. Re-read this charter, **including §6.1**.
+2. Re-check the leaderboard — the target moves (it was 0.3049 in the brief,
+   0.3168 on 2026-09-30 and 0.3168 on 2026-10-01; the brief's number is stale).
 3. Re-check `knowledge/02_irregularities.md`: are the 🔴 items resolved?
-4. Run `scripts/audit_metric.py` (fast) to confirm nothing regressed.
-5. Only then: new hypotheses → holdout → (if it wins) submission.
+4. Run `scripts/audit_metric.py` (fast) to confirm nothing regressed, then
+   `python scripts/verify_download.py` (80 checks) and `pytest tests -q`.
+5. Confirm `data/raw/` is staged: `bash scripts/download_competition_data.sh`
+   (no DrivenData login needed) then `python scripts/prepare_data.py`. Training
+   is **not** blocked on data placement any more.
+6. Only then: new hypotheses → predeclare in `knowledge/` → holdout on **both**
+   fold families → (if it passes) submission.
+7. Record every platform response in `reports/form_responses.json` and every
+   score in `reports/leaderboard_ledger.csv` with its file sha256, or the next
+   session inherits the same ambiguity (I-3, I-20).
 
 ---
 

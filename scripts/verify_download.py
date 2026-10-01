@@ -2,19 +2,26 @@
 """Verify, from the bytes on disk, that the front-door download actually works.
 
 Checks (exit code 1 if ANY fails):
-  1. docs/downloads/submit.json exists and names files that exist, with matching
-     sha256 and sizes.
+  1. docs/downloads/submit.json exists at schema 2 and names files that exist,
+     with matching sha256 and sizes.
   2. The .zip files each contain exactly one entry whose bytes equal the .tif.
-  3. latest.tif == primary A, latest.zip == A zip, latest_nan.* == fallback B.
-  4. Both GeoTIFFs: float32, 1 band, EPSG:32611, 3730x3292, official transform;
-     LZW, no predictor (the layout of the official example); values in [0,1];
-     A has zero NaN/Inf and no NoData tag; B has NaN exactly outside the
-     footprint; A == B inside the footprint; three TIFF readers agree.
-  5. Footprint equals the official label raster's footprint (when data/raw exists).
-  6. Every page of docs/ puts a link to the primary file in the first 4 KB of
-     body HTML, the link target exists, and docs/index.html's FIRST <a download>
-     is the primary file. The repo README's first 1.5 KB links the same file.
-  7. (--live) the same file, fetched from GitHub Pages, has the manifest sha256.
+  3. latest.tif == PRIMARY, latest.zip == PRIMARY zip, latest_zerofill.* ==
+     HEDGE, and the retired latest_nan.* / latest_allfinite.* aliases are gone.
+  4. PRIMARY matches the EMPIRICALLY ACCEPTED encoding: float32, 1 band,
+     EPSG:32611, 3730x3292, official transform, nodata=nan, exactly 7,111,787
+     NaN and all of them outside the footprint, 0 NaN inside it, every finite
+     value in [0, 1], LZW, predictor 1 (never 2). This is the encoding of the
+     official sample_submission.tif and of all nine platform-scored group files
+     (reports/platform_encoding_evidence.json).
+  5. HEDGE is the NaN-free zero-filled twin: identical pixels inside the
+     footprint, 0.0 outside, no NoData tag; three TIFF readers agree on both.
+  6. Footprint equals the official label raster's footprint (when data/raw exists).
+  7. Every page of docs/ puts a link to the PRIMARY file in the first 4 KB of
+     body HTML, the link target exists, docs/index.html's FIRST <a download> is
+     the PRIMARY file, the repo README's first 2.5 KB links it, and the
+     repo-root index.html (GitHub Pages "/") shows it.
+  8. The note is one short line and appears verbatim on the front page.
+  9. (--live) the same file, fetched from GitHub Pages, has the manifest sha256.
 
 Run:  python scripts/verify_download.py [--live]
 """
@@ -34,11 +41,10 @@ import rasterio
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
-from gems import frontdoor  # noqa: E402
+from gems import encoding, frontdoor  # noqa: E402
 
 DL = ROOT / "docs" / "downloads"
 PAGES = "https://buffedlizard55-lab.github.io/13GEMSDOE/"
-RAW_BASE = "https://github.com/buffedlizard55-lab/13GEMSDOE/raw/main/"
 
 results: list[tuple[bool, str]] = []
 
@@ -46,6 +52,21 @@ results: list[tuple[bool, str]] = []
 def check(ok: bool, msg: str) -> None:
     results.append((bool(ok), msg))
     print(("PASS  " if ok else "FAIL  ") + msg)
+
+
+def entry_checks(label: str, e: dict, prefix: Path = DL) -> None:
+    tif, zp = prefix / e["file"], prefix / e["zip"]
+    check(tif.exists() and zp.exists(), f"{label}: {e['file']} and its .zip exist")
+    if not (tif.exists() and zp.exists()):
+        return
+    check(frontdoor.sha256_file(tif) == e["sha256"], f"{label}: .tif sha256 matches manifest")
+    check(frontdoor.sha256_file(zp) == e["zip_sha256"], f"{label}: .zip sha256 matches manifest")
+    with zipfile.ZipFile(zp) as z:
+        names = z.namelist()
+        check(names == [tif.name], f"{label}: zip holds exactly one entry ({names})")
+        check(z.testzip() is None, f"{label}: zip CRCs OK")
+        check(hashlib.sha256(z.read(names[0])).hexdigest() == e["sha256"],
+              f"{label}: zip entry bytes == .tif bytes")
 
 
 def main() -> int:
@@ -59,98 +80,127 @@ def main() -> int:
     if not mpath.exists():
         return 1
     m = json.loads(mpath.read_text())
-    A, B = m["primary_A"], m["fallback_B"]
+    check(m.get("schema") == 2, f"manifest is schema 2 (got {m.get('schema')})")
+    check("primary" in m and "hedge" in m, "manifest carries primary + hedge keys")
+    if "primary" not in m or "hedge" not in m:
+        return 1
+    P, H = m["primary"], m["hedge"]
 
-    # 1 + 2: files, hashes, zips (primary pair, then any listed alternates)
-    pairs = [("A", A), ("B", B)]
+    entry_checks("PRIMARY", P)
+    entry_checks("HEDGE", H)
     for k, alt in enumerate(m.get("alternates", []), 1):
-        pairs += [(f"alt{k}-A", alt["A"]), (f"alt{k}-B", alt["B"])]
-    for label, e in pairs:
-        tif, zp = DL / e["file"], DL / e["zip"]
-        check(tif.exists() and zp.exists(), f"{label}: {e['file']} and its .zip exist")
-        if not (tif.exists() and zp.exists()):
-            continue
-        check(frontdoor.sha256_file(tif) == e["sha256"], f"{label}: .tif sha256 matches manifest")
-        check(frontdoor.sha256_file(zp) == e["zip_sha256"], f"{label}: .zip sha256 matches manifest")
-        with zipfile.ZipFile(zp) as z:
-            names = z.namelist()
-            check(names == [tif.name], f"{label}: zip holds exactly one entry ({names})")
-            check(z.testzip() is None, f"{label}: zip CRCs OK")
-            check(hashlib.sha256(z.read(names[0])).hexdigest() == e["sha256"],
-                  f"{label}: zip entry bytes == .tif bytes")
+        entry_checks(f"alt{k}-PRIMARY", alt["primary"])
+        entry_checks(f"alt{k}-HEDGE", alt["hedge"])
 
     # 3: aliases
     same = lambda x, y: (DL / x).exists() and (DL / x).read_bytes() == (DL / y).read_bytes()  # noqa: E731
-    check(same("latest.tif", A["file"]), "latest.tif == primary A (not the NaN file)")
-    check(same("latest.zip", A["zip"]), "latest.zip == primary A zip")
-    check(same("latest_nan.tif", B["file"]), "latest_nan.tif == fallback B")
-    check(same("latest_nan.zip", B["zip"]), "latest_nan.zip == fallback B zip")
-    check(not (DL / "latest_allfinite.tif").exists(), "no ambiguous latest_allfinite.tif alias")
+    check(same("latest.tif", P["file"]), "latest.tif == PRIMARY (the NaN-outside file)")
+    check(same("latest.zip", P["zip"]), "latest.zip == PRIMARY zip")
+    check(same("latest_zerofill.tif", H["file"]), "latest_zerofill.tif == HEDGE")
+    check(same("latest_zerofill.zip", H["zip"]), "latest_zerofill.zip == HEDGE zip")
+    for dead in frontdoor.RETIRED_ALIASES:
+        check(not (DL / dead).exists(), f"retired alias {dead} is gone (it inverted the roles)")
 
-    # 4 + 5: pixels and grid
-    a_path, b_path = DL / A["file"], DL / B["file"]
-    with rasterio.open(b_path) as s:
+    # 4 + 5 + 6: pixels, grid, encoding
+    p_path, h_path = DL / P["file"], DL / H["file"]
+    with rasterio.open(p_path) as s:
         valid = np.isfinite(s.read(1))
-    raw = ROOT / "data" / "raw" / "existing_faults.tif"
-    if raw.exists():
-        with rasterio.open(raw) as s:
-            lab = s.read(1)
-        check(np.array_equal(lab >= 0, valid),
-              "footprint == official label raster footprint (existing_faults.tif >= 0)")
+    check(int(valid.sum()) == encoding.FOOTPRINT_PIXELS,
+          f"PRIMARY footprint is the official {encoding.FOOTPRINT_PIXELS:,} px "
+          f"(got {int(valid.sum()):,})")
+    for raw in ("data/raw/existing_faults.tif", "data/raw/labels.tif"):
+        rp = ROOT / raw
+        if rp.exists():
+            with rasterio.open(rp) as s:
+                lab = s.read(1)
+            check(np.array_equal(lab >= 0, valid),
+                  f"PRIMARY footprint == official label raster footprint ({raw})")
+            break
     else:
-        print("SKIP  footprint-vs-label check (data/raw not present; run scripts/fetch_data.py)")
-    facts = frontdoor.check_pair(a_path, b_path, valid)
+        print("SKIP  footprint-vs-label check (data/raw absent; run "
+              "bash scripts/download_competition_data.sh --small)")
+
+    facts = frontdoor.check_pair(p_path, h_path, valid)
     problems = frontdoor._all_ok(facts)
-    check(not problems, "A/B pixel, grid, layout and reader-agreement checks"
+    check(not problems, "PRIMARY/HEDGE pixel, grid, layout and reader-agreement gate"
           + (": " + "; ".join(problems) if problems else ""))
-    check(facts["A"]["n_nan"] == 0 and facts["A"]["naive_all_in_0_1"],
-          f"A passes a NAIVE raw range test (0 NaN, min {facts['A']['min']}, max {facts['A']['max']})")
+
+    check(facts["primary"]["matches_accepted_pattern"],
+          "PRIMARY matches the EMPIRICALLY ACCEPTED platform encoding"
+          + (": " + "; ".join(facts["primary"]["deviations_from_accepted_pattern"])
+             if not facts["primary"]["matches_accepted_pattern"] else ""))
+    check(facts["primary"]["n_nan"] == encoding.OUTSIDE_PIXELS,
+          f"PRIMARY has exactly {encoding.OUTSIDE_PIXELS:,} NaN, all outside the footprint")
+    check(facts["primary"]["layout"]["predictor"] in (None, "1", 1, "NONE"),
+          f"PRIMARY TIFF predictor is none (got {facts['primary']['layout']['predictor']!r})")
+    check(facts["hedge"]["n_nan"] == 0 and facts["hedge"]["naive_all_in_0_1"],
+          "HEDGE passes a NAIVE whole-array [0, 1] test (0 NaN)")
     check(facts["readers_used"] == ["Pillow", "rasterio/GDAL", "tifffile"],
           f"three independent readers used: {facts['readers_used']}")
-    for k, alt in enumerate(m.get("alternates", []), 1):
-        af = frontdoor.check_pair(DL / alt["A"]["file"], DL / alt["B"]["file"], valid)
-        pr = frontdoor._all_ok(af)
-        check(not pr, f"alt{k} ({alt['stem']}): A/B pixel, grid, layout and reader checks"
-              + (": " + "; ".join(pr) if pr else ""))
 
-    # 6: site + README put the primary file first
-    primary_href = f"downloads/{A['file']}"
+    # every official sample_submission.tif structural tag PRIMARY must share
+    tmpl = None
+    for name in ("sample_submission.tif", "example_submission.tif"):
+        if (ROOT / "data" / "raw" / name).exists():
+            tmpl = ROOT / "data" / "raw" / name
+            break
+    if tmpl is not None:
+        tl = encoding.read_layout(tmpl)
+        pl = encoding.read_layout(p_path)
+        for key in ("dtype", "count", "crs", "shape", "transform", "nodata"):
+            check(tl["profile"][key] == pl["profile"][key],
+                  f"PRIMARY {key} == official template {key} ({tl['profile'][key]})")
+        for key in ("compression", "predictor", "sample_format", "bits_per_sample",
+                    "tiled", "rows_per_strip"):
+            check(tl["layout"][key] == pl["layout"][key],
+                  f"PRIMARY TIFF {key} == official template ({tl['layout'][key]})")
+    else:
+        print("SKIP  template-tag equality (data/raw/sample_submission.tif absent)")
+
+    # 7 + 8: site and README put PRIMARY first
+    primary_href = f"downloads/{P['file']}"
     pages = sorted((ROOT / "docs").glob("*.html"))
     check(len(pages) >= 5, f"{len(pages)} site pages found")
     for p in pages:
         body = p.read_text()
         i = body.find("<body")
         head = body[i:i + 4096]
-        check(primary_href in head, f"{p.name}: primary download link within first 4 KB of <body>")
+        check(primary_href in head, f"{p.name}: PRIMARY download link within first 4 KB of <body>")
     idx = (ROOT / "docs" / "index.html").read_text()
     first_dl = re.search(r'<a[^>]*href="([^"]+)"[^>]*\sdownload', idx)
     check(bool(first_dl) and first_dl.group(1) == primary_href,
-          f"docs/index.html FIRST download link is the primary file ({first_dl.group(1) if first_dl else None})")
-    hrefs = set(re.findall(r'href="(downloads/[^"#]+)"', "".join(p.read_text() for p in pages)))
+          f"docs/index.html FIRST download link is PRIMARY "
+          f"({first_dl.group(1) if first_dl else None})")
+    hrefs = set(re.findall(r'href="(downloads/[^"#]+)"',
+                           "".join(p.read_text() for p in pages)))
     missing = sorted(h for h in hrefs if not (ROOT / "docs" / h).exists())
-    check(not missing, f"every downloads/ link on the site resolves to a file ({len(hrefs)} links)"
-          + (f"; MISSING {missing}" if missing else ""))
+    check(not missing, f"every downloads/ link on the site resolves to a file "
+                       f"({len(hrefs)} links)" + (f"; MISSING {missing}" if missing else ""))
     readme = (ROOT / "README.md").read_text()
-    check(A["file"] in readme[:2500], "README.md first 2.5 KB links the primary file")
+    check(P["file"] in readme[:2500], "README.md first 2.5 KB links the PRIMARY file")
     root_index = ROOT / "index.html"
-    check(root_index.exists() and A["file"] in root_index.read_text(),
-          "repo-root index.html (GitHub Pages '/') shows the primary download")
+    check(root_index.exists() and P["file"] in root_index.read_text(),
+          "repo-root index.html (GitHub Pages '/') shows the PRIMARY download")
+    check((ROOT / ".nojekyll").exists(),
+          "repo-root .nojekyll exists (Pages source is '/', so Jekyll would "
+          "otherwise process every page and asset)")
     note = m["note_for_form"]
     check(len(note) <= frontdoor.MAX_NOTE_CHARS and "\n" not in note,
           f"note is one short line ({len(note)} chars)")
     check(note in idx, "exact note text appears on docs/index.html")
+    check(note in root_index.read_text(), "exact note text appears on the root index.html")
 
-    # 7: live
+    # 9: live
     if args.live:
         url = PAGES + "docs/" + primary_href
         try:
             data = urllib.request.urlopen(url, timeout=60).read()
-            check(hashlib.sha256(data).hexdigest() == A["sha256"],
+            check(hashlib.sha256(data).hexdigest() == P["sha256"],
                   f"LIVE {url} sha256 == manifest ({len(data):,} bytes)")
         except Exception as ex:  # noqa: BLE001
             check(False, f"LIVE fetch of {url} failed: {ex}")
 
-    bad = [m_ for ok, m_ in results if not ok]
+    bad = [msg for ok, msg in results if not ok]
     print(f"\n{len(results) - len(bad)}/{len(results)} checks passed")
     return 1 if bad else 0
 

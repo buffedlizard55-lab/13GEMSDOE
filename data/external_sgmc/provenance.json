@@ -1,0 +1,40 @@
+{
+  "raster": "data/external_sgmc/derived_sgmc_faults_100m_u8.tif",
+  "bytes": 226663,
+  "sha256": "d569d5539972f86a7862add0ce6738275ffd56174b9ef1298b08b8ab1dcd700f",
+  "grid": {
+    "crs": "EPSG:32611",
+    "transform": [
+      100.0,
+      0.0,
+      243350.0,
+      0.0,
+      -100.0,
+      4508550.0
+    ],
+    "shape": [
+      3730,
+      3292
+    ],
+    "dtype": "uint8",
+    "nodata": 255.0
+  },
+  "counts": {
+    "fault_px": 110732,
+    "nodata_px": 7111787
+  },
+  "official_sources": {
+    "NV.zip": {
+      "url": "https://mrdata.usgs.gov/geology/state/shp/NV.zip",
+      "bytes": 69056094,
+      "sha256": "3b333ac025e59aae7f0d827db45ba32c425cf867eb341561a788af1de186b76b"
+    },
+    "CA.zip": {
+      "url": "https://mrdata.usgs.gov/geology/state/shp/CA.zip",
+      "bytes": 24977406,
+      "sha256": "78765ba4428df9f25a84f86e0b2529bd0508fc8a2cf65d2f41a830e82bccfd58"
+    }
+  },
+  "landing_page": "https://mrdata.usgs.gov/geology/state/",
+  "derived_by": "16GEMSDOE GitHub Actions runner; egress to mrdata.usgs.gov is blocked in the dev sandbox"
+}
