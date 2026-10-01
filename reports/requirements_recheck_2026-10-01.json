@@ -115,5 +115,7 @@
   ],
   "scope_warning": "Local completion is not GitHub deployment, DrivenData acceptance, or a winning private-test score.",
   "github_previous_push_attempt": "FAILED_AUTHENTICATION",
-  "github_current_publication_attempt": "AUTHENTICATION_RESTORED_PENDING_PUSH_PR_CI_MERGE"
+  "github_current_publication_attempt": "PR18_OPEN_INITIAL_HOSTED_CI_PASSED_FINAL_HEAD_PENDING",
+  "github_actual_push_attempt": "SUCCEEDED",
+  "github_pr_url": "https://github.com/buffedlizard55-lab/13GEMSDOE/pull/18"
 }

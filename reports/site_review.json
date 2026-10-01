@@ -39,19 +39,27 @@
   "ai_disclosure": "Generative AI assisted literature/source review, hypotheses, code and documentation. Accuracy/authorship remain participant responsibilities; disclose use in final narrative under Official Rules3.2.",
   "overall_status": "LOCAL_DELIVERABLE_READY_GITHUB_PUBLICATION_IN_PROGRESS",
   "github": {
-    "pr_status": "PENDING_CURRENT_ATTEMPT",
-    "merge_status": "PENDING_CI",
+    "pr_status": "OPEN_CI_PASSED_AWAITING_FINAL_HEAD",
+    "merge_status": "PENDING_FINAL_HEAD_CI",
     "new_pages_deployment": "NOT_CONFIRMED",
     "previous_authentication_failure": "401 Bad credentials",
     "connection_status": "RESTORED_REPO_API_READ_SUCCEEDED",
     "previous_push_failure": "FAILED_AUTHENTICATION: could not read Username for https://github.com; terminal prompts disabled",
-    "actual_push_status": "PENDING_CURRENT_ATTEMPT",
-    "previous_sandbox_local_commit_not_in_restored_git_history": "25ae0f4"
+    "actual_push_status": "SUCCEEDED",
+    "previous_sandbox_local_commit_not_in_restored_git_history": "25ae0f4",
+    "pr_number": 18,
+    "pr_url": "https://github.com/buffedlizard55-lab/13GEMSDOE/pull/18",
+    "quality_run_url": "https://github.com/buffedlizard55-lab/13GEMSDOE/actions/runs/36872554840",
+    "quality_run_conclusion": "SUCCESS"
   },
   "automated_feed": {
-    "status": "IMPLEMENTED_HOSTED_EXECUTION_NOT_CONFIRMED",
+    "status": "ACTIVE_FIRST_HOSTED_RUN_SUCCEEDED",
     "storage": "one reusable GitHub-Actions-bot issue; public Pages API read",
-    "never_polls_drivendata": true
+    "never_polls_drivendata": true,
+    "run_url": "https://github.com/buffedlizard55-lab/13GEMSDOE/actions/runs/36872547256",
+    "issue_url": "https://github.com/buffedlizard55-lab/13GEMSDOE/issues/19",
+    "first_run_sources_observed": 5,
+    "first_run_sources_failed": 0
   },
   "local_verification_summary": {
     "pytest": 171,
@@ -60,5 +68,12 @@
     "http": "145/145",
     "browser": "106/106",
     "axe_violations": 0
+  },
+  "resumed_local_checks": {
+    "unit_passed": 167,
+    "unit_skipped": 4,
+    "unit_skip_reason": "Optional external raster products are absent in the restored checkout; earlier full-data171-pass report is retained separately.",
+    "download_checks": "80/80",
+    "http_checks": "145/145"
   }
 }

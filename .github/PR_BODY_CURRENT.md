@@ -30,3 +30,7 @@ Add hosted quality/deployed-delivery workflows and a daily approved-source obser
 No authenticated DrivenData session, hidden truth or current-file acceptance receipt. No competition upload. Two CPUs/~3.8GiB/no detected GPU: the official U-Net was inspected, not trained. Sandbox direct TLS to Pages/DOE/USGS is restricted. Hosted execution/deployment is not certified by local checks. The earlier GitHub401 authentication blocker is now resolved. Push/PR/merge/live-run completion must still be recorded from actual results, not inferred from local checks or a dry run.
 
 AI assisted source review, hypotheses, code and documentation. Participants retain correctness/authorship responsibility and must disclose use in the final narrative under Official Rules3.2.
+
+## Resumed publication
+
+Initial hosted quality run36872554840 passed every job step, including real Chromium/axe and HTTP downloads; approved-source run36872547256 observed5/5 sources and published reusable bot issue#19. Restored local environment confirms167tests plus4explicit optional-external-data skips; the historical full-data171-pass record remains unchanged. Resumed download80/80 and HTTP145/145 checks pass. The helper now supports gh2.23 by avoiding its unsupported --fail-fast flag. Final head checks and merge/deployed delivery are recorded separately.

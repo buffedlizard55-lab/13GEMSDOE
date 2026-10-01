@@ -26,7 +26,7 @@ echo "PR: $URL"
 # Fails closed if no checks are registered, pending/failing, or access is blocked.
 # No forced merge and no branch deletion. Hosted checks are required in addition
 # to local checks; re-run after GitHub registers/completes them if necessary.
-gh pr checks "$URL" --repo "$REPO" --watch --fail-fast
+gh pr checks "$URL" --repo "$REPO" --watch
 gh pr merge "$URL" --repo "$REPO" --merge --match-head-commit "$HEAD_SHA"
 gh api "repos/$REPO/pages/builds/latest" --jq '{status, commit, updated_at}'
 echo 'Merge response is not deployment proof. Run/watch the deployed Pages smoke test next.'
