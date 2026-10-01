@@ -14,35 +14,58 @@
   <p class="kicker">DOE GEMS Prize Challenge · submission file for DrivenData</p>
   <h1>Download the submission file</h1>
   <div class="dl big">
-    <a class="bigbtn" href="downloads/13gems_20261001_r11-greedy-mp_A_zerofill.tif" download>
+    <a class="bigbtn" href="downloads/13gems_20261001_r13-lattice-s5_A_zerofill.tif" download>
       <span class="ico">⬇</span>
-      <span><b>DOWNLOAD SUBMISSION .TIF</b><small>13gems_20261001_r11-greedy-mp_A_zerofill.tif · 1.2 MB · single-band GeoTIFF</small></span>
+      <span><b>DOWNLOAD SUBMISSION .TIF</b><small>13gems_20261001_r13-lattice-s5_A_zerofill.tif · 1.0 MB · single-band GeoTIFF</small></span>
     </a>
-    <a class="btn ghost" href="downloads/13gems_20261001_r11-greedy-mp_A_zerofill.zip" download>⬇ same file as .zip (0.7 MB)</a>
+    <a class="btn ghost" href="downloads/13gems_20261001_r13-lattice-s5_A_zerofill.zip" download>⬇ same file as .zip (0.1 MB)</a>
   </div>
   <ol class="three">
     <li><b>Download</b> the .tif above (nothing to build, nothing to edit).</li>
     <li>Open the <a href="https://www.drivendata.org/competitions/306/competition-doe-gems/submissions/" target="_blank" rel="noopener">DrivenData submissions page</a>
         → <b>Submit file</b> → <b>File to submit</b> → choose the .tif (or the .zip).</li>
     <li>Paste this into <b>Note</b>, then submit:
-      <div class="copyfield"><input id="note" readonly value="r11 greedy-mp A-zerofill 20261001 | topo ridge 5% + 3 greedy blocks | local holdout win, not a LB claim">
+      <div class="copyfield"><input id="note" readonly value="r13 lattice-s5 A-zerofill 20261001 | fault-blind every-5th-px grid, coverage baseline | local holdout 18/18 win, not a LB claim">
       <button type="button" onclick="var i=document.getElementById('note');i.select();navigator.clipboard&amp;&amp;navigator.clipboard.writeText(i.value);this.textContent='Copied ✓'">Copy note</button></div></li>
   </ol>
   <div class="facts">
     <b>Checked on these exact bytes:</b> float32 · 1 band · EPSG:32611 · 3,730 × 3,292 @ 100 m · every value in [0, 1] ·
-    <b>0 NaN / 0 Inf</b> · 272,853 predicted cells · LZW, no predictor (same layout as the official example) ·
-    decodes identically in 3 independent TIFF readers · SHA-256 <code>e7f0d4b9fd58b90e…</code>
+    <b>0 NaN / 0 Inf</b> · 206,895 predicted cells · LZW, no predictor (same layout as the official example) ·
+    decodes identically in 3 independent TIFF readers · SHA-256 <code>c12533bb980234c3…</code>
   </div>
   <div class="fallback"><b>Only if the form rejects the file above:</b>
-    <a href="downloads/13gems_20261001_r11-greedy-mp_B_nan-outside.tif" download>13gems_20261001_r11-greedy-mp_B_nan-outside.tif</a> — same predictions, NaN outside the survey area
+    <a href="downloads/13gems_20261001_r13-lattice-s5_B_nan-outside.tif" download>13gems_20261001_r13-lattice-s5_B_nan-outside.tif</a> — same predictions, NaN outside the survey area
     (the encoding the problem page describes). <a href="executive_summary.html#if-the-form-rejects-it">What to do on each error message →</a>
   </div>
-  <p class="honest">What this file is: the repository's best <i>local hold-out</i> map (greedy marginal-precision recipe, R11).
-  It is <b>not</b> a predicted leaderboard score — the official board is
+  <div class="fallback"><b>Second candidate for your next slot — R11 greedy recipe (second candidate):</b>
+    <a href="downloads/13gems_20261001_r11-greedy-mp_A_zerofill.tif" download>13gems_20261001_r11-greedy-mp_A_zerofill.tif</a>
+    (<a href="downloads/13gems_20261001_r11-greedy-mp_A_zerofill.zip" download>.zip</a>) — the R11 greedy marginal-precision recipe (topographic ridge 5 % + three greedy blocks): the previous holdout best, a real map built from the geophysics/topography bands.
+    Note to paste: <code>r11 greedy-mp A-zerofill 20261001 | topo ridge 5% + 3 greedy blocks | local holdout win, not a LB claim</code>
+    If the form rejects it: <a href="downloads/13gems_20261001_r11-greedy-mp_B_nan-outside.tif" download>NaN-outside variant</a>.</div>
+  <p class="honest">What this file is: a fault-blind lattice (every 5th row and column, 4 % of the footprint). It is the repository&#x27;s best local hold-out map under the frozen R13 rule (18/18 paired folds vs the R11 recipe) and it is a coverage-geometry baseline, not a geological prediction. It is NOT a predicted leaderboard score.
+  The official board is
   <a href="https://www.drivendata.org/competitions/306/competition-doe-gems/leaderboard/">here</a>.
   Whether the form accepts it is only known from the form's own response; local checks cannot observe DrivenData's validator.</p>
 </div></div>
 <main class="wrap">
+
+<section>
+  <h2>Session 7 (R13): a fault-blind lattice beats every recipe on the proxy</h2>
+  <p class="lede">Predeclared register:
+  <code>knowledge/09_r13_hypotheses.md</code>. Main batch (local-contrast crest, scale-persistent crest,
+  tile-quota budget, paleo-geothermal halos from INGENIOUS GDR 1391): selected
+  <code>persist_gm_greedy</code> → <b>FRAGILE (rules won 3/6)</b>; no slot. Then a content-free null baseline showed the proxy is
+  <b>coverage-dominated</b>: the same folds, the same scorer —</p>
+  <div class="scroll"><table><thead><tr><th>map</th><th class="num">DTI mean, 18 folds</th></tr></thead>
+  <tbody><tr><td>everywhere = 1</td><td class="num">0.0165</td></tr><tr><td>random 5% + spacing-3</td><td class="num">0.0903</td></tr><tr><td>topo_05_sp3 (R10–R12 reference)</td><td class="num">0.0933</td></tr><tr><td>greedy_r11 (previous holdout best)</td><td class="num">0.0988</td></tr><tr><td>lattice, every 4th pixel</td><td class="num">0.0999</td></tr><tr><td>lattice, every 5th pixel (published file A)</td><td class="num">0.1122</td></tr><tr><td>lattice, every 6th pixel</td><td class="num">0.1022</td></tr></tbody></table></div>
+  <p class="small">Frozen-rule test of the lattice (post-hoc in origin, disclosed): <b>WINS (rules won 6/6)</b>,
+  paired folds won vs <code>greedy_r11</code>: 18/18, confirm worst-rule
+  DTI 0.1059 vs 0.0917.
+  <b>Caveat:</b> the proxy hides <i>known</i> faults, the leaderboard truth is new faults — whether coverage
+  transfers is unproven; one leaderboard score is the experiment. Reports:
+  <code>reports/holdout_r13_2026-10-01.json</code>, <code>reports/holdout_r13_lattice_2026-10-01.json</code>,
+  <code>reports/null_baseline_2026-10-01.json</code>.</p>
+</section>
 
 <section>
   <h2>Session 6 (R12): the gate held — download encoding fixed, artifact unchanged</h2>
@@ -53,7 +76,7 @@
   (0.10% blocks, ≤ 6 steps), and the <b>basin-magnetics retest</b> at its true
   support (resolving R11-2's I-14 invalid measurement). <b>None beat
   <code>greedy_r11</code></b>, so no submission slot was spent and the shipped
-  artifact is unchanged — now served in its all-finite, form-verified encoding.</p>
+  artifact is unchanged — served as the A/B front-door files (zero-fill primary + NaN-outside fallback; neither is platform-verified).</p>
   <div class="grid g4">
     <div class="kpi ok"><div class="v">0.0</div><div class="l">protocol-regression drift this session (pinned versions close I-15)</div></div>
     <div class="kpi bad"><div class="v">0 / 5</div><div class="l">R12 challengers that beat greedy_r11</div></div>
@@ -323,7 +346,7 @@
 <footer class="site"><div class="wrap">
   <p><strong>13GEMSDOE</strong> — working repository for the
   <a href="https://www.drivendata.org/competitions/306/competition-doe-gems/">DOE GEMS Prize Challenge</a>.
-  Page generated 2026-10-01 00:57 UTC from <code>reports/*.json</code>.</p>
+  Page generated 2026-10-01 01:20 UTC from <code>reports/*.json</code>.</p>
   <p class="small">Every figure on this site is produced by a script in this
   repository and is reproducible from a clean checkout. Claims that could not be
   verified against an official source are listed as irregularities rather than

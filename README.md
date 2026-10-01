@@ -4,14 +4,16 @@
 
 | | file | use |
 |---|---|---|
-| **A — primary** | [`docs/downloads/13gems_20261001_r11-greedy-mp_A_zerofill.tif`](docs/downloads/13gems_20261001_r11-greedy-mp_A_zerofill.tif) (1.2 MB) · [.zip](docs/downloads/13gems_20261001_r11-greedy-mp_A_zerofill.zip) | **Upload this first.** float32, EPSG:32611, 3730×3292, 0 NaN, values 0–1 |
-| B — fallback | [`docs/downloads/13gems_20261001_r11-greedy-mp_B_nan-outside.tif`](docs/downloads/13gems_20261001_r11-greedy-mp_B_nan-outside.tif) · [.zip](docs/downloads/13gems_20261001_r11-greedy-mp_B_nan-outside.zip) | Only if the form rejects A (NaN outside the survey footprint) |
+| **A — primary** | [`docs/downloads/13gems_20261001_r13-lattice-s5_A_zerofill.tif`](docs/downloads/13gems_20261001_r13-lattice-s5_A_zerofill.tif) (1.0 MB) · [.zip](docs/downloads/13gems_20261001_r13-lattice-s5_A_zerofill.zip) | **Upload this first.** float32, EPSG:32611, 3730×3292, 0 NaN, values 0–1. Fault-blind stride-5 lattice (R13-6) — best local hold-out map under the frozen R13 rule; a coverage baseline, **not** a geological prediction |
+| B — fallback | [`docs/downloads/13gems_20261001_r13-lattice-s5_B_nan-outside.tif`](docs/downloads/13gems_20261001_r13-lattice-s5_B_nan-outside.tif) · [.zip](docs/downloads/13gems_20261001_r13-lattice-s5_B_nan-outside.zip) | Only if the form rejects A (same predictions, NaN outside the survey footprint) |
+| **2nd candidate** | [`docs/downloads/13gems_20261001_r11-greedy-mp_A_zerofill.tif`](docs/downloads/13gems_20261001_r11-greedy-mp_A_zerofill.tif) (1.2 MB) · [.zip](docs/downloads/13gems_20261001_r11-greedy-mp_A_zerofill.zip) | Next slot: the R11 greedy recipe (real map from the geophysics/topography bands). NaN variant: [`13gems_20261001_r11-greedy-mp_B_nan-outside.tif`](docs/downloads/13gems_20261001_r11-greedy-mp_B_nan-outside.tif) |
 
-* **Unique file name:** the name above is already unique (`13gems_<date>_<recipe>_<A|B>`). Never re-upload an old name.
-* **Short note to paste:** `r11 greedy-mp A-zerofill 20261001 | topo ridge 5% + 3 greedy blocks | local holdout win, not a LB claim`
+* **Unique file names:** `13gems_<date>_<recipe>_<A|B>`; never re-upload an old name.
+* **Short note to paste (A):** `r13 lattice-s5 A-zerofill 20261001 | fault-blind every-5th-px grid, coverage baseline | local holdout 18/18 win, not a LB claim`
+* **Short note to paste (2nd candidate):** `r11 greedy-mp A-zerofill 20261001 | topo ridge 5% + 3 greedy blocks | local holdout win, not a LB claim`
 * Fixed aliases: [`latest.tif`](docs/downloads/latest.tif) = A, [`latest_nan.tif`](docs/downloads/latest_nan.tif) = B. Manifest + hashes: [`docs/downloads/submit.json`](docs/downloads/submit.json).
 * Form: <https://www.drivendata.org/competitions/306/competition-doe-gems/submissions/> · step-by-step: [executive summary](https://buffedlizard55-lab.github.io/13GEMSDOE/docs/executive_summary.html).
-* Honest status: A and B carry the same predictions inside the footprint. Neither has passed DrivenData's own validator — the earlier NaN file was rejected with "Predicted values must be in range [0, 1]" and the cause cannot be observed from here. A is a hedge (no NaN, no NoData tag, no TIFF predictor), not a proven fix. Re-check the live files any time with `python scripts/verify_download.py`.
+* **Honest status:** no file here has passed DrivenData's own validator. The earlier NaN file was rejected with "Predicted values must be in range [0, 1]" and the cause cannot be observed from here; A is a hedge (no NaN, no NoData tag, no TIFF predictor, the layout of the official example), not a proven fix. Re-check the bytes any time: `python scripts/verify_download.py` (47 checks).
 
 **Submission site:** https://buffedlizard55-lab.github.io/13GEMSDOE/ (download page) · https://buffedlizard55-lab.github.io/13GEMSDOE/docs/ (evidence, hypotheses, sources)
 **Competition:** [DOE GEMS Prize on DrivenData](https://www.drivendata.org/competitions/306/competition-doe-gems/) · $300,000 · metric: distance-weighted Tversky index
@@ -26,7 +28,65 @@
 
 ## Latest review — 2026-10-01, session 7 (download front door; R13)
 
-__S7__
+### 1. Download front door (the priority)
+* The rejected file was `13gems-r11-greedy-mp.tif` (NaN outside the footprint, TIFF PREDICTOR=2; none of the previously scored files used predictor 2). `latest.tif` turned out to be **byte-identical to that rejected file** while the README claimed an all-finite default (**I-19**). Fixed: new A/B files, aliases, root `index.html` landing page, manifest-driven site, `scripts/verify_download.py`, `tests/test_frontdoor.py` (72 tests pass incl. `tests/test_r13.py`).
+* Layout of A/B follows the official example (LZW, striped, no predictor). Pillow, rasterio/GDAL and tifffile all decode them identically. **Untested hypothesis, not a claim:** the old PREDICTOR=2 layout or the NaN cells triggered the form's error (**I-18**).
+
+### 2. R13 batch (predeclared: [`knowledge/09_r13_hypotheses.md`](knowledge/09_r13_hypotheses.md))
+18 hide-and-recover folds, rule frozen before running, protocol regression drift 0.0.
+
+| challenger (Stage B = base + unchanged R11 blocks) | tune worst-rule DTI | confirm worst-rule DTI |
+|---|---|---|
+| reference `topo_05_sp3` | 0.03852 | 0.08687 |
+| reference `greedy_r11` | 0.03992 | 0.09168 |
+| R13-1 local-contrast crest (4 variants) | 0.0398–0.0404 | 0.0905–0.0922 |
+| R13-2 scale-persistent crest `persist_gm` | **0.04237** (selected) | 0.09218 |
+| R13-3 tile-quota budget (2 variants) | 0.0409–0.0411 | 0.0877–0.0904 |
+| R13-4 paleo-geothermal halos, GDR 1391 (3 sizes) | 0.0390–0.0396 | 0.0904–0.0914 |
+
+Verdict for the selected `persist_gm_greedy`: **FRAGILE** (rules won 3/6, paired folds 6/18). Stage A (information only): `persist_gm` alone beats `topo_05_sp3` in **17/18** folds (+1.7 % confirm mean) — the R11 blocks were tuned on the old base and no longer add to it; re-tuning the blocks on the new base is **R13b**, the first next step below. R13-4 was *run* (data staged by a GitHub runner, [`.github/workflows/fetch-gdr1391.yml`](.github/workflows/fetch-gdr1391.yml), CC-BY-4.0, sha256 in [`reports/gdr1391_fetch.json`](reports/gdr1391_fetch.json)): all three block sizes **LOSE** to `greedy_r11` (dose-response: more paleo pixels, lower DTI). R13-5 (Euler depth-to-source) stays deferred. Report: [`reports/holdout_r13_2026-10-01.json`](reports/holdout_r13_2026-10-01.json).
+
+### 3. The finding that changes the plan: a fault-blind lattice beats every recipe on the proxy
+[`scripts/null_baseline_holdout.py`](scripts/null_baseline_holdout.py) scores content-free maps on the same folds ([`reports/null_baseline_2026-10-01.json`](reports/null_baseline_2026-10-01.json)):
+
+| map | DTI mean (18 folds) |
+|---|---|
+| everywhere = 1 | 0.0165 |
+| random 5 % + spacing-3 decimation | 0.0902 |
+| `topo_05_sp3` (R10–R12 reference) | 0.0933 |
+| `greedy_r11` (previous holdout best) | 0.0988 |
+| square lattice, every 4th / **5th** / 6th pixel | 0.0999 / **0.1122** / 0.1022 |
+
+The kernel pays for being *within ~300 m* of a fault and Tversky β = 0.8 punishes misses four times harder than false alarms, so evenly spread coverage earns a lot and the topographic/geophysical crest maps carry little pixel-level catalogue information (full-catalogue AUC 0.50–0.58, in the R13 report). The lattice idea is **post-hoc in origin** (disclosed in the register, addendum A); it was then run under the *frozen* rule: `sq5` **WINS** — confirm worst-rule 0.1059 vs 0.0917, 6/6 rules, **18/18 paired folds**. Hybrids (lattice ∪ greedy_r11) lost to both `greedy_r11` and `sq5` (they predict twice the mass); triangular lattices scored slightly below square ones (`hex5` 0.1040 vs `sq5` 0.1059), so the covering-radius argument did not help. [`reports/holdout_r13_lattice_2026-10-01.json`](reports/holdout_r13_lattice_2026-10-01.json).
+
+Per repository doctrine the holdout best gets the slot, so the lattice is file **A**. **Caveat that matters:** the proxy hides *known* faults; the leaderboard truth is *faults not in the catalogue* (I-10, I-16). Whether coverage transfers is unproven — **one leaderboard score is the experiment.** If A scores about the same as past files, the repeated 0.1563 is a coverage plateau and the next gains must come from information layered *on* a lattice; if A scores much lower, the proxy is the problem and the research priority flips to a new-fault proxy.
+
+### 4. Why do we keep scoring 0.1563? (evidence tiers)
+1. **Several repos hold the very same file (verified).** `GEMSDOE` (`data/evidence/runs/ens12-adopted-floor0.1-w0/submission.tif`), `5GEMSDOE` (same path, plus `data/evidence/leaderboard_anchor/gemsdoe-ens12-adopted-7f00890a.tif`) and `GEMSDOE2` (same path, plus `docs/gemsdoe2-recall-arm-7f00890a.tif`) all carry the identical git blob `812e61b74050d1350cc2bde1fab0c76ead32e0c4` (570,890 bytes), which is also `data/scored/gemsdoe1_ens12_LB0.1563.tif` here (checked with the GitHub trees API and `git hash-object`, 2026-10-01). Identical bytes score identically — if 5GEMSDOE (or GEMSDOE2's "recall arm") uploaded it, that 0.1563 is a copy (the folder and file names say so; no receipt proves any upload) (**I-20**).
+2. **8GEMSDOE is a different map.** Its `gems8_apex` (blob `d3aac36c…`) shares 6.7 % of positive support with ens12 (Pearson −0.55; 91 % of its mass on/near the catalogue vs 20 %) — [`reports/scored_forensics.json`](reports/scored_forensics.json). Duplication does not explain it.
+3. **The leaderboard column is an account-level best** ("Best public DW-Tversky"); it only moves when a submission beats it. Any run of weaker later uploads leaves 0.1563 on display. No per-file receipt exists (I-3).
+4. **Hypothesis (new, unproven):** the metric is coverage-dominated (section 3), so very different maps can land at the same value. Consistent with item 2, not proven by it.
+
+### 5. Limitations — what I could not do or verify
+* **I cannot observe DrivenData's validator or submit** (no credentials, login-gated pages); the cause of the "[0, 1]" rejection is unknown and A/B is a hedge.
+* **No per-file public score exists** for any file in this repo; all "0.1563" labels are team-recorded.
+* **The proxy is not the leaderboard** (I-10, I-16), and section 3 shows it rewards coverage geometry. Every holdout "win" so far is measured against weak references.
+* The crest/geophysics maps have near-chance pixel-level catalogue AUC; **I have not shown that any geological detector finds uncatalogued faults.**
+* R13-6 is post-hoc in origin; ten challengers were searched in the main batch (guard: ≥ 14/18 paired folds).
+* Sandbox: 3.9 GB RAM (I-17), no direct egress to `gdr.openei.org`/`usgs.gov` (a GitHub runner fetched GDR 1391 instead); a 30-map greedy was not run. No supervised/U-Net model was trained this session.
+* Eligibility/licence questions for external data (CC-BY-4.0 GDR 1391) should be confirmed against the official rules before any final selection.
+
+### 6. Suggestions / next steps (ranked)
+1. **Submit A (lattice), then the 2nd candidate**, one per slot; record each response in [`reports/form_responses.json`](reports/form_responses.json) and the score in `reports/leaderboard_ledger.csv`. Keep the third slot in reserve. If A is rejected, try B, then email info@drivendata.org with the exact error (the forum names that address for technical help).
+2. **R14 information on top of a lattice:** replace, don't union (union doubled the mass and lost) — e.g. stride-4 sampling inside the top-decile of the best information maps, stride-5/6 elsewhere; tune stride/phase on tune folds only.
+3. **R13b:** re-tune the greedy blocks on the `persist_gm` base (Stage A won 17/18).
+4. R13-4 follow-ups: 2-m temperature-probe halos (staged, unused), halo × lattice.
+5. R13-5 Euler depth-to-source; per-domain budgets; 30-map greedy on a larger runner.
+6. Build a **new-fault proxy** (e.g. hide whole USGS faults far from any visible one) so the gate is not coverage-dominated.
+
+### 7. New irregularities (details in `knowledge/02_irregularities.md`)
+I-17 RAM cap · I-18 TIFF PREDICTOR=2 untested cause · I-19 `latest.tif` was the rejected file · I-20 shared blob 812e61b7 · I-21 the proxy is coverage-dominated (null lattice > recipes).
+
 
 ## Previous review — 2026-09-30, session 6 (R12: the gate held; download encoding changed)
 
@@ -264,7 +324,7 @@ holdout; do not assume a universal 300 m decimation.
 PROJECT_CHARTER.md        standing brief — read first, every session
 knowledge/
   01_verified_facts.md    every fact with the official URL it came from
-  02_irregularities.md    things that are wrong or unverifiable, with actions (I-1..I-17)
+  02_irregularities.md    things that are wrong or unverifiable, with actions (I-1..I-21)
   03_hypotheses.md        candidate geological hypotheses, ranked
   04_geothermal_vents.md  vent science from official sources (contrarian, cited)
   05_hypothesis_screen_2026-09-30.md   screened-out candidates and why
@@ -397,7 +457,7 @@ account-level leaderboard snapshot is DARD 0.3168 / alexoktaba 0.3042 as of
 
 ```bash
 python3 -m venv .venv && . .venv/bin/activate
-pip install numpy scipy rasterio
+pip install -r requirements.txt      # numpy, scipy, rasterio, tifffile, pillow, imagecodecs
 
 .venv/bin/python -m unittest discover -s tests # strict submission-write regression tests
 .venv/bin/python scripts/fetch_data.py        # data/raw (419 MB, gitignored)
@@ -413,6 +473,12 @@ pip install numpy scipy rasterio
 .venv/bin/python scripts/validate_r10b_holdout.py   # predeclared R10b refinement (~66 s)
 .venv/bin/python scripts/validate_r11_holdout.py    # predeclared R11 validation (~300 s)
 .venv/bin/python scripts/validate_r12_holdout.py    # predeclared R12 validation (~215 s)
+.venv/bin/python scripts/validate_r13_holdout.py    # predeclared R13 batch (~6 min; needs data/external_gdr1391, staged by the runner workflow)
+.venv/bin/python scripts/null_baseline_holdout.py   # content-free lattice/random baselines (~45 s)
+.venv/bin/python scripts/validate_r13_lattice_holdout.py   # R13-6 lattices (~65 s)
+.venv/bin/python scripts/publish_lattice_front_door.py     # publish the lattice A/B files + list the R11 alternate
+.venv/bin/python scripts/build_site.py              # regenerate docs/ + root index.html from submit.json
+.venv/bin/python scripts/verify_download.py         # 47 byte-level checks (add --live after Pages rebuilds)
 .venv/bin/python scripts/run_holdout3.py      # historical full sweep (~82 min, 3 GB RAM)
 .venv/bin/python scripts/validate_ensemble_holdout.py # targeted visible-only ensemble holdout
 .venv/bin/python scripts/make_submission.py --recipe best
@@ -426,10 +492,10 @@ promised. The script checks the one-band float32 grid, EPSG:32611, 3730×3292 sh
 affine transform, finite in-footprint values in `[0,1]`, and supplied footprint mask.
 The writer now rejects invalid predictions before opening an output file; it does
 not clip bad values or silently turn in-footprint NaNs into zeros.
-The primary GeoTIFF and ZIP use NaN outside the footprint, as the official format
-text requires; an all-finite zero-fill twin is diagnostic only and is **not** treated
-as format-equivalent. Local checks do not prove remote acceptance. The historical
-server-side range rejection remains unexplained.
+Session 7: `make_submission.py` now publishes through `gems.frontdoor.publish` — an A file (0.0 outside
+the footprint, no NaN, no NoData tag) and a B file (NaN outside), both LZW/striped/no predictor like the
+official example, each re-read with three TIFF readers before anything is released. Local checks do not
+prove remote acceptance; the historical server-side range rejection remains unexplained.
 
 **A unique, format-valid GeoTIFF is not automatically a *beating* candidate.** Every
 artifact built by the script carries an explicit clearance field. The current
@@ -437,12 +503,7 @@ artifact built by the script carries an explicit clearance field. The current
 `BEST_LOCAL_REFERENCE_NOT_PRIVATE_TEST_CLAIM`; anything built from an untested recipe
 is marked `NOT_CLEARED` until it beats the reference under paired direct-DTI
 multi-rule confirmation. Check `submission_clearance` and the latest holdout report
-before using a submission slot. The writer rejects invalid predictions before opening
-an output file; it does not clip bad values or silently turn in-footprint NaNs into
-zeros. The primary GeoTIFF and ZIP use NaN outside the footprint, as the official
-format text requires and as the official sample's own structure uses; an all-finite
-zero-fill twin is shipped as the documented fallback if the form repeats its historical
-range error (see the executive summary's triage table).
+before using a submission slot. The writer rejects invalid predictions before opening an output file; it does not clip bad values or silently turn in-footprint NaNs into zeros.
 
 ---
 
@@ -601,3 +662,16 @@ range error (see the executive summary's triage table).
 > **Own the Outcome** — own results end to end, not just an individual slice;
 > when problems arise and we have the means to act, act without waiting for
 > permission; treat failure and success as signals.
+
+### Session 7 addendum (2026-10-01) — paraphrase of the request, not verbatim
+
+> The text above is the verbatim brief. For session 7 the request, condensed from the session record, was:
+> put a **working, obvious, easy-to-download submission TIF at the very top of the site** (the previous NaN file
+> failed with "Predicted values must be in range [0, 1]"; the form also wants a unique file name and a short note);
+> keep the executive-summary subpage; **do not stop until the download works**; work autonomously, verify against
+> official sources with links, flag irregularities; run in three passes (implement/verify, review, re-check against
+> the request); continue the previous next steps; generate 3–5 untried, ranked hypotheses (layers, physical
+> signature, why it catches uncatalogued faults, how it differs) from free official data, validate the top one on
+> the spatially-blocked holdout **before** spending a slot; explain why scores repeat at 0.1563 (GEMSDOE1,
+> 5GEMSDOE, 8GEMSDOE); add a limitations section and a suggestions list; finish with a PR merged into `main`.
+

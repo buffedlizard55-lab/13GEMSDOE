@@ -1,5 +1,11 @@
 #!/usr/bin/env python3
-"""One-time encoding-policy flip, recorded for audit (2026-09-30, session 6).
+"""DEPRECATED (session 7) - historical record only; do not run.
+
+The all-finite file this script promoted was never confirmed accepted by the form and
+was written with TIFF PREDICTOR=2; session 7 replaced it with the A/B front-door files
+(src/gems/frontdoor.py, scripts/publish_front_door.py).
+
+One-time encoding-policy flip, recorded for audit (2026-09-30, session 6).
 
 Why
 ---

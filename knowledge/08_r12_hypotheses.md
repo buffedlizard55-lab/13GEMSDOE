@@ -35,8 +35,8 @@ caches — no new fold scoring.
   ≥ 4 of 6 confirmation rule means, and its paired confirmation mean gain exceeds
   10 × the largest observed reference drift (I-15). Otherwise FRAGILE/LOSES.
 * **No submission slot is spent unless a challenger WINS.** If nothing wins,
-  `greedy_r11` remains the shipped artifact (now served in its all-finite,
-  form-verified encoding — see `reports/primary_flip_2026-09-30.json` and I-8).
+  `greedy_r11` remains the shipped artifact (now served as the session-7 A/B
+  front-door files (the earlier "form-verified" wording was wrong: no receipt exists) — see `reports/primary_flip_2026-09-30.json` and I-8).
 * Every greedy step's tested blocks, marginal precisions and bars are reported in
   full (order-dependence audit); every top-k records tie diagnostics (I-14).
 

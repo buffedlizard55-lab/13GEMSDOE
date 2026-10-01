@@ -57,6 +57,18 @@ def mb(n: int) -> str:
     return f"{n / 1e6:.1f} MB"
 
 
+def alt_html(m: dict, prefix: str = "downloads/", cls: str = "fallback") -> str:
+    """Listed alternates (other candidates with their own unique file names)."""
+    out = []
+    for a in m.get("alternates", []):
+        out.append(f"""<div class="{cls}"><b>Second candidate for your next slot — {e(a['label'])}:</b>
+    <a href="{prefix}{e(a['A']['file'])}" download>{e(a['A']['file'])}</a>
+    (<a href="{prefix}{e(a['A']['zip'])}" download>.zip</a>) — {e(a['description'])}
+    Note to paste: <code>{e(a['note_for_form'])}</code>
+    If the form rejects it: <a href="{prefix}{e(a['B']['file'])}" download>NaN-outside variant</a>.</div>""")
+    return "".join(out)
+
+
 def dlbar() -> str:
     """Slim bar under the header of EVERY page: the download is never more than a glance away."""
     m = front()
@@ -162,8 +174,9 @@ def build_index() -> str:
     <a href="downloads/{e(B['file'])}" download>{e(B['file'])}</a> — same predictions, NaN outside the survey area
     (the encoding the problem page describes). <a href="executive_summary.html#if-the-form-rejects-it">What to do on each error message →</a>
   </div>
-  <p class="honest">What this file is: the repository's best <i>local hold-out</i> map (greedy marginal-precision recipe, R11).
-  It is <b>not</b> a predicted leaderboard score — the official board is
+  {alt_html(m)}
+  <p class="honest">What this file is: {e(m.get('description', 'the repository best local hold-out map.'))}
+  The official board is
   <a href="https://www.drivendata.org/competitions/306/competition-doe-gems/leaderboard/">here</a>.
   Whether the form accepts it is only known from the form's own response; local checks cannot observe DrivenData's validator.</p>
 </div></div>"""
@@ -370,7 +383,7 @@ def build_index() -> str:
   (0.10% blocks, ≤ 6 steps), and the <b>basin-magnetics retest</b> at its true
   support (resolving R11-2's I-14 invalid measurement). <b>None beat
   <code>greedy_r11</code></b>, so no submission slot was spent and the shipped
-  artifact is unchanged — now served in its all-finite, form-verified encoding.</p>
+  artifact is unchanged — served as the A/B front-door files (zero-fill primary + NaN-outside fallback; neither is platform-verified).</p>
   <div class="grid g4">
     <div class="kpi ok"><div class="v">0.0</div><div class="l">protocol-regression drift this session (pinned versions close I-15)</div></div>
     <div class="kpi bad"><div class="v">0 / 5</div><div class="l">R12 challengers that beat greedy_r11</div></div>
@@ -399,7 +412,47 @@ def build_index() -> str:
   Report: <code>reports/holdout_r12_2026-09-30.json</code>.</p>
 </section>"""
 
+    r13 = load("holdout_r13_2026-10-01.json", {}) or {}
+    r13l = load("holdout_r13_lattice_2026-10-01.json", {}) or {}
+    nb = load("null_baseline_2026-10-01.json", {}) or {}
+    r13_html = ""
+    if r13 and r13l and nb:
+        nbs = nb.get("summary", {})
+        lcs = r13l.get("confirmation_summary", {})
+        def g(d, k, f="dti_mean"):
+            return d.get(k, {}).get(f, float("nan"))
+        trs = [("everywhere = 1", g(nbs, "null_all_ones")),
+               ("random 5% + spacing-3", g(nbs, "null_random_05_sp3_s11")),
+               ("topo_05_sp3 (R10–R12 reference)", nb.get("reference_from_r12_report", {}).get("topo_05_sp3", {}).get("dti_mean_all_18", float("nan"))),
+               ("greedy_r11 (previous holdout best)", nb.get("reference_from_r12_report", {}).get("greedy_r11", {}).get("dti_mean_all_18", float("nan"))),
+               ("lattice, every 4th pixel", g(nbs, "null_lattice_s4")),
+               ("lattice, every 5th pixel (published file A)", g(nbs, "null_lattice_s5")),
+               ("lattice, every 6th pixel", g(nbs, "null_lattice_s6"))]
+        rows13 = "".join(f"<tr><td>{e(a)}</td><td class=\"num\">{b:.4f}</td></tr>" for a, b in trs)
+        sel13 = r13.get("selected_on_tune", "?")
+        v13 = list(r13.get("verdict_predeclared", {"?": "?"}).values())[0]
+        vl = list(r13l.get("verdict_predeclared", {"?": "?"}).values())[0]
+        pl = r13l.get("paired_vs_greedy_r11", {}).get("sq5", {})
+        r13_html = f"""
+<section>
+  <h2>Session 7 (R13): a fault-blind lattice beats every recipe on the proxy</h2>
+  <p class=\"lede\">Predeclared register:
+  <code>knowledge/09_r13_hypotheses.md</code>. Main batch (local-contrast crest, scale-persistent crest,
+  tile-quota budget, paleo-geothermal halos from INGENIOUS GDR 1391): selected
+  <code>{e(sel13)}</code> → <b>{e(v13)}</b>; no slot. Then a content-free null baseline showed the proxy is
+  <b>coverage-dominated</b>: the same folds, the same scorer —</p>
+  <div class=\"scroll\"><table><thead><tr><th>map</th><th class=\"num\">DTI mean, 18 folds</th></tr></thead>
+  <tbody>{rows13}</tbody></table></div>
+  <p class=\"small\">Frozen-rule test of the lattice (post-hoc in origin, disclosed): <b>{e(vl)}</b>,
+  paired folds won vs <code>greedy_r11</code>: {pl.get('wins', '?')}/{pl.get('n_folds', '?')}, confirm worst-rule
+  DTI {g(lcs, 'sq5', 'dti_worst_rule_mean'):.4f} vs {g(lcs, 'greedy_r11', 'dti_worst_rule_mean'):.4f}.
+  <b>Caveat:</b> the proxy hides <i>known</i> faults, the leaderboard truth is new faults — whether coverage
+  transfers is unproven; one leaderboard score is the experiment. Reports:
+  <code>reports/holdout_r13_2026-10-01.json</code>, <code>reports/holdout_r13_lattice_2026-10-01.json</code>,
+  <code>reports/null_baseline_2026-10-01.json</code>.</p>
+</section>"""
     body = f"""
+{r13_html}
 {r12_html}
 <section>
   <h2>Session 5 (R11): first holdout WIN — greedy marginal-precision assembly</h2>
@@ -603,7 +656,7 @@ def build_exec() -> str:
     lv = m["local_verification"]
     fa, fb = lv["A"], lv["B"]
     note = m["note_for_form"]
-    holdout_link = "https://github.com/buffedlizard55-lab/13GEMSDOE/blob/main/reports/holdout_r11_2026-09-30.json"
+    holdout_link = m.get("evidence_link", "https://github.com/buffedlizard55-lab/13GEMSDOE/blob/main/reports/holdout_r11_2026-09-30.json")
     body = f"""
 <section>
   <h2>Executive summary — how to submit, exactly</h2>
@@ -614,6 +667,7 @@ def build_exec() -> str:
       <small>{e(A['file'])} · {mb(A['bytes'])}</small></span></a>
     <a class="btn ghost dark" href="downloads/{e(A['zip'])}" download>⬇ same file as .zip</a>
   </div>
+  {alt_html(m, cls="panel")}
   <ol class="steps">
     <li><h4>1. Download</h4>
       <p>Click the button above. The file is a single-band float32 GeoTIFF on the official grid.
@@ -723,8 +777,8 @@ def build_exec() -> str:
 
 <section>
   <h2>Before a slot is spent on a <i>different</i> file</h2>
-  <p>The file above is the best <i>local</i> recipe: it beat the reference under the predeclared
-  hide-and-recover protocol (<a href="{holdout_link}">R11 report</a>). That is catalogue recovery on
+  <p>The file above is the best <i>local</i> candidate: {e(m.get('description', ''))} It beat the references under the predeclared
+  hide-and-recover protocol (<a href="{holdout_link}">report</a>). That is catalogue recovery on
   hidden <i>known</i> faults, not the undisclosed new-fault test set, and it is not a leaderboard
   prediction. A new candidate gets a slot only if it beats the current holdout best under more than one
   withholding rule on the confirmation folds, its pixels are not an exact duplicate of any earlier map
@@ -1152,6 +1206,20 @@ def build_hypotheses() -> str:
                 '<a href="https://github.com/buffedlizard55-lab/13GEMSDOE/blob/main/'
                 'knowledge/03_hypotheses.md">knowledge/03_hypotheses.md</a>.</p>')
     fresh_screen_html = """
+<section>
+  <h2>R13 — five ranked hypotheses (session 7)</h2>
+  <p class="small">Full register with layers, physical signature, why each could catch uncatalogued faults and how it
+  differs from earlier work: <a href="https://github.com/buffedlizard55-lab/13GEMSDOE/blob/main/knowledge/09_r13_hypotheses.md">knowledge/09_r13_hypotheses.md</a>.
+  Ranked by expected gain × probability ÷ cost; the rule was frozen before the run.</p>
+  <div class="scroll"><table><thead><tr><th>#</th><th>hypothesis</th><th>layers</th><th>status</th></tr></thead><tbody>
+  <tr><td>1</td><td>R13-4 paleo-geothermal feature halos (sinter/tufa = ground evidence of fault-controlled upflow)</td><td>INGENIOUS GDR 1391 (CC-BY-4.0) + band 19</td><td>run: LOSES (dose-response)</td></tr>
+  <tr><td>2</td><td>R13-1 local-contrast crest normalisation (subdued basin scarps)</td><td>band 19</td><td>run: LOSES</td></tr>
+  <tr><td>3</td><td>R13-2 scale-persistent crest</td><td>band 19</td><td>FRAGILE (Stage A beat the old base in 17/18 folds)</td></tr>
+  <tr><td>4</td><td>R13-3 tile-quota regional budget</td><td>BASE_topo_ridge</td><td>run: LOSES</td></tr>
+  <tr><td>5</td><td>R13-5 Euler depth-to-source clusters</td><td>band 2 rtp</td><td>deferred (cost, low prior)</td></tr>
+  <tr><td>+</td><td>R13-6 coverage-geometry lattices (post-hoc, disclosed)</td><td>none</td><td>WINS the frozen rule on the proxy — caveat: coverage-dominated proxy</td></tr>
+  </tbody></table></div>
+</section>
 <section>
   <h2>R10 / R10b — the external-data register is now measured and closed</h2>
   <p class="lede">Four hypotheses were predeclared in
@@ -1687,9 +1755,10 @@ nav a{{display:inline-block;margin:18px 14px 0 0;font-weight:600}}
 </ol>
 <div class="f"><b>Only if the form rejects it:</b> <a href="docs/downloads/{e(B['file'])}" download>{e(B['file'])}</a>
 (same predictions, NaN outside the survey area).</div>
+{alt_html(m, prefix="docs/downloads/")}
 <nav><a href="docs/">Full site →</a><a href="docs/executive_summary.html">Executive summary: how to submit →</a>
 <a href="https://github.com/buffedlizard55-lab/13GEMSDOE">Repository →</a></nav>
-<p class="s">Local hold-out recipe, not a leaderboard prediction. SHA-256 <code>{A['sha256'][:16]}…</code> ·
+<p class="s">Local hold-out candidate, not a leaderboard prediction. SHA-256 <code>{A['sha256'][:16]}…</code> ·
 generated {e(m['generated_utc'])} · verified by <code>scripts/verify_download.py</code>.</p>
 </div></body></html>"""
 

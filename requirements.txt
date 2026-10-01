@@ -1,4 +1,7 @@
-# Versions used for the 2026-09-30 session-5 rebuild (irregularity I-15)
+# Versions used for the 2026-09-30 session-5 rebuild (irregularity I-15) and the session-7 front door
 numpy==2.4.6
 scipy==1.17.1
 rasterio==1.4.4
+tifffile==2026.3.3
+pillow==12.3.0
+imagecodecs==2026.3.6

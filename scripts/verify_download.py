@@ -61,8 +61,11 @@ def main() -> int:
     m = json.loads(mpath.read_text())
     A, B = m["primary_A"], m["fallback_B"]
 
-    # 1 + 2: files, hashes, zips
-    for label, e in (("A", A), ("B", B)):
+    # 1 + 2: files, hashes, zips (primary pair, then any listed alternates)
+    pairs = [("A", A), ("B", B)]
+    for k, alt in enumerate(m.get("alternates", []), 1):
+        pairs += [(f"alt{k}-A", alt["A"]), (f"alt{k}-B", alt["B"])]
+    for label, e in pairs:
         tif, zp = DL / e["file"], DL / e["zip"]
         check(tif.exists() and zp.exists(), f"{label}: {e['file']} and its .zip exist")
         if not (tif.exists() and zp.exists()):
@@ -104,6 +107,11 @@ def main() -> int:
           f"A passes a NAIVE raw range test (0 NaN, min {facts['A']['min']}, max {facts['A']['max']})")
     check(facts["readers_used"] == ["Pillow", "rasterio/GDAL", "tifffile"],
           f"three independent readers used: {facts['readers_used']}")
+    for k, alt in enumerate(m.get("alternates", []), 1):
+        af = frontdoor.check_pair(DL / alt["A"]["file"], DL / alt["B"]["file"], valid)
+        pr = frontdoor._all_ok(af)
+        check(not pr, f"alt{k} ({alt['stem']}): A/B pixel, grid, layout and reader checks"
+              + (": " + "; ".join(pr) if pr else ""))
 
     # 6: site + README put the primary file first
     primary_href = f"downloads/{A['file']}"

@@ -11,11 +11,12 @@ minimum DTI across its stored withholding rules (not the highest mean). It is
 not automatically updated from newer holdouts and is not an upload gate; every
 artifact remains NOT_CLEARED until current paired direct-DTI confirmation.
 
-Outputs, into docs/downloads/:
-    <name>.tif           NaN outside the data bounds (per official format text)
-    <name>_allfinite.tif zero-filled diagnostic twin; not assumed NoData-equivalent
-    <name>.zip           zip of the official-format NaN-outside .tif
-    <name>.json          provenance + a descriptive note for the form
+Outputs, into docs/downloads/ (session 7: written by gems.frontdoor.publish):
+    <stem>_A_zerofill.tif/.zip     PRIMARY: 0.0 outside the footprint, no NaN, no NoData tag
+    <stem>_B_nan-outside.tif/.zip  FALLBACK: NaN outside the footprint, NoData=nan
+    latest.tif/.zip = A, latest_nan.tif/.zip = B, submit.json (manifest + form note)
+    <name>.json, latest.json       provenance + a descriptive note for the form
+Both layouts: LZW striped, no TIFF predictor (the layout of the example submission).
 """
 from __future__ import annotations
 
