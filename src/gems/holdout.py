@@ -209,3 +209,97 @@ def build_folds(known: np.ndarray, valid: np.ndarray, *, n_folds: int = 3,
                                f"dense_{f}", "dense", buffer_px))
 
     return folds
+
+
+# ---------------------------------------------------------------------------
+# R14/R15 `tip` rule -- predeclared in knowledge/10_r14_hypotheses.md §1
+# ---------------------------------------------------------------------------
+def trace_endpoints(known: np.ndarray) -> np.ndarray:
+    """8-connected pixels of `known` with at most one known neighbour.
+
+    The catalogue raster is one pixel wide almost everywhere, so this is the
+    set of trace terminations -- the places where *mapping* stopped.
+    """
+    k = np.asarray(known, dtype=bool)
+    n8 = ndi.convolve(k.astype(np.uint8), np.ones((3, 3), np.uint8),
+                      mode="constant", cval=0) - k.astype(np.uint8)
+    return k & (n8 <= 1)
+
+
+def tip_fold(known: np.ndarray, valid: np.ndarray, tip_len: int,
+             name: str, min_len: int = 20,
+             seed_segments: np.ndarray | None = None) -> Fold:
+    """Withhold the outermost `tip_len` px of every long trace as hidden truth.
+
+    No `link_px` grouping is applied, so hidden truth lies IMMEDIATELY adjacent
+    to visible catalogue. That is deliberate: `group_systems(link_px=8)` merges
+    traces within ~1.6 km, which makes the pre-existing rules structurally
+    blind to any near-catalogue strategy (knowledge/10 §0 F7, measured in
+    reports/r14_budget_curve.json). The hidden pixels are chosen ONLY from
+    catalogue geometry -- never from a feature value -- so no detector can be
+    tuned on them.
+
+    The growth is a geodesic ball inside `known`: because segments are
+    8-connected components, dilating within `known` can never leave the
+    component the seed belonged to.
+
+    `seed_segments` restricts WHICH segment ids contribute tips. Everything
+    else in the catalogue stays visible -- and therefore masked out of
+    evaluation exactly as the organiser masks the known catalogue (F1) -- so
+    the fold never leaves catalogue pixels unaccounted for.
+    """
+    known = np.asarray(known, dtype=bool)
+    seg, n_seg = label_segments(known)
+    sizes = np.asarray(ndi.sum_labels(known.astype(np.float32), seg,
+                                      np.arange(1, n_seg + 1)))
+    ok = sizes >= min_len if min_len > 0 else sizes >= 0
+    eligible = np.flatnonzero(ok) + 1
+    if seed_segments is not None:
+        eligible = np.intersect1d(eligible, np.asarray(seed_segments))
+    seeds = trace_endpoints(known) & np.isin(seg, eligible)
+
+    st = ndi.generate_binary_structure(2, 2)
+    hidden = seeds.copy()
+    for _ in range(int(tip_len)):
+        nxt = ndi.binary_dilation(hidden, structure=st) & known & ~hidden
+        if not nxt.any():
+            break
+        hidden |= nxt
+
+    visible = known & ~hidden
+    return Fold(name=name, rule=f"tip{tip_len}", hidden=hidden, visible=visible,
+                eval_mask=valid & ~visible,
+                n_hidden=int(hidden.sum()), n_visible=int(visible.sum()),
+                meta={"tip_len_px": int(tip_len), "min_segment_len_px": int(min_len),
+                      "n_endpoints": int(seeds.sum()),
+                      "n_segments_eligible": int(eligible.size),
+                      "known_px_accounted": int((hidden | visible).sum()),
+                      "hidden_adjacent_to_visible": True})
+
+
+def tip_folds(known: np.ndarray, valid: np.ndarray,
+              tip_lens=(8, 16, 32), seeds=(1, 2, 3),
+              min_len: int = 20) -> list[Fold]:
+    """Deterministic `tip` folds.
+
+    The rule has no randomness in it (it is pure catalogue geometry), so the
+    `seeds` argument only varies WHICH long segments contribute tips: seed 1
+    uses every eligible segment, seed 2 every second segment id, seed 3 every
+    third. Three distinct folds per tip length, no hidden tuning knob, and the
+    non-selected catalogue stays visible (hence masked) in every fold.
+    """
+    out: list[Fold] = []
+    known = np.asarray(known, dtype=bool)
+    seg, n_seg = label_segments(known)
+    sizes = np.asarray(ndi.sum_labels(known.astype(np.float32), seg,
+                                      np.arange(1, n_seg + 1)))
+    eligible = np.flatnonzero(sizes >= min_len) + 1 if min_len > 0 \
+        else np.arange(1, n_seg + 1)
+    for tl in tip_lens:
+        for s in seeds:
+            sel = eligible[(np.arange(eligible.size) % int(s)) == 0] if s > 1 else eligible
+            f = tip_fold(known, valid, tl, f"tip{tl}_seed{s}",
+                         min_len=min_len, seed_segments=sel)
+            f.meta["segment_subsample"] = int(s)
+            out.append(f)
+    return out

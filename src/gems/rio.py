@@ -235,13 +235,15 @@ def write_submission(path: str | Path, values: np.ndarray,
         "crs": rasterio.crs.CRS.from_string(EXPECTED_CRS),
         "transform": rasterio.transform.Affine(*EXPECTED_TRANSFORM),
         "nodata": float("nan") if outside_value is None else None,
-        # Layout deliberately copies the official example_submission.tif and
-        # every file the platform has scored for this group: LZW, one-row
-        # strips, NO predictor. Builds before 2026-10-01 used deflate +
-        # PREDICTOR=2 (integer differencing) on float32, which no previously
-        # scored file used (irregularity I-18). Pixel values are unaffected by
-        # this choice; only the byte layout is.
-        "compress": "lzw", "tiled": False, "blockysize": 1,
+        # Layout deliberately copies the official sample_submission.tif and the
+        # nine files the platform has scored for this group: LZW, one-row
+        # strips, PREDICTOR pinned to 1 (none). The one file the form rejected
+        # with "Predicted values must be in range [0, 1]" is the only file in
+        # this project's history written with PREDICTOR=2 (integer horizontal
+        # differencing) on IEEE-float samples; a reader that does not run the
+        # accumulator decodes it to [-4.0, 3.0]. See src/gems/encoding.py and
+        # reports/platform_encoding_evidence.json (irregularities I-18, I-22).
+        "compress": "lzw", "tiled": False, "blockysize": 1, "predictor": 1,
     }
     with rasterio.open(path, "w", **profile) as dst:
         dst.write(out, 1)

@@ -61,18 +61,27 @@ def alt_html(m: dict, prefix: str = "downloads/", cls: str = "fallback") -> str:
     """Listed alternates (other candidates with their own unique file names)."""
     out = []
     for a in m.get("alternates", []):
+        gate = a.get("gate") or {}
+        gate_html = ""
+        if gate:
+            gate_html = (
+                "<div class='small' style='margin-top:.35rem'><b>Predeclared gate: "
+                + e(gate.get("verdict", "")) + "</b> — register <code>"
+                + e(gate.get("register", "")) + "</code>, report <code>"
+                + e(gate.get("report", "")) + "</code>. Role: "
+                + e(gate.get("role", "")) + ".</div>")
         out.append(f"""<div class="{cls}"><b>Second candidate for your next slot — {e(a['label'])}:</b>
-    <a href="{prefix}{e(a['A']['file'])}" download>{e(a['A']['file'])}</a>
-    (<a href="{prefix}{e(a['A']['zip'])}" download>.zip</a>) — {e(a['description'])}
+    <a href="{prefix}{e(a['primary']['file'])}" download>{e(a['primary']['file'])}</a>
+    (<a href="{prefix}{e(a['primary']['zip'])}" download>.zip</a>) — {e(a['description'])}
     Note to paste: <code>{e(a['note_for_form'])}</code>
-    If the form rejects it: <a href="{prefix}{e(a['B']['file'])}" download>NaN-outside variant</a>.</div>""")
+    Only if the form rejects it: <a href="{prefix}{e(a['hedge']['file'])}" download>zero-filled hedge variant</a> (no NaN anywhere).{gate_html}</div>""")
     return "".join(out)
 
 
 def dlbar() -> str:
     """Slim bar under the header of EVERY page: the download is never more than a glance away."""
     m = front()
-    a = m["primary_A"]
+    a = m["primary"]
     return f"""<div class="dlbar"><div class="wrap">
   <span class="lbl">SUBMISSION FILE</span>
   <a class="dlb" href="downloads/{e(a['file'])}" download>⬇ Download {e(a['file'])} ({mb(a['bytes'])})</a>
@@ -126,7 +135,10 @@ def build_index() -> str:
     extdet = load("external_detectors_manifest.json", {}) or {}
     extman = load("external_manifest.json", {}) or {}
     band6 = load("band6_identity.json", {}) or {}
-    leaderboard = load("leaderboard_snapshot_2026-09-30.json", {}) or {}
+    # newest manual snapshot by file name (dates sort lexicographically);
+    # never a feed -- see reports/leaderboard_snapshot_*.json "observed_time_note"
+    snaps = sorted((REP).glob("leaderboard_snapshot_*.json"))
+    leaderboard = load(snaps[-1].name, {}) if snaps else {}
     checks = audit.get("checks", {})
     n_pass = sum(1 for c in checks.values() if c.get("pass"))
 
@@ -143,9 +155,9 @@ def build_index() -> str:
     name = sub.get("name")
     note = sub.get("note_for_submission_form", "not recorded")
     m = front()
-    A, B = m["primary_A"], m["fallback_B"]
+    A, B = m["primary"], m["hedge"]
     lv = m["local_verification"]
-    fa = lv["A"]
+    fa = lv["primary"]
     note_form = m["note_for_form"]
     hero = f"""<div class="hero front"><div class="wrap">
   <p class="kicker">DOE GEMS Prize Challenge · submission file for DrivenData</p>
@@ -166,13 +178,26 @@ def build_index() -> str:
       <button type="button" onclick="var i=document.getElementById('note');i.select();navigator.clipboard&amp;&amp;navigator.clipboard.writeText(i.value);this.textContent='Copied ✓'">Copy note</button></div></li>
   </ol>
   <div class="facts">
-    <b>Checked on these exact bytes:</b> float32 · 1 band · EPSG:32611 · 3,730 × 3,292 @ 100 m · every value in [0, 1] ·
-    <b>{fa['n_nan']} NaN / {fa['n_inf']} Inf</b> · {fa['n_positive']:,} predicted cells · LZW, no predictor (same layout as the official example) ·
-    decodes identically in 3 independent TIFF readers · SHA-256 <code>{A['sha256'][:16]}…</code>
+    <b>Checked on these exact bytes:</b> float32 · 1 band · EPSG:32611 · 3,730 × 3,292 @ 100 m ·
+    every footprint value in [0, 1] · <b>{fa['n_nan']:,} NaN, all of them outside the survey footprint</b> ·
+    <b>0 NaN / 0 Inf inside it</b> · NoData = nan · {fa['n_positive']:,} predicted cells ·
+    LZW, one-row strips, <b>no predictor</b> — the byte layout of the official
+    <code>sample_submission.tif</code> · decodes identically in 3 independent TIFF readers ·
+    SHA-256 <code>{A['sha256'][:16]}…</code>
+  </div>
+  <div class="facts" style="margin-top:.4rem">
+    <b>Why this encoding and not the zero-filled one:</b> this is the encoding of the official template
+    <i>and</i> of all <b>9</b> files this group has a public DrivenData score for. The single file the form
+    ever rejected is the only one in the project's history written with TIFF <code>PREDICTOR=2</code>
+    (integer differencing on float samples); a reader that ignores that tag decodes it to
+    <b>[−4.0, 3.0]</b>, which is exactly “Predicted values must be in range [0, 1]”.
+    Byte-level audit: <a href="https://github.com/buffedlizard55-lab/13GEMSDOE/blob/main/reports/platform_encoding_evidence.json">reports/platform_encoding_evidence.json</a>.
   </div>
   <div class="fallback"><b>Only if the form rejects the file above:</b>
-    <a href="downloads/{e(B['file'])}" download>{e(B['file'])}</a> — same predictions, NaN outside the survey area
-    (the encoding the problem page describes). <a href="executive_summary.html#if-the-form-rejects-it">What to do on each error message →</a>
+    <a href="downloads/{e(B['file'])}" download>{e(B['file'])}</a> — the same predictions with 0.0 instead of NaN
+    outside the survey area and no NoData tag, so it passes even a naive whole-array [0, 1] test. It is a hedge,
+    <b>not</b> the template's encoding, and no all-finite file in this group's history has an acceptance receipt of its own.
+    <a href="executive_summary.html#if-the-form-rejects-it">What to do on each error message →</a>
   </div>
   {alt_html(m)}
   <p class="honest">What this file is: {e(m.get('description', 'the repository best local hold-out map.'))}
@@ -415,6 +440,157 @@ def build_index() -> str:
     r13 = load("holdout_r13_2026-10-01.json", {}) or {}
     r13l = load("holdout_r13_lattice_2026-10-01.json", {}) or {}
     nb = load("null_baseline_2026-10-01.json", {}) or {}
+    # ---- session 8 (R14/R15) -------------------------------------------
+    enc = load("platform_encoding_evidence.json", {}) or {}
+    cal = load("truthset_calibration.json", {}) or {}
+    bud = load("r14_budget_curve.json", {}) or {}
+    r14 = load("holdout_r14_2026-10-01.json", {}) or {}
+    r14_html = ""
+    if enc and r14:
+        esum = enc.get("summary", {})
+        pol = esum.get("policy", {})
+        rej = esum.get("rejected_file_predictor2_simulation", {}) or {}
+        nscored = esum.get("n_platform_scored_files_audited")
+        nnan = esum.get("n_platform_scored_files_with_nan_outside_nodata_nan")
+        np2 = esum.get("n_platform_scored_files_with_predictor2")
+        corr = cal.get("correlation_with_public_score", {}) or {}
+        min_p_corr = min([v.get("spearman_p") or 1.0 for v in corr.values()] or [1.0])
+        _corr_items = sorted(((k, v) for k, v in corr.items() if k.endswith("|masked")),
+                             key=lambda kv: -abs(kv[1].get("spearman_rho") or 0))
+        corr_rows = ""
+        for _k, _v in _corr_items:
+            corr_rows += (
+                "<tr><td class='mono'>" + e(_k) + "</td>"
+                "<td class='num'>" + f"{_v.get('n_truth_px', 0):,}" + "</td>"
+                "<td class='num'>" + str(_v.get("spearman_rho")) + "</td>"
+                "<td class='num'>" + str(_v.get("spearman_p")) + "</td></tr>")
+        verd = r14.get("verdicts_predeclared", {}) or {}
+        ref = r14.get("config", {}).get("reference", "lattice_s5")
+
+        def wr(fam, name):
+            d = r14.get(f"results_{fam}_by_rule", {}) or {}
+            vals = [x[name]["dti_mean"] for x in d.values() if name in x]
+            return min(vals) if vals else float("nan")
+
+        def mn(fam, name):
+            return (r14.get(f"results_{fam}_all", {}) or {}).get(name, {}).get("dti_mean", float("nan"))
+
+        order = [ref] + [n for n in verd if n != ref]
+        paired_wins = r14.get("paired_tip_wins", {}) or {}
+        r14_rows = ""
+        for n in order:
+            pw = paired_wins.get(n, {})
+            r14_rows += (
+                "<tr" + (" class='hi'" if n == ref else "") + ">"
+                "<td class='mono'>" + e(n) + "</td>"
+                "<td class='num'>" + f"{wr('tip', n):.5f}" + "</td>"
+                "<td class='num'>" + f"{mn('tip', n):.5f}" + "</td>"
+                "<td class='num'>" + f"{wr('old', n):.5f}" + "</td>"
+                "<td class='num'>" + f"{mn('sgmc', n):.5f}" + "</td>"
+                "<td class='num'>" + str(pw.get("wins", "-")) + "/" + str(pw.get("folds", 9)) + "</td>"
+                "<td>" + e(verd.get(n, {}).get("verdict", "")) + "</td></tr>")
+        winners = r14.get("winners") or []
+        r14_html = f"""
+<section id="session-8">
+  <h2>Session 8 (R14/R15): the rejection's real cause, and why no local proxy can pick the submission</h2>
+  <p class="lede">Four things were settled with bytes and with organiser statements rather than
+  with argument. Register: <code>knowledge/10_r14_hypotheses.md</code> (predeclared, including
+  addendum B written before the corrected run was read).</p>
+
+  <h3>1. “Predicted values must be in range [0, 1]” — root cause found, previous story falsified</h3>
+  <p>The file the form rejected (<code>docs/downloads/archive/13gems-r11-greedy-mp.tif</code>) has
+  <b>0 NaN inside the footprint</b>, all <b>7,111,787 NaN outside it</b>,
+  <code>GDAL_NODATA=nan</code>, and every finite value in [0, 1] — <b>identical</b NaN placement to the
+  official <code>sample_submission.tif</code> and to all {nscored} files this group has a public score for
+  ({nnan} of {nscored} match exactly; {np2} use a TIFF predictor). Its <b>only</b> deviation is
+  <code>PREDICTOR=2</code> — TIFF horizontal differencing, defined for <i>integer</i> samples; the
+  floating-point predictor is <code>PREDICTOR=3</code> (TIFF Technical Note 3), which three of the nine
+  scored files use correctly. A reader that decompresses but never runs the accumulator returns the
+  stored differences as float32: for this file that decodes to
+  <b>[{rej.get('decoded_min')}, {rej.get('decoded_max')}]</b>, i.e. exactly the reported error while the
+  real pixels stay in [0, 1]. Reproduced in <code>src/gems/encoding.simulate_ignored_predictor2</code>.</p>
+  <p><b>So the session-6/7 diagnosis was backwards.</b> NaN did not cause the rejection — the official
+  template is NaN-outside, and so is every scored file. The primary download is now the
+  <b>NaN-outside</b> file (<code>{e(m['primary']['file'])}</code>) and the zero-filled file is a labelled
+  hedge. Policy: <i>{e(pol.get('primary_encoding', ''))}</i>. Audit:
+  <a href="https://github.com/buffedlizard55-lab/13GEMSDOE/blob/main/reports/platform_encoding_evidence.json">reports/platform_encoding_evidence.json</a>.
+  Irregularities I-8 and I-18 are closed; I-22 records the evidence.</p>
+
+  <h3>2. Two organiser statements that change the strategy (both verified verbatim)</h3>
+  <ul>
+    <li><b>Known faults are masked out of scoring, in both rounds.</b> “Pixels corresponding to known
+    USGS/INGENIOUS faults are masked / excluded from evaluation, so they do not count towards penalty
+    terms … for scoring purposes it should not matter whether these known faults are included with
+    predictions or not.” — <code>chrisk-dd</code>, <b>DrivenData Staff</b>, 2026-09-16,
+    <a href="https://community.drivendata.org/t/scoring-clarification-are-known-usgs-ingenious-faults-masked-when-scoring-and-are-they-in-the-final-round-label-set/11516/2">forum 11516 post 2</a>.
+    Every recipe here that advertised “includes the catalogue” was buying exactly zero (I-27).</li>
+    <li><b>Phase 2 rewards credible geology, not only Phase-1 score.</b> “We're not sharing details about
+    the data sources, fault types, or coverage behind the test faults … the largest prize pool (Phase 2)
+    will use a test set that is updated by expert review of all Phase 1 submissions, so your fault
+    predictions have an impact on final evaluation even if they are not the most performant in Phase 1.”
+    — <code>chrisk-dd</code>, 2026-09-23,
+    <a href="https://community.drivendata.org/t/how-were-the-new-test-faults-identified-data-sources-and-fault-types/11527/7">forum 11527 post 7</a>.
+    A fault-blind lattice is not a claim an expert can verify; a propagation trace is. $250,000 sits on
+    that round versus $50,000 on Phase 1.</li>
+  </ul>
+
+  <h3>3. No local truth set predicts the recorded public scores (I-26)</h3>
+  <p>The 9 independent platform-scored files were re-scored locally against 7 truth sets × 2 masking
+  policies and Spearman-correlated with their recorded public scores
+  (<code>reports/truthset_calibration.json</code>, <code>scripts/calibrate_truth_sets.py</code>):</p>
+  <div class="scroll"><table><thead><tr><th>truth set | masking policy</th><th class="num">truth px</th>
+  <th class="num">Spearman ρ</th><th class="num">p</th></tr></thead><tbody>{corr_rows}</tbody></table></div>
+  <p><b>Nothing reaches significance at n = 9</b> (smallest p = {min_p_corr:.3f}),
+  and the USGS State Geologic Map (SGMC) off-catalogue variants correlate <i>negatively</i>. The sibling
+  repo 16GEMSDOE reports ρ = +0.518 (p = 0.048, n = 15) for its own <code>sgmc_gap</code> set; that is
+  <b>not reproduced here</b> and the difference is unresolved. Consequence, accepted: the doctrine “the
+  holdout best gets the slot” cannot be used to claim any local win will transfer, and the lattice's
+  18/18 win is not evidence of leaderboard value.</p>
+
+  <h3>4. The old proxy is structurally blind to the mechanism that matters (I-24)</h3>
+  <p><code>gems.holdout.group_systems(link_px=8)</code> merges traces within ~1.6 km into one system, so
+  whatever is hidden is ≥ ~16 px from everything visible — four to five times the metric's 300 m kernel.
+  Measured over 15 folds × 2 buffer settings (<code>reports/r14_budget_curve.json</code>): ranking by
+  distance to the visible catalogue scores DTI ≤ 0.0146 at <i>every</i> budget from 0.5 % to 100 %,
+  while a fault-blind stride-5 lattice scores 0.1063. Real new faults are continuations, stepovers and
+  parallel strands of mapped ones — inside the forbidden ring. Raw geophysical magnitude rankings are
+  also worse than uniform random at every budget (detrended-elevation slope peaks at 0.0254, TMI
+  horizontal gradient 0.0265, gravity slope 0.0203, strain-rate second invariant 0.0503, versus random
+  0.0842).</p>
+  <p>A new withholding rule was added to fix this (<code>gems.holdout.tip_folds</code>): hide only the
+  outermost 8/16/32 px of every long trace, with no <code>link_px</code> grouping, so hidden truth abuts
+  visible catalogue. Nine folds, three tip lengths × three deterministic segment subsamples.</p>
+
+  <h3>5. R14 result — along-strike propagation is real, but the gate was not passed</h3>
+  <div class="scroll"><table><thead><tr><th>map</th><th class="num">tip folds<br>worst-rule DTI</th>
+  <th class="num">tip folds<br>mean DTI</th><th class="num">15 old folds<br>worst-rule DTI</th>
+  <th class="num">SGMC ≥16 px<br>DTI</th><th class="num">paired<br>tip wins</th>
+  <th>predeclared verdict</th></tr></thead><tbody>{r14_rows}</tbody></table></div>
+  <p><b>Winners: {e(', '.join(winners)) if winners else 'none'}.</b> Per the predeclared rule no
+  submission slot is spent and the primary stays <code>{e(ref)}</code>. What the run did establish:</p>
+  <ul>
+    <li><b>Direction carries information that proximity does not</b> (predeclared prediction P2,
+    confirmed): at every equal budget the along-strike ribbons beat the isotropic halo on the tip folds
+    — at 1 %, 0.1477 / 0.1627 / 0.1743 (L = 5 / 10 / 20 px) against 0.0478 for the halo; at 4 %,
+    0.1186 / 0.1299 / 0.1329 against 0.0567.</li>
+    <li><b>P1 was falsified</b> and is recorded as falsified: the isotropic halo does <i>not</i> beat the
+    lattice on the tip folds.</li>
+    <li><b>The best hedged candidate</b> is <code>union_tipsL10_1pct+lat6_4pct</code>: +39 % over the
+    reference on the tip-fold worst-rule mean (0.12253 vs 0.08801), −0.0279 on the old folds' worst rule
+    (gate D3 allows 0.002), 6/9 paired tip wins (gate D2 wants 7). It is published as a listed
+    <b>second candidate</b> — an experiment arm, not a recommendation — because the two fold families
+    disagree <i>by construction</i> and no local truth set can adjudicate (I-26).</li>
+    <li>A bug was found and fixed rather than hidden (addendum B.1): the first run broke budget ties by
+    row-major position, so the halo control was silently restricted to the north of the study area
+    (irregularity I-14, recurring). Its first-run numbers are void; every selection now uses a fixed
+    seeded spatially uniform tie-break, and the largest-tie fraction is recorded.</li>
+  </ul>
+  <p class="small">Reports: <code>reports/holdout_r14_2026-10-01.json</code>,
+  <code>reports/r14_budget_curve.json</code>, <code>reports/truthset_calibration.json</code>,
+  <code>reports/platform_encoding_evidence.json</code>. Nothing on this page is a leaderboard
+  prediction.</p>
+</section>"""
+
     r13_html = ""
     if r13 and r13l and nb:
         nbs = nb.get("summary", {})
@@ -452,6 +628,7 @@ def build_index() -> str:
   <code>reports/null_baseline_2026-10-01.json</code>.</p>
 </section>"""
     body = f"""
+{r14_html}
 {r13_html}
 {r12_html}
 <section>
@@ -652,9 +829,9 @@ def build_index() -> str:
 # ---------------------------------------------------------------------------
 def build_exec() -> str:
     m = front()
-    A, B = m["primary_A"], m["fallback_B"]
+    A, B = m["primary"], m["hedge"]
     lv = m["local_verification"]
-    fa, fb = lv["A"], lv["B"]
+    fa, fb = lv["primary"], lv["hedge"]
     note = m["note_for_form"]
     holdout_link = m.get("evidence_link", "https://github.com/buffedlizard55-lab/13GEMSDOE/blob/main/reports/holdout_r11_2026-09-30.json")
     body = f"""
@@ -709,17 +886,24 @@ def build_exec() -> str:
   <h2>If the form rejects the file — one row per message</h2>
   <div class="scroll"><table><thead><tr><th>What the form says</th><th>What it means / what we know</th><th>Do this</th></tr></thead><tbody>
   <tr><td><code>Predicted values must be in range [0, 1]</code></td>
-      <td>The only response on record (user-reported 2026-09-30, on the NaN-outside file the site then
-      served; <code>reports/form_responses.json</code>). File A has <b>no NaN, no Inf, min {fa['min']}, max {fa['max']}</b>
-      (verified), so a value-range violation in the usual sense is impossible; a validator that
-      mishandles NaN would trip on a NaN file but not on A.</td>
-      <td>Upload <b>A</b>. If A itself returns this message, stop, copy the message and the time, and
-      email <a href="mailto:info@drivendata.org">info@drivendata.org</a> with the SHA-256
+      <td><b>Root cause found (2026-10-01).</b> The rejected file was
+      <code>docs/downloads/archive/13gems-r11-greedy-mp.tif</code>: its NaN placement was already
+      perfect (0 NaN inside the footprint, all {fa['n_nan']:,} NaN outside it, NoData = nan, every finite
+      value in [0, 1]) — identical to the official template. Its <b>only</b> deviation from the nine
+      platform-scored group files was TIFF <code>PREDICTOR=2</code> (integer horizontal differencing)
+      on IEEE-float samples. A reader that does not run that accumulator decodes the stream to
+      <b>[−4.0, 3.0]</b>: reproduced in <code>src/gems/encoding.simulate_ignored_predictor2</code> and
+      recorded in <code>reports/platform_encoding_evidence.json</code>. The earlier “NaN caused it” story
+      is <b>falsified</b>: the official template and all nine scored files carry those NaN cells.</td>
+      <td>Upload <b>A</b> — it has no predictor and the template's exact layout. If A itself returns this
+      message, stop, copy the message and the time, and email
+      <a href="mailto:info@drivendata.org">info@drivendata.org</a> with the SHA-256
       <code>{e(A['sha256'][:16])}…</code> — that would be new evidence, not a retry case.</td></tr>
   <tr><td>Anything about NaN, null, NoData, mask or “outside the bounds”</td>
       <td>The problem page says data outside the bounds “is null or nan”
-      (<a href="{e(m['format_source'])}">Submission format</a>). B follows that convention exactly and
-      matches the byte layout of the official example.</td>
+      (<a href="{e(m['format_source'])}">Submission format</a>). A already follows that convention exactly.
+      B is the opposite convention (0.0 outside, no NoData tag) and is only a hedge for a validator that
+      rejects NaN itself.</td>
       <td>Upload <b>B</b>: <a href="downloads/{e(B['file'])}" download>{e(B['file'])}</a>
       (<a href="downloads/{e(B['zip'])}" download>.zip</a>).</td></tr>
   <tr><td>CRS, shape, transform, bands, dtype</td>
@@ -731,13 +915,15 @@ def build_exec() -> str:
       <td>Usually a truncated download or an HTML error page saved as .tif (file would be a few KB).</td>
       <td>Re-download; the size must be {A['bytes']:,} bytes. Or use the .zip.</td></tr>
   </tbody></table></div>
-  <p class="small">History and open questions (not hidden): NaN-outside files from this group were
-  recorded as accepted and scored on ~2026-09-27, and a NaN-outside file was reported rejected on
-  2026-09-30, so the platform's validator may have changed or may be inconsistent
-  (irregularity I-8). Separately, every file this repository generated before 2026-10-01 used an
-  unusual TIFF predictor (PREDICTOR=2 on float32) that no file the platform is recorded as scoring
-  used; the current files use the official example's layout (I-18). Neither is proven to be the cause —
-  <b>only the form's response can establish acceptance.</b></p>
+  <p class="small">History and open questions (not hidden): the apparent contradiction in irregularity
+  I-8 — “NaN-outside files were scored on ~2026-09-27, and a NaN-outside file was rejected on
+  2026-09-30” — is resolved. The rejected file is not comparable to the scored ones on NaN placement at
+  all: it matches them exactly. It differs in one structural respect, <code>PREDICTOR=2</code>, which no
+  scored file uses (three of them use <code>PREDICTOR=3</code>, the correct floating-point predictor, and
+  the rest use none). I-8 is closed as “validator is neither changed nor inconsistent”; I-18 is closed as
+  “the predictor, not the NaN, and specifically <code>PREDICTOR=2</code> on float samples”. Recorded in
+  <code>knowledge/02_irregularities.md</code> as I-22. <b>Acceptance is still only ever established by the
+  form's own response</b>, logged in <code>reports/form_responses.json</code>.</p>
 </section>
 
 <section>
@@ -745,14 +931,18 @@ def build_exec() -> str:
   <div class="scroll"><table class="small"><thead><tr><th></th><th>A — upload first</th><th>B — fallback</th></tr></thead><tbody>
     <tr><td>File</td><td class="mono">{e(A['file'])}</td><td class="mono">{e(B['file'])}</td></tr>
     <tr><td>Size · SHA-256</td><td class="mono">{A['bytes']:,} B<br>{e(A['sha256'])}</td><td class="mono">{B['bytes']:,} B<br>{e(B['sha256'])}</td></tr>
-    <tr><td>Outside the survey footprint</td><td>0.0, no NoData tag</td><td>NaN, NoData = nan</td></tr>
-    <tr><td>NaN / Inf cells</td><td>{fa['n_nan']} / {fa['n_inf']}</td><td>{fb['n_nan']:,} (all outside footprint) / {fb['n_inf']}</td></tr>
+    <tr><td>Outside the survey footprint</td><td>NaN, NoData = nan <b>(the official template's encoding)</b></td><td>0.0, no NoData tag</td></tr>
+    <tr><td>NaN / Inf cells</td><td>{fa['n_nan']:,} (all outside the footprint) / {fa['n_inf']}</td><td>{fb['n_nan']} / {fb['n_inf']}</td></tr>
+    <tr><td>NaN inside the footprint</td><td>{fa['n_nan_inside_footprint']}</td><td>{fb['n_nan_inside_footprint']}</td></tr>
+    <tr><td>Matches the empirically accepted platform encoding</td>
+        <td>{"YES" if fa['matches_accepted_pattern'] else "NO — " + e("; ".join(fa['deviations_from_accepted_pattern']))}</td>
+        <td>{"YES" if fb['matches_accepted_pattern'] else "no (expected: it is the hedge)"}</td></tr>
     <tr><td>Value range</td><td>[{fa['min']}, {fa['max']}]</td><td>[{fb['min']}, {fb['max']}] (finite cells)</td></tr>
     <tr><td>Predicted cells (&gt; 0)</td><td>{fa['n_positive']:,}</td><td>{fb['n_positive']:,}</td></tr>
     <tr><td>Grid</td><td colspan="2">GTiff · 1 band · float32 · {e(fa['crs'])} · {fa['shape'][1]} × {fa['shape'][0]} · transform {tuple(fa['transform'])} — equals the official grid</td></tr>
     <tr><td>TIFF layout</td><td colspan="2">LZW, {"tiled" if fa['layout']['tiled'] else "one-row strips"}, predictor: {fa['layout']['predictor'] or "none"} — same as the official <code>example_submission.tif</code></td></tr>
-    <tr><td>A = B inside the footprint</td><td colspan="2">{"yes" if lv['A_equals_B_inside_footprint'] else "NO"} ({lv['footprint_cells']:,} footprint cells; footprint equals the official label raster's)</td></tr>
-    <tr><td>Independent readers agree</td><td colspan="2">{", ".join(lv['readers_used'])}: {"all decode identically" if lv['all_readers_agree_A'] and lv['all_readers_agree_B'] else "MISMATCH"}</td></tr>
+    <tr><td>A = B inside the footprint</td><td colspan="2">{"yes" if lv['primary_equals_hedge_inside_footprint'] else "NO"} ({lv['footprint_cells']:,} footprint cells; footprint equals the official label raster's)</td></tr>
+    <tr><td>Independent readers agree</td><td colspan="2">{", ".join(lv['readers_used'])}: {"all decode identically" if lv['all_readers_agree_primary'] and lv['all_readers_agree_hedge'] else "MISMATCH"}</td></tr>
   </tbody></table></div>
   <p class="small">Re-run it yourself: <code>python scripts/verify_download.py</code> (add <code>--live</code> to
   fetch the published file and compare its hash). Not verifiable from this repository:
@@ -766,7 +956,7 @@ def build_exec() -> str:
     <ul class="small">
       <li>Same projected CRS and bounds as training data: <b>EPSG:32611</b></li>
       <li>Same resolution: <b>100 m</b></li>
-      <li>Data outside the bounds: <b>null or nan</b> (A uses 0.0 instead — see the table above for why and for B)</li>
+      <li>Data outside the bounds: <b>null or nan</b> — A does exactly this; B is the 0.0-filled hedge</li>
       <li>One layer, <b>float32</b>, values between <b>0 and 1</b> (higher = more likely a fault)</li>
     </ul>
     <p class="small">Official source:
@@ -1726,7 +1916,7 @@ def build_root_index() -> str:
     """Landing page served at the Pages root. Standalone (inline CSS) so that the very first
     thing anyone sees at https://buffedlizard55-lab.github.io/13GEMSDOE/ is the download."""
     m = front()
-    A, B = m["primary_A"], m["fallback_B"]
+    A, B = m["primary"], m["hedge"]
     return f"""<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>13GEMSDOE — download the GEMS submission file</title>
@@ -1754,12 +1944,16 @@ nav a{{display:inline-block;margin:18px 14px 0 0;font-weight:600}}
 <li>Paste this into <b>Note</b>:<input readonly value="{e(m['note_for_form'])}" onclick="this.select()"></li>
 </ol>
 <div class="f"><b>Only if the form rejects it:</b> <a href="docs/downloads/{e(B['file'])}" download>{e(B['file'])}</a>
-(same predictions, NaN outside the survey area).</div>
+— the same predictions with 0.0 instead of NaN outside the survey area (a hedge for a validator that
+rejects NaN itself). The file above is the encoding of the official <code>sample_submission.tif</code>
+and of all 9 files this group has a public DrivenData score for.</div>
 {alt_html(m, prefix="docs/downloads/")}
 <nav><a href="docs/">Full site →</a><a href="docs/executive_summary.html">Executive summary: how to submit →</a>
 <a href="https://github.com/buffedlizard55-lab/13GEMSDOE">Repository →</a></nav>
 <p class="s">Local hold-out candidate, not a leaderboard prediction. SHA-256 <code>{A['sha256'][:16]}…</code> ·
-generated {e(m['generated_utc'])} · verified by <code>scripts/verify_download.py</code>.</p>
+{A['bytes']:,} bytes · float32 · 1 band · EPSG:32611 · 3,730 × 3,292 @ 100 m · LZW, no predictor ·
+generated {e(m['generated_utc'])} · verified by <code>scripts/verify_download.py</code> and
+<a href="https://github.com/buffedlizard55-lab/13GEMSDOE/blob/main/reports/platform_encoding_evidence.json">the platform-encoding audit</a>.</p>
 </div></body></html>"""
 
 
@@ -1767,6 +1961,10 @@ def main() -> None:
     DOCS.mkdir(exist_ok=True)
     DL.mkdir(parents=True, exist_ok=True)
     (DOCS / ".nojekyll").write_text("")
+    # Pages is configured with source = repository root, so the file that
+    # disables Jekyll has to be at the ROOT, not only in docs/. Without it
+    # Jekyll processes every page and asset on each build (irregularity I-23).
+    (ROOT / ".nojekyll").write_text("")
     for fn, content in [("index.html", build_index()),
                         ("executive_summary.html", build_exec()),
                         ("evidence.html", build_evidence()),

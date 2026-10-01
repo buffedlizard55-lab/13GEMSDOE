@@ -209,5 +209,11 @@
   "primary_as_of_2026-10-01": {
     "note": "latest.tif/latest.zip now serve the R13-6 lattice (see docs/downloads/submit.json); this JSON still describes the R11 greedy recipe, now the listed alternate.",
     "manifest": "docs/downloads/submit.json"
+  },
+  "superseded_by": {
+    "when": "2026-10-01 session 8",
+    "authoritative_manifest": "docs/downloads/submit.json (schema 2)",
+    "why": "this file records the session-6 encoding policy (all-finite primary), which was falsified by reports/platform_encoding_evidence.json: the official template and all 9 platform-scored group files are NaN-outside with GDAL_NODATA=nan, and the single form-rejected file's only deviation was TIFF PREDICTOR=2. The primary is now the NaN-outside file. Kept unedited as a historical record; see knowledge/02_irregularities.md I-22.",
+    "artifact_it_describes": "docs/downloads/archive/session7-superseded-13gems_20261001_r11-greedy-mp_A_zerofill.tif"
   }
 }

@@ -14,40 +14,157 @@
   <p class="kicker">DOE GEMS Prize Challenge · submission file for DrivenData</p>
   <h1>Download the submission file</h1>
   <div class="dl big">
-    <a class="bigbtn" href="downloads/13gems_20261001_r13-lattice-s5_A_zerofill.tif" download>
+    <a class="bigbtn" href="downloads/13gems_20261001_r13-lattice-s5_v2_nan-outside.tif" download>
       <span class="ico">⬇</span>
-      <span><b>DOWNLOAD SUBMISSION .TIF</b><small>13gems_20261001_r13-lattice-s5_A_zerofill.tif · 1.0 MB · single-band GeoTIFF</small></span>
+      <span><b>DOWNLOAD SUBMISSION .TIF</b><small>13gems_20261001_r13-lattice-s5_v2_nan-outside.tif · 1.7 MB · single-band GeoTIFF</small></span>
     </a>
-    <a class="btn ghost" href="downloads/13gems_20261001_r13-lattice-s5_A_zerofill.zip" download>⬇ same file as .zip (0.1 MB)</a>
+    <a class="btn ghost" href="downloads/13gems_20261001_r13-lattice-s5_v2_nan-outside.zip" download>⬇ same file as .zip (0.3 MB)</a>
   </div>
   <ol class="three">
     <li><b>Download</b> the .tif above (nothing to build, nothing to edit).</li>
     <li>Open the <a href="https://www.drivendata.org/competitions/306/competition-doe-gems/submissions/" target="_blank" rel="noopener">DrivenData submissions page</a>
         → <b>Submit file</b> → <b>File to submit</b> → choose the .tif (or the .zip).</li>
     <li>Paste this into <b>Note</b>, then submit:
-      <div class="copyfield"><input id="note" readonly value="r13 lattice-s5 A-zerofill 20261001 | fault-blind every-5th-px grid, coverage baseline | local holdout 18/18 win, not a LB claim">
+      <div class="copyfield"><input id="note" readonly value="r13 lattice-s5 v2 20261001 | fault-blind every-5th-px grid, coverage baseline | local holdout 18/18 win, not a LB claim">
       <button type="button" onclick="var i=document.getElementById('note');i.select();navigator.clipboard&amp;&amp;navigator.clipboard.writeText(i.value);this.textContent='Copied ✓'">Copy note</button></div></li>
   </ol>
   <div class="facts">
-    <b>Checked on these exact bytes:</b> float32 · 1 band · EPSG:32611 · 3,730 × 3,292 @ 100 m · every value in [0, 1] ·
-    <b>0 NaN / 0 Inf</b> · 206,895 predicted cells · LZW, no predictor (same layout as the official example) ·
-    decodes identically in 3 independent TIFF readers · SHA-256 <code>c12533bb980234c3…</code>
+    <b>Checked on these exact bytes:</b> float32 · 1 band · EPSG:32611 · 3,730 × 3,292 @ 100 m ·
+    every footprint value in [0, 1] · <b>7,111,787 NaN, all of them outside the survey footprint</b> ·
+    <b>0 NaN / 0 Inf inside it</b> · NoData = nan · 206,895 predicted cells ·
+    LZW, one-row strips, <b>no predictor</b> — the byte layout of the official
+    <code>sample_submission.tif</code> · decodes identically in 3 independent TIFF readers ·
+    SHA-256 <code>b4570b406efec198…</code>
+  </div>
+  <div class="facts" style="margin-top:.4rem">
+    <b>Why this encoding and not the zero-filled one:</b> this is the encoding of the official template
+    <i>and</i> of all <b>9</b> files this group has a public DrivenData score for. The single file the form
+    ever rejected is the only one in the project's history written with TIFF <code>PREDICTOR=2</code>
+    (integer differencing on float samples); a reader that ignores that tag decodes it to
+    <b>[−4.0, 3.0]</b>, which is exactly “Predicted values must be in range [0, 1]”.
+    Byte-level audit: <a href="https://github.com/buffedlizard55-lab/13GEMSDOE/blob/main/reports/platform_encoding_evidence.json">reports/platform_encoding_evidence.json</a>.
   </div>
   <div class="fallback"><b>Only if the form rejects the file above:</b>
-    <a href="downloads/13gems_20261001_r13-lattice-s5_B_nan-outside.tif" download>13gems_20261001_r13-lattice-s5_B_nan-outside.tif</a> — same predictions, NaN outside the survey area
-    (the encoding the problem page describes). <a href="executive_summary.html#if-the-form-rejects-it">What to do on each error message →</a>
+    <a href="downloads/13gems_20261001_r13-lattice-s5_v2_zerofill.tif" download>13gems_20261001_r13-lattice-s5_v2_zerofill.tif</a> — the same predictions with 0.0 instead of NaN
+    outside the survey area and no NoData tag, so it passes even a naive whole-array [0, 1] test. It is a hedge,
+    <b>not</b> the template's encoding, and no all-finite file in this group's history has an acceptance receipt of its own.
+    <a href="executive_summary.html#if-the-form-rejects-it">What to do on each error message →</a>
   </div>
-  <div class="fallback"><b>Second candidate for your next slot — R11 greedy recipe (second candidate):</b>
-    <a href="downloads/13gems_20261001_r11-greedy-mp_A_zerofill.tif" download>13gems_20261001_r11-greedy-mp_A_zerofill.tif</a>
-    (<a href="downloads/13gems_20261001_r11-greedy-mp_A_zerofill.zip" download>.zip</a>) — the R11 greedy marginal-precision recipe (topographic ridge 5 % + three greedy blocks): the previous holdout best, a real map built from the geophysics/topography bands.
-    Note to paste: <code>r11 greedy-mp A-zerofill 20261001 | topo ridge 5% + 3 greedy blocks | local holdout win, not a LB claim</code>
-    If the form rejects it: <a href="downloads/13gems_20261001_r11-greedy-mp_B_nan-outside.tif" download>NaN-outside variant</a>.</div>
+  <div class="fallback"><b>Second candidate for your next slot — R11-4 greedy marginal-precision recipe (second candidate):</b>
+    <a href="downloads/13gems_20261001_r11-greedy-mp_v2_nan-outside.tif" download>13gems_20261001_r11-greedy-mp_v2_nan-outside.tif</a>
+    (<a href="downloads/13gems_20261001_r11-greedy-mp_v2_nan-outside.zip" download>.zip</a>) — the R11 greedy marginal-precision recipe (topographic ridge 5 % plus three greedy blocks): the previous holdout best, a real map built from the geophysics/topography bands.
+    Note to paste: <code>r11 greedy-mp v2 20261001 | topo ridge 5% + 3 greedy blocks | local holdout win, not a LB claim</code>
+    Only if the form rejects it: <a href="downloads/13gems_20261001_r11-greedy-mp_v2_zerofill.tif" download>zero-filled hedge variant</a> (no NaN anywhere).</div><div class="fallback"><b>Second candidate for your next slot — R14 prioritised union — geological prior with a coverage floor:</b>
+    <a href="downloads/13gems_20261001_r14-union-tips10-lat6_nan-outside.tif" download>13gems_20261001_r14-union-tips10-lat6_nan-outside.tif</a>
+    (<a href="downloads/13gems_20261001_r14-union-tips10-lat6_nan-outside.zip" download>.zip</a>) — a geological prior with a coverage floor: along-strike propagation ribbons grown from every tip of the full public fault catalogue (1 % of the footprint), then a fault-blind stride-6 lattice filling the remainder of a fixed 4 % total budget. It did NOT pass the predeclared R14 gate (it wins the new tip folds&#x27; worst-rule mean by +39 % over the shipped reference and loses the 15 pre-existing folds by 0.028, beyond the 0.002 allowance), so it is a listed experiment arm, not a recommendation, and not a predicted leaderboard score.
+    Note to paste: <code>r14 union 20261001 | along-strike tips 1% + stride-6 lattice to 4% total | fails predeclared gate D2/D3, experiment arm</code>
+    Only if the form rejects it: <a href="downloads/13gems_20261001_r14-union-tips10-lat6_zerofill.tif" download>zero-filled hedge variant</a> (no NaN anywhere).<div class='small' style='margin-top:.35rem'><b>Predeclared gate: does NOT pass the predeclared gate (D2 6/9, D3 loses 0.0279)</b> — register <code>knowledge/10_r14_hypotheses.md (addendum B.2)</code>, report <code>reports/holdout_r14_2026-10-01.json</code>. Role: experiment arm, not a recommendation.</div></div>
   <p class="honest">What this file is: a fault-blind lattice (every 5th row and column, 4 % of the footprint). It is the repository&#x27;s best local hold-out map under the frozen R13 rule (18/18 paired folds vs the R11 recipe) and it is a coverage-geometry baseline, not a geological prediction. It is NOT a predicted leaderboard score.
   The official board is
   <a href="https://www.drivendata.org/competitions/306/competition-doe-gems/leaderboard/">here</a>.
   Whether the form accepts it is only known from the form's own response; local checks cannot observe DrivenData's validator.</p>
 </div></div>
 <main class="wrap">
+
+<section id="session-8">
+  <h2>Session 8 (R14/R15): the rejection's real cause, and why no local proxy can pick the submission</h2>
+  <p class="lede">Four things were settled with bytes and with organiser statements rather than
+  with argument. Register: <code>knowledge/10_r14_hypotheses.md</code> (predeclared, including
+  addendum B written before the corrected run was read).</p>
+
+  <h3>1. “Predicted values must be in range [0, 1]” — root cause found, previous story falsified</h3>
+  <p>The file the form rejected (<code>docs/downloads/archive/13gems-r11-greedy-mp.tif</code>) has
+  <b>0 NaN inside the footprint</b>, all <b>7,111,787 NaN outside it</b>,
+  <code>GDAL_NODATA=nan</code>, and every finite value in [0, 1] — <b>identical</b NaN placement to the
+  official <code>sample_submission.tif</code> and to all 10 files this group has a public score for
+  (9 of 10 match exactly; 0 use a TIFF predictor). Its <b>only</b> deviation is
+  <code>PREDICTOR=2</code> — TIFF horizontal differencing, defined for <i>integer</i> samples; the
+  floating-point predictor is <code>PREDICTOR=3</code> (TIFF Technical Note 3), which three of the nine
+  scored files use correctly. A reader that decompresses but never runs the accumulator returns the
+  stored differences as float32: for this file that decodes to
+  <b>[-4.0, 3.0]</b>, i.e. exactly the reported error while the
+  real pixels stay in [0, 1]. Reproduced in <code>src/gems/encoding.simulate_ignored_predictor2</code>.</p>
+  <p><b>So the session-6/7 diagnosis was backwards.</b> NaN did not cause the rejection — the official
+  template is NaN-outside, and so is every scored file. The primary download is now the
+  <b>NaN-outside</b> file (<code>13gems_20261001_r13-lattice-s5_v2_nan-outside.tif</code>) and the zero-filled file is a labelled
+  hedge. Policy: <i>NaN outside the footprint, GDAL_NODATA=nan, all footprint values finite and in [0, 1], Predictor != 2</i>. Audit:
+  <a href="https://github.com/buffedlizard55-lab/13GEMSDOE/blob/main/reports/platform_encoding_evidence.json">reports/platform_encoding_evidence.json</a>.
+  Irregularities I-8 and I-18 are closed; I-22 records the evidence.</p>
+
+  <h3>2. Two organiser statements that change the strategy (both verified verbatim)</h3>
+  <ul>
+    <li><b>Known faults are masked out of scoring, in both rounds.</b> “Pixels corresponding to known
+    USGS/INGENIOUS faults are masked / excluded from evaluation, so they do not count towards penalty
+    terms … for scoring purposes it should not matter whether these known faults are included with
+    predictions or not.” — <code>chrisk-dd</code>, <b>DrivenData Staff</b>, 2026-09-16,
+    <a href="https://community.drivendata.org/t/scoring-clarification-are-known-usgs-ingenious-faults-masked-when-scoring-and-are-they-in-the-final-round-label-set/11516/2">forum 11516 post 2</a>.
+    Every recipe here that advertised “includes the catalogue” was buying exactly zero (I-27).</li>
+    <li><b>Phase 2 rewards credible geology, not only Phase-1 score.</b> “We're not sharing details about
+    the data sources, fault types, or coverage behind the test faults … the largest prize pool (Phase 2)
+    will use a test set that is updated by expert review of all Phase 1 submissions, so your fault
+    predictions have an impact on final evaluation even if they are not the most performant in Phase 1.”
+    — <code>chrisk-dd</code>, 2026-09-23,
+    <a href="https://community.drivendata.org/t/how-were-the-new-test-faults-identified-data-sources-and-fault-types/11527/7">forum 11527 post 7</a>.
+    A fault-blind lattice is not a claim an expert can verify; a propagation trace is. $250,000 sits on
+    that round versus $50,000 on Phase 1.</li>
+  </ul>
+
+  <h3>3. No local truth set predicts the recorded public scores (I-26)</h3>
+  <p>The 9 independent platform-scored files were re-scored locally against 7 truth sets × 2 masking
+  policies and Spearman-correlated with their recorded public scores
+  (<code>reports/truthset_calibration.json</code>, <code>scripts/calibrate_truth_sets.py</code>):</p>
+  <div class="scroll"><table><thead><tr><th>truth set | masking policy</th><th class="num">truth px</th>
+  <th class="num">Spearman ρ</th><th class="num">p</th></tr></thead><tbody><tr><td class='mono'>sgmc_offcat_r16|masked</td><td class='num'>56,917</td><td class='num'>-0.5021</td><td class='num'>0.1684</td></tr><tr><td class='mono'>sgmc_offcat_r0|masked</td><td class='num'>105,589</td><td class='num'>-0.4519</td><td class='num'>0.222</td></tr><tr><td class='mono'>sgmc_offcat_r3|masked</td><td class='num'>83,636</td><td class='num'>-0.4435</td><td class='num'>0.2318</td></tr><tr><td class='mono'>sgmc_offcat_r8|masked</td><td class='num'>70,762</td><td class='num'>-0.4184</td><td class='num'>0.2624</td></tr><tr><td class='mono'>sgmc_offcat_r32|masked</td><td class='num'>34,907</td><td class='num'>-0.3682</td><td class='num'>0.3296</td></tr><tr><td class='mono'>known_dense|masked</td><td class='num'>60,988</td><td class='num'>0.3431</td><td class='num'>0.366</td></tr><tr><td class='mono'>known_hidden25|masked</td><td class='num'>15,352</td><td class='num'>0.3264</td><td class='num'>0.3914</td></tr></tbody></table></div>
+  <p><b>Nothing reaches significance at n = 9</b> (smallest p = 0.168),
+  and the USGS State Geologic Map (SGMC) off-catalogue variants correlate <i>negatively</i>. The sibling
+  repo 16GEMSDOE reports ρ = +0.518 (p = 0.048, n = 15) for its own <code>sgmc_gap</code> set; that is
+  <b>not reproduced here</b> and the difference is unresolved. Consequence, accepted: the doctrine “the
+  holdout best gets the slot” cannot be used to claim any local win will transfer, and the lattice's
+  18/18 win is not evidence of leaderboard value.</p>
+
+  <h3>4. The old proxy is structurally blind to the mechanism that matters (I-24)</h3>
+  <p><code>gems.holdout.group_systems(link_px=8)</code> merges traces within ~1.6 km into one system, so
+  whatever is hidden is ≥ ~16 px from everything visible — four to five times the metric's 300 m kernel.
+  Measured over 15 folds × 2 buffer settings (<code>reports/r14_budget_curve.json</code>): ranking by
+  distance to the visible catalogue scores DTI ≤ 0.0146 at <i>every</i> budget from 0.5 % to 100 %,
+  while a fault-blind stride-5 lattice scores 0.1063. Real new faults are continuations, stepovers and
+  parallel strands of mapped ones — inside the forbidden ring. Raw geophysical magnitude rankings are
+  also worse than uniform random at every budget (detrended-elevation slope peaks at 0.0254, TMI
+  horizontal gradient 0.0265, gravity slope 0.0203, strain-rate second invariant 0.0503, versus random
+  0.0842).</p>
+  <p>A new withholding rule was added to fix this (<code>gems.holdout.tip_folds</code>): hide only the
+  outermost 8/16/32 px of every long trace, with no <code>link_px</code> grouping, so hidden truth abuts
+  visible catalogue. Nine folds, three tip lengths × three deterministic segment subsamples.</p>
+
+  <h3>5. R14 result — along-strike propagation is real, but the gate was not passed</h3>
+  <div class="scroll"><table><thead><tr><th>map</th><th class="num">tip folds<br>worst-rule DTI</th>
+  <th class="num">tip folds<br>mean DTI</th><th class="num">15 old folds<br>worst-rule DTI</th>
+  <th class="num">SGMC ≥16 px<br>DTI</th><th class="num">paired<br>tip wins</th>
+  <th>predeclared verdict</th></tr></thead><tbody><tr class='hi'><td class='mono'>lattice_s5</td><td class='num'>0.08801</td><td class='num'>0.11276</td><td class='num'>0.10657</td><td class='num'>nan</td><td class='num'>-/9</td><td>REFERENCE</td></tr><tr><td class='mono'>halo@0.01</td><td class='num'>0.02095</td><td class='num'>0.04784</td><td class='num'>0.00000</td><td class='num'>nan</td><td class='num'>2/9</td><td>does NOT pass the predeclared gate</td></tr><tr><td class='mono'>tips_L5@0.01</td><td class='num'>0.06701</td><td class='num'>0.14770</td><td class='num'>0.00000</td><td class='num'>nan</td><td class='num'>5/9</td><td>does NOT pass the predeclared gate</td></tr><tr><td class='mono'>tips_L10@0.01</td><td class='num'>0.07859</td><td class='num'>0.16268</td><td class='num'>0.00000</td><td class='num'>nan</td><td class='num'>5/9</td><td>does NOT pass the predeclared gate</td></tr><tr><td class='mono'>tips_L20@0.01</td><td class='num'>0.09394</td><td class='num'>0.17433</td><td class='num'>0.00000</td><td class='num'>nan</td><td class='num'>6/9</td><td>does NOT pass the predeclared gate</td></tr><tr><td class='mono'>halo@0.02</td><td class='num'>0.02620</td><td class='num'>0.04950</td><td class='num'>0.00000</td><td class='num'>nan</td><td class='num'>0/9</td><td>does NOT pass the predeclared gate</td></tr><tr><td class='mono'>tips_L5@0.02</td><td class='num'>0.08774</td><td class='num'>0.14020</td><td class='num'>0.02975</td><td class='num'>nan</td><td class='num'>5/9</td><td>does NOT pass the predeclared gate</td></tr><tr><td class='mono'>tips_L10@0.02</td><td class='num'>0.08654</td><td class='num'>0.15441</td><td class='num'>0.00000</td><td class='num'>nan</td><td class='num'>6/9</td><td>does NOT pass the predeclared gate</td></tr><tr><td class='mono'>tips_L20@0.02</td><td class='num'>0.10271</td><td class='num'>0.16396</td><td class='num'>0.00000</td><td class='num'>nan</td><td class='num'>6/9</td><td>does NOT pass the predeclared gate</td></tr><tr><td class='mono'>halo@0.04</td><td class='num'>0.03871</td><td class='num'>0.05673</td><td class='num'>0.00000</td><td class='num'>nan</td><td class='num'>0/9</td><td>does NOT pass the predeclared gate</td></tr><tr><td class='mono'>tips_L5@0.04</td><td class='num'>0.10197</td><td class='num'>0.11861</td><td class='num'>0.06079</td><td class='num'>nan</td><td class='num'>3/9</td><td>does NOT pass the predeclared gate</td></tr><tr><td class='mono'>tips_L10@0.04</td><td class='num'>0.10146</td><td class='num'>0.12991</td><td class='num'>0.04158</td><td class='num'>nan</td><td class='num'>5/9</td><td>does NOT pass the predeclared gate</td></tr><tr><td class='mono'>tips_L20@0.04</td><td class='num'>0.09822</td><td class='num'>0.13285</td><td class='num'>0.00000</td><td class='num'>nan</td><td class='num'>6/9</td><td>does NOT pass the predeclared gate</td></tr><tr><td class='mono'>union_tipsL20_1pct+lat7_4pct</td><td class='num'>0.12160</td><td class='num'>0.13985</td><td class='num'>0.06569</td><td class='num'>nan</td><td class='num'>6/9</td><td>does NOT pass the predeclared gate</td></tr><tr><td class='mono'>union_tipsL20_2pct+lat7_4pct</td><td class='num'>0.11895</td><td class='num'>0.13668</td><td class='num'>0.05336</td><td class='num'>nan</td><td class='num'>6/9</td><td>does NOT pass the predeclared gate</td></tr><tr><td class='mono'>union_tipsL10_1pct+lat6_4pct</td><td class='num'>0.12253</td><td class='num'>0.13203</td><td class='num'>0.07865</td><td class='num'>nan</td><td class='num'>6/9</td><td>does NOT pass the predeclared gate</td></tr></tbody></table></div>
+  <p><b>Winners: none.</b> Per the predeclared rule no
+  submission slot is spent and the primary stays <code>lattice_s5</code>. What the run did establish:</p>
+  <ul>
+    <li><b>Direction carries information that proximity does not</b> (predeclared prediction P2,
+    confirmed): at every equal budget the along-strike ribbons beat the isotropic halo on the tip folds
+    — at 1 %, 0.1477 / 0.1627 / 0.1743 (L = 5 / 10 / 20 px) against 0.0478 for the halo; at 4 %,
+    0.1186 / 0.1299 / 0.1329 against 0.0567.</li>
+    <li><b>P1 was falsified</b> and is recorded as falsified: the isotropic halo does <i>not</i> beat the
+    lattice on the tip folds.</li>
+    <li><b>The best hedged candidate</b> is <code>union_tipsL10_1pct+lat6_4pct</code>: +39 % over the
+    reference on the tip-fold worst-rule mean (0.12253 vs 0.08801), −0.0279 on the old folds' worst rule
+    (gate D3 allows 0.002), 6/9 paired tip wins (gate D2 wants 7). It is published as a listed
+    <b>second candidate</b> — an experiment arm, not a recommendation — because the two fold families
+    disagree <i>by construction</i> and no local truth set can adjudicate (I-26).</li>
+    <li>A bug was found and fixed rather than hidden (addendum B.1): the first run broke budget ties by
+    row-major position, so the halo control was silently restricted to the north of the study area
+    (irregularity I-14, recurring). Its first-run numbers are void; every selection now uses a fixed
+    seeded spatially uniform tie-break, and the largest-tie fraction is recorded.</li>
+  </ul>
+  <p class="small">Reports: <code>reports/holdout_r14_2026-10-01.json</code>,
+  <code>reports/r14_budget_curve.json</code>, <code>reports/truthset_calibration.json</code>,
+  <code>reports/platform_encoding_evidence.json</code>. Nothing on this page is a leaderboard
+  prediction.</p>
+</section>
 
 <section>
   <h2>Session 7 (R13): a fault-blind lattice beats every recipe on the proxy</h2>
@@ -346,7 +463,7 @@
 <footer class="site"><div class="wrap">
   <p><strong>13GEMSDOE</strong> — working repository for the
   <a href="https://www.drivendata.org/competitions/306/competition-doe-gems/">DOE GEMS Prize Challenge</a>.
-  Page generated 2026-10-01 01:20 UTC from <code>reports/*.json</code>.</p>
+  Page generated 2026-10-01 02:37 UTC from <code>reports/*.json</code>.</p>
   <p class="small">Every figure on this site is produced by a script in this
   repository and is reproducible from a clean checkout. Claims that could not be
   verified against an official source are listed as irregularities rather than

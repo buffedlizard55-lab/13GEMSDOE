@@ -270,7 +270,7 @@ also employs the geology experts who labelled the new faults
 
 ---
 
-## I‑8 🟡 PARTIALLY RESOLVED (2026-09-30 session 6) — the form's rejection of the NaN-outside encoding is CONFIRMED by a recorded platform response; the all-finite encoding is now the default upload. Validator behaviour is inconsistent across rounds (root cause external, unobservable from here)
+## I‑8 🟢 CLOSED 2026-10-01 session 8, SEE I‑22 — superseded: the validator was neither inconsistent nor changed. The rejected file's NaN placement is identical to the official template's and to all 9 platform-scored files; its only deviation was TIFF PREDICTOR=2. The session-6 decision to make the all-finite encoding the default upload was based on this entry's falsified premise and has been reversed.
 
 The rejection message is `Predicted values must be in range [0, 1]`.
 
@@ -536,7 +536,7 @@ recipe, becomes the top research priority.
 (score + int32 argsort each). A 30-map greedy needs a larger runner. Details in
 `knowledge/08_r12_hypotheses.md`.
 
-## I-18 🟡 UNTESTED (2026-10-01 session 7) — TIFF PREDICTOR=2 on float32 is the only layout difference we found
+## I-18 🟢 CLOSED 2026-10-01 session 8, SEE I‑22 — tested and confirmed: PREDICTOR=2 on float32 was the only deviation of the rejected file from all 9 platform-scored files, and the failure mechanism is reproduced in src/gems/encoding.simulate_ignored_predictor2 (decodes to [-4.0, 3.0])
 
 Every legacy file served by the site (`13gems-r6/r8/r11/composite/toporef…`) was written with
 `PREDICTOR=2` (horizontal differencing). None of the eight previously *scored* files
@@ -577,3 +577,118 @@ WINS (18/18 paired folds vs `greedy_r11`). The proxy hides *known* faults (I-10,
 whether coverage transfers to the new-fault test set is unproven. **Action:** the lattice is the
 front-door A file as the cheapest decisive experiment; build a new-fault proxy before trusting
 any further hold-out "win" (README suggestion 6).
+
+---
+
+# Session 8 (2026-10-01) — new and closed irregularities
+
+## I-22 🔴 ROOT CAUSE FOUND, I-8 AND I-18 CLOSED (2026-10-01 session 8) — the `[0, 1]` rejection was TIFF `PREDICTOR=2`, not NaN
+
+The file the DrivenData form rejected is `docs/downloads/archive/13gems-r11-greedy-mp.tif`
+(576,102 B). Measured with `tifffile` tag access (`scripts/audit_platform_encoding.py`,
+`reports/platform_encoding_evidence.json`):
+
+| property | rejected file | official `sample_submission.tif` | all 9 platform-scored group files |
+|---|---|---|---|
+| NaN inside the 5,167,373-px footprint | **0** | 0 | 0 |
+| finite cells outside the footprint | **0** | 0 | 0 |
+| NaN outside the footprint | **7,111,787** | 7,111,787 | 7,111,787 |
+| `GDAL_NODATA` | **nan** | nan | nan |
+| finite value range | **[0.0, 1.0]** | [0.0, 1.0] | [0.0, ≤1.0] |
+| dtype / CRS / shape / transform | **identical** | float32 / EPSG:32611 / 3730×3292 / (100,0,243350,0,−100,4508550) | identical |
+| Compression | ADOBE_DEFLATE | LZW | DEFLATE (7) and LZW (2) |
+| Tiled | yes (256) | no | both |
+| **Predictor** | **2** | **1 (none)** | **1 (6 files) and 3 (3 files) — never 2** |
+
+Its NaN placement is therefore *identical* to the official template's and to every file the
+platform has scored. The earlier story ("the NaN cells caused it", I-8, and the session-6/7
+decision to make the zero-filled encoding primary) is **falsified**: a validator that rejected
+NaN as out of range would reject DrivenData's own template.
+
+The one structural deviation is `Predictor = 2` — TIFF 6.0 *horizontal differencing*, defined
+for integer samples. The floating-point predictor is `Predictor = 3` (TIFF Technical Note 3),
+which three of the nine scored files use correctly. A reader that decompresses but never runs
+the accumulator returns the stored differences reinterpreted as float32; for this exact file
+that decodes to **min −4.0, max 3.0** — outside `[0, 1]`, i.e. precisely the message the form
+returned. Reproduced, not asserted: `src/gems/encoding.simulate_ignored_predictor2`,
+asserted by `tests/test_encoding.py::TheRejectedFile`.
+
+**Closed:** I-8 (validator neither changed nor inconsistent — the two file populations are not
+comparable on NaN at all) and I-18 (the predictor *was* the difference, specifically `2` on
+float samples). **Action taken:** `src/gems/rio.write_submission` pins `predictor=1`;
+`src/gems/frontdoor._all_ok` refuses to release any file whose predictor is not none;
+`scripts/verify_download.py` and `tests/test_frontdoor.py` assert it on every shipped file.
+
+## I-23 🟡 FIXED (2026-10-01 session 8) — GitHub Pages source is the repo root, so `docs/.nojekyll` was doing nothing
+
+`gh api repos/buffedlizard55-lab/13GEMSDOE/pages` reports `source.branch = main`,
+`source.path = /`, `https_enforced = true`, legacy build. With the root as the source, the file
+that disables Jekyll has to be `/.nojekyll`; only `docs/.nojekyll` existed, so Jekyll processed
+every page and every asset on every build. Added `/.nojekyll` (and `scripts/build_site.py` now
+rewrites both).
+
+## I-24 🔴 (2026-10-01 session 8) — the hide-and-recover proxy is structurally blind to near-catalogue strategies
+
+`gems.holdout.group_systems(link_px=8)` dilates the catalogue by 8 px before labelling, so any
+two traces within ~1.6 km become ONE system and are hidden together. Whatever is withheld is
+therefore ≥ ~16 px (1.6 km) from everything left visible — four to five times the metric's
+300 m kernel. Measured (`scripts/r14_budget_curve.py`,
+`reports/r14_budget_curve.json`, 15 folds × 2 buffer settings): ranking pixels by distance to
+the visible catalogue scores DTI ≤ **0.0146** at every budget from 0.5 % to 100 %, while a
+fault-blind stride-5 lattice scores **0.1063** (worst-rule mean). The proxy cannot see the
+mechanism that the geology says matters most — real new faults are continuations, stepovers and
+parallel strands of mapped ones, i.e. they sit inside the forbidden ring.
+
+**Action:** `gems.holdout.tip_folds` added (register §1) — withholds only trace *tips*, no
+`link_px` grouping, so hidden truth abuts visible catalogue. `buffer_px` 5 vs 0 on the old folds
+changes almost nothing (e.g. random@4 % 0.08417 vs 0.08361), so the blindness is caused by
+`link_px`, not by the buffer.
+
+## I-25 🟠 UNRESOLVED, sibling repos disagree — the identity of feature band 6
+
+Band 6's own GDAL tag says *"Tilt angle or total curvature - magnetic field derivative"*. Its
+values are all-positive (2.953 … 88.57, `data/derived/band_stats.json`) while a tilt angle spans
+both signs. 16GEMSDOE flag F01 says it correlates r = +0.997 with the external USGS GeoDAWN
+**radiometric total count**. 12GEMSDOE identity check C3 says it is the official
+**top-of-crustal magnetic source depth estimate** (all-positive, median 18.48). This repository's
+own I-2 says it *is* the radiometric total count. Both sibling conclusions cannot be right.
+**Not re-derived here** (no external radiometric raster staged in this sandbox), so the register
+uses band 6 only as a positive-valued scalar and never as a signed angle.
+
+## I-26 🔴 (2026-10-01 session 8) — no local truth set demonstrably predicts the recorded public scores
+
+`scripts/calibrate_truth_sets.py` scored the 9 independent platform-scored files (the 10th is
+the all-finite twin of one of them and is excluded) against 7 truth sets × 2 masking policies,
+using the organiser's masking rule, and Spearman-correlated each with the recorded public score:
+
+| truth set | px | ρ (masked) | p | ρ (unmasked) | p |
+|---|---|---|---|---|---|
+| `known_hidden25` | 15,352 | 0.326 | 0.391 | **0.393** | 0.295 |
+| `known_dense` | 60,988 | 0.343 | 0.366 | 0.343 | 0.366 |
+| `sgmc_offcat_r32` | 34,907 | −0.368 | 0.330 | −0.368 | 0.330 |
+| `sgmc_offcat_r8` | 70,762 | −0.418 | 0.262 | −0.418 | 0.262 |
+| `sgmc_offcat_r3` | 83,636 | −0.444 | 0.232 | −0.444 | 0.232 |
+| `sgmc_offcat_r0` | 105,589 | −0.452 | 0.222 | −0.452 | 0.222 |
+| `sgmc_offcat_r16` | 56,917 | −0.502 | 0.168 | −0.502 | 0.168 |
+
+**Nothing reaches significance at n = 9** (smallest p = 0.168), and the SGMC off-catalogue
+variants correlate *negatively*. The sibling repo 16GEMSDOE reports ρ = +0.518 (p = 0.048,
+n = 15) for its own `sgmc_gap` set (57,783 px); that result is **not reproduced here** — my
+`sgmc_offcat_r16` (56,917 px) is similar in size but defined by distance from the catalogue
+rather than by geologic-map attributes, and it comes out with the opposite sign. The difference
+is unresolved.
+
+**Consequence, accepted:** the repository doctrine "the holdout best gets the slot" cannot be
+used to claim that any local win will transfer. A predeclared local PASS is reported as exactly
+that and never as an expected score. It also means the lattice's 18/18 win (I-21) is **not**
+evidence of leaderboard value.
+
+## I-27 🟡 (2026-10-01 session 8) — catalogue mass is score-neutral, so "includes the catalogue" is not a feature
+
+Organiser-verified (F1, forum 11516 post 2): known-fault pixels are masked / excluded from
+evaluation in both rounds, and "for scoring purposes it should not matter whether these known
+faults are included with predictions or not". Every R8–R13 recipe in this repo records
+`include_known_catalogue: true` and describes it as part of the assembly. It buys exactly zero.
+The 91 % of `gems8_apex`'s mass that sits on or near the catalogue (I-20 forensics) was mostly
+dead weight. **Action:** register §2 requires every new candidate to be ≥ 95 % off-catalogue
+(gate D4), and `gems.propagation` zeroes its output on the visible catalogue by construction.

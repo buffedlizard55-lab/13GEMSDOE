@@ -17,22 +17,30 @@ nav a{display:inline-block;margin:18px 14px 0 0;font-weight:600}
 </style></head><body><div class="w">
 <p class="k">DOE GEMS Prize Challenge · DrivenData</p>
 <h1>Download the submission file</h1>
-<a class="big" href="docs/downloads/13gems_20261001_r13-lattice-s5_A_zerofill.tif" download><span class="i">⬇</span>
-<span><b>DOWNLOAD SUBMISSION .TIF</b><small>13gems_20261001_r13-lattice-s5_A_zerofill.tif · 1.0 MB</small></span></a>
+<a class="big" href="docs/downloads/13gems_20261001_r13-lattice-s5_v2_nan-outside.tif" download><span class="i">⬇</span>
+<span><b>DOWNLOAD SUBMISSION .TIF</b><small>13gems_20261001_r13-lattice-s5_v2_nan-outside.tif · 1.7 MB</small></span></a>
 <ol>
-<li>Download the .tif above (or the <a href="docs/downloads/13gems_20261001_r13-lattice-s5_A_zerofill.zip" download>.zip</a>).</li>
+<li>Download the .tif above (or the <a href="docs/downloads/13gems_20261001_r13-lattice-s5_v2_nan-outside.zip" download>.zip</a>).</li>
 <li>Open the <a href="https://www.drivendata.org/competitions/306/competition-doe-gems/submissions/">DrivenData submissions page</a> → <b>Submit file</b> → choose the file.</li>
-<li>Paste this into <b>Note</b>:<input readonly value="r13 lattice-s5 A-zerofill 20261001 | fault-blind every-5th-px grid, coverage baseline | local holdout 18/18 win, not a LB claim" onclick="this.select()"></li>
+<li>Paste this into <b>Note</b>:<input readonly value="r13 lattice-s5 v2 20261001 | fault-blind every-5th-px grid, coverage baseline | local holdout 18/18 win, not a LB claim" onclick="this.select()"></li>
 </ol>
-<div class="f"><b>Only if the form rejects it:</b> <a href="docs/downloads/13gems_20261001_r13-lattice-s5_B_nan-outside.tif" download>13gems_20261001_r13-lattice-s5_B_nan-outside.tif</a>
-(same predictions, NaN outside the survey area).</div>
-<div class="fallback"><b>Second candidate for your next slot — R11 greedy recipe (second candidate):</b>
-    <a href="docs/downloads/13gems_20261001_r11-greedy-mp_A_zerofill.tif" download>13gems_20261001_r11-greedy-mp_A_zerofill.tif</a>
-    (<a href="docs/downloads/13gems_20261001_r11-greedy-mp_A_zerofill.zip" download>.zip</a>) — the R11 greedy marginal-precision recipe (topographic ridge 5 % + three greedy blocks): the previous holdout best, a real map built from the geophysics/topography bands.
-    Note to paste: <code>r11 greedy-mp A-zerofill 20261001 | topo ridge 5% + 3 greedy blocks | local holdout win, not a LB claim</code>
-    If the form rejects it: <a href="docs/downloads/13gems_20261001_r11-greedy-mp_B_nan-outside.tif" download>NaN-outside variant</a>.</div>
+<div class="f"><b>Only if the form rejects it:</b> <a href="docs/downloads/13gems_20261001_r13-lattice-s5_v2_zerofill.tif" download>13gems_20261001_r13-lattice-s5_v2_zerofill.tif</a>
+— the same predictions with 0.0 instead of NaN outside the survey area (a hedge for a validator that
+rejects NaN itself). The file above is the encoding of the official <code>sample_submission.tif</code>
+and of all 9 files this group has a public DrivenData score for.</div>
+<div class="fallback"><b>Second candidate for your next slot — R11-4 greedy marginal-precision recipe (second candidate):</b>
+    <a href="docs/downloads/13gems_20261001_r11-greedy-mp_v2_nan-outside.tif" download>13gems_20261001_r11-greedy-mp_v2_nan-outside.tif</a>
+    (<a href="docs/downloads/13gems_20261001_r11-greedy-mp_v2_nan-outside.zip" download>.zip</a>) — the R11 greedy marginal-precision recipe (topographic ridge 5 % plus three greedy blocks): the previous holdout best, a real map built from the geophysics/topography bands.
+    Note to paste: <code>r11 greedy-mp v2 20261001 | topo ridge 5% + 3 greedy blocks | local holdout win, not a LB claim</code>
+    Only if the form rejects it: <a href="docs/downloads/13gems_20261001_r11-greedy-mp_v2_zerofill.tif" download>zero-filled hedge variant</a> (no NaN anywhere).</div><div class="fallback"><b>Second candidate for your next slot — R14 prioritised union — geological prior with a coverage floor:</b>
+    <a href="docs/downloads/13gems_20261001_r14-union-tips10-lat6_nan-outside.tif" download>13gems_20261001_r14-union-tips10-lat6_nan-outside.tif</a>
+    (<a href="docs/downloads/13gems_20261001_r14-union-tips10-lat6_nan-outside.zip" download>.zip</a>) — a geological prior with a coverage floor: along-strike propagation ribbons grown from every tip of the full public fault catalogue (1 % of the footprint), then a fault-blind stride-6 lattice filling the remainder of a fixed 4 % total budget. It did NOT pass the predeclared R14 gate (it wins the new tip folds&#x27; worst-rule mean by +39 % over the shipped reference and loses the 15 pre-existing folds by 0.028, beyond the 0.002 allowance), so it is a listed experiment arm, not a recommendation, and not a predicted leaderboard score.
+    Note to paste: <code>r14 union 20261001 | along-strike tips 1% + stride-6 lattice to 4% total | fails predeclared gate D2/D3, experiment arm</code>
+    Only if the form rejects it: <a href="docs/downloads/13gems_20261001_r14-union-tips10-lat6_zerofill.tif" download>zero-filled hedge variant</a> (no NaN anywhere).<div class='small' style='margin-top:.35rem'><b>Predeclared gate: does NOT pass the predeclared gate (D2 6/9, D3 loses 0.0279)</b> — register <code>knowledge/10_r14_hypotheses.md (addendum B.2)</code>, report <code>reports/holdout_r14_2026-10-01.json</code>. Role: experiment arm, not a recommendation.</div></div>
 <nav><a href="docs/">Full site →</a><a href="docs/executive_summary.html">Executive summary: how to submit →</a>
 <a href="https://github.com/buffedlizard55-lab/13GEMSDOE">Repository →</a></nav>
-<p class="s">Local hold-out candidate, not a leaderboard prediction. SHA-256 <code>c12533bb980234c3…</code> ·
-generated 2026-10-01T01:17:59Z · verified by <code>scripts/verify_download.py</code>.</p>
+<p class="s">Local hold-out candidate, not a leaderboard prediction. SHA-256 <code>b4570b406efec198…</code> ·
+1,706,456 bytes · float32 · 1 band · EPSG:32611 · 3,730 × 3,292 @ 100 m · LZW, no predictor ·
+generated 2026-10-01T01:54:02Z · verified by <code>scripts/verify_download.py</code> and
+<a href="https://github.com/buffedlizard55-lab/13GEMSDOE/blob/main/reports/platform_encoding_evidence.json">the platform-encoding audit</a>.</p>
 </div></body></html>
