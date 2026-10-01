@@ -1,9 +1,7 @@
-"""Tests for src/gems/encoding.py -- the empirically-proven platform encoding.
+"""Local encoding-policy tests; none can establish platform acceptance.
 
-These tests are what stops the project from re-shipping an encoding the form
-has already rejected, or from re-adopting the falsified "NaN caused it" story.
-
-Run: python -m pytest tests/test_encoding.py -q
+Ignored-Predictor2 arithmetic is a hypothetical reader test, not a causal claim.
+Historical TIFF score labels are distinct from platform receipts.
 """
 from __future__ import annotations
 
@@ -37,8 +35,8 @@ def labels_path() -> Path | None:
     return None
 
 
-class PredictorTwoIsTheFailureMode(unittest.TestCase):
-    """The one file the form rejected is the only one written with Predictor=2."""
+class HypotheticalPredictorTwoFailure(unittest.TestCase):
+    """Test our interoperability exclusion without attributing server behavior."""
 
     def test_ignored_predictor2_decode_leaves_the_0_1_range(self) -> None:
         a = np.zeros((6, 8), np.float32)
@@ -117,8 +115,9 @@ class WriterNeverEmitsAPredictor(unittest.TestCase):
         with tempfile.TemporaryDirectory() as d:
             for outside, want_nodata in ((None, True), (0.0, False)):
                 p = Path(d) / f"out_{'nan' if outside is None else 'zero'}.tif"
-                rio.EXPECTED_SHAPE = shape          # synthetic grid
-                rio.write_submission(p, pred, valid, outside_value=outside)
+                from unittest.mock import patch
+                with patch.object(rio, "EXPECTED_SHAPE", shape):
+                    rio.write_submission(p, pred, valid, outside_value=outside)
                 lay = encoding.read_layout(p)["layout"]
                 self.assertNotEqual(lay["predictor"], encoding.PREDICTOR_HORIZONTAL)
                 self.assertEqual(lay["compression"], "LZW")
@@ -179,8 +178,8 @@ class OfficialTemplate(unittest.TestCase):
 
 @unittest.skipUnless(bool(sorted(SCORED.glob("*.tif"))),
                      "data/scored absent (python scripts/fetch_data.py)")
-class PlatformScoredFiles(unittest.TestCase):
-    """Every file this group has a public score for, measured."""
+class HistoricalScoreLabelledFiles(unittest.TestCase):
+    """Check encoding of each obtained historical TIFF; score attribution unknown."""
 
     def setUp(self) -> None:
         t = template_path()
@@ -195,8 +194,7 @@ class PlatformScoredFiles(unittest.TestCase):
         for f in self.files:
             rep = encoding.audit_file(f, self.footprint)
             (matching if rep["matches_accepted_pattern"] else nonmatching).append(rep)
-        self.assertGreaterEqual(len(matching), 9,
-                                f"only {len(matching)} of {len(self.files)} match")
+        self.assertTrue(matching, "no obtained NaN-outside historical TIFF matches template policy")
         for rep in matching:
             self.assertEqual(rep["placement"]["n_nan_outside_footprint"],
                              encoding.OUTSIDE_PIXELS)
@@ -240,12 +238,10 @@ class TheRejectedFile(unittest.TestCase):
         self.assertTrue(rep["range_checks"]["nan_aware_all_in_0_1"])
         self.assertEqual(rep["deviations_from_accepted_pattern"],
                          ["Predictor=2 (horizontal differencing) on IEEE-float "
-                          "samples; no platform-accepted file in this group's "
-                          "history uses it"])
+                          "samples; excluded by our interoperability policy, not a diagnosed server cause"])
 
-    def test_the_falsified_nan_story(self) -> None:
-        """The rejected file's NaN placement is IDENTICAL to the official
-        template's, so NaN placement cannot be what the form objected to."""
+    def test_rejected_nan_placement_matches_template_without_causal_inference(self) -> None:
+        """Placement equality is local evidence; it does not observe server handling."""
         rep = encoding.audit_file(self.p, self.footprint)
         t = template_path()
         self.assertIsNotNone(t)

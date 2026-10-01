@@ -1,0 +1,46 @@
+name: Deployed Pages delivery smoke test
+on:
+  workflow_dispatch:
+    inputs:
+      delivery_only:
+        description: 'Predeployment bytes-only check; does not certify new HTML deployment'
+        type: boolean
+        default: false
+  page_build:
+  schedule:
+    - cron: '43 7 * * *'
+permissions:
+  contents: read
+concurrency:
+  group: live-pages-delivery
+  cancel-in-progress: false
+jobs:
+  delivery:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+          cache: pip
+          cache-dependency-path: requirements.txt
+      - run: python -m pip install -r requirements.txt
+      - run: bash scripts/download_competition_data.sh --small
+      - name: Actual deployed root/docs TIFFs, ZIPs, manifest, aliases and asset links
+        run: |
+          args=()
+          if [[ '${{ inputs.delivery_only }}' == 'true' ]]; then args+=(--delivery-only); fi
+          python scripts/verify_site_http.py --live "${args[@]}" --output .cache/live_delivery.json
+      - name: Preserve deployed-delivery evidence (never acceptance claims)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: deployed-delivery-${{ github.sha }}
+          path: .cache/live_delivery.json
+          if-no-files-found: error
+          retention-days: 30

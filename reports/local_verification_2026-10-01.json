@@ -1,0 +1,1102 @@
+{
+  "generated_utc": "2026-10-01T05:02:46Z",
+  "scope": "Actual local byte/HTTP/real-browser checks. NOT deployed Pages or DrivenData form verification.",
+  "primary_sha256": "b4570b406efec198eb2f4d142ad8d0d6184b14b66f2f52b5c4d697f0647dc9b2",
+  "primary_unchanged": true,
+  "pytest": {
+    "passed": 171,
+    "skipped": 0,
+    "failed": 0,
+    "warnings": 2,
+    "warnings_detail": "Rasterio from_origin PendingDeprecationWarning in two synthetic R15 tests."
+  },
+  "metric": {
+    "passed": 12,
+    "total": 12,
+    "report": "reports/metric_audit.json"
+  },
+  "local_download": {
+    "passed": 80,
+    "total": 80,
+    "three_independent_tiff_readers": true
+  },
+  "http": {
+    "generated_utc": "2026-10-01T04:59:43Z",
+    "base_url": "http://127.0.0.1:45903/",
+    "mode": "FULL_SITE_DELIVERY",
+    "primary_sha256": "b4570b406efec198eb2f4d142ad8d0d6184b14b66f2f52b5c4d697f0647dc9b2",
+    "site_revision_expected": "r15-audit-20261001",
+    "platform_acceptance_established": false,
+    "total": 145,
+    "passed": 145,
+    "failed": 0,
+    "checks": [
+      {
+        "pass": true,
+        "check": "HTTP manifest is JSON/schema2, not an HTML login/error page"
+      },
+      {
+        "pass": true,
+        "check": "HTTP manifest exact submission note"
+      },
+      {
+        "pass": true,
+        "check": "HTTP scientific slot policy matches reviewed manifest"
+      },
+      {
+        "pass": true,
+        "check": "HTTP manifest does not invent platform acceptance"
+      },
+      {
+        "pass": true,
+        "check": "primary: actual HTTP TIFF size/SHA256"
+      },
+      {
+        "pass": true,
+        "check": "primary: TIFF response is not HTML"
+      },
+      {
+        "pass": true,
+        "check": "primary: actual HTTP ZIP size/SHA256"
+      },
+      {
+        "pass": true,
+        "check": "primary: delivered ZIP contains exactly the delivered TIFF, CRC intact"
+      },
+      {
+        "pass": true,
+        "check": "diagnostic: actual HTTP TIFF size/SHA256"
+      },
+      {
+        "pass": true,
+        "check": "diagnostic: TIFF response is not HTML"
+      },
+      {
+        "pass": true,
+        "check": "diagnostic: actual HTTP ZIP size/SHA256"
+      },
+      {
+        "pass": true,
+        "check": "diagnostic: delivered ZIP contains exactly the delivered TIFF, CRC intact"
+      },
+      {
+        "pass": true,
+        "check": "13gems_20261001_r11-greedy-mp_v2/research-primary: actual HTTP TIFF size/SHA256"
+      },
+      {
+        "pass": true,
+        "check": "13gems_20261001_r11-greedy-mp_v2/research-primary: TIFF response is not HTML"
+      },
+      {
+        "pass": true,
+        "check": "13gems_20261001_r11-greedy-mp_v2/research-primary: actual HTTP ZIP size/SHA256"
+      },
+      {
+        "pass": true,
+        "check": "13gems_20261001_r11-greedy-mp_v2/research-primary: delivered ZIP contains exactly the delivered TIFF, CRC intact"
+      },
+      {
+        "pass": true,
+        "check": "13gems_20261001_r11-greedy-mp_v2/research-diagnostic: actual HTTP TIFF size/SHA256"
+      },
+      {
+        "pass": true,
+        "check": "13gems_20261001_r11-greedy-mp_v2/research-diagnostic: TIFF response is not HTML"
+      },
+      {
+        "pass": true,
+        "check": "13gems_20261001_r11-greedy-mp_v2/research-diagnostic: actual HTTP ZIP size/SHA256"
+      },
+      {
+        "pass": true,
+        "check": "13gems_20261001_r11-greedy-mp_v2/research-diagnostic: delivered ZIP contains exactly the delivered TIFF, CRC intact"
+      },
+      {
+        "pass": true,
+        "check": "13gems_20261001_r14-union-tips10-lat6/research-primary: actual HTTP TIFF size/SHA256"
+      },
+      {
+        "pass": true,
+        "check": "13gems_20261001_r14-union-tips10-lat6/research-primary: TIFF response is not HTML"
+      },
+      {
+        "pass": true,
+        "check": "13gems_20261001_r14-union-tips10-lat6/research-primary: actual HTTP ZIP size/SHA256"
+      },
+      {
+        "pass": true,
+        "check": "13gems_20261001_r14-union-tips10-lat6/research-primary: delivered ZIP contains exactly the delivered TIFF, CRC intact"
+      },
+      {
+        "pass": true,
+        "check": "13gems_20261001_r14-union-tips10-lat6/research-diagnostic: actual HTTP TIFF size/SHA256"
+      },
+      {
+        "pass": true,
+        "check": "13gems_20261001_r14-union-tips10-lat6/research-diagnostic: TIFF response is not HTML"
+      },
+      {
+        "pass": true,
+        "check": "13gems_20261001_r14-union-tips10-lat6/research-diagnostic: actual HTTP ZIP size/SHA256"
+      },
+      {
+        "pass": true,
+        "check": "13gems_20261001_r14-union-tips10-lat6/research-diagnostic: delivered ZIP contains exactly the delivered TIFF, CRC intact"
+      },
+      {
+        "pass": true,
+        "check": "primary: remote manifest roles/hash agree"
+      },
+      {
+        "pass": true,
+        "check": "primary: delivered raster exact official band/dtype/CRS/shape/affine"
+      },
+      {
+        "pass": true,
+        "check": "primary: ALL footprint pixels finite and within [0,1]"
+      },
+      {
+        "pass": true,
+        "check": "delivered primary: official NaN-outside/NoData convention"
+      },
+      {
+        "pass": true,
+        "check": "hedge: remote manifest roles/hash agree"
+      },
+      {
+        "pass": true,
+        "check": "hedge: delivered raster exact official band/dtype/CRS/shape/affine"
+      },
+      {
+        "pass": true,
+        "check": "hedge: ALL footprint pixels finite and within [0,1]"
+      },
+      {
+        "pass": true,
+        "check": "delivered diagnostic: same footprint map, zero outside, no NoData"
+      },
+      {
+        "pass": true,
+        "check": "HTTP alias byte identity: latest.tif"
+      },
+      {
+        "pass": true,
+        "check": "HTTP alias byte identity: latest.zip"
+      },
+      {
+        "pass": true,
+        "check": "HTTP alias byte identity: latest_zerofill.tif"
+      },
+      {
+        "pass": true,
+        "check": "HTTP alias byte identity: latest_zerofill.zip"
+      },
+      {
+        "pass": true,
+        "check": "index.html: first actual download anchor is the primary TIFF"
+      },
+      {
+        "pass": true,
+        "check": "index.html: primary link is at very top of body"
+      },
+      {
+        "pass": true,
+        "check": "index.html: deployed HTML is the exact reviewed generated page"
+      },
+      {
+        "pass": true,
+        "check": "index.html: in-page anchor resolves: #main"
+      },
+      {
+        "pass": true,
+        "check": "index.html: HTTP internal resource resolves: docs/assets/site.js"
+      },
+      {
+        "pass": true,
+        "check": "index.html: HTTP internal resource resolves: docs/assets/style.css"
+      },
+      {
+        "pass": true,
+        "check": "index.html: HTTP internal resource resolves: docs/downloads/13gems_20261001_r13-lattice-s5_v2_nan-outside.tif"
+      },
+      {
+        "pass": true,
+        "check": "index.html: HTTP internal resource resolves: docs/downloads/13gems_20261001_r13-lattice-s5_v2_nan-outside.zip"
+      },
+      {
+        "pass": true,
+        "check": "index.html: HTTP internal resource resolves: docs/downloads/13gems_20261001_r13-lattice-s5_v2_zerofill.tif"
+      },
+      {
+        "pass": true,
+        "check": "index.html: HTTP internal resource resolves: docs/downloads/13gems_20261001_r13-lattice-s5_v2_zerofill.zip"
+      },
+      {
+        "pass": true,
+        "check": "index.html: HTTP internal resource resolves: docs/downloads/submit.json"
+      },
+      {
+        "pass": true,
+        "check": "index.html: HTTP internal resource resolves: docs/evidence.html"
+      },
+      {
+        "pass": true,
+        "check": "index.html: HTTP internal resource resolves: docs/executive_summary.html"
+      },
+      {
+        "pass": true,
+        "check": "index.html: HTTP internal resource resolves: docs/hypotheses.html"
+      },
+      {
+        "pass": true,
+        "check": "index.html: HTTP internal resource resolves: docs/index.html"
+      },
+      {
+        "pass": true,
+        "check": "index.html: HTTP internal resource resolves: docs/sources.html"
+      },
+      {
+        "pass": true,
+        "check": "docs/index.html: first actual download anchor is the primary TIFF"
+      },
+      {
+        "pass": true,
+        "check": "docs/index.html: primary link is at very top of body"
+      },
+      {
+        "pass": true,
+        "check": "docs/index.html: deployed HTML is the exact reviewed generated page"
+      },
+      {
+        "pass": true,
+        "check": "docs/index.html: in-page anchor resolves: #main"
+      },
+      {
+        "pass": true,
+        "check": "docs/index.html: HTTP internal resource resolves: assets/site.js"
+      },
+      {
+        "pass": true,
+        "check": "docs/index.html: HTTP internal resource resolves: assets/style.css"
+      },
+      {
+        "pass": true,
+        "check": "docs/index.html: HTTP internal resource resolves: downloads/13gems_20261001_r13-lattice-s5_v2_nan-outside.tif"
+      },
+      {
+        "pass": true,
+        "check": "docs/index.html: HTTP internal resource resolves: downloads/13gems_20261001_r13-lattice-s5_v2_nan-outside.zip"
+      },
+      {
+        "pass": true,
+        "check": "docs/index.html: HTTP internal resource resolves: downloads/13gems_20261001_r13-lattice-s5_v2_zerofill.tif"
+      },
+      {
+        "pass": true,
+        "check": "docs/index.html: HTTP internal resource resolves: downloads/13gems_20261001_r13-lattice-s5_v2_zerofill.zip"
+      },
+      {
+        "pass": true,
+        "check": "docs/index.html: HTTP internal resource resolves: downloads/submit.json"
+      },
+      {
+        "pass": true,
+        "check": "docs/index.html: HTTP internal resource resolves: evidence.html"
+      },
+      {
+        "pass": true,
+        "check": "docs/index.html: HTTP internal resource resolves: executive_summary.html"
+      },
+      {
+        "pass": true,
+        "check": "docs/index.html: HTTP internal resource resolves: hypotheses.html"
+      },
+      {
+        "pass": true,
+        "check": "docs/index.html: HTTP internal resource resolves: index.html"
+      },
+      {
+        "pass": true,
+        "check": "docs/index.html: HTTP internal resource resolves: sources.html"
+      },
+      {
+        "pass": true,
+        "check": "docs/executive_summary.html: first actual download anchor is the primary TIFF"
+      },
+      {
+        "pass": true,
+        "check": "docs/executive_summary.html: primary link is at very top of body"
+      },
+      {
+        "pass": true,
+        "check": "docs/executive_summary.html: deployed HTML is the exact reviewed generated page"
+      },
+      {
+        "pass": true,
+        "check": "docs/executive_summary.html: in-page anchor resolves: #main"
+      },
+      {
+        "pass": true,
+        "check": "docs/executive_summary.html: HTTP internal resource resolves: assets/site.js"
+      },
+      {
+        "pass": true,
+        "check": "docs/executive_summary.html: HTTP internal resource resolves: assets/style.css"
+      },
+      {
+        "pass": true,
+        "check": "docs/executive_summary.html: HTTP internal resource resolves: downloads/13gems_20261001_r13-lattice-s5_v2_nan-outside.tif"
+      },
+      {
+        "pass": true,
+        "check": "docs/executive_summary.html: HTTP internal resource resolves: downloads/13gems_20261001_r13-lattice-s5_v2_nan-outside.zip"
+      },
+      {
+        "pass": true,
+        "check": "docs/executive_summary.html: HTTP internal resource resolves: downloads/13gems_20261001_r13-lattice-s5_v2_zerofill.tif"
+      },
+      {
+        "pass": true,
+        "check": "docs/executive_summary.html: HTTP internal resource resolves: downloads/13gems_20261001_r13-lattice-s5_v2_zerofill.zip"
+      },
+      {
+        "pass": true,
+        "check": "docs/executive_summary.html: HTTP internal resource resolves: downloads/submit.json"
+      },
+      {
+        "pass": true,
+        "check": "docs/executive_summary.html: HTTP internal resource resolves: evidence.html"
+      },
+      {
+        "pass": true,
+        "check": "docs/executive_summary.html: HTTP internal resource resolves: executive_summary.html"
+      },
+      {
+        "pass": true,
+        "check": "docs/executive_summary.html: HTTP internal resource resolves: hypotheses.html"
+      },
+      {
+        "pass": true,
+        "check": "docs/executive_summary.html: HTTP internal resource resolves: index.html"
+      },
+      {
+        "pass": true,
+        "check": "docs/executive_summary.html: HTTP internal resource resolves: sources.html"
+      },
+      {
+        "pass": true,
+        "check": "docs/evidence.html: first actual download anchor is the primary TIFF"
+      },
+      {
+        "pass": true,
+        "check": "docs/evidence.html: primary link is at very top of body"
+      },
+      {
+        "pass": true,
+        "check": "docs/evidence.html: deployed HTML is the exact reviewed generated page"
+      },
+      {
+        "pass": true,
+        "check": "docs/evidence.html: in-page anchor resolves: #main"
+      },
+      {
+        "pass": true,
+        "check": "docs/evidence.html: HTTP internal resource resolves: assets/site.js"
+      },
+      {
+        "pass": true,
+        "check": "docs/evidence.html: HTTP internal resource resolves: assets/style.css"
+      },
+      {
+        "pass": true,
+        "check": "docs/evidence.html: HTTP internal resource resolves: downloads/13gems_20261001_r11-greedy-mp_v2_nan-outside.tif"
+      },
+      {
+        "pass": true,
+        "check": "docs/evidence.html: HTTP internal resource resolves: downloads/13gems_20261001_r11-greedy-mp_v2_nan-outside.zip"
+      },
+      {
+        "pass": true,
+        "check": "docs/evidence.html: HTTP internal resource resolves: downloads/13gems_20261001_r13-lattice-s5_v2_nan-outside.tif"
+      },
+      {
+        "pass": true,
+        "check": "docs/evidence.html: HTTP internal resource resolves: downloads/13gems_20261001_r13-lattice-s5_v2_nan-outside.zip"
+      },
+      {
+        "pass": true,
+        "check": "docs/evidence.html: HTTP internal resource resolves: downloads/13gems_20261001_r13-lattice-s5_v2_zerofill.tif"
+      },
+      {
+        "pass": true,
+        "check": "docs/evidence.html: HTTP internal resource resolves: downloads/13gems_20261001_r13-lattice-s5_v2_zerofill.zip"
+      },
+      {
+        "pass": true,
+        "check": "docs/evidence.html: HTTP internal resource resolves: downloads/13gems_20261001_r14-union-tips10-lat6_nan-outside.tif"
+      },
+      {
+        "pass": true,
+        "check": "docs/evidence.html: HTTP internal resource resolves: downloads/13gems_20261001_r14-union-tips10-lat6_nan-outside.zip"
+      },
+      {
+        "pass": true,
+        "check": "docs/evidence.html: HTTP internal resource resolves: downloads/submit.json"
+      },
+      {
+        "pass": true,
+        "check": "docs/evidence.html: HTTP internal resource resolves: evidence.html"
+      },
+      {
+        "pass": true,
+        "check": "docs/evidence.html: HTTP internal resource resolves: executive_summary.html"
+      },
+      {
+        "pass": true,
+        "check": "docs/evidence.html: HTTP internal resource resolves: hypotheses.html"
+      },
+      {
+        "pass": true,
+        "check": "docs/evidence.html: HTTP internal resource resolves: index.html"
+      },
+      {
+        "pass": true,
+        "check": "docs/evidence.html: HTTP internal resource resolves: sources.html"
+      },
+      {
+        "pass": true,
+        "check": "docs/hypotheses.html: first actual download anchor is the primary TIFF"
+      },
+      {
+        "pass": true,
+        "check": "docs/hypotheses.html: primary link is at very top of body"
+      },
+      {
+        "pass": true,
+        "check": "docs/hypotheses.html: deployed HTML is the exact reviewed generated page"
+      },
+      {
+        "pass": true,
+        "check": "docs/hypotheses.html: in-page anchor resolves: #main"
+      },
+      {
+        "pass": true,
+        "check": "docs/hypotheses.html: HTTP internal resource resolves: assets/site.js"
+      },
+      {
+        "pass": true,
+        "check": "docs/hypotheses.html: HTTP internal resource resolves: assets/style.css"
+      },
+      {
+        "pass": true,
+        "check": "docs/hypotheses.html: HTTP internal resource resolves: downloads/13gems_20261001_r13-lattice-s5_v2_nan-outside.tif"
+      },
+      {
+        "pass": true,
+        "check": "docs/hypotheses.html: HTTP internal resource resolves: downloads/13gems_20261001_r13-lattice-s5_v2_nan-outside.zip"
+      },
+      {
+        "pass": true,
+        "check": "docs/hypotheses.html: HTTP internal resource resolves: downloads/13gems_20261001_r13-lattice-s5_v2_zerofill.tif"
+      },
+      {
+        "pass": true,
+        "check": "docs/hypotheses.html: HTTP internal resource resolves: downloads/13gems_20261001_r13-lattice-s5_v2_zerofill.zip"
+      },
+      {
+        "pass": true,
+        "check": "docs/hypotheses.html: HTTP internal resource resolves: downloads/submit.json"
+      },
+      {
+        "pass": true,
+        "check": "docs/hypotheses.html: HTTP internal resource resolves: evidence.html"
+      },
+      {
+        "pass": true,
+        "check": "docs/hypotheses.html: HTTP internal resource resolves: executive_summary.html"
+      },
+      {
+        "pass": true,
+        "check": "docs/hypotheses.html: HTTP internal resource resolves: hypotheses.html"
+      },
+      {
+        "pass": true,
+        "check": "docs/hypotheses.html: HTTP internal resource resolves: index.html"
+      },
+      {
+        "pass": true,
+        "check": "docs/hypotheses.html: HTTP internal resource resolves: sources.html"
+      },
+      {
+        "pass": true,
+        "check": "docs/sources.html: first actual download anchor is the primary TIFF"
+      },
+      {
+        "pass": true,
+        "check": "docs/sources.html: primary link is at very top of body"
+      },
+      {
+        "pass": true,
+        "check": "docs/sources.html: deployed HTML is the exact reviewed generated page"
+      },
+      {
+        "pass": true,
+        "check": "docs/sources.html: in-page anchor resolves: #main"
+      },
+      {
+        "pass": true,
+        "check": "docs/sources.html: HTTP internal resource resolves: assets/site.js"
+      },
+      {
+        "pass": true,
+        "check": "docs/sources.html: HTTP internal resource resolves: assets/style.css"
+      },
+      {
+        "pass": true,
+        "check": "docs/sources.html: HTTP internal resource resolves: downloads/13gems_20261001_r13-lattice-s5_v2_nan-outside.tif"
+      },
+      {
+        "pass": true,
+        "check": "docs/sources.html: HTTP internal resource resolves: downloads/13gems_20261001_r13-lattice-s5_v2_nan-outside.zip"
+      },
+      {
+        "pass": true,
+        "check": "docs/sources.html: HTTP internal resource resolves: downloads/13gems_20261001_r13-lattice-s5_v2_zerofill.tif"
+      },
+      {
+        "pass": true,
+        "check": "docs/sources.html: HTTP internal resource resolves: downloads/13gems_20261001_r13-lattice-s5_v2_zerofill.zip"
+      },
+      {
+        "pass": true,
+        "check": "docs/sources.html: HTTP internal resource resolves: downloads/submit.json"
+      },
+      {
+        "pass": true,
+        "check": "docs/sources.html: HTTP internal resource resolves: evidence.html"
+      },
+      {
+        "pass": true,
+        "check": "docs/sources.html: HTTP internal resource resolves: executive_summary.html"
+      },
+      {
+        "pass": true,
+        "check": "docs/sources.html: HTTP internal resource resolves: hypotheses.html"
+      },
+      {
+        "pass": true,
+        "check": "docs/sources.html: HTTP internal resource resolves: index.html"
+      },
+      {
+        "pass": true,
+        "check": "docs/sources.html: HTTP internal resource resolves: sources.html"
+      },
+      {
+        "pass": true,
+        "check": "Private path not exposed: .git/HEAD"
+      },
+      {
+        "pass": true,
+        "check": "Private path not exposed: .git/config"
+      },
+      {
+        "pass": true,
+        "check": "Private path not exposed: .venv/pyvenv.cfg"
+      },
+      {
+        "pass": true,
+        "check": "Private path not exposed: data/raw/labels.tif"
+      },
+      {
+        "pass": true,
+        "check": "Private path not exposed: docs/%2e%2e/.git/HEAD"
+      }
+    ],
+    "all_passed": true
+  },
+  "browser": {
+    "generated_utc": "2026-10-01T04:58:41Z",
+    "base_url": "http://127.0.0.1:35337/",
+    "browser_version": "153.0.8010.0",
+    "normal_browser_security": true,
+    "local_workflow_metadata_stub": true,
+    "platform_acceptance_established": false,
+    "axe_used": true,
+    "axe_violations": [],
+    "uncaught_site_errors": [],
+    "primary_sha256": "b4570b406efec198eb2f4d142ad8d0d6184b14b66f2f52b5c4d697f0647dc9b2",
+    "total": 106,
+    "passed": 106,
+    "failed": 0,
+    "checks": [
+      {
+        "pass": true,
+        "check": "root 1440x1000: primary download visible ABOVE the first fold"
+      },
+      {
+        "pass": true,
+        "check": "root 1440x1000: no page-level horizontal overflow"
+      },
+      {
+        "pass": true,
+        "check": "root 1440x1000: heading/main/title semantics"
+      },
+      {
+        "pass": true,
+        "check": "root 1440x1000: exact selectable short note"
+      },
+      {
+        "pass": true,
+        "check": "root 1440x1000: one-click browser TIFF exact name/SHA256"
+      },
+      {
+        "pass": true,
+        "check": "root 1440x1000: browser ZIP exact name/SHA256"
+      },
+      {
+        "pass": true,
+        "check": "root 1440x1000: axe WCAG2/2.1 A/AA + best-practice, no violations"
+      },
+      {
+        "pass": true,
+        "check": "docs/index.html 1440x1000: primary download visible ABOVE the first fold"
+      },
+      {
+        "pass": true,
+        "check": "docs/index.html 1440x1000: no page-level horizontal overflow"
+      },
+      {
+        "pass": true,
+        "check": "docs/index.html 1440x1000: heading/main/title semantics"
+      },
+      {
+        "pass": true,
+        "check": "docs/index.html 1440x1000: exact selectable short note"
+      },
+      {
+        "pass": true,
+        "check": "docs/index.html 1440x1000: one-click browser TIFF exact name/SHA256"
+      },
+      {
+        "pass": true,
+        "check": "docs/index.html 1440x1000: browser ZIP exact name/SHA256"
+      },
+      {
+        "pass": true,
+        "check": "docs/index.html 1440x1000: axe WCAG2/2.1 A/AA + best-practice, no violations"
+      },
+      {
+        "pass": true,
+        "check": "docs/executive_summary.html 1440x1000: primary download visible ABOVE the first fold"
+      },
+      {
+        "pass": true,
+        "check": "docs/executive_summary.html 1440x1000: no page-level horizontal overflow"
+      },
+      {
+        "pass": true,
+        "check": "docs/executive_summary.html 1440x1000: heading/main/title semantics"
+      },
+      {
+        "pass": true,
+        "check": "docs/executive_summary.html 1440x1000: exact selectable short note"
+      },
+      {
+        "pass": true,
+        "check": "docs/executive_summary.html 1440x1000: one-click browser TIFF exact name/SHA256"
+      },
+      {
+        "pass": true,
+        "check": "docs/executive_summary.html 1440x1000: browser ZIP exact name/SHA256"
+      },
+      {
+        "pass": true,
+        "check": "docs/executive_summary.html 1440x1000: axe WCAG2/2.1 A/AA + best-practice, no violations"
+      },
+      {
+        "pass": true,
+        "check": "docs/evidence.html 1440x1000: primary download visible ABOVE the first fold"
+      },
+      {
+        "pass": true,
+        "check": "docs/evidence.html 1440x1000: no page-level horizontal overflow"
+      },
+      {
+        "pass": true,
+        "check": "docs/evidence.html 1440x1000: heading/main/title semantics"
+      },
+      {
+        "pass": true,
+        "check": "docs/evidence.html 1440x1000: exact selectable short note"
+      },
+      {
+        "pass": true,
+        "check": "docs/evidence.html 1440x1000: one-click browser TIFF exact name/SHA256"
+      },
+      {
+        "pass": true,
+        "check": "docs/evidence.html 1440x1000: browser ZIP exact name/SHA256"
+      },
+      {
+        "pass": true,
+        "check": "docs/evidence.html 1440x1000: axe WCAG2/2.1 A/AA + best-practice, no violations"
+      },
+      {
+        "pass": true,
+        "check": "docs/hypotheses.html 1440x1000: primary download visible ABOVE the first fold"
+      },
+      {
+        "pass": true,
+        "check": "docs/hypotheses.html 1440x1000: no page-level horizontal overflow"
+      },
+      {
+        "pass": true,
+        "check": "docs/hypotheses.html 1440x1000: heading/main/title semantics"
+      },
+      {
+        "pass": true,
+        "check": "docs/hypotheses.html 1440x1000: exact selectable short note"
+      },
+      {
+        "pass": true,
+        "check": "docs/hypotheses.html 1440x1000: one-click browser TIFF exact name/SHA256"
+      },
+      {
+        "pass": true,
+        "check": "docs/hypotheses.html 1440x1000: browser ZIP exact name/SHA256"
+      },
+      {
+        "pass": true,
+        "check": "docs/hypotheses.html 1440x1000: axe WCAG2/2.1 A/AA + best-practice, no violations"
+      },
+      {
+        "pass": true,
+        "check": "docs/sources.html 1440x1000: primary download visible ABOVE the first fold"
+      },
+      {
+        "pass": true,
+        "check": "docs/sources.html 1440x1000: no page-level horizontal overflow"
+      },
+      {
+        "pass": true,
+        "check": "docs/sources.html 1440x1000: heading/main/title semantics"
+      },
+      {
+        "pass": true,
+        "check": "docs/sources.html 1440x1000: exact selectable short note"
+      },
+      {
+        "pass": true,
+        "check": "docs/sources.html 1440x1000: one-click browser TIFF exact name/SHA256"
+      },
+      {
+        "pass": true,
+        "check": "docs/sources.html 1440x1000: browser ZIP exact name/SHA256"
+      },
+      {
+        "pass": true,
+        "check": "docs/sources.html 1440x1000: axe WCAG2/2.1 A/AA + best-practice, no violations"
+      },
+      {
+        "pass": true,
+        "check": "root 390x844: primary download visible ABOVE the first fold"
+      },
+      {
+        "pass": true,
+        "check": "root 390x844: no page-level horizontal overflow"
+      },
+      {
+        "pass": true,
+        "check": "root 390x844: heading/main/title semantics"
+      },
+      {
+        "pass": true,
+        "check": "root 390x844: exact selectable short note"
+      },
+      {
+        "pass": true,
+        "check": "docs/index.html 390x844: primary download visible ABOVE the first fold"
+      },
+      {
+        "pass": true,
+        "check": "docs/index.html 390x844: no page-level horizontal overflow"
+      },
+      {
+        "pass": true,
+        "check": "docs/index.html 390x844: heading/main/title semantics"
+      },
+      {
+        "pass": true,
+        "check": "docs/index.html 390x844: exact selectable short note"
+      },
+      {
+        "pass": true,
+        "check": "docs/executive_summary.html 390x844: primary download visible ABOVE the first fold"
+      },
+      {
+        "pass": true,
+        "check": "docs/executive_summary.html 390x844: no page-level horizontal overflow"
+      },
+      {
+        "pass": true,
+        "check": "docs/executive_summary.html 390x844: heading/main/title semantics"
+      },
+      {
+        "pass": true,
+        "check": "docs/executive_summary.html 390x844: exact selectable short note"
+      },
+      {
+        "pass": true,
+        "check": "docs/evidence.html 390x844: primary download visible ABOVE the first fold"
+      },
+      {
+        "pass": true,
+        "check": "docs/evidence.html 390x844: no page-level horizontal overflow"
+      },
+      {
+        "pass": true,
+        "check": "docs/evidence.html 390x844: heading/main/title semantics"
+      },
+      {
+        "pass": true,
+        "check": "docs/evidence.html 390x844: exact selectable short note"
+      },
+      {
+        "pass": true,
+        "check": "docs/hypotheses.html 390x844: primary download visible ABOVE the first fold"
+      },
+      {
+        "pass": true,
+        "check": "docs/hypotheses.html 390x844: no page-level horizontal overflow"
+      },
+      {
+        "pass": true,
+        "check": "docs/hypotheses.html 390x844: heading/main/title semantics"
+      },
+      {
+        "pass": true,
+        "check": "docs/hypotheses.html 390x844: exact selectable short note"
+      },
+      {
+        "pass": true,
+        "check": "docs/sources.html 390x844: primary download visible ABOVE the first fold"
+      },
+      {
+        "pass": true,
+        "check": "docs/sources.html 390x844: no page-level horizontal overflow"
+      },
+      {
+        "pass": true,
+        "check": "docs/sources.html 390x844: heading/main/title semantics"
+      },
+      {
+        "pass": true,
+        "check": "docs/sources.html 390x844: exact selectable short note"
+      },
+      {
+        "pass": true,
+        "check": "root 320x568: primary download visible ABOVE the first fold"
+      },
+      {
+        "pass": true,
+        "check": "root 320x568: no page-level horizontal overflow"
+      },
+      {
+        "pass": true,
+        "check": "root 320x568: heading/main/title semantics"
+      },
+      {
+        "pass": true,
+        "check": "root 320x568: exact selectable short note"
+      },
+      {
+        "pass": true,
+        "check": "docs/index.html 320x568: primary download visible ABOVE the first fold"
+      },
+      {
+        "pass": true,
+        "check": "docs/index.html 320x568: no page-level horizontal overflow"
+      },
+      {
+        "pass": true,
+        "check": "docs/index.html 320x568: heading/main/title semantics"
+      },
+      {
+        "pass": true,
+        "check": "docs/index.html 320x568: exact selectable short note"
+      },
+      {
+        "pass": true,
+        "check": "docs/executive_summary.html 320x568: primary download visible ABOVE the first fold"
+      },
+      {
+        "pass": true,
+        "check": "docs/executive_summary.html 320x568: no page-level horizontal overflow"
+      },
+      {
+        "pass": true,
+        "check": "docs/executive_summary.html 320x568: heading/main/title semantics"
+      },
+      {
+        "pass": true,
+        "check": "docs/executive_summary.html 320x568: exact selectable short note"
+      },
+      {
+        "pass": true,
+        "check": "docs/evidence.html 320x568: primary download visible ABOVE the first fold"
+      },
+      {
+        "pass": true,
+        "check": "docs/evidence.html 320x568: no page-level horizontal overflow"
+      },
+      {
+        "pass": true,
+        "check": "docs/evidence.html 320x568: heading/main/title semantics"
+      },
+      {
+        "pass": true,
+        "check": "docs/evidence.html 320x568: exact selectable short note"
+      },
+      {
+        "pass": true,
+        "check": "docs/hypotheses.html 320x568: primary download visible ABOVE the first fold"
+      },
+      {
+        "pass": true,
+        "check": "docs/hypotheses.html 320x568: no page-level horizontal overflow"
+      },
+      {
+        "pass": true,
+        "check": "docs/hypotheses.html 320x568: heading/main/title semantics"
+      },
+      {
+        "pass": true,
+        "check": "docs/hypotheses.html 320x568: exact selectable short note"
+      },
+      {
+        "pass": true,
+        "check": "docs/sources.html 320x568: primary download visible ABOVE the first fold"
+      },
+      {
+        "pass": true,
+        "check": "docs/sources.html 320x568: no page-level horizontal overflow"
+      },
+      {
+        "pass": true,
+        "check": "docs/sources.html 320x568: heading/main/title semantics"
+      },
+      {
+        "pass": true,
+        "check": "docs/sources.html 320x568: exact selectable short note"
+      },
+      {
+        "pass": true,
+        "check": "Actual granted-permission clipboard round trip matches note"
+      },
+      {
+        "pass": true,
+        "check": "Browser integrity check succeeds for actual TIFF and states evidence limit"
+      },
+      {
+        "pass": true,
+        "check": "Clipboard denial: never false success, note still available"
+      },
+      {
+        "pass": true,
+        "check": "Clipboard denial: fallback selects full note"
+      },
+      {
+        "pass": true,
+        "check": "html-error: browser byte check rejects wrong body without false success"
+      },
+      {
+        "pass": true,
+        "check": "html-error: button recovers after error"
+      },
+      {
+        "pass": true,
+        "check": "same-size-corruption: browser byte check rejects wrong body without false success"
+      },
+      {
+        "pass": true,
+        "check": "same-size-corruption: button recovers after error"
+      },
+      {
+        "pass": true,
+        "check": "No workflow run: UI makes no fake live observation claim (local stub)"
+      },
+      {
+        "pass": true,
+        "check": "GitHub metadata failure: dated observations not misrepresented as current"
+      },
+      {
+        "pass": true,
+        "check": "Fresh bot observation displays automatically with evidence boundary"
+      },
+      {
+        "pass": true,
+        "check": "Untrusted feed strings rendered as literal text, never HTML"
+      },
+      {
+        "pass": true,
+        "check": "untrusted-author: refuse fabricated or unapproved live feed; retain dated fallback"
+      },
+      {
+        "pass": true,
+        "check": "unapproved-url: refuse fabricated or unapproved live feed; retain dated fallback"
+      },
+      {
+        "pass": true,
+        "check": "JavaScript disabled: actual primary download still works"
+      },
+      {
+        "pass": true,
+        "check": "No uncaught site JavaScript errors in positive browser scenarios"
+      }
+    ],
+    "all_passed": true
+  },
+  "workflow_yaml_syntax": [
+    {
+      "workflow": ".github/workflows/fetch-gdr1391.yml",
+      "yaml_parses": true,
+      "jobs": [
+        "fetch"
+      ]
+    },
+    {
+      "workflow": ".github/workflows/quality.yml",
+      "yaml_parses": true,
+      "jobs": [
+        "verification"
+      ]
+    },
+    {
+      "workflow": ".github/workflows/source-review.yml",
+      "yaml_parses": true,
+      "jobs": [
+        "observe"
+      ]
+    },
+    {
+      "workflow": ".github/workflows/live-site.yml",
+      "yaml_parses": true,
+      "jobs": [
+        "delivery"
+      ]
+    }
+  ],
+  "frozen_hypothesis": {
+    "status": "RESEARCH_ONLY_DO_NOT_SUBMIT",
+    "existing_paired_wins": 0,
+    "existing_folds": 18,
+    "geographic_paired_wins": 0,
+    "geographic_folds": 4,
+    "gate_passed": false
+  },
+  "platform_acceptance_established": false,
+  "competition_uploads": 0,
+  "weekly_slots_used": 0,
+  "hosted_verification_status": "NOT_RUN_GITHUB_AUTH_401",
+  "deployment_status": "NOT_CONFIRMED"
+}

@@ -1,0 +1,68 @@
+{
+  "schema": 1,
+  "generated_utc": "2026-10-01T03:46:41Z",
+  "scope": "Approved open-data/organizer-repository endpoints only; NO DrivenData polling.",
+  "facts_last_manually_reviewed_utc": "2026-10-01",
+  "sources": {
+    "gdr1391": {
+      "title": "INGENIOUS regional dataset compilation",
+      "url": "https://gdr.openei.org/submissions/1391",
+      "licence": "CC-BY-4.0; Ayling, Bridget, et al. (2022), DOI10.15121/1881483",
+      "last_attempt_utc": "2026-10-01T03:46:41Z",
+      "evidence_class": "automated_source_observation_not_scientific_certification",
+      "status": "FETCH_FAILED_NO_SUCCESS",
+      "error": "URLError: <urlopen error TLS/SSL connection has been closed (EOF) (_ssl.c:992)>",
+      "changed_since_previous_success": null
+    },
+    "geodawn": {
+      "title": "USGS GeoDAWN airborne magnetic/radiometric data",
+      "url": "https://www.usgs.gov/data/geodawn-airborne-magnetic-and-radiometric-surveys-northwestern-great-basin-nevada-and",
+      "licence": "CC0-1.0; Glen and Earney (2024), DOI10.5066/P93LGLVQ",
+      "last_attempt_utc": "2026-10-01T03:46:41Z",
+      "evidence_class": "automated_source_observation_not_scientific_certification",
+      "status": "FETCH_FAILED_NO_SUCCESS",
+      "error": "URLError: <urlopen error TLS/SSL connection has been closed (EOF) (_ssl.c:992)>",
+      "changed_since_previous_success": null
+    },
+    "official_rules": {
+      "title": "Official GEMS rules document (change monitoring, not re-certification)",
+      "url": "https://docs.nlr.gov/docs/fy26osti/96647.pdf",
+      "licence": "Official competition rules; original document linked, not relicensed",
+      "last_attempt_utc": "2026-10-01T03:46:41Z",
+      "evidence_class": "automated_source_observation_not_scientific_certification",
+      "status": "FETCH_FAILED_NO_SUCCESS",
+      "error": "URLError: <urlopen error TLS/SSL connection has been closed (EOF) (_ssl.c:992)>",
+      "changed_since_previous_success": null
+    },
+    "groundwater_api": {
+      "title": "USGS Water Data measurement collection metadata",
+      "url": "https://api.waterdata.usgs.gov/ogcapi/v0/collections/field-measurements?f=json",
+      "licence": "USGS public data; comparable regional well-network availability not yet established",
+      "last_attempt_utc": "2026-10-01T03:46:41Z",
+      "evidence_class": "automated_source_observation_not_scientific_certification",
+      "status": "FETCH_FAILED_NO_SUCCESS",
+      "error": "URLError: <urlopen error TLS/SSL connection has been closed (EOF) (_ssl.c:992)>",
+      "changed_since_previous_success": null
+    },
+    "reference_solution": {
+      "title": "Organizer's reference solution repository metadata",
+      "url": "https://api.github.com/repos/drivendataorg/gems-prize-reference-solution/commits/main",
+      "licence": "Repository metadata; consult original repository licence for code reuse",
+      "last_attempt_utc": "2026-10-01T03:46:41Z",
+      "evidence_class": "automated_source_observation_not_scientific_certification",
+      "bytes": 14574,
+      "sha256": "ae93de50fcadd5679fb6726bc4507a9c7dbd91fd3bbeed42f671e00a9a1ea7c5",
+      "normalized_content_sha256": "e8a99cd2e52d81891fb4c9fa6c5aec15e32ae510f2f01517eba0bf63248430fa",
+      "content_type": "application/json; charset=utf-8",
+      "last_modified": "Tue, 16 Jun 2026 13:55:26 GMT",
+      "final_url": "https://api.github.com/repos/drivendataorg/gems-prize-reference-solution/commits/main",
+      "excerpt": "JSON metadata observed; data obtainability/usefulness not inferred.",
+      "last_success_utc": "2026-10-01T03:46:41Z",
+      "status": "OBSERVED_OK",
+      "changed_since_previous_success": false,
+      "error": null
+    }
+  },
+  "n_observed_ok": 1,
+  "n_failed": 4
+}

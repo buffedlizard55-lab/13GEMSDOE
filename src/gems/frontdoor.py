@@ -1,54 +1,10 @@
-"""The "front door": the one pair of files a person uploads to DrivenData.
+"""Checked primary download and diagnostic encoding twin.
 
-Everything a human needs to submit is produced here and described in ONE
-machine-readable manifest, ``docs/downloads/submit.json``, which the site, the
-README and ``scripts/verify_download.py`` all read.  Nothing on the site is
-typed by hand.
-
-WHICH ENCODING IS PRIMARY, AND WHY (settled by measurement, 2026-10-01)
-----------------------------------------------------------------------
-Two encodings of the SAME predictions are published:
-
-  PRIMARY  ``*_nan-outside.tif``   NaN outside the survey footprint and
-                                   ``GDAL_NODATA = nan``.  This is the encoding
-                                   of the official ``sample_submission.tif``
-                                   template AND of every one of the nine files
-                                   this group has a public DrivenData score
-                                   for.  It is the only encoding in this
-                                   project's history with an acceptance
-                                   receipt.  UPLOAD THIS.
-
-  HEDGE    ``*_zerofill.tif``      0.0 outside the footprint, no NoData tag,
-                                   no NaN anywhere.  Satisfies a naive
-                                   whole-array ``[0, 1]`` test.  It is NOT the
-                                   official template's encoding, though one
-                                   all-finite file IS team-recorded as accepted
-                                   (12GEMSDOE ``..._allfinite``, account SDCF9,
-                                   score 0.1294 -- the same score as its
-                                   NaN-outside twin, as expected since encoding
-                                   does not change footprint pixels).  That is a
-                                   team record, not a platform receipt, and it
-                                   cannot be told apart from one upload recorded
-                                   twice.  Use only if the form rejects the
-                                   primary.
-
-This is the reverse of the ordering sessions 6-7 shipped.  Those sessions
-guessed that the NaN cells caused the form's
-``Predicted values must be in range [0, 1]`` rejection.  That guess is
-falsified: the official template itself carries 7,111,787 NaN cells, and so do
-all nine scored files.  ``reports/platform_encoding_evidence.json`` has the
-byte-level audit; ``src/gems/encoding.py`` has the rule and the reproducible
-demonstration that the one rejected file's distinguishing feature --
-``Predictor = 2`` (integer horizontal differencing) on IEEE-float samples --
-decodes to the range [-4.0, 3.0] in any reader that does not run the
-accumulator.  Every file this module writes therefore forbids a predictor.
-
-Inside the footprint PRIMARY and HEDGE are identical (checked, not assumed).
-
-Honest limits (see knowledge/02_irregularities.md I-8, I-18, I-22): this module
-can verify the bytes locally with three independent TIFF readers; it cannot
-observe the DrivenData validator.  Acceptance is only ever established by the
-form's own response, which is appended to ``reports/form_responses.json``.
+The authoritative manifest is docs/downloads/submit.json (schema2). Primary
+uses official-template NaN placement; hedge uses zeros outside. Predictions
+inside are identical. Verification of these local bytes is not a DrivenData
+receipt or scientific clearance. Historical rejection-cause certainty has been
+withdrawn; see knowledge/13_audit_corrections_2026-10-01.md.
 """
 from __future__ import annotations
 
@@ -78,7 +34,7 @@ HEDGE_SUFFIX = "_zerofill"
 PRIMARY_ENCODING_TEXT = (
     "float32, NaN outside the survey footprint, GDAL_NODATA=nan, every footprint "
     "value finite and in [0, 1], LZW, no predictor -- the byte encoding of the "
-    "official sample_submission.tif and of all 9 platform-scored group files")
+    "measured official sample_submission.tif; remote acceptance not confirmed")
 HEDGE_ENCODING_TEXT = (
     "float32, 0.0 outside the footprint, no NoData tag, no NaN anywhere -- a "
     "hedge for a naive whole-array [0, 1] test; NOT the template's encoding")
@@ -135,7 +91,7 @@ def write_pair(out_dir: Path, stem: str, pred: np.ndarray,
     if clash:
         raise FileExistsError(
             "submission names are immutable; already exist: " + ", ".join(clash))
-    # outside_value=None -> NaN outside + nodata=nan (the proven encoding)
+    # outside_value=None -> official-template NaN placement, not proof of acceptance
     rio.write_submission(paths["primary"], pred, valid, outside_value=None)
     rio.write_submission(paths["hedge"], pred, valid, outside_value=0.0)
     _zip_single(paths["primary_zip"], paths["primary"])
@@ -185,7 +141,7 @@ def _one_file_facts(label: str, path: Path, arr: np.ndarray,
     f["n_finite_outside_footprint"] = int((np.isfinite(arr) & ~valid).sum())
     f["n_nan_outside_footprint"] = int((np.isnan(arr) & ~valid).sum())
     f["layout"] = layout(path)
-    # The empirical platform gate only applies to a real-size file: the pattern
+    # The local template-policy gate only applies to a real-size file: the pattern
     # it checks is defined on the official 3730x3292 grid, and the unit tests
     # publish 40x50 synthetic rasters.
     official_size = tuple(f["shape"]) == encoding.EXPECTED_SHAPE
@@ -196,7 +152,7 @@ def _one_file_facts(label: str, path: Path, arr: np.ndarray,
         f["deviations_from_accepted_pattern"] = audit["deviations_from_accepted_pattern"]
     else:
         f["matches_accepted_pattern"] = None
-        f["deviations_from_accepted_pattern"] = ["synthetic size; accepted-pattern gate skipped"]
+        f["deviations_from_accepted_pattern"] = ["synthetic size; full-grid template-policy gate skipped"]
     f["sha256"] = sha256_file(path)
     f["label"] = label
     return f
@@ -229,6 +185,8 @@ def check_pair(primary_path: Path, hedge_path: Path, valid: np.ndarray) -> dict:
 def _all_ok(facts: dict) -> list[str]:
     """Hard gate: if this returns anything, nothing is released."""
     bad: list[str] = []
+    if set(facts["readers_used"]) != {"Pillow", "rasterio/GDAL", "tifffile"}:
+        bad.append("All three independent TIFF readers are required for release")
     if not facts["all_readers_agree_primary"]:
         bad.append("PRIMARY decodes differently across TIFF readers")
     if not facts["all_readers_agree_hedge"]:
@@ -243,17 +201,15 @@ def _all_ok(facts: dict) -> list[str]:
             bad.append(f"{label}: infinite values")
         if f["n_nan_inside_footprint"]:
             bad.append(f"{label}: {f['n_nan_inside_footprint']} NaN INSIDE the "
-                       "footprint -- the exact condition behind the platform's "
-                       "'Predicted values must be in range [0, 1]'")
+                       "footprint; violates local format policy")
         pred = f["layout"]["predictor"]
         if pred not in (None, "1", 1, "NONE"):
             bad.append(f"{label}: TIFF predictor {pred!r}; only 'none' is allowed "
-                       "(Predictor=2 is the sole deviation of the one file the "
-                       "form rejected)")
+                       "by the local interoperability policy, not a confirmed server cause")
         if f["layout"]["compression"] != "LZW":
             bad.append(f"{label}: compression {f['layout']['compression']} "
                        "(must be LZW, the official template's)")
-    # PRIMARY must be the encoding the platform has actually accepted
+    # PRIMARY must follow the measured official-template convention
     if p["layout"]["nodata"] != "nan" or not facts["primary_outside_all_nan"]:
         bad.append("PRIMARY: not NaN with NoData=nan outside the footprint")
     if p["n_finite_outside_footprint"]:
@@ -261,8 +217,7 @@ def _all_ok(facts: dict) -> list[str]:
                    "the footprint (the official template is NaN there)")
     if p["official_size"]:
         if not p["matches_accepted_pattern"]:
-            bad.append("PRIMARY deviates from the empirically ACCEPTED platform "
-                       "encoding: " + "; ".join(p["deviations_from_accepted_pattern"]))
+            bad.append("PRIMARY deviates from local template policy: " + "; ".join(p["deviations_from_accepted_pattern"]))
         if p["n_nan_outside_footprint"] != encoding.OUTSIDE_PIXELS:
             bad.append(f"PRIMARY: {p['n_nan_outside_footprint']:,} NaN outside != "
                        f"{encoding.OUTSIDE_PIXELS:,}")
@@ -291,7 +246,9 @@ def publish(out_dir: Path, stem: str, pred: np.ndarray, valid: np.ndarray, *,
     Raises RuntimeError -- and therefore releases nothing -- if any hard check
     in ``_all_ok`` fails.
     """
-    if len(note) > MAX_NOTE_CHARS or "\n" in note:
+    if not NAME_RE.fullmatch(stem) or stem.lower().endswith((".tif", ".tiff", ".zip")):
+        raise ValueError("invalid immutable submission stem")
+    if not note.strip() or len(note) > MAX_NOTE_CHARS or any(c in note for c in "\r\n"):
         raise ValueError(f"note must be one line of at most {MAX_NOTE_CHARS} characters")
     paths = existing_paths or write_pair(out_dir, stem, pred, valid)
     facts = check_pair(paths["primary"], paths["hedge"], valid)
@@ -319,8 +276,8 @@ def publish(out_dir: Path, stem: str, pred: np.ndarray, valid: np.ndarray, *,
         "schema_note": ("schema 2 (2026-10-01) renames primary_A -> primary and "
                         "fallback_B -> hedge and SWAPS which encoding each holds: "
                         "the primary is now the NaN-outside file, because that is "
-                        "the encoding of the official template and of all 9 "
-                        "platform-scored group files. See "
+                        "the encoding of the measured official template. Historical "
+                        "score labels do not establish remote acceptance. See "
                         "reports/platform_encoding_evidence.json."),
         "generated_utc": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "stem": stem,
@@ -329,17 +286,17 @@ def publish(out_dir: Path, stem: str, pred: np.ndarray, valid: np.ndarray, *,
         "format_source": FORMAT_URL,
         "encoding_evidence": EVIDENCE_URL,
         "primary": entry(paths["primary"], paths["primary_zip"],
-                         PRIMARY_ENCODING_TEXT, "UPLOAD THIS"),
+                         PRIMARY_ENCODING_TEXT, "Primary format-checked local reference; not a new score claim"),
         "hedge": entry(paths["hedge"], paths["hedge_zip"],
                        HEDGE_ENCODING_TEXT,
-                       "ONLY if the form rejects the primary"),
+                       "Diagnostic only; not a separate experiment or automatic second upload"),
         "aliases": {a: f"= {k}" for a, k in ALIASES.items()},
         "local_verification": facts,
         "source_artifact": source,
         "status": status,
         "limits": ("Verified locally with rasterio/GDAL, tifffile and Pillow against the "
-                   "official sample_submission.tif and the nine platform-scored group "
-                   "files. The DrivenData validator itself cannot be observed from here; "
+                   "official sample_submission.tif. Historical team score labels are not receipts. "
+                   "The DrivenData validator itself cannot be observed from here; "
                    "acceptance is established only by the form's own response "
                    "(reports/form_responses.json)."),
     }

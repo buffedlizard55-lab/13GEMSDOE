@@ -1,0 +1,213 @@
+{
+  "review_date": "2026-10-01",
+  "retrieval": "One-off official web-reader review; compact curated claims, not full original documents or HTTP-response hashes.",
+  "sources": [
+    {
+      "id": "format",
+      "title": "Competition problem and format",
+      "url": "https://www.drivendata.org/competitions/306/competition-doe-gems/page/967/",
+      "publisher": "DrivenData / DOE",
+      "chunks_reviewed": [
+        0,
+        1
+      ],
+      "claims": [
+        "Single float32 band, confidence [0,1], same CRS/grid/bounds, null/NaN outside.",
+        "300m triangular distance kernel; alpha0.2/beta0.8; FN=|G|-TP."
+      ],
+      "limits": "The template contains catalogue positives despite the description of total absence; grid/footprint are verified from bytes.",
+      "status": "REVIEWED_OFFICIAL_SOURCE",
+      "last_reviewed": "2026-10-01"
+    },
+    {
+      "id": "masking",
+      "title": "Known-fault scoring clarification",
+      "url": "https://community.drivendata.org/t/scoring-clarification-are-known-usgs-ingenious-faults-masked-when-scoring-and-are-they-in-the-final-round-label-set/11516/4",
+      "publisher": "DrivenData staff",
+      "chunks_reviewed": [
+        0,
+        1
+      ],
+      "claims": [
+        "Known pixels are masked in both rounds; pixel-exact training-label mask.",
+        "Near-known predictions can be penalized; new truth can be within300m of known traces."
+      ],
+      "limits": "Our local masking drops visible predictions entirely; private evaluator implementation is not inspected.",
+      "status": "REVIEWED_OFFICIAL_SOURCE",
+      "last_reviewed": "2026-10-01"
+    },
+    {
+      "id": "new_pixels",
+      "title": "What counts as a new fault",
+      "url": "https://community.drivendata.org/t/where-do-you-draw-the-line/11536/2",
+      "publisher": "DrivenData staff",
+      "chunks_reviewed": [
+        0
+      ],
+      "claims": [
+        "Any fault pixel not already captured by USGS/INGENIOUS can count; newly mapped geometry of an existing system is included."
+      ],
+      "limits": "Does not identify hidden truth or validate any particular prediction.",
+      "status": "REVIEWED_OFFICIAL_SOURCE",
+      "last_reviewed": "2026-10-01"
+    },
+    {
+      "id": "hidden_truth",
+      "title": "Test-source disclosure boundary",
+      "url": "https://community.drivendata.org/t/how-were-the-new-test-faults-identified-data-sources-and-fault-types/11527/7",
+      "publisher": "DrivenData staff",
+      "chunks_reviewed": [
+        0
+      ],
+      "claims": [
+        "Organizers are not sharing further test-source/fault-type/coverage details.",
+        "Phase2 expert review updates the test set."
+      ],
+      "limits": "Do not claim all hidden faults are scarpless, geothermal, or near known tips.",
+      "status": "REVIEWED_OFFICIAL_SOURCE",
+      "last_reviewed": "2026-10-01"
+    },
+    {
+      "id": "weekly",
+      "title": "Rolling submission allowance",
+      "url": "https://community.drivendata.org/t/weekly-submissions/11524/2",
+      "publisher": "DrivenData staff",
+      "chunks_reviewed": [
+        0
+      ],
+      "claims": [
+        "Allowance resets on a rolling window, not a fixed calendar date/time."
+      ],
+      "limits": "Three per week comes from the rules; whether a rejected upload consumes allowance was not verified.",
+      "status": "REVIEWED_OFFICIAL_SOURCE",
+      "last_reviewed": "2026-10-01"
+    },
+    {
+      "id": "rules",
+      "title": "September2026 Official Rules",
+      "url": "https://docs.nlr.gov/docs/fy26osti/96647.pdf",
+      "publisher": "NLR / DOE",
+      "chunks_reviewed": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "claims": [
+        "Initial50,000USD / final250,000USD; same selected final submission scored across both.",
+        "Section3.2 permits generative AI and requires extent/how-use narrative disclosure.",
+        "Eligibility and final reproducibility/code/resource certifications apply; one final entry per entity."
+      ],
+      "limits": "This report is not legal advice or a certification of a participant eligibility.",
+      "status": "REVIEWED_OFFICIAL_SOURCE",
+      "last_reviewed": "2026-10-01"
+    },
+    {
+      "id": "leaderboard",
+      "title": "Public leaderboard",
+      "url": "https://www.drivendata.org/competitions/306/competition-doe-gems/leaderboard/",
+      "publisher": "DrivenData",
+      "chunks_reviewed": [
+        0,
+        1
+      ],
+      "claims": [
+        "Snapshot leader DARD0.3168; account/team Best public DW-Tversky is not per-file attribution."
+      ],
+      "limits": "One-off reviewed snapshot, not a continuously polled live score.",
+      "status": "REVIEWED_OFFICIAL_SOURCE",
+      "last_reviewed": "2026-10-01"
+    },
+    {
+      "id": "gdr",
+      "title": "INGENIOUS compilation and thermal archive",
+      "url": "https://gdr.openei.org/submissions/1391",
+      "publisher": "DOE GDR; Ayling, Bridget, et al. (2022), GBCGE/NBMG/UNR",
+      "chunks_reviewed": [
+        0,
+        1,
+        2
+      ],
+      "claims": [
+        "DOI10.15121/1881483; CC-BY4; redistribution with attribution.",
+        "Includes shallow2m probes and paleo-hydrothermal features."
+      ],
+      "limits": "Archive staged by an earlier GitHub runner; hashes and local footprint/attributes rechecked this session. Availability of other listed layers does not imply they are staged.",
+      "status": "REVIEWED_OFFICIAL_SOURCE",
+      "last_reviewed": "2026-10-01"
+    },
+    {
+      "id": "thermal",
+      "title": "DOE-funded shallow thermal methods and limits",
+      "url": "https://gdr.openei.org/files/344/GTPMcGeeFinalReportEE0002830.pdf",
+      "publisher": "Richard Zehner; DOE grantEE0002830 (2014)",
+      "chunks_reviewed": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "claims": [
+        "Shallow2m surveys can delineate some steam-heated fault zones; seasonal adjustment used control stations.",
+        "Solar effects, hard substrates and shallow groundwater can obscure/mislead the thermal signal."
+      ],
+      "limits": "Supports testing a mechanism, not R15 performance or a geological discovery. McGee Mountain itself is outside our competition latitude bounds.",
+      "status": "REVIEWED_OFFICIAL_SOURCE",
+      "last_reviewed": "2026-10-01"
+    },
+    {
+      "id": "geodawn",
+      "title": "GeoDAWN airborne data",
+      "url": "https://www.usgs.gov/data/geodawn-airborne-magnetic-and-radiometric-surveys-northwestern-great-basin-nevada-and",
+      "publisher": "USGS; Glen and Earney (2024)",
+      "chunks_reviewed": [
+        0
+      ],
+      "claims": [
+        "DOI10.5066/P93LGLVQ; CC0-1.0.",
+        "Radiometry informs surface geology/soil composition; magnetics informs subsurface geology/structure.",
+        "Survey flight height/line spacing vary; 100m raster sampling is not uniform100m geological information resolution."
+      ],
+      "limits": "Local8-bit derivatives are pinned mirrors, not the original native full-precision grids.",
+      "status": "REVIEWED_OFFICIAL_SOURCE",
+      "last_reviewed": "2026-10-01"
+    },
+    {
+      "id": "structural",
+      "title": "Great Basin geothermal structural inventory",
+      "url": "https://www.osti.gov/dataexplorer/biblio/dataset/1148722",
+      "publisher": "DOE OSTI / University of Nevada; Faulds (2013)",
+      "chunks_reviewed": [
+        0
+      ],
+      "claims": [
+        "426 systems studied; settings determined for more than240.",
+        "Fault tips, stepovers, intersections, accommodation and transfer zones are structural classes."
+      ],
+      "limits": "Structural setting of a geothermal system is not proof every raster-ridge junction is permeable.",
+      "status": "REVIEWED_OFFICIAL_SOURCE",
+      "last_reviewed": "2026-10-01"
+    },
+    {
+      "id": "reference",
+      "title": "Organizer U-Net reference solution",
+      "url": "https://github.com/drivendataorg/gems-prize-reference-solution",
+      "publisher": "DrivenData organizer repository",
+      "chunks_reviewed": [
+        0
+      ],
+      "claims": [
+        "Official notebook trains U-Net/ResNet18 across5 Monte Carlo patch splits.",
+        "Missing input values below-1e38 are converted to NaN before normalization."
+      ],
+      "limits": "Notebook downloaded/read; model not trained here. Its random patch CV is not our blocked validation.",
+      "status": "REVIEWED_OFFICIAL_SOURCE",
+      "last_reviewed": "2026-10-01"
+    }
+  ]
+}

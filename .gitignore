@@ -10,3 +10,8 @@ data/external/
 __pycache__/
 *.pyc
 .ipynb_checkpoints/
+
+# Reproducible QA/browser artifacts and research-only export rasters
+.cache/
+.cache-*
+data/research_exports/

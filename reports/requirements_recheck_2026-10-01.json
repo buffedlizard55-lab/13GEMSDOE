@@ -1,0 +1,119 @@
+{
+  "generated_utc": "2026-10-01T04:52:47Z",
+  "branch": "arena/01a0f57b-13gemsdoe",
+  "primary_sha256": "b4570b406efec198eb2f4d142ad8d0d6184b14b66f2f52b5c4d697f0647dc9b2",
+  "primary_matches_frozen_reference": true,
+  "requirements": [
+    {
+      "requirement": "Very-top one-click primary TIFF and one-TIFF ZIP on root/docs/executive summary",
+      "state": "PASS_LOCAL_HTTP_AND_REAL_BROWSER",
+      "evidence": [
+        "docs/downloads/submit.json",
+        "index.html",
+        "docs/executive_summary.html",
+        ".cache/site_http.json",
+        ".cache/site_browser.json"
+      ]
+    },
+    {
+      "requirement": "Exact official grid, float32, single band, [0,1] inside, official outside placement",
+      "state": "PASS_LOCAL_BYTE_VERIFICATION",
+      "evidence": [
+        "reports/platform_encoding_evidence.json",
+        "docs/downloads/submit.json",
+        "scripts/verify_download.py"
+      ]
+    },
+    {
+      "requirement": "Unique filename and short note; no duplicate promoted experimental maps",
+      "state": "PASS_ARTIFACT_IDENTITY_NOT_SCORE_GUARANTEE",
+      "evidence": [
+        "docs/downloads/submit.json",
+        "scripts/make_submission.py"
+      ]
+    },
+    {
+      "requirement": "Investigate repeated0.1563 using prior sites/scores",
+      "state": "PASS_MEASURED_ARTIFACT_REUSE_SCORE_ATTRIBUTION_UNVERIFIED",
+      "evidence": [
+        "reports/sibling_site_audit_2026-10-01.json",
+        "reports/scored_forensics.json",
+        "reports/leaderboard_ledger.csv"
+      ]
+    },
+    {
+      "requirement": "Rank3-5 unimplemented hypotheses BEFORE implementation; specific data/signature/cost/novelty",
+      "state": "PASS_FROZEN_FOUR_HYPOTHESIS_REGISTER",
+      "evidence": [
+        "knowledge/11_r15_predeclared.md",
+        "reports/holdout_r15_2026-10-01.json"
+      ]
+    },
+    {
+      "requirement": "Obtain official free data autonomously; run data download/preparation/inference",
+      "state": "PASS_ACQUISITION_AND_LABEL_FREE_INFERENCE_NO_GPU_TRAINING_CLAIM",
+      "evidence": [
+        "reports/gdr1391_fetch.json",
+        "reports/external_manifest.json",
+        "reports/holdout_r15_2026-10-01.json",
+        "scripts/download_competition_data.sh"
+      ]
+    },
+    {
+      "requirement": "Validate top hypothesis against current best on blocked holdout before using a slot",
+      "state": "PASS_VALIDATION_FAILED_SCIENTIFIC_GATE_ZERO_UPLOADS",
+      "evidence": [
+        "knowledge/12_r15_results.md",
+        "reports/holdout_r15_2026-10-01.json"
+      ]
+    },
+    {
+      "requirement": "Current reusable knowledge/source tables and approved-source feed",
+      "state": "PASS_LOCAL_IMPLEMENTATION_HOSTED_ACTIVATION_UNVERIFIED",
+      "evidence": [
+        "reports/verified_sources_2026-10-01.json",
+        "docs/sources.html",
+        ".github/workflows/source-review.yml",
+        "scripts/publish_source_feed.py"
+      ]
+    },
+    {
+      "requirement": "Preserve/reread standing brief and Core Values",
+      "state": "PASS_VERBATIM_PRESERVED_AND_REREAD",
+      "brief_sha256": "ff89895f4ce89c217f7b4d2b77a6c11dfe20987d936b8ee6905447a4a327ef7b",
+      "evidence": [
+        "README.md",
+        "PROJECT_CHARTER.md",
+        "knowledge/archive/readme_through_session8.md"
+      ]
+    },
+    {
+      "requirement": "Three cumulative passes; bug/edge cases; final requirements recheck",
+      "state": "PASS_LOCAL_WITH_EXTERNAL_GATES_BLOCKED",
+      "evidence": [
+        "tests/test_site_and_feed.py",
+        "scripts/verify_site_browser.py",
+        "reports/site_review.json"
+      ]
+    },
+    {
+      "requirement": "PR merged to main / current Pages deployed / full deployed delivery test",
+      "state": "PENDING_CURRENT_PR_CI_MERGE_AND_DEPLOYED_DELIVERY",
+      "evidence": [
+        ".github/PR_BODY_CURRENT.md",
+        "scripts/finish_pr.sh"
+      ]
+    },
+    {
+      "requirement": "Platform acceptance and a leaderboard-winning geological submission",
+      "state": "NOT_ESTABLISHED_NO_AUTHENTICATED_COMPETITION_SESSION_NO_WINNING_R15",
+      "evidence": [
+        "reports/form_responses.json",
+        "knowledge/12_r15_results.md"
+      ]
+    }
+  ],
+  "scope_warning": "Local completion is not GitHub deployment, DrivenData acceptance, or a winning private-test score.",
+  "github_previous_push_attempt": "FAILED_AUTHENTICATION",
+  "github_current_publication_attempt": "AUTHENTICATION_RESTORED_PENDING_PUSH_PR_CI_MERGE"
+}

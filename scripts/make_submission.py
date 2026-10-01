@@ -11,12 +11,14 @@ minimum DTI across its stored withholding rules (not the highest mean). It is
 not automatically updated from newer holdouts and is not an upload gate; every
 artifact remains NOT_CLEARED until current paired direct-DTI confirmation.
 
-Outputs, into docs/downloads/ (session 7: written by gems.frontdoor.publish):
-    <stem>_A_zerofill.tif/.zip     PRIMARY: 0.0 outside the footprint, no NaN, no NoData tag
-    <stem>_B_nan-outside.tif/.zip  FALLBACK: NaN outside the footprint, NoData=nan
-    latest.tif/.zip = A, latest_nan.tif/.zip = B, submit.json (manifest + form note)
-    <name>.json, latest.json       provenance + a descriptive note for the form
-Both layouts: LZW striped, no TIFF predictor (the layout of the example submission).
+Outputs are RESEARCH ONLY in ignored data/research_exports/:
+    <stem>_nan-outside.tif/.zip   official-template convention
+    <stem>_zerofill.tif/.zip      diagnostic encoding twin
+    <stem>.json                  local checks and descriptive note
+No alias or live-site primary is changed. Historical clearance vs an older
+reference is NOT clearance against the current best. Promotion needs a fresh
+paired existing + geographic-block win and explicit evidence review.
+Both layouts: LZW striped, no predictor. Local format checks are not receipts.
 """
 from __future__ import annotations
 
@@ -43,7 +45,7 @@ from gems.rio import (EXPECTED_SHAPE, read_band, validate_submission,
 
 DER = ROOT / "data" / "derived"
 
-OUT = ROOT / "docs" / "downloads"
+OUT = ROOT / "data" / "research_exports"
 REP = ROOT / "reports"
 
 
@@ -81,7 +83,7 @@ def check_existing_prediction_identity(values: np.ndarray,
     exact_matches = []
     same_support = []
     checked = []
-    directories = [OUT, ROOT / "data" / "scored"]
+    directories = [OUT, ROOT / "docs" / "downloads", ROOT / "data" / "scored"]
     paths = sorted({p for directory in directories if directory.exists()
                     for p in directory.rglob("*.tif") if p.is_file()})
 
@@ -953,100 +955,29 @@ def main() -> None:
             "letters, digits, dot, underscore, or hyphen; omit extensions"
         )
     OUT.mkdir(parents=True, exist_ok=True)
-    reserved = [OUT / f"{name}_A_zerofill.tif", OUT / f"{name}_A_zerofill.zip",
-                OUT / f"{name}_B_nan-outside.tif", OUT / f"{name}_B_nan-outside.zip",
-                OUT / f"{name}.json"]
-    collisions = [str(path) for path in reserved if path.exists()]
-    if collisions:
-        raise FileExistsError(
-            "Submission names are immutable and must be unique; already exists: "
-            + ", ".join(collisions)
-        )
-
+    reserved = [OUT / f"{name}_nan-outside.tif", OUT / f"{name}_nan-outside.zip",
+                OUT / f"{name}_zerofill.tif", OUT / f"{name}_zerofill.zip", OUT / f"{name}.json"]
+    if any(p.exists() for p in reserved):
+        raise FileExistsError("Immutable research export name already exists")
     identity = check_existing_prediction_identity(pred, valid)
-
-    # Short, one-line note for the DrivenData "Note" field (<= 160 chars).
-    flavour = ("local holdout win, not a LB claim"
-               if clearance_override and clearance_override["status"].startswith("CLEARED")
-               else "local reference only, not a LB claim" if clearance_override
-               else "review only, NOT cleared")
-    short_note = f"{name} A-zerofill | {note_bits} | {flavour}"
-    if len(short_note) > frontdoor.MAX_NOTE_CHARS:
-        room = frontdoor.MAX_NOTE_CHARS - len(f"{name} A-zerofill |  | {flavour}") - 1
-        short_note = f"{name} A-zerofill | {note_bits[:max(room, 0)].rstrip()}~ | {flavour}"
-    short_note = short_note[:frontdoor.MAX_NOTE_CHARS]
-
-    # --- Front door (session 7). Policy and evidence: knowledge/02_irregularities.md
-    # I-8, I-18, I-19; src/gems/frontdoor.py. Two encodings of the SAME map are
-    # written in the official example's byte layout (LZW, one-row strips, NO predictor):
-    #   A  {name}_A_zerofill.tif      0.0 outside the footprint, no NoData tag -> UPLOAD FIRST
-    #   B  {name}_B_nan-outside.tif   NaN outside, NoData=nan (problem-page convention)
-    # frontdoor.publish() re-reads the written bytes with three TIFF readers, refuses to
-    # release on any failure, refreshes latest.* and writes docs/downloads/submit.json
-    # (which the site, README and scripts/verify_download.py all read).
-    manifest = frontdoor.publish(
-        OUT, name, pred, valid, note=short_note,
-        source={"recipe": det, "artifact_json": f"docs/downloads/{name}.json",
-                "prediction_identity": identity},
-        status={"artifact_status": ((clearance_override["status"]
-                                     if clearance_override["status"].startswith("CLEARED")
-                                     else "BEST_LOCAL_REFERENCE_LOCAL_PROXY_ONLY")
-                                    if clearance_override else "REVIEW_ONLY_NOT_CLEARED"),
-                "form_response_recorded": None,
-                "form_responses_log": "reports/form_responses.json"})
-    for label in ("A", "B"):
-        f = manifest["local_verification"][label]
-        print(f"\n[{label}] {f['layout']} nan={f['n_nan']} range=[{f['min']}, {f['max']}] "
-              f"positive={f['n_positive']:,}")
-
-    note = (note_bits
-            + ("" if clearance_override else
-               (", binary 0/1"
-                + (", catalogue included (masked at scoring)"
-                   if not a.no_catalogue else "")))
-            + (("; R11 holdout WIN vs topo_05_sp3 (18/18 folds), NOT a private-test claim"
-                if clearance_override["status"].startswith("CLEARED")
-                else "; local holdout reference recipe, NOT a private-test claim")
-               if clearance_override else
-               "; generated for review only, NOT CLEARED by format/identity checks"))
-
-    prov_out = {
-        "name": name, "generated_utc": stamp, "note_for_submission_form": short_note,
-        "long_description": note,
-        "recipe_selection": prov or {"mode": "manual override"},
-        "map_stats": stats,
-        "front_door_manifest": "docs/downloads/submit.json",
-        "local_verification": manifest["local_verification"],
-        "artifact_status": ((clearance_override["status"]
-                             if clearance_override["status"].startswith("CLEARED")
-                             else "BEST_LOCAL_REFERENCE_LOCAL_PROXY_ONLY")
-                            if clearance_override else "REVIEW_ONLY_NOT_CLEARED"),
-        "submission_clearance": clearance_override or {
-            "status": "NOT_CLEARED",
-            "reason": "Format validation does not establish a DTI gain. Re-run the current paired direct-DTI multi-rule holdout against the latest local best before considering an upload.",
-            "private_test_claim": False,
-            "upload_allowed": False,
-        },
-        "prediction_identity": identity,
-        "primary_upload": {
-            "front_door_manifest": "docs/downloads/submit.json",
-            "primary_A": manifest["primary_A"]["file"],
-            "fallback_B": manifest["fallback_B"]["file"],
-        },
-        "metric_facts": {
-            "DTI_is_distance_weighted_F2": True,
-            "marginal_precision_needed_to_help": "0.2 x current DTI",
-            "binary_is_optimal": "DTI(c*p) strictly increases in c",
-        },
-        "official_format_source":
-            "https://www.drivendata.org/competitions/306/competition-doe-gems/page/967/",
-    }
-    (OUT / f"{name}.json").write_text(json.dumps(prov_out, indent=2))
-    shutil.copyfile(OUT / f"{name}.json", OUT / "latest.json")
-    (REP / "latest_submission.json").write_text(json.dumps(prov_out, indent=2))
-    print(f"\nWROTE {OUT}/{name}_A_zerofill.tif (PRIMARY) + _B_nan-outside.tif, zips, submit.json, latest.*")
-    print(f"NOTE  {short_note}")
-    print("NEXT  python scripts/build_site.py && python scripts/verify_download.py")
+    note = f"{name} | {note_bits} | RESEARCH ONLY, not cleared against current best"
+    note = note[:frontdoor.MAX_NOTE_CHARS].replace("\n", " ").replace("\r", " ")
+    paths = frontdoor.write_pair(OUT, name, pred, valid)
+    checks = frontdoor.check_pair(paths["primary"], paths["hedge"], valid)
+    if frontdoor._all_ok(checks):
+        raise RuntimeError("Research export failed local format/reader checks")
+    report = {"name": name, "generated_utc": stamp, "note_for_submission_form": note,
+              "recipe": det, "recipe_selection": prov, "map_stats": stats,
+              "prediction_identity": identity, "local_verification": checks,
+              "files": {k: str(v.relative_to(ROOT)) for k, v in paths.items()},
+              "historical_clearance_not_current": clearance_override,
+              "submission_clearance": {"status": "RESEARCH_ONLY_NOT_CLEARED_AGAINST_CURRENT_BEST",
+                                       "upload_allowed": False, "private_test_claim": False},
+              "site_primary_changed": False, "competition_upload_performed": False}
+    (OUT / f"{name}.json").write_text(json.dumps(report, indent=2, allow_nan=False) + "\n")
+    print("RESEARCH EXPORT", paths["primary"].relative_to(ROOT))
+    print("NOTE", note)
+    print("No live download or alias changed. A fresh current-best holdout win is required before promotion.")
 
 
 if __name__ == "__main__":

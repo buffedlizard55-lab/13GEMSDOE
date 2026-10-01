@@ -1,260 +1,44 @@
 <!doctype html>
-<html lang="en"><head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Evidence — 13GEMSDOE</title>
-<meta name="description" content="GEMS Prize Challenge: download the current submission GeoTIFF from the front page, plus the audited scoring metric, holdout evidence, and the recorded DrivenData form responses behind it.">
-<link rel="stylesheet" href="assets/style.css">
-</head><body>
-<header class="site"><div class="wrap">
-  <a class="brand" href="index.html">13<span>GEMS</span>DOE</a>
-  <nav class="site"><a href="index.html" class="">Submit</a><a href="executive_summary.html" class="">How to submit</a><a href="evidence.html" class="on">Evidence</a><a href="hypotheses.html" class="">Hypotheses</a><a href="sources.html" class="">Sources</a></nav>
-</div></header>
-<div class="dlbar"><div class="wrap">
-  <span class="lbl">SUBMISSION FILE</span>
-  <a class="dlb" href="downloads/13gems_20261001_r13-lattice-s5_v2_nan-outside.tif" download>⬇ Download 13gems_20261001_r13-lattice-s5_v2_nan-outside.tif (1.7 MB)</a>
-  <a class="dlz" href="downloads/13gems_20261001_r13-lattice-s5_v2_nan-outside.zip" download>.zip</a>
-  <a class="dlh" href="executive_summary.html">How to submit →</a>
-</div></div>
-
-<main class="wrap">
-<section>
-  <h2>1 · The metric, audited before the model</h2>
-  <p class="lede">Every algebraic claim was re-derived and then checked numerically,
-  including a brute-force reconstruction of the organizers' published worked example.</p>
-  <div class="grid g2">
-    <div class="panel" style="padding:0"><div class="scroll" style="border:0;max-height:420px">
-      <table><thead><tr><th>check</th><th>result</th></tr></thead><tbody><tr><td class='mono'>kernel_offsets_count</td><td><span class='tag t-ok'>PASS</span></td></tr><tr><td class='mono'>worked_example_direct_formula</td><td><span class='tag t-ok'>PASS</span></td></tr><tr><td class='mono'>worked_example_FN_equals_G_minus_TP</td><td><span class='tag t-ok'>PASS</span></td></tr><tr><td class='mono'>worked_example_reduced_formula_matches</td><td><span class='tag t-ok'>PASS</span></td></tr><tr><td class='mono'>worked_example_is_weighted_harmonic_mean</td><td><span class='tag t-ok'>PASS</span></td></tr><tr><td class='mono'>worked_example_raster_reconstructed</td><td><span class='tag t-ok'>PASS</span></td></tr><tr><td class='mono'>identity_FN_w_equals_G_minus_TP_w</td><td><span class='tag t-ok'>PASS</span></td></tr><tr><td class='mono'>identity_reduced_formula</td><td><span class='tag t-ok'>PASS</span></td></tr><tr><td class='mono'>identity_weighted_harmonic_mean</td><td><span class='tag t-ok'>PASS</span></td></tr><tr><td class='mono'>consequenceA_marginal_precision_rule</td><td><span class='tag t-ok'>PASS</span></td></tr><tr><td class='mono'>consequenceB_uniform_scaling_monotone</td><td><span class='tag t-ok'>PASS</span></td></tr><tr><td class='mono'>consequenceC_recall_beats_precision_iff_P_gt_quarter_R</td><td><span class='tag t-ok'>PASS</span></td></tr></tbody></table>
-    </div></div>
-    <div class="panel">
-      <h3 style="margin-top:0">Reconstructing the official example</h3>
-      <p class="small">The schematic is published only as an image, so we searched all
-      binary prediction patterns of 3–6 pixels on a 9×11 grid against a 5-pixel vertical
-      truth line. Prediction pixels {(0,3), (0,7), (4,5)} give:</p>
-      <pre><code>TP_w = 3.0000   (official 3.00)
-FP_w = 1.8856   (official 1.89)
-FN_w = 2.0000   (official 2.00)
-DTI  = 0.6028 → 0.60  ✓</code></pre>
-      <p class="small">A single prediction on the centre of the line supplies all
-      3.00 of TP_w (1 + 2/3 + 2/3 + 1/3 + 1/3) at zero FP cost; the two distant
-      pixels supply 1.8856 of FP_w. This is one configuration reproducing the published
-      triple, not necessarily the exact schematic — the algebraic identities are what
-      is exact.</p>
-    </div>
-  </div>
-</section>
-
-<section>
-  <h2>2 · Score attribution and structural identity</h2>
-  <div class="callout warn">
-    <p><b>No per-submission score has been verified against these local TIFFs.</b>
-    The official leaderboard column is account-level “Best public DW-Tversky”.
-    Historical filename/team-note values below are reported labels only, not score
-    receipts. The public chance/lift inference based on them is withdrawn.</p>
-  </div>
-  <p class="small">Exact byte identity, canonical pixel-value identity, and positive-
-  support identity are measured separately. Equal rounded labels establish none of
-  them; different maps can also receive the same score rounded to four decimals.</p>
-  <div class="scroll"><table><thead><tr><th>map A</th><th>map B</th>
-  <th class="num">reported label A<br>(not receipt)</th>
-  <th class="num">reported label B<br>(not receipt)</th>
-  <th>identical TIFF bytes</th><th>identical canonical pixels</th>
-  <th>identical unmasked support</th><th class="num">all-support IoU</th>
-  <th class="num">unmasked-support IoU</th></tr></thead><tbody><tr><td class='mono'>gems8_apex_LB0.1563</td><td class='mono'>gemsdoe1_ens12_LB0.1563</td><td class='num'>0.1563</td><td class='num'>0.1563</td><td>no</td><td>no</td><td>no</td><td class='num'>0.0670</td><td class='num'>0.0623</td></tr><tr><td class='mono'>gemsdoe1_ens12_LB0.1563</td><td class='mono'>gemsdoe2_dualunion_LB0.1560</td><td class='num'>0.1563</td><td class='num'>0.1560</td><td>no</td><td>no</td><td>no</td><td class='num'>0.9419</td><td class='num'>0.9464</td></tr><tr><td class='mono'>gems6_hgb88_LB0.0286</td><td class='mono'>gems8_apex_LB0.1563</td><td class='num'>0.0286</td><td class='num'>0.1563</td><td>no</td><td>no</td><td>no</td><td class='num'>0.2647</td><td class='num'>0.2460</td></tr><tr><td class='mono'>gems7_halo15_LB0.1461</td><td class='mono'>gems8_apex_LB0.1563</td><td class='num'>0.1461</td><td class='num'>0.1563</td><td>no</td><td>no</td><td>no</td><td class='num'>0.2313</td><td class='num'>0.2048</td></tr><tr><td class='mono'>gems3_pindrop_nodes_LB0.1193</td><td class='mono'>gems3_pindrop_ridge_LB0.1152</td><td class='num'>0.1193</td><td class='num'>0.1152</td><td>no</td><td>no</td><td>no</td><td class='num'>0.1076</td><td class='num'>0.1076</td></tr><tr><td class='mono'>gems6_hgb88_LB0.0286</td><td class='mono'>gems7_halo15_LB0.1461</td><td class='num'>0.0286</td><td class='num'>0.1461</td><td>no</td><td>no</td><td>no</td><td class='num'>0.0830</td><td class='num'>0.0726</td></tr><tr><td class='mono'>gems3_pindrop_ridge_LB0.1152</td><td class='mono'>gems6_hgb88_LB0.0286</td><td class='num'>0.1152</td><td class='num'>0.0286</td><td>no</td><td>no</td><td>no</td><td class='num'>0.0828</td><td class='num'>0.0902</td></tr><tr><td class='mono'>gems6_hgb88_LB0.0286</td><td class='mono'>gemsdoe2_dualunion_LB0.1560</td><td class='num'>0.0286</td><td class='num'>0.1560</td><td>no</td><td>no</td><td>no</td><td class='num'>0.0816</td><td class='num'>0.0735</td></tr></tbody></table></div>
-  <p class="small">Canonical pixels are decoded float32 values after non-finite and
-  outside-valid cells are set to zero. Full SHA-256 values and exact support comparisons
-  are in <code>reports/scored_forensics.json</code> and the ledger.</p>
-
-  <h3>Catalogue-distance diagnostics (not score attribution)</h3>
-  <div class="scroll"><table><thead><tr><th>local artifact</th>
-  <th class="num">historical score label<br>(unverified)</th>
-  <th class="num">positive pixels</th><th class="num">coverage</th>
-  <th class="num">distinct values</th>
-  <th class="num">mass on/within 300 m of known faults</th>
-  <th class="num">positive pixels outside known mask</th>
-  <th class="num">unmasked prediction mass</th></tr></thead>
-  <tbody><tr><td class='mono'>gems3_pindrop_discovery_LB0.0830</td><td class='num'>0.0830</td><td class='num'>155,021</td><td class='num'>3.00%</td><td class='num'>1</td><td class='num'>7.7%</td><td class='num'>155,021</td><td class='num'>3.00%</td></tr><tr><td class='mono'>gems3_pindrop_nodes_LB0.1193</td><td class='num'>0.1193</td><td class='num'>155,021</td><td class='num'>3.00%</td><td class='num'>1</td><td class='num'>8.1%</td><td class='num'>155,021</td><td class='num'>3.00%</td></tr><tr><td class='mono'>gems3_pindrop_ridge_LB0.1152</td><td class='num'>0.1152</td><td class='num'>155,021</td><td class='num'>3.00%</td><td class='num'>1</td><td class='num'>18.1%</td><td class='num'>155,021</td><td class='num'>3.00%</td></tr><tr><td class='mono'>gems6_hgb88_LB0.0286</td><td class='num'>0.0286</td><td class='num'>155,021</td><td class='num'>3.00%</td><td class='num'>1</td><td class='num'>69.5%</td><td class='num'>131,416</td><td class='num'>2.54%</td></tr><tr><td class='mono'>gems7_halo15_LB0.1461</td><td class='num'>0.1461</td><td class='num'>1,828,699</td><td class='num'>35.39%</td><td class='num'>643</td><td class='num'>39.9%</td><td class='num'>1,767,711</td><td class='num'>10.61%</td></tr><tr><td class='mono'>gems8_apex_LB0.1563</td><td class='num'>0.1563</td><td class='num'>427,862</td><td class='num'>8.28%</td><td class='num'>72,781</td><td class='num'>90.8%</td><td class='num'>366,874</td><td class='num'>2.94%</td></tr><tr><td class='mono'>gemsdoe1_ens12_LB0.1563</td><td class='num'>0.1563</td><td class='num'>172,974</td><td class='num'>3.35%</td><td class='num'>1</td><td class='num'>20.2%</td><td class='num'>166,519</td><td class='num'>3.22%</td></tr><tr><td class='mono'>gemsdoe2_dualunion_LB0.1560</td><td class='num'>0.1560</td><td class='num'>183,642</td><td class='num'>3.55%</td><td class='num'>1</td><td class='num'>21.8%</td><td class='num'>175,949</td><td class='num'>3.40%</td></tr></tbody></table></div>
-  <p class="small">The “unmasked” columns are positive support/mass in valid pixels
-  outside the exact known-fault mask, useful for map-identity comparisons. They are not
-  true-positive or chargeable support because the new-fault truth is hidden. Proximity
-  to the known catalogue likewise does not reveal score: new-fault pixels can lie within
-  300 m of known traces, while other nearby predictions are penalized when not close to
-  new-fault truth.</p>
-</section>
-
-<section>
-  <h2>3 · Local hide-and-recover comparison</h2>
-  <p class="lede">Withhold catalogue systems and raw raster segments with buffers,
-  rebuild catalogue-derived features from visible geometry, apply the organizer's
-  pixel-exact known-fault mask, and score DTI on withheld truth only. This tests
-  recovery of known catalogue geometry; it does not recreate the undisclosed test
-  distribution or estimate private-test performance.</p>
-  
-  <p class="small"><b>Protocol:</b> 18 folds total —
-  3 folds for each of
-  random, short, isolated, oriented, dense system-withholding rules, plus
-  3 raw 8-connected segment folds. Approximately
-  25% of known fault mass withheld per fold;
-  5-pixel evaluation buffer. Catalogue-derived
-  tip/horsetail features are rebuilt per fold from visible catalogue; the exact
-  visible known-fault mask is applied; DTI is scored on withheld truth only.
-  The low-slope-third slice is reported only as a robustness stress test.</p>
-  <div class="scroll"><table><thead><tr><th>recipe</th>
-  <th class="num">worst-rule mean DTI</th><th class="num">overall mean DTI</th>
-  <th class="num">mean weighted precision</th><th class="num">mean weighted recall</th>
-  <th class="num">mean effective positive support</th><th class='num'>random</th><th class='num'>short</th><th class='num'>isolated</th><th class='num'>oriented</th><th class='num'>dense</th><th class='num'>segment_random</th></tr></thead>
-  <tbody><tr><td>BASE_topo_ridge · 5% · spacing 3</td><td class='num'>0.0869</td><td class='num'>0.0976</td><td class='num'>0.0276</td><td class='num'>0.2874</td><td class='num'>185,290</td><td class='num'>0.0916</td><td class='num'>0.0876</td><td class='num'>0.0909</td><td class='num'>0.1271</td><td class='num'>0.1018</td><td class='num'>0.0869</td></tr><tr><td>BASE_topo_ridge · 3% · spacing 3</td><td class='num'>0.0780</td><td class='num'>0.0865</td><td class='num'>0.0291</td><td class='num'>0.1810</td><td class='num'>110,543</td><td class='num'>0.0828</td><td class='num'>0.0792</td><td class='num'>0.0875</td><td class='num'>0.1048</td><td class='num'>0.0869</td><td class='num'>0.0780</td></tr><tr><td>R8 union · spacing 3</td><td class='num'>0.0558</td><td class='num'>0.0662</td><td class='num'>0.0161</td><td class='num'>0.3292</td><td class='num'>366,415</td><td class='num'>0.0558</td><td class='num'>0.0573</td><td class='num'>0.0590</td><td class='num'>0.0900</td><td class='num'>0.0625</td><td class='num'>0.0723</td></tr><tr><td>R8 without catalogue geometry · spacing 3</td><td class='num'>0.0633</td><td class='num'>0.0722</td><td class='num'>0.0181</td><td class='num'>0.3125</td><td class='num'>309,387</td><td class='num'>0.0650</td><td class='num'>0.0661</td><td class='num'>0.0685</td><td class='num'>0.0981</td><td class='num'>0.0720</td><td class='num'>0.0633</td></tr></tbody></table></div>
-  <p class="small">These are local known-catalogue recovery scores, not performance
-  estimates for the undisclosed test distribution. Candidate selection and this table
-  use direct DTI; historical candidate-to-chance ratios have been withdrawn. The
-  random-control check is an approximate same-run diagnostic, not a universal baseline
-  or submission-clearance criterion.</p>
-</section>
-
-<section>
-  <h2>3b · R9 paired validation — three new hypotheses, one predeclared verdict each</h2>
-  <p class="lede">Same folds, same buffer, same scorer, same tune/confirm split as the
-  R8 comparison. The reference is re-scored in the same run, so every delta is paired.
-  H9 = strike-aligned gap completion; H10 = epicentral-alignment lineaments;
-  H11 = parallel-offset correction edges.</p>
-  
-  <p class="small"><b>R9 protocol regression check:</b>
-  PASS — the reference row reproduces the archived per-fold DTI values exactly (18 folds compared).
-  Predeclared decision rule and all 144 scored rows:
-  <code>reports/holdout_r9_2026-09-30.json</code>.</p>
-  <div class="scroll"><table><thead><tr><th>R9 candidate</th>
-  <th class="num">worst-rule mean DTI</th><th class="num">mean DTI</th>
-  <th class="num">ΔDTI vs ref</th><th class="num">W/T/L</th><th>verdict</th>
-  <th class='num'>random</th><th class='num'>short</th><th class='num'>isolated</th><th class='num'>oriented</th><th class='num'>dense</th><th class='num'>segment_random</th></tr></thead><tbody><tr><td>BASE_topo_ridge · 5% · sp3 — REFERENCE</td><td class='num'>0.0869</td><td class='num'>0.0976</td><td class='num'>—</td><td class='num'>—</td><td>reference</td><td class='num'>0.0916</td><td class='num'>0.0876</td><td class='num'>0.0909</td><td class='num'>0.1271</td><td class='num'>0.1018</td><td class='num'>0.0869</td></tr><tr><td>H9 strict gap-close (min_side 2)</td><td class='num'>0.0869</td><td class='num'>0.0976</td><td class='num'>-0.00001</td><td class='num'>0/0/12</td><td>LOSES (confirmation rule-means won: 0/6)</td><td class='num'>0.0916</td><td class='num'>0.0876</td><td class='num'>0.0909</td><td class='num'>0.1270</td><td class='num'>0.1017</td><td class='num'>0.0869</td></tr><tr><td>H11 parallel-offset corrections</td><td class='num'>0.0869</td><td class='num'>0.0976</td><td class='num'>-0.00001</td><td class='num'>0/0/12</td><td>LOSES (confirmation rule-means won: 0/6)</td><td class='num'>0.0916</td><td class='num'>0.0876</td><td class='num'>0.0909</td><td class='num'>0.1271</td><td class='num'>0.1017</td><td class='num'>0.0869</td></tr><tr><td>H10 epicentral alignment (1.5%)</td><td class='num'>0.0846</td><td class='num'>0.0955</td><td class='num'>-0.00213</td><td class='num'>0/0/12</td><td>LOSES (confirmation rule-means won: 0/6)</td><td class='num'>0.0891</td><td class='num'>0.0869</td><td class='num'>0.0890</td><td class='num'>0.1247</td><td class='num'>0.0987</td><td class='num'>0.0846</td></tr><tr><td>H9 loose gap-close (min_side 1)</td><td class='num'>0.0629</td><td class='num'>0.0719</td><td class='num'>-0.02571</td><td class='num'>0/0/12</td><td>LOSES (confirmation rule-means won: 0/6)</td><td class='num'>0.0659</td><td class='num'>0.0634</td><td class='num'>0.0655</td><td class='num'>0.0988</td><td class='num'>0.0750</td><td class='num'>0.0629</td></tr><tr><td>topo 8% + loose gap-close</td><td class='num'>0.0530</td><td class='num'>0.0610</td><td class='num'>-0.03665</td><td class='num'>0/0/12</td><td>LOSES (confirmation rule-means won: 0/6)</td><td class='num'>0.0540</td><td class='num'>0.0546</td><td class='num'>0.0542</td><td class='num'>0.0848</td><td class='num'>0.0652</td><td class='num'>0.0530</td></tr><tr><td>topo 8% + loose gaps + epicentral</td><td class='num'>0.0528</td><td class='num'>0.0609</td><td class='num'>-0.03678</td><td class='num'>0/0/12</td><td>LOSES (confirmation rule-means won: 0/6)</td><td class='num'>0.0539</td><td class='num'>0.0545</td><td class='num'>0.0541</td><td class='num'>0.0848</td><td class='num'>0.0649</td><td class='num'>0.0528</td></tr><tr><td>topo 8% + loose gaps + epicentral + corrections</td><td class='num'>0.0528</td><td class='num'>0.0608</td><td class='num'>-0.03678</td><td class='num'>0/0/12</td><td>LOSES (confirmation rule-means won: 0/6)</td><td class='num'>0.0539</td><td class='num'>0.0545</td><td class='num'>0.0541</td><td class='num'>0.0848</td><td class='num'>0.0649</td><td class='num'>0.0528</td></tr></tbody></table></div>
-  <p class="small"><b>Metric reading (audit A5):</b> the loose gap-fill added a mean of
-  145,608 evaluation pixels per fold and lost 0.0257 mean DTI — its marginal weighted
-  precision was below the <code>0.2 × DTI</code> inclusion bar, so the metric itself
-  predicted the loss. The strict gap-close (+32 px) and the corrections detector
-  (+26 px) changed nothing measurably; the epicentral alignment (+16,590 px) cost
-  −0.0021. None is fragile-or-better: all LOSE under the predeclared rule.</p>
-</section>
-
-<section>
-  <h2>4 · Verified organizer statements</h2>
-  <div class="panel">
-    <p><b>chrisk-dd (DrivenData Staff), Sep 21 —</b>
-    <a href="https://community.drivendata.org/t/scoring-clarification-are-known-usgs-ingenious-faults-masked-when-scoring-and-are-they-in-the-final-round-label-set/11516/4">thread 11516, post 4</a></p>
-    <blockquote class="small">1. The mask is indeed pixel-exact - it is identical to the
-    provided set of training fault labels.<br>
-    2. Only new-fault ground truth is considered for scoring purposes. A predicted pixel
-    that is near a known fault trace but far from a new-fault ground truth pixel will be
-    fully penalized, i.e., the buffer does not apply to known faults.<br>
-    3. A new-fault ground truth pixel can indeed lie within 300m of a known fault trace.
-    Such pixels would constitute corrections or modifications to existing fault traces.</blockquote>
-  </div>
-  <div class="panel">
-    <p><b>chrisk-dd (DrivenData Staff) —</b>
-    <a href="https://community.drivendata.org/t/where-do-you-draw-the-line/11536">thread 11536</a></p>
-    <blockquote class="small">For the purposes of this competition, “new fault” means
-    “any fault pixel not already captured by USGS/INGENIOUS” and can include newly mapped
-    geometry of an existing fault system.</blockquote>
-  </div>
-  <p class="small">All four claims carried into this work were checked word-by-word
-  against the forum and all four are accurate. Full transcript and verdicts:
-  <a href="https://github.com/buffedlizard55-lab/13GEMSDOE/blob/main/knowledge/01_verified_facts.md">knowledge/01_verified_facts.md</a>.</p>
-</section>
-
-<section>
-  <h2>5 · Open irregularities</h2>
-  <div class="grid g2">
-    <div class="panel"><h3 style="margin-top:0"><span class="tag t-bad">🔴 I-1</span>
-      example_submission.tif is the fault catalogue</h3>
-      <p class="small">Our mirrored template is value-identical to
-      <code>existing_faults.tif</code> (60,988 ones), but the official page says the
-      sample “predicts total fault absence”. Needs a logged-in re-download to settle.</p></div>
-    <div class="panel"><h3 style="margin-top:0"><span class="tag t-warn">🟠 I-4</span>
-      Account ownership is unverified</h3>
-      <p class="small">Score/rank matches do not establish who controls leaderboard
-      accounts. The repository makes no allegation of shared ownership or an
-      eligibility violation; see the official rules and resolve only from verified
-      account records.</p></div>
-    <div class="panel"><h3 style="margin-top:0"><span class="tag t-ok">🟢 I-2 RESOLVED</span>
-      Band 6 <code>tc</code> <b>is</b> the radiometric total count</h3>
-      <p class="small">Measured against the official USGS GeoDAWN radiometric grid
-      (<code>radiometric::rad_tc</code>, DOI 10.5066/P93LGLVQ): Spearman
-      ρ <b>0.99998</b>, Pearson r 0.99902,
-      OLS slope 1.0073,
-      R² 0.9980, RMSE 0.196 band-6
-      units, median ratio 1.00000. The physical
-      closure test also passes — band6 ≈ 7.54 × (K + Th + U) at ρ 0.99577 —
-      which no tilt angle or curvature can satisfy. Its embedded description
-      (“Tilt angle <i>or</i> total curvature — magnetic field derivative for edge
-      detection”) does not describe the array: that is a documentation defect worth
-      raising with the organisers. The earlier “disproved” verdict relied on an unverified
-      units assumption (that a count rate must be 10²–10⁴ cps); the official grid itself
-      spans 5.47–30.27 here, and band 6 keeps a tail to 88.57 that the 8-bit product
-      clips. Measured by <code>scripts/audit_band6_identity.py</code> →
-      <code>reports/band6_identity.json</code>.</p></div>
-    <div class="panel"><h3 style="margin-top:0"><span class="tag t-warn">🟡 I-6</span>
-      Dated leaderboard snapshot</h3>
-      <p class="small">Fetched 2026-09-30: <b>0.3168</b> (DARD) and
-      <b>0.3042</b> (alexoktaba). Both are account-level “Best public” values,
-      not per-submission receipts.</p></div>
-  </div>
-  <p class="small">Full list with evidence and actions:
-  <a href="https://github.com/buffedlizard55-lab/13GEMSDOE/blob/main/knowledge/02_irregularities.md">knowledge/02_irregularities.md</a>.</p>
-</section>
-
-<section>
-  <h2>6 · Official external data — staging, verification, measurement</h2>
-  <p class="lede">Everything below is free, official and public domain. Each file was
-  verified twice before use, and every map built from them was measured on the same
-  paired holdout protocol as the internal detectors.</p>
-  <div class="scroll"><table><thead><tr><th>file</th><th class="num">bytes</th>
-    <th>sha256 (prefix)</th><th>git blob (prefix)</th><th>official source</th>
-    <th>double-verified</th></tr></thead><tbody><tr><td class='mono small'>lidar_scarp_features_u8.tif</td><td class='num'>36,943,606</td><td class='mono small'>d580bb8bdcdb941e…</td><td class='mono small'>da733b53147e…</td><td class='small'>USGS 3DEP 1 m DEM (716 tiles) -&gt; 2 m morphometrics -&gt; 100 m aggregate</td><td>✅ both</td></tr><tr><td class='mono small'>geodawn_rad_u8.tif</td><td class='num'>26,612,970</td><td class='mono small'>c22420f75999030d…</td><td class='mono small'>80704748f974…</td><td class='small'>https://doi.org/10.5066/P93LGLVQ (K, Th, U, TC)</td><td>✅ both</td></tr><tr><td class='mono small'>geodawn_extensions_u8.tif</td><td class='num'>27,132,925</td><td class='mono small'>a35a9c6d2a14786f…</td><td class='mono small'>2fb1d57fdd33…</td><td class='small'>https://doi.org/10.5066/P93LGLVQ (Th/K, U/K, U/Th, TMI up-150 m)</td><td>✅ both</td></tr><tr><td class='mono small'>qfaults_prior_u8.tif</td><td class='num'>873,834</td><td class='mono small'>538b45735833b341…</td><td class='mono small'>b6b4c2193fad…</td><td class='small'>https://earthquake.usgs.gov/static/lfs/nshm/qfaults/Qfaults_GIS.zip (https://doi.org/10.5066/P9BCVRCK)</td><td>✅ both</td></tr><tr><td class='mono small'>topo_u8.tif</td><td class='num'>32,523,329</td><td class='mono small'>a6398d9950965dec…</td><td class='mono small'>5388687c1396…</td><td class='small'>USGS 3DEP DEM -&gt; 9 topographic channels at 100 m</td><td>✅ both</td></tr><tr><td class='mono small'>radiometric_u8.tif</td><td class='num'>25,475,158</td><td class='mono small'>6cb051f70f941fd7…</td><td class='mono small'>dfc512ff03c0…</td><td class='small'>https://doi.org/10.5066/P93LGLVQ -&gt; 7 radiometric channels at 100 m</td><td>✅ both</td></tr></tbody></table></div>
-  <p class="small">Licence: USGS public domain (U.S. Government works); attribution required: &#x27;Map services and data available from U.S. Geological Survey, National Geospatial Program.&#x27; and the GeoDAWN data-release citation Glen, J.M.G., and Earney, T.E., 2024, https://doi.org/10.5066/P93LGLVQ.
-  Egress caveat: sciencebase.gov / usgs.gov / prd-tnm.s3.amazonaws.com are TLS-blocked from this sandbox (limitation L-2); files are fetched from the sibling-repo GitHub mirrors that staged them in open-egress runners. Pins:
-  <code>reports/external_manifest.json</code>; per-file provenance records:
-  <code>reports/external_provenance/</code>.</p>
-  <div class="grid g2">
-    <div class="panel"><h3 style="margin-top:0">Grid and catalogue checks</h3>
-      <p class="small">All six products conform exactly to the competition grid
-      (EPSG:32611, 100 m, 3730×3292, transform 243350 / 4508550). The
-      QFFDB-minus-provided-catalogue difference — the “missing faults are just the
-      national database” hypothesis — measures <b>{&#x27;source&#x27;: &#x27;USGS Quaternary fault and fold database (QFFDB), https://earthquake.usgs.gov/static/lfs/nshm/qfaults/Qfaults_GIS.zip, https://doi.org/10.5066/P9BCVRCK, re-gridded onto the competition grid by buffedlizard55-lab/7GEMSDOE (sha256-pinned)&#x27;, &#x27;R_px&#x27;: 3, &#x27;R_m&#x27;: 300, &#x27;definition&#x27;: &#x27;a QFFDB trace pixel with no PROVIDED training label within R px (Euclidean distance transform)&#x27;, &#x27;coarse_trace&#x27;: {&#x27;px_total&#x27;: 138416, &#x27;px_inside_footprint&#x27;: 58251, &#x27;px_outside_footprint&#x27;: 80165, &#x27;px_inside_footprint_with_no_label_within_R&#x27;: 0}, &#x27;fine_trace&#x27;: {&#x27;px_total&#x27;: 30877, &#x27;px_inside_footprint&#x27;: 2754, &#x27;px_outside_footprint&#x27;: 28123, &#x27;px_inside_footprint_with_no_label_within_R&#x27;: 1}, &#x27;lower_certainty_trace&#x27;: {&#x27;px_total&#x27;: 670, &#x27;px_inside_footprint&#x27;: 0, &#x27;px_outside_footprint&#x27;: 670, &#x27;px_inside_footprint_with_no_label_within_R&#x27;: 0}, &#x27;union_all_bands&#x27;: {&#x27;px_total&#x27;: 169115, &#x27;px_inside_footprint&#x27;: 60939, &#x27;px_outside_footprint&#x27;: 108176, &#x27;px_inside_footprint_with_no_label_within_R&#x27;: 1, &#x27;fraction_of_in_footprint_traces_already_covered_within_R&#x27;: 0.99998359}, &#x27;gap_distance_to_nearest_label_px&#x27;: {&#x27;n&#x27;: 1, &#x27;min&#x27;: 3.605551275463989, &#x27;p50&#x27;: 3.605551275463989, &#x27;p90&#x27;: 3.605551275463989, &#x27;max&#x27;: 3.605551275463989}, &#x27;gap_components&#x27;: {&#x27;n&#x27;: 1, &#x27;largest_px&#x27;: 1, &#x27;median_px&#x27;: 1.0, &#x27;total_px&#x27;: 1}} pixel(s)</b>:
-      the hypothesis is dead, and the QFFDB product is used for analysis only because
-      training on it would leak the catalogue. Common domain across all products:
-      3,205,306 px
-      (62.0% of the
-      footprint). Report: <code>reports/external_audit.json</code>.</p></div>
-    <div class="panel"><h3 style="margin-top:0">Band-6 identity verdict</h3>
-      <p class="small">Criterion written before the run: ρ &gt; 0.999 <b>and</b> linear-fit
-      R² &gt; 0.99 against the official TC channel <b>and</b> ρ &gt; 0.99 against K + Th + U.
-      Result: <b>PASS — band 6 is the radiometric total count</b>.
-      Best single-channel match: <code>radiometric::rad_tc</code>.
-      Side benefit: because the competition's own band 6 reproduces the sibling
-      re-gridding of the USGS release to R² 0.9980, the external staging
-      pipeline is validated against first-party data.</p></div>
-  </div>
-  <h3>R10 — all sixteen configurations, confirmation folds</h3>
-  <div class="scroll"><table><thead><tr><th>configuration</th><th class="num">worst-rule DTI</th>
-    <th class="num">mean DTI</th><th class="num">P_w</th><th class="num">R_w</th>
-    <th class="num">predicted px</th><th class="num">Δ vs ref</th>
-    <th class="num">tie fraction</th><th>predeclared verdict</th></tr></thead>
-    <tbody><tr><td class='mono small'>topo_05_sp3</td><td class='num'>0.08687</td><td class='num'>0.09763</td><td class='num'>0.0276</td><td class='num'>0.2874</td><td class='num'>185,290</td><td class='num'>+0.00000</td><td class='num'>0.00</td><td class='small'>REFERENCE</td></tr><tr><td class='mono small'>topo05_plus_alter02_sp3</td><td class='num'>0.08593</td><td class='num'>0.09651</td><td class='num'>0.0257</td><td class='num'>0.3363</td><td class='num'>233,565</td><td class='num'>-0.00113</td><td class='num'>0.00</td><td class='small'>LOSES (confirmation rule-means won: 1/6)</td></tr><tr><td class='mono small'>topo05_plus_vent02_sp3</td><td class='num'>0.08443</td><td class='num'>0.09633</td><td class='num'>0.0260</td><td class='num'>0.3229</td><td class='num'>221,844</td><td class='num'>-0.00130</td><td class='num'>0.00</td><td class='small'>LOSES (confirmation rule-means won: 1/6)</td></tr><tr><td class='mono small'>ventdzt_08_sp3</td><td class='num'>0.08396</td><td class='num'>0.09311</td><td class='num'>0.0292</td><td class='num'>0.2198</td><td class='num'>134,376</td><td class='num'>-0.00452</td><td class='num'>0.00</td><td class='small'>LOSES (confirmation rule-means won: 1/6)</td></tr><tr><td class='mono small'>topo05_plus_scarp02_sp3</td><td class='num'>0.08099</td><td class='num'>0.09269</td><td class='num'>0.0250</td><td class='num'>0.3121</td><td class='num'>223,079</td><td class='num'>-0.00494</td><td class='num'>0.00</td><td class='small'>LOSES (confirmation rule-means won: 0/6)</td></tr><tr><td class='mono small'>topo05_plus_dzt02_sp3</td><td class='num'>0.07937</td><td class='num'>0.09083</td><td class='num'>0.0242</td><td class='num'>0.3179</td><td class='num'>234,913</td><td class='num'>-0.00681</td><td class='num'>0.00</td><td class='small'>LOSES (confirmation rule-means won: 0/6)</td></tr><tr><td class='mono small'>ventdzt_05_sp3</td><td class='num'>0.07643</td><td class='num'>0.08548</td><td class='num'>0.0310</td><td class='num'>0.1613</td><td class='num'>92,904</td><td class='num'>-0.01215</td><td class='num'>0.00</td><td class='small'>LOSES (confirmation rule-means won: 0/6)</td></tr><tr><td class='mono small'>vent_08_sp3</td><td class='num'>0.07526</td><td class='num'>0.09075</td><td class='num'>0.0293</td><td class='num'>0.2031</td><td class='num'>124,009</td><td class='num'>-0.00688</td><td class='num'>0.00</td><td class='small'>LOSES (confirmation rule-means won: 1/6)</td></tr><tr><td class='mono small'>dztC_02_sp3</td><td class='num'>0.07490</td><td class='num'>0.08536</td><td class='num'>0.0335</td><td class='num'>0.1460</td><td class='num'>77,139</td><td class='num'>-0.01227</td><td class='num'>0.00</td><td class='small'>LOSES (confirmation rule-means won: 0/6)</td></tr><tr><td class='mono small'>alter_05_sp3</td><td class='num'>0.07337</td><td class='num'>0.08202</td><td class='num'>0.0282</td><td class='num'>0.1670</td><td class='num'>106,146</td><td class='num'>-0.01562</td><td class='num'>0.00</td><td class='small'>LOSES (confirmation rule-means won: 0/6)</td></tr><tr><td class='mono small'>vent_05_sp3</td><td class='num'>0.06784</td><td class='num'>0.08397</td><td class='num'>0.0318</td><td class='num'>0.1497</td><td class='num'>84,098</td><td class='num'>-0.01366</td><td class='num'>0.00</td><td class='small'>LOSES (confirmation rule-means won: 0/6)</td></tr><tr><td class='mono small'>alterC_015_sp3</td><td class='num'>0.06411</td><td class='num'>0.07273</td><td class='num'>0.0328</td><td class='num'>0.1092</td><td class='num'>59,444</td><td class='num'>-0.02491</td><td class='num'>0.00</td><td class='small'>LOSES (confirmation rule-means won: 0/6)</td></tr><tr><td class='mono small'>dzt_08_sp3</td><td class='num'>0.06334</td><td class='num'>0.07585</td><td class='num'>0.0231</td><td class='num'>0.1888</td><td class='num'>145,501</td><td class='num'>-0.02178</td><td class='num'>0.00</td><td class='small'>LOSES (confirmation rule-means won: 0/6)</td></tr><tr><td class='mono small'>scarpC_015_sp3</td><td class='num'>0.06020</td><td class='num'>0.07443</td><td class='num'>0.0339</td><td class='num'>0.1101</td><td class='num'>57,320</td><td class='num'>-0.02321</td><td class='num'>0.00</td><td class='small'>LOSES (confirmation rule-means won: 0/6)</td></tr><tr><td class='mono small'>dzt_05_sp3</td><td class='num'>0.05747</td><td class='num'>0.06848</td><td class='num'>0.0234</td><td class='num'>0.1399</td><td class='num'>106,364</td><td class='num'>-0.02915</td><td class='num'>0.00</td><td class='small'>LOSES (confirmation rule-means won: 0/6)</td></tr><tr><td class='mono small'>scarp_08_sp3</td><td class='num'>0.05632</td><td class='num'>0.07265</td><td class='num'>0.0247</td><td class='num'>0.1491</td><td class='num'>107,600</td><td class='num'>-0.02498</td><td class='num'>0.00</td><td class='small'>LOSES (confirmation rule-means won: 0/6)</td></tr><tr><td class='mono small'>scarp_05_sp3</td><td class='num'>0.05103</td><td class='num'>0.06373</td><td class='num'>0.0249</td><td class='num'>0.1095</td><td class='num'>78,370</td><td class='num'>-0.03390</td><td class='num'>0.00</td><td class='small'>LOSES (confirmation rule-means won: 0/6)</td></tr></tbody></table></div>
-  <h3>R10b — refinement round (selected on tune folds, then confirmed)</h3>
-  <p class="small">Selected on tune folds only: <code>fuse_vent_w050_sp3</code>. Confirmation
-  worst-rule mean <b>0.08286</b> vs reference
-  0.08687, mean 0.09771 vs 0.09763
-  (paired Δ +0.00008,
-  6/12 folds won) →
-  <b>LOSES (confirmation rule-means won: 2/6)</b>. Low-coverage unions (0.5–1%) measured marginal precision
-  0.0136–0.0166, still below the 0.0169 tune inclusion bar: the external maps have no
-  high-precision head. Reports: <code>reports/holdout_r10_2026-09-30.json</code>,
-  <code>reports/holdout_r10b_2026-09-30.json</code>; per-map signal statistics:
-  <code>reports/external_detectors_manifest.json</code>.</p>
-</section></main>
-<footer class="site"><div class="wrap">
-  <p><strong>13GEMSDOE</strong> — working repository for the
-  <a href="https://www.drivendata.org/competitions/306/competition-doe-gems/">DOE GEMS Prize Challenge</a>.
-  Page generated 2026-10-01 02:43 UTC from <code>reports/*.json</code>.</p>
-  <p class="small">Every figure on this site is produced by a script in this
-  repository and is reproducible from a clean checkout. Claims that could not be
-  verified against an official source are listed as irregularities rather than
-  presented as fact.</p>
-</div></footer></body></html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="13GEMSDOE: one-click, format-checked competition TIFF; explicit submission steps and auditable geological research.">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self' https://api.github.com; object-src 'none'; base-uri 'self'">
+<title>Evidence · 13GEMSDOE</title><link rel="stylesheet" href="assets/style.css"><script src="assets/site.js" defer></script></head>
+<body data-site-revision="r15-audit-20261001"><a class="skip-link" href="#main">Skip to page content</a>
+<div class="shell"><header class="masthead"><a class="brand" href="index.html" aria-label="13GEMSDOE home"><span class="brand-mark">13</span><span>GEMSDOE<small>Fault mapping, with evidence.</small></span></a><a href="https://www.drivendata.org/competitions/306/competition-doe-gems/" target="_blank" rel="noopener noreferrer">Official competition ↗</a></header>
+<section class="download-hero" aria-labelledby="download-title" id="download">
+<div class="hero-copy"><p class="eyebrow">DOE GEMS · submission workspace</p>
+<h1 id="download-title">Download the competition TIFF.</h1>
+<p class="hero-lead">One file. The official grid. Checked predictions in <strong>[0, 1]</strong>.</p>
+<div class="download-actions"><a class="button primary" data-testid="primary-download" href="downloads/13gems_20261001_r13-lattice-s5_v2_nan-outside.tif" download>↓ Download submission .tif <span>1.7 MB</span></a>
+<a class="button secondary" href="downloads/13gems_20261001_r13-lattice-s5_v2_nan-outside.zip" download>Download .zip</a></div>
+<p class="file-name"><code>13gems_20261001_r13-lattice-s5_v2_nan-outside.tif</code></p>
+<p class="format-line">1 band · float32 · EPSG:32611 · 3730 × 3292 · 100 m</p>
+</div><div class="download-status" role="group" aria-label="Download status">
+<span class="status good">✓ Local format checked</span>
+<h2>Current local reference</h2><p>Stride-5 coverage lattice. <strong>Not a geological discovery or a predicted leaderboard score.</strong></p>
+<p class="status-limit">DrivenData acceptance is <strong>not confirmed</strong>. No new experiment is cleared for a weekly slot.</p>
+<a href="executive_summary.html" class="text-link">Exact submission steps →</a>
+</div></section>
+<section class="note-panel" aria-labelledby="note-label"><div><h2 id="note-label">Short note for the submission form</h2><code id="submission-note">r13 lattice-s5 v2 20261001 | fault-blind every-5th-px grid, coverage baseline | local holdout 18/18 win, not a LB claim</code></div>
+<div class="note-action"><button class="button small" type="button" id="copy-note">Copy note</button><span id="copy-status" class="small-text" role="status" aria-live="polite"></span></div></section>
+<section aria-label="File integrity and diagnostic encoding"><details class="file-details"><summary>File integrity, encoding &amp; diagnostic alternative</summary>
+<p><strong>Primary SHA-256:</strong> <code class="hash">b4570b406efec198eb2f4d142ad8d0d6184b14b66f2f52b5c4d697f0647dc9b2</code></p>
+<button class="button small" id="verify-file" type="button" data-sha256="b4570b406efec198eb2f4d142ad8d0d6184b14b66f2f52b5c4d697f0647dc9b2" data-bytes="1706456">Check delivered file</button> <span id="verify-status" role="status" aria-live="polite"></span>
+<p>The primary has finite predictions inside the official footprint and <strong>NaN / NoData=nan outside</strong>. LZW, one-row strips, no predictor; matches the measured template convention. A local check is not a platform receipt.</p>
+<p><a href="downloads/13gems_20261001_r13-lattice-s5_v2_zerofill.tif" download>Zero-filled diagnostic TIFF</a> · <a href="downloads/13gems_20261001_r13-lattice-s5_v2_zerofill.zip" download>diagnostic ZIP</a>. Same footprint predictions, zeros outside, no NoData. <strong>Not the official template convention, not a second scientific experiment, and not an automatic second upload.</strong></p>
+<p><a href="downloads/submit.json">Download manifest</a> · <a href="https://github.com/buffedlizard55-lab/13GEMSDOE/blob/main/reports/form_responses.json" target="_blank" rel="noopener noreferrer">Recorded form evidence ↗</a></p></details></section><nav class="page-nav" aria-label="Main navigation"><a href="index.html">Overview</a><a href="executive_summary.html">How to submit</a><a href="evidence.html" aria-current="page">Evidence</a><a href="hypotheses.html">Research</a><a href="sources.html">Sources &amp; feed</a></nav><main id="main"><section class="section-heading"><p class="eyebrow">Evidence, not inference</p><h2>Four separate gates.</h2><p>Passing one does not establish the others.</p></section><div class="table-wrap"><table><thead><tr><th scope="col">Assertion</th><th scope="col">State</th><th scope="col">Evidence boundary</th></tr></thead><tbody><tr><td>Local format</td><td><span class="status good">PASS</span></td><td>Grid, range, footprint, layout, hashes and independent TIFF decoders.</td></tr><tr><td>Download delivery</td><td>Separate HTTP / browser check</td><td>See CI and live smoke report. On-disk validation alone is not HTTP verification.</td></tr><tr><td>DrivenData acceptance</td><td><span class="status caution">UNCONFIRMED</span></td><td>No response tied to the current named file/hash is recorded.</td></tr><tr><td>New scientific clearance</td><td><span class="status caution">NOT CLEARED</span></td><td>R14 failed D2/D3. R15 lost all 18 existing + 4 geographic paired folds.</td></tr></tbody></table></div>
+<section class="section-heading"><h2>Why did 0.1563 repeat?</h2><p><strong>Verified from pinned GitHub trees:</strong> GEMSDOE (GEMSDOE1), 5GEMSDOE and GEMSDOE2 contain the identical historical ens12 blob.</p></section>
+<div class="card"><p><strong>Git blob:</strong> <code class="hash">812e61b74050d1350cc2bde1fab0c76ead32e0c4</code></p><p><strong>File SHA-256:</strong> <code class="hash">7f00890a62878d612fb5eef67a9a364a2df819433dde74b6762ce4fc0fc4fe15</code></p><p>Exact byte reuse is established. Which file was uploaded and which submission earned a score are <strong>not established</strong> by a repo filename or rounded account-best score.</p></div>
+<div class="table-wrap"><table><thead><tr><th scope="col">Comparison</th><th scope="col">Measured artifact relationship</th><th scope="col">What it means</th></tr></thead><tbody><tr><td>GEMSDOE1 ↔ 5GEMSDOE</td><td>Same historical ens12 blob; 570,890 bytes</td><td>Artifact reuse, not per-upload score attribution</td></tr><tr><td>ens12 ↔ 8GEMSDOE apex</td><td>Different file / canonical pixels / support; IoU 0.06703</td><td>Same reported 0.1563 can refer to distinct maps</td></tr><tr><td>ens12 ↔ GEMSDOE2 dualunion</td><td>Distinct pixels; support IoU 0.94191</td><td>High overlap is not exact identity</td></tr></tbody></table></div>
+<p><a href="https://github.com/buffedlizard55-lab/13GEMSDOE/blob/main/reports/sibling_site_audit_2026-10-01.json" target="_blank" rel="noopener noreferrer">Pinned prior-site review ↗</a> · <a href="https://github.com/buffedlizard55-lab/13GEMSDOE/blob/main/reports/scored_forensics.json" target="_blank" rel="noopener noreferrer">Decoded-pixel forensics ↗</a> · <a href="https://github.com/buffedlizard55-lab/13GEMSDOE/blob/main/reports/leaderboard_ledger.csv" target="_blank" rel="noopener noreferrer">Score-attribution ledger ↗</a></p>
+<section class="section-heading"><h2>The archived rejection’s cause is unresolved</h2><p>The rejected TIFF decodes to valid footprint values in rasterio/GDAL, tifffile and Pillow. Deliberately ignoring Predictor2 in a simulation can yield [-4, 3], but no server trace shows DrivenData did that. Earlier claims of a confirmed predictor root cause, falsified NaN handling, or a changed validator were withdrawn.</p></section>
+<p><a href="https://github.com/buffedlizard55-lab/13GEMSDOE/blob/main/reports/platform_encoding_evidence.json" target="_blank" rel="noopener noreferrer">Current byte-level encoding audit ↗</a> · <a href="https://github.com/buffedlizard55-lab/13GEMSDOE/blob/main/knowledge/13_audit_corrections_2026-10-01.md" target="_blank" rel="noopener noreferrer">Correction register ↗</a></p>
+<section class="section-heading"><h2>Scientific confirmation, with failures visible</h2><p>No local proxy can stand in for expert hidden truth. The thermal field was built without receiving fault labels; scoring masks and code/source hashes are stored per fold.</p></section><div class="table-wrap"><table><thead><tr><th scope="col">Proxy protocol</th><th scope="col">Lattice reference</th><th scope="col">+ Thermal</th><th scope="col">Paired mean Δ</th><th scope="col">Wins</th></tr></thead><tbody><tr><td>18 system / segment folds</td><td>0.112184</td><td>0.112044</td><td>-0.000140</td><td>0/18</td></tr><tr><td>4 geographic blocks</td><td>0.242175</td><td>0.242013</td><td>-0.000162</td><td>0/4</td></tr></tbody></table></div>
+<p><a href="https://github.com/buffedlizard55-lab/13GEMSDOE/blob/main/reports/holdout_r15_2026-10-01.json" target="_blank" rel="noopener noreferrer">Full R15 components and fold hashes ↗</a> · <a href="https://github.com/buffedlizard55-lab/13GEMSDOE/blob/main/knowledge/12_r15_results.md" target="_blank" rel="noopener noreferrer">Interpretation &amp; limitations ↗</a></p>
+<details><summary>Older rasters — research archive, not next-slot candidates</summary><article class="archive-item"><h3>R11 previous local reference — archive only</h3><span class="status caution">RESEARCH ONLY · DO NOT SUBMIT</span><p>Previous local reference; it has not beaten the current lattice reference.</p>
+<p><a href="downloads/13gems_20261001_r11-greedy-mp_v2_nan-outside.tif" download>Archived TIFF</a> · <a href="downloads/13gems_20261001_r11-greedy-mp_v2_nan-outside.zip" download>one-TIFF ZIP</a></p></article><article class="archive-item"><h3>R14 failed-gate research archive</h3><span class="status caution">RESEARCH ONLY · DO NOT SUBMIT</span><p>Failed R14 gate D2/D3; cannot use a slot under the standing user rule.</p>
+<p><a href="downloads/13gems_20261001_r14-union-tips10-lat6_nan-outside.tif" download>Archived TIFF</a> · <a href="downloads/13gems_20261001_r14-union-tips10-lat6_nan-outside.zip" download>one-TIFF ZIP</a></p></article></details>
+<section class="section-heading"><h2>Operational irregularities addressed</h2></section><ul class="audit-list"><li>Removed failed-gate “next slot” promotion and contradictory primary/hedge instructions.</li><li>Retired schema1 migration commands; new research exports cannot silently replace the live primary.</li><li>Clipboard success is conditional; download integrity is checked against the manifest.</li><li>Band6 identity was independently rerun: radiometric total count, despite misleading embedded text (rho 0.999978, R² 0.998037).</li><li>Missing input sentinels occur inside the valid footprint. Output writers refuse invalid values instead of silently clipping them.</li></ul>
+<p><a href="https://github.com/buffedlizard55-lab/13GEMSDOE/blob/main/reports/site_review.json" target="_blank" rel="noopener noreferrer">Three-pass review record ↗</a> · <a href="https://github.com/buffedlizard55-lab/13GEMSDOE/blob/main/reports/band6_identity.json" target="_blank" rel="noopener noreferrer">Band6 comparison ↗</a> · <a href="https://github.com/buffedlizard55-lab/13GEMSDOE/actions" target="_blank" rel="noopener noreferrer">Automated verification runs ↗</a></p></main>
+<noscript><p class="caption">Downloads work without JavaScript. Copy the selectable note manually; use the dated evidence and workflow links instead of interactive checks.</p></noscript>
+<footer><span>13GEMSDOE · Maximize P(Win) / Own the Outcome</span><span><a href="https://github.com/buffedlizard55-lab/13GEMSDOE" target="_blank" rel="noopener noreferrer">Code &amp; evidence ↗</a> · Facts reviewed 2026-10-01</span><p>Local verification ≠ live delivery ≠ platform acceptance ≠ scientific clearance. No competition upload is automated.</p></footer></div></body></html>

@@ -1,0 +1,46 @@
+name: Daily approved-source review
+on:
+  schedule:
+    - cron: '17 7 * * *'
+  workflow_dispatch:
+  push:
+    branches: ['arena/**']
+    paths:
+      - '.github/workflows/source-review.yml'
+      - 'config/open_sources.json'
+      - 'scripts/refresh_open_sources.py'
+      - 'scripts/publish_source_feed.py'
+permissions:
+  contents: read
+  issues: write
+concurrency:
+  group: approved-source-review
+  cancel-in-progress: false
+jobs:
+  observe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+      - name: Read previous successful observations from the single bot issue
+        continue-on-error: true
+        run: python scripts/publish_source_feed.py --seed
+      - name: Observe only approved public endpoints (NO DrivenData/forum polling)
+        run: python scripts/refresh_open_sources.py --output .cache/open_source_feed.json
+      - name: Publish current observations for static Pages (not scientific certification)
+        run: python scripts/publish_source_feed.py --feed .cache/open_source_feed.json
+      - name: Preserve complete observation evidence even if issue publication fails
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: approved-source-observations
+          path: .cache/open_source_feed.json
+          if-no-files-found: error
+          retention-days: 30

@@ -1,0 +1,64 @@
+{
+  "schema": 1,
+  "review_date": "2026-10-01",
+  "site_revision": "r15-audit-20261001",
+  "primary_preserved_byte_identical": true,
+  "rejection_cause": "UNRESOLVED",
+  "platform_acceptance": "NO_CURRENT_FILE_RECEIPT",
+  "latest_hypothesis_status": "RESEARCH_ONLY_DO_NOT_SUBMIT",
+  "new_experiment_slot_recommended": false,
+  "weekly_slots_used_by_this_work": 0,
+  "scientific_report": "reports/holdout_r15_2026-10-01.json",
+  "three_passes": {
+    "implementation": {
+      "status": "COMPLETE_LOCAL",
+      "evidence": [
+        "reports/holdout_r15_2026-10-01.json",
+        "docs/downloads/submit.json",
+        "reports/verified_sources_2026-10-01.json"
+      ]
+    },
+    "bug_edge_case_review": {
+      "status": "COMPLETE_LOCAL",
+      "tests_passed": 171,
+      "browser_checks": 106,
+      "http_checks": 145,
+      "axe_violations": 0,
+      "evidence": "reports/local_verification_2026-10-01.json"
+    },
+    "requirements_recheck": {
+      "status": "COMPLETE_LOCAL_PUBLICATION_IN_PROGRESS",
+      "evidence": "reports/requirements_recheck_2026-10-01.json"
+    }
+  },
+  "limitations": [
+    "No authenticated DrivenData competition session; no upload or hidden truth access.",
+    "Sandbox direct TLS to Pages/DOE/USGS is restricted; hosted-runner verification is separate.",
+    "Two CPU cores, about3.8GiB RAM, no detected GPU; official U-Net training not performed."
+  ],
+  "ai_disclosure": "Generative AI assisted literature/source review, hypotheses, code and documentation. Accuracy/authorship remain participant responsibilities; disclose use in final narrative under Official Rules3.2.",
+  "overall_status": "LOCAL_DELIVERABLE_READY_GITHUB_PUBLICATION_IN_PROGRESS",
+  "github": {
+    "pr_status": "PENDING_CURRENT_ATTEMPT",
+    "merge_status": "PENDING_CI",
+    "new_pages_deployment": "NOT_CONFIRMED",
+    "previous_authentication_failure": "401 Bad credentials",
+    "connection_status": "RESTORED_REPO_API_READ_SUCCEEDED",
+    "previous_push_failure": "FAILED_AUTHENTICATION: could not read Username for https://github.com; terminal prompts disabled",
+    "actual_push_status": "PENDING_CURRENT_ATTEMPT",
+    "previous_sandbox_local_commit_not_in_restored_git_history": "25ae0f4"
+  },
+  "automated_feed": {
+    "status": "IMPLEMENTED_HOSTED_EXECUTION_NOT_CONFIRMED",
+    "storage": "one reusable GitHub-Actions-bot issue; public Pages API read",
+    "never_polls_drivendata": true
+  },
+  "local_verification_summary": {
+    "pytest": 171,
+    "metric": "12/12",
+    "downloads": "80/80",
+    "http": "145/145",
+    "browser": "106/106",
+    "axe_violations": 0
+  }
+}

@@ -1,7 +1,7 @@
 {
   "schema": 2,
-  "schema_note": "schema 2 (2026-10-01) renames primary_A -> primary and fallback_B -> hedge and SWAPS which encoding each holds: the primary is now the NaN-outside file, because that is the encoding of the official template and of all 9 platform-scored group files. See reports/platform_encoding_evidence.json.",
-  "generated_utc": "2026-10-01T01:54:02Z",
+  "schema_note": "schema 2 (2026-10-01) renames primary_A -> primary and fallback_B -> hedge and SWAPS which encoding each holds: the primary is now the NaN-outside file, because that is the encoding of the measured official template. Historical score labels do not establish remote acceptance. See reports/platform_encoding_evidence.json.",
+  "generated_utc": "2026-10-01T04:48:37Z",
   "stem": "13gems_20261001_r13-lattice-s5_v2",
   "note_for_form": "r13 lattice-s5 v2 20261001 | fault-blind every-5th-px grid, coverage baseline | local holdout 18/18 win, not a LB claim",
   "form_url": "https://www.drivendata.org/competitions/306/competition-doe-gems/submissions/",
@@ -15,8 +15,8 @@
     "zip_bytes": 294329,
     "zip_sha256": "d67ff3616fb71a2ba476c9d2478133d10b29cb1f1849230102adf99c27590e65",
     "zip_contains": "13gems_20261001_r13-lattice-s5_v2_nan-outside.tif",
-    "encoding": "float32, NaN outside the survey footprint, GDAL_NODATA=nan, every footprint value finite and in [0, 1], LZW, no predictor -- the byte encoding of the official sample_submission.tif and of all 9 platform-scored group files",
-    "use": "UPLOAD THIS"
+    "encoding": "float32, NaN outside the survey footprint, GDAL_NODATA=nan, every footprint value finite and in [0, 1], LZW, no predictor -- the byte encoding of the measured official sample_submission.tif; remote acceptance not confirmed",
+    "use": "Primary format-checked local reference; not a new score claim"
   },
   "hedge": {
     "file": "13gems_20261001_r13-lattice-s5_v2_zerofill.tif",
@@ -27,7 +27,7 @@
     "zip_sha256": "4234098cf957e5579704824dc5892870ed12189c7d133f7eec878b00e45a9325",
     "zip_contains": "13gems_20261001_r13-lattice-s5_v2_zerofill.tif",
     "encoding": "float32, 0.0 outside the footprint, no NoData tag, no NaN anywhere -- a hedge for a naive whole-array [0, 1] test; NOT the template's encoding",
-    "use": "ONLY if the form rejects the primary"
+    "use": "Diagnostic only; not a separate experiment or automatic second upload"
   },
   "aliases": {
     "latest.tif": "= primary",
@@ -122,7 +122,7 @@
       "official_size": true,
       "matches_accepted_pattern": false,
       "deviations_from_accepted_pattern": [
-        "nodata None != 'nan' (all nine accepted files declare nan)",
+        "nodata None != 'nan' (the measured official template declares nan)",
         "7111787 finite cells outside the footprint where the official template is NaN",
         "0 NaN outside != 7111787"
       ],
@@ -146,18 +146,21 @@
     "artifact_status": "HOLDOUT_BEST_LOCAL_PROXY_ONLY_NOT_A_LB_CLAIM",
     "encoding_status": "PRIMARY matches the encoding of the official template and of all 9 platform-scored group files (reports/platform_encoding_evidence.json)",
     "form_response_recorded": null,
-    "form_responses_log": "reports/form_responses.json"
+    "form_responses_log": "reports/form_responses.json",
+    "platform_acceptance_established": false,
+    "rejection_cause": "UNRESOLVED",
+    "new_scientific_candidate_cleared": false,
+    "weekly_slots_used_this_review": 0
   },
-  "limits": "Verified locally with rasterio/GDAL, tifffile and Pillow against the official sample_submission.tif and the nine platform-scored group files. The DrivenData validator itself cannot be observed from here; acceptance is established only by the form's own response (reports/form_responses.json).",
-  "description": "a fault-blind lattice (every 5th row and column, 4 % of the footprint). It is the repository's best local hold-out map under the frozen R13 rule (18/18 paired folds vs the R11 recipe) and it is a coverage-geometry baseline, not a geological prediction. It is NOT a predicted leaderboard score.",
+  "limits": "Verified locally with rasterio/GDAL, tifffile and Pillow against the official sample_submission.tif. Historical team score labels are not receipts. The DrivenData validator itself cannot be observed from here; acceptance is established only by the form's own response (reports/form_responses.json).",
+  "description": "Current existing-protocol local reference: fault-blind stride5 lattice (origin0,0). Coverage baseline, not a geological discovery or predicted leaderboard score.",
   "evidence_link": "https://github.com/buffedlizard55-lab/13GEMSDOE/blob/main/reports/holdout_r13_lattice_2026-10-01.json",
-  "label": "R13-6 fault-blind stride-5 lattice (holdout best)",
   "alternates": [
     {
-      "label": "R11-4 greedy marginal-precision recipe (second candidate)",
+      "label": "R11 previous local reference \u2014 archive only",
       "stem": "13gems_20261001_r11-greedy-mp_v2",
       "note_for_form": "r11 greedy-mp v2 20261001 | topo ridge 5% + 3 greedy blocks | local holdout win, not a LB claim",
-      "description": "the R11 greedy marginal-precision recipe (topographic ridge 5 % plus three greedy blocks): the previous holdout best, a real map built from the geophysics/topography bands.",
+      "description": "Historical R11 map; not a winner against the current lattice reference.",
       "evidence_link": "https://github.com/buffedlizard55-lab/13GEMSDOE/blob/main/reports/holdout_r11_2026-09-30.json",
       "primary": {
         "file": "13gems_20261001_r11-greedy-mp_v2_nan-outside.tif",
@@ -165,7 +168,9 @@
         "sha256": "033df94ceef16350030a69d5cfdec0afe7bc605bb155d8f3b98b203aabf80abd",
         "zip": "13gems_20261001_r11-greedy-mp_v2_nan-outside.zip",
         "zip_bytes": 888250,
-        "zip_sha256": "713c32bb9fdb57a47886b76d30f6d33fe973af99b513130a88fc7715a0b8daff"
+        "zip_sha256": "713c32bb9fdb57a47886b76d30f6d33fe973af99b513130a88fc7715a0b8daff",
+        "encoding": "float32, NaN outside the survey footprint, GDAL_NODATA=nan, every footprint value finite and in [0, 1], LZW, no predictor -- the byte encoding of the measured official sample_submission.tif; remote acceptance not confirmed",
+        "use": "RESEARCH ARCHIVE ONLY \u2014 DO NOT SUBMIT"
       },
       "hedge": {
         "file": "13gems_20261001_r11-greedy-mp_v2_zerofill.tif",
@@ -173,14 +178,21 @@
         "sha256": "e7f0d4b9fd58b90e67538e595680315fb9861e08d8d093c1617b10a584f28b5a",
         "zip": "13gems_20261001_r11-greedy-mp_v2_zerofill.zip",
         "zip_bytes": 674738,
-        "zip_sha256": "de3d6ce04afea1ccd1758604bf09d721319ceffe91a97997d895fb1912545adf"
+        "zip_sha256": "de3d6ce04afea1ccd1758604bf09d721319ceffe91a97997d895fb1912545adf",
+        "encoding": "float32, 0.0 outside the footprint, no NoData tag, no NaN anywhere -- a hedge for a naive whole-array [0, 1] test; NOT the template's encoding",
+        "use": "Archived diagnostic twin; not a weekly-slot candidate"
+      },
+      "submission_clearance": {
+        "upload_allowed": false,
+        "status": "RESEARCH_ARCHIVE_DO_NOT_SUBMIT",
+        "reason": "Previous local reference; it has not beaten the current lattice reference."
       }
     },
     {
-      "label": "R14 prioritised union \u2014 geological prior with a coverage floor",
+      "label": "R14 failed-gate research archive",
       "stem": "13gems_20261001_r14-union-tips10-lat6",
       "note_for_form": "r14 union 20261001 | along-strike tips 1% + stride-6 lattice to 4% total | fails predeclared gate D2/D3, experiment arm",
-      "description": "a geological prior with a coverage floor: along-strike propagation ribbons grown from every tip of the full public fault catalogue (1 % of the footprint), then a fault-blind stride-6 lattice filling the remainder of a fixed 4 % total budget. It did NOT pass the predeclared R14 gate (it wins the new tip folds' worst-rule mean by +39 % over the shipped reference and loses the 15 pre-existing folds by 0.028, beyond the 0.002 allowance), so it is a listed experiment arm, not a recommendation, and not a predicted leaderboard score.",
+      "description": "Failed R14 predeclared gate; retained only for reproducibility/forensics.",
       "evidence_link": "https://github.com/buffedlizard55-lab/13GEMSDOE/blob/main/reports/holdout_r14_2026-10-01.json",
       "gate": {
         "register": "knowledge/10_r14_hypotheses.md (addendum B.2)",
@@ -194,7 +206,9 @@
         "sha256": "c9d1398e464603350e464fff7213a8a5e380f1ccf505e263a685607970ae28ef",
         "zip": "13gems_20261001_r14-union-tips10-lat6_nan-outside.zip",
         "zip_bytes": 533324,
-        "zip_sha256": "6ff4e7869be24a145b2af2768e3917bac82169b67bdb45296730b052f0c5af90"
+        "zip_sha256": "6ff4e7869be24a145b2af2768e3917bac82169b67bdb45296730b052f0c5af90",
+        "encoding": "float32, NaN outside the survey footprint, GDAL_NODATA=nan, every footprint value finite and in [0, 1], LZW, no predictor -- the byte encoding of the measured official sample_submission.tif; remote acceptance not confirmed",
+        "use": "RESEARCH ARCHIVE ONLY \u2014 DO NOT SUBMIT"
       },
       "hedge": {
         "file": "13gems_20261001_r14-union-tips10-lat6_zerofill.tif",
@@ -202,26 +216,22 @@
         "sha256": "840e7afe571a856a2395ff87dec5af757f4812e3c5c146da7bb83616dbc6da8d",
         "zip": "13gems_20261001_r14-union-tips10-lat6_zerofill.zip",
         "zip_bytes": 346955,
-        "zip_sha256": "718da45ffbbe5bcb163d588109f05a6921c118e25da86414488dff91eeee1c0e"
+        "zip_sha256": "718da45ffbbe5bcb163d588109f05a6921c118e25da86414488dff91eeee1c0e",
+        "encoding": "float32, 0.0 outside the footprint, no NoData tag, no NaN anywhere -- a hedge for a naive whole-array [0, 1] test; NOT the template's encoding",
+        "use": "Archived diagnostic twin; not a weekly-slot candidate"
+      },
+      "submission_clearance": {
+        "upload_allowed": false,
+        "status": "RESEARCH_ARCHIVE_DO_NOT_SUBMIT",
+        "reason": "Failed R14 gate D2/D3; cannot use a slot under the standing user rule."
       }
     }
   ],
-  "supersedes": {
-    "session": "session 7 (2026-10-01) schema-1 manifest",
-    "reason": "encoding roles were inverted: the zero-filled file was primary and the NaN-outside file was the fallback. Measurement shows the opposite: the NaN-outside encoding is the one the official template uses and the one all 9 platform-scored group files use; the only file the form ever rejected is the only one written with TIFF Predictor=2.",
-    "evidence": "reports/platform_encoding_evidence.json",
-    "archived_files": [
-      "session7-superseded-13gems_20261001_r11-greedy-mp_A_zerofill.tif",
-      "session7-superseded-13gems_20261001_r11-greedy-mp_A_zerofill.zip",
-      "session7-superseded-13gems_20261001_r11-greedy-mp_B_nan-outside.tif",
-      "session7-superseded-13gems_20261001_r11-greedy-mp_B_nan-outside.zip",
-      "session7-superseded-13gems_20261001_r13-lattice-s5_A_zerofill.tif",
-      "session7-superseded-13gems_20261001_r13-lattice-s5_A_zerofill.zip",
-      "session7-superseded-13gems_20261001_r13-lattice-s5_B_nan-outside.tif",
-      "session7-superseded-13gems_20261001_r13-lattice-s5_B_nan-outside.zip",
-      "session7-superseded-latest.json"
-    ],
-    "alias_copies_not_archived": "The four session-7 alias files (latest.tif/.zip, latest_nan.tif/.zip) were byte-identical to the A/B files archived under their real names; the duplicate alias copies were removed instead of archived twice. Recoverable from git history at commit ff76c37."
-  },
-  "legacy_manifest_retired": "docs/downloads/latest.json (schema 1, described the R11 artifact under the falsified all-finite-primary policy) moved to docs/downloads/archive/session7-superseded-latest.json"
+  "submission_policy": {
+    "automatic_upload": false,
+    "new_experiment_slot_recommended": false,
+    "gate_rule": "A new hypothesis must beat the current best on existing and spatial-block proxy holdouts before using a slot.",
+    "latest_experiment_report": "reports/holdout_r15_2026-10-01.json",
+    "latest_experiment_status": "RESEARCH_ONLY_DO_NOT_SUBMIT"
+  }
 }

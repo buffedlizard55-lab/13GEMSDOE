@@ -1,12 +1,7 @@
-"""Front-door tests: the pair of files a person uploads must be verifiably correct.
+"""Local byte, alias and encoding-role regression tests, not acceptance receipts.
 
-The roles were corrected on 2026-10-01 (schema 2): PRIMARY is the NaN-outside
-file (the encoding of the official sample_submission.tif and of all nine
-platform-scored group files); HEDGE is the NaN-free zero-filled twin.  The
-tests below assert the corrected roles, so the I-19 class of bug -- an alias or
-a button quietly pointing at the wrong encoding -- cannot come back.
-
-Run: python -m pytest tests/test_frontdoor.py -q
+Schema2 primary follows the measured template's NaN-outside convention. Hedge
+is zero-filled with identical footprint predictions. Neither is remote-tested.
 """
 from __future__ import annotations
 
@@ -126,6 +121,10 @@ class FrontDoorSynthetic(unittest.TestCase):
             self.publish(note="x" * (frontdoor.MAX_NOTE_CHARS + 1))
         with self.assertRaises(ValueError):
             self.publish(note="two\nlines")
+        with self.assertRaises(ValueError):
+            self.publish(note="two\rlines")
+        with self.assertRaises(ValueError):
+            self.publish(note=" ")
 
     def test_refuses_nan_inside_footprint(self) -> None:
         self.pred[20, 20] = np.nan

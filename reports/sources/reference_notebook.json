@@ -1,0 +1,8 @@
+{
+  "official_repo": "https://github.com/drivendataorg/gems-prize-reference-solution",
+  "notebook_sha256": "1a7622732ba00f67237058bc0efe79b45ba4e87c449fc9c1e5d6ea659de92ca0",
+  "retrieval": "read-only GitHub API",
+  "inspection": "Selected preprocessing, model/CV/training/output cells; not a GPU training run or full executable notebook validation.",
+  "local_cache_path": ".cache/reference_solution.ipynb",
+  "ignored_for_size": true
+}
