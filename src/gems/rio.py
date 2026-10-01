@@ -204,11 +204,13 @@ def validate_submission(path: str | Path,
         if hi > 1.0:
             errors.append(f"maximum {hi} > 1 — DrivenData rejects with "
                           "'Predicted values must be in range [0, 1]'")
-        if hi < 1.0 - 1e-6:
+        if hi <= 0.0:
+            warnings.append("all finite predictions are zero; no nonzero map can be obtained by uniform rescaling")
+        elif hi < 1.0 - 1e-6:
             warnings.append(
-                f"maximum is {hi:.6f} < 1.0. DTI(c·p) is strictly increasing in "
-                "c (metric audit A6): rescaling so the maximum is exactly 1.0 "
-                "is a free score increase.")
+                f"maximum is {hi:.6f} < 1.0. Uniform feasible rescaling makes DTI "
+                "nondecreasing (strictly increasing only with positive TP_w and truth mass). "
+                "This is a metric identity, not a guaranteed hidden-test gain.")
     else:
         errors.append("no finite values at all")
 
@@ -229,7 +231,12 @@ def write_submission(path: str | Path, values: np.ndarray,
     """
     path = Path(path)
     values = np.asarray(values)
-    valid = np.asarray(valid_mask, dtype=bool)
+    mask_input = np.asarray(valid_mask)
+    if mask_input.dtype.kind not in "buif" or not np.isfinite(mask_input).all() or not np.isin(mask_input, (0, 1)).all():
+        raise ValueError("valid_mask must be boolean or finite numeric zeros/ones")
+    valid = mask_input.astype(bool, copy=False)
+    if values.dtype.kind not in "buif":
+        raise ValueError("predictions must be real numeric probabilities, not complex/object values")
     if values.ndim != 2 or values.shape != EXPECTED_SHAPE:
         raise ValueError(
             f"prediction shape must be {EXPECTED_SHAPE}; got {values.shape}"
@@ -255,9 +262,12 @@ def write_submission(path: str | Path, values: np.ndarray,
         )
 
     path.parent.mkdir(parents=True, exist_ok=True)
-    out = np.asarray(values, dtype=np.float32)
     fill = np.float32(np.nan) if outside_value is None else np.float32(outside_value)
-    out = np.where(valid, out, fill).astype(np.float32)
+    # Do not convert ignored outside values: they can contain huge sentinels.
+    # Allocate once and assign only validated probabilities, avoiding overflow
+    # warnings and two unnecessary full-grid copies.
+    out = np.full(EXPECTED_SHAPE, fill, dtype=np.float32)
+    out[valid] = scored.astype(np.float32)
 
     profile = {
         "driver": "GTiff", "height": EXPECTED_SHAPE[0], "width": EXPECTED_SHAPE[1],
@@ -265,14 +275,9 @@ def write_submission(path: str | Path, values: np.ndarray,
         "crs": rasterio.crs.CRS.from_string(EXPECTED_CRS),
         "transform": rasterio.transform.Affine(*EXPECTED_TRANSFORM),
         "nodata": float("nan") if outside_value is None else None,
-        # Layout deliberately copies the official sample_submission.tif and the
-        # nine files the platform has scored for this group: LZW, one-row
-        # strips, PREDICTOR pinned to 1 (none). The one file the form rejected
-        # with "Predicted values must be in range [0, 1]" is the only file in
-        # this project's history written with PREDICTOR=2 (integer horizontal
-        # differencing) on IEEE-float samples; a reader that does not run the
-        # accumulator decodes it to [-4.0, 3.0]. See src/gems/encoding.py and
-        # reports/platform_encoding_evidence.json (irregularities I-18, I-22).
+        # Match the measured template layout for conservative interoperability.
+        # Predictor2 simulations are not observed DrivenData decoding; no causal
+        # claim about the archived rejection is made here.
         "compress": "lzw", "tiled": False, "blockysize": 1, "predictor": 1,
     }
     with rasterio.open(path, "w", **profile) as dst:

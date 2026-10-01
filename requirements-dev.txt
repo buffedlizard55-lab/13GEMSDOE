@@ -1,0 +1,4 @@
+# QA only; runtime/data dependencies stay in requirements.txt
+pytest==9.1.1
+playwright==1.63.0
+PyYAML==6.0.3

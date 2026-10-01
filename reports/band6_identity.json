@@ -1,5 +1,5 @@
 {
-  "generated_utc": "2026-09-30T21:13:39Z",
+  "generated_utc": "2026-10-01T03:27:52Z",
   "purpose": "settle I-2: is provided band 6 (`tc`) the official USGS radiometric total count, a tilt angle, or a curvature?",
   "feature_file": "gems-geodawn-numerical-features.tif",
   "band_index": 6,

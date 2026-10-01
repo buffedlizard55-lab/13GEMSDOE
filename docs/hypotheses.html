@@ -1,326 +1,37 @@
 <!doctype html>
-<html lang="en"><head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Hypotheses — 13GEMSDOE</title>
-<meta name="description" content="GEMS Prize Challenge: download the current submission GeoTIFF from the front page, plus the audited scoring metric, holdout evidence, and the recorded DrivenData form responses behind it.">
-<link rel="stylesheet" href="assets/style.css">
-</head><body>
-<header class="site"><div class="wrap">
-  <a class="brand" href="index.html">13<span>GEMS</span>DOE</a>
-  <nav class="site"><a href="index.html" class="">Submit</a><a href="executive_summary.html" class="">How to submit</a><a href="evidence.html" class="">Evidence</a><a href="hypotheses.html" class="on">Hypotheses</a><a href="sources.html" class="">Sources</a></nav>
-</div></header>
-<div class="dlbar"><div class="wrap">
-  <span class="lbl">SUBMISSION FILE</span>
-  <a class="dlb" href="downloads/13gems_20261001_r13-lattice-s5_v2_nan-outside.tif" download>⬇ Download 13gems_20261001_r13-lattice-s5_v2_nan-outside.tif (1.7 MB)</a>
-  <a class="dlz" href="downloads/13gems_20261001_r13-lattice-s5_v2_nan-outside.zip" download>.zip</a>
-  <a class="dlh" href="executive_summary.html">How to submit →</a>
-</div></div>
-
-<main class="wrap">
-<section>
-  <h2>Previously explored detector hypotheses</h2>
-  <p class="lede">These entries summarize earlier candidate mechanisms. Geological
-  rationales are hypotheses, not established facts or evidence of hidden-test
-  performance. The qualitative impact/cost labels are research judgments, not numeric
-  DTI forecasts.</p>
-  <p class="small">Any “worst / best” values are historical local constructed-holdout
-  DTI summaries from their respective reports; they are not public/private leaderboard
-  scores, chance ratios, or results from one common protocol. The current R8 ensemble
-  lost to the topo baseline on the separate visible-only confirmation comparison.</p>
-  <p class="small">Full write-up with references: <a href="https://github.com/buffedlizard55-lab/13GEMSDOE/blob/main/knowledge/03_hypotheses.md">knowledge/03_hypotheses.md</a>.</p>
-  <div class="callout">
-    <p><b>Why not assume a terrain edge is a new fault?</b> Topographic lineaments can
-    be catalogue blind spots, but they can also be known faults, erosion, drainage,
-    depositional boundaries, or processing artefacts. The organizers define “new” as
-    fault pixels not already captured, including extensions, splays, parallel strands,
-    and corrections. Only pixel-exact masking and buffered hide-and-recover tests can
-    measure a detector's local recovery of withheld catalogue geometry; they do not
-    establish transfer to the undisclosed test set.</p>
-  </div>
-  <div class="scroll"><table><thead><tr>
-    <th>hypothesis</th><th>layers</th><th>physical signature</th>
-    <th>why it finds a <i>missing</i> fault</th><th>how it differs from prior work</th>
-    <th>rank</th></tr></thead><tbody><tr>
-          <td><b>H-A</b><br><span class="small">Multiscale potential-field “worms”</span><br><span class='tag t-info'>worst-rule DTI 0.0389 · mean DTI 0.0537</span><br><span class='small'>screening-only DTI</span></td>
-          <td class="small mono">rtp (2), iso_grav_anom (13)</td>
-          <td class="small">Fourier upward continuation to 0.5–8 km, horizontal-gradient maxima at each height, thinned and stacked by cross-scale persistence.</td>
-          <td class="small">A steeply-dipping, vertically-extensive contact keeps producing a gradient maximum as the field is continued upward; shallow sedimentary texture washes out within a few hundred metres. QFaults is built from surface scarp evidence, so it cannot contain contacts buried under basin fill.</td>
-          <td class="small">The repo used the <i>provided</i> single-scale gradient bands (<code>tmi_hg</code>, <code>iso_grav_anom_hg</code>) and generic ridge filters. Explicit upward continuation and cross-scale persistence were never computed.</td>
-          <td><span class="tag t-info">qualitative: High</span><br>
-              <span class="tag t-mut">cost Low</span></td></tr><tr>
-          <td><b>H-B</b><br><span class="small">Tilt-derivative zero contour / theta map</span><br><span class='tag t-info'>worst-rule DTI 0.0413 · mean DTI 0.0603</span><br><span class='small'>screening-only DTI</span></td>
-          <td class="small mono">rtp (2), iso_grav_anom (13)</td>
-          <td class="small">TDR = atan2(dF/dz, |∇ₕF|); the zero contour sits over the source edge. Also θ = acos(THDR/AS).</td>
-          <td class="small">TDR is amplitude-normalised, so a weak anomaly over a deep or low-contrast source scores as strongly as a loud shallow one. Loud anomalies are already mapped; the unmapped ones are quiet by construction.</td>
-          <td class="small">Nothing in the repo computes a vertical derivative or a tilt angle from RTP. Band 6 <code>tc</code> was assumed to be a tilt angle, but it is almost certainly radiometric Total Count (irregularity I-2).</td>
-          <td><span class="tag t-info">qualitative: High</span><br>
-              <span class="tag t-mut">cost Low</span></td></tr><tr>
-          <td><b>H-C</b><br><span class="small">Concealed basement hinge under flat cover</span><br><span class='tag t-info'>worst-rule DTI 0.0343 · mean DTI 0.0553</span><br><span class='small'>screening-only DTI</span></td>
-          <td class="small mono">depth_to_base_surf (15), det_elev_slope (19)</td>
-          <td class="small">Ridge of |∇ depth-to-basement|, thinned, then <b>multiplied by a flat-topography mask</b> (bottom ~55% of slope).</td>
-          <td class="small">A normal fault that offsets basement but is buried by Quaternary fill makes a hinge in basement depth and nothing at the surface. Conditioning on flat ground <i>inverts</i> the usual scarp hunt so the detector can only fire where a scarp-derived catalogue is blind. This is also the classic hidden-geothermal target that motivates INGENIOUS.</td>
-          <td class="small">Conductivity and depth-to-basement were used as generic ML features. The anti-topographic conjunction — require a basement step AND no relief — is new.</td>
-          <td><span class="tag t-info">qualitative: Medium-High</span><br>
-              <span class="tag t-mut">cost Low</span></td></tr><tr>
-          <td><b>H-D</b><br><span class="small">Strain-budget residual</span><br><span class='tag t-info'>worst-rule DTI 0.0100 · mean DTI 0.0402</span><br><span class='small'>screening-only DTI</span></td>
-          <td class="small mono">geod_2ndinv (4), ieq_n100a15 (16), + visible catalogue density</td>
-          <td class="small">Normalised second invariant of the strain-rate tensor minus normalised earthquake density minus normalised mapped-fault density.</td>
-          <td class="small">Geodetic strain has to be accommodated somewhere. Where strain is high but both seismicity and mapped faults are absent, the accommodating structure is by elimination not in the catalogue.</td>
-          <td class="small">Strain bands were fed to ML models and a “dilational annulus/top-k” was tried, but never as a <i>deficit</i> conditioned on catalogue density.</td>
-          <td><span class="tag t-info">qualitative: Low-Medium</span><br>
-              <span class="tag t-mut">cost Low</span></td></tr><tr>
-          <td><b>H-E</b><br><span class="small">Directional-coherence lineaments in non-topographic contrast</span><br><span class='tag t-info'>worst-rule DTI 0.0223 · mean DTI 0.0355</span><br><span class='small'>screening-only DTI</span></td>
-          <td class="small mono">tc (6) — see I-2, cond_surf (17)</td>
-          <td class="small">Oriented matched-filter bank: 12 strikes × 1.5 km length, maximum response.</td>
-          <td class="small">Faults juxtapose lithologies and channel groundwater, so they appear as sharp linear K/U/Th and conductivity contrasts even on perfectly flat ground. Radiometrics is the least-exploited GeoDAWN product.</td>
-          <td class="small">Radiometrics appears in the repo only as an ML input raster (<code>radiometric_u8.tif</code>, <code>context_detector_prob_topo_rad</code>), never as an oriented lineament detector. Partial overlap — flagged honestly.</td>
-          <td><span class="tag t-info">qualitative: Medium</span><br>
-              <span class="tag t-mut">cost Low</span></td></tr><tr>
-          <td><b>R6-1</b><br><span class="small">Horsetail splay / relay-ramp structural completion</span><br><span class='tag t-mut'>pending</span></td>
-          <td class="small mono">existing_faults geometry (catalogue, rebuilt per fold)</td>
-          <td class="small">Detects step-overs within 20 px where tips are close and subparallel <30°, bridges gap + emits 5-ray fan ±35° at each tip.</td>
-          <td class="small">Catalogue omits linking faults at relay ramps/horsetails because short/discontinuous/no Quaternary scarp. Organizers explicitly include extensions, splays, parallel strands, corrections.</td>
-          <td class="small">extension_rays projects forward; this bridges nearby faults + fan.</td>
-          <td><span class="tag t-info">qualitative: High</span><br>
-              <span class="tag t-mut">cost Low</span></td></tr><tr>
-          <td><b>R6-2</b><br><span class="small">Paleo-shoreline / lacustrine terrace scarp (intrabasin)</span><br><span class='tag t-info'>worst-rule DTI 0.0095 · mean DTI 0.0410</span><br><span class='small'>screening-only DTI</span></td>
-          <td class="small mono">det_elev (12), det_elev_slope (19)</td>
-          <td class="small">Laplacian curvature ridge on detrended elev, gated to flat playa (<45% slope) + low variance, directional coherence 12 px.</td>
-          <td class="small">USGS QFaults focuses on range-front; intrabasin scarps in Lahontan lake beds are decimetre amplitude, invisible without detrending, yet cut Quaternary deposits.</td>
-          <td class="small">BASE_topo_ridge finds all ridges; this inverts mask to flat + curvature + shoreline continuity.</td>
-          <td><span class="tag t-info">qualitative: Medium</span><br>
-              <span class="tag t-mut">cost Medium</span></td></tr><tr>
-          <td><b>R6-3</b><br><span class="small">Conductive-base step with conductivity coherence</span><br><span class='tag t-info'>worst-rule DTI 0.0104 · mean DTI 0.0267</span><br><span class='small'>screening-only DTI</span></td>
-          <td class="small mono">depth_to_base_surf (15), cond_surf (17), det_elev_slope (19)</td>
-          <td class="small">Product of gradients of depth_to_base and cond_surf, ridge-thinned, flat mask 55% + anti-topo, oriented 15 px.</td>
-          <td class="small">Buried fault offsets conductive basement + juxtaposes lithologies → conductivity contrast, no scarp. Needs both depth and conductivity.</td>
-          <td class="small">HC_hinge used only depth gradient; this requires BOTH + coherence + anti-topo.</td>
-          <td><span class="tag t-info">qualitative: Medium</span><br>
-              <span class="tag t-mut">cost Low</span></td></tr><tr>
-          <td><b>R6-4</b><br><span class="small">Gravity-gradient termination / intersection</span><br><span class='tag t-info'>worst-rule DTI 0.0301 · mean DTI 0.0536</span><br><span class='small'>screening-only DTI</span></td>
-          <td class="small mono">iso_grav_anom_hg (18), iso_grav_anom_vg (11), iso_grav_anom (13)</td>
-          <td class="small">Finds terminations of hg ridges (1 neighbor), emits 12 px continuation outward; intersections via orientation variance.</td>
-          <td class="small">INGENIOUS basin analysis used gravity-gradient terminations to define fault tips/crossings. Where geophysics says continue but mapping stopped.</td>
-          <td class="small">Uses geophysical ridge termination, not catalogue tip.</td>
-          <td><span class="tag t-info">qualitative: Low-Medium</span><br>
-              <span class="tag t-mut">cost Low</span></td></tr><tr>
-          <td><b>R6-5</b><br><span class="small">Transtensional coupling / dilational jog</span><br><span class='tag t-info'>worst-rule DTI 0.0327 · mean DTI 0.0696</span><br><span class='small'>screening-only DTI</span></td>
-          <td class="small mono">geod_shearrate (7), geod_dilaterate (8), geod_2ndinv (4), iso_grav_anom_hg (18)</td>
-          <td class="small">Shear * positive dilatation * 2nd invariant, localized by grav hg ridge, oriented lineaments.</td>
-          <td class="small">Transtensional jogs are prime geothermal (high permeability) but subtle/no scarp because extension distributed. Strain smooth needs sharp multiplier.</td>
-          <td class="small">HD used deficit; this uses product coupling as positive evidence.</td>
-          <td><span class="tag t-info">qualitative: Low on random, High on isolated</span><br>
-              <span class="tag t-mut">cost Medium</span></td></tr><tr>
-          <td><b>R7-1</b><br><span class="small">Cross-gradient structural edge (two physics, one geometry)</span><br><span class='tag t-info'>worst-rule DTI 0.0330 · mean DTI 0.0662</span><br><span class='small'>screening-only DTI</span></td>
-          <td class="small mono">iso_grav_anom (13), rtp (2)</td>
-          <td class="small">At 0/1/3 km continuation, require the gravity and magnetic horizontal gradients to be strong AND parallel (cosine of included angle), then ridge-thin and stack by height.</td>
-          <td class="small">Gravity measures density and magnetics susceptibility — two independent properties. A real fault contact produces a lateral contrast in BOTH with the gradient vectors pointing the same way; artefacts, remanence and sedimentary texture produce an edge in one field only. Directional coincidence between two independent measurements is a precision filter that never looks at topography, so it is blind to how the catalogue was compiled.</td>
-          <td class="small">H-A worms each field separately and never compares them; H-B runs TDR on one field at a time; R6-3 requires depth_to_base and cond_surf to agree, which is a different pair and a different condition (product of amplitudes, not alignment of directions).</td>
-          <td><span class="tag t-info">qualitative: Medium</span><br>
-              <span class="tag t-mut">cost Low</span></td></tr><tr>
-          <td><b>R7-2</b><br><span class="small">Basement hinge / flexure line (second derivative, not step)</span><br><span class='tag t-info'>worst-rule DTI 0.0069 · mean DTI 0.0287</span><br><span class='small'>screening-only DTI</span></td>
-          <td class="small mono">depth_to_base_surf (15), det_elev_slope (19)</td>
-          <td class="small">Laplacian (second derivative) of basement depth, Hessian-ridge thinned, gated to flat ground and anti-topographic, then directional coherence.</td>
-          <td class="small">A listric normal fault, monocline hinge or drag-folded margin puts its largest signal at the HINGE — the maximum-curvature locus, in the middle of the flexure rather than at its edge. The flat/anti-topographic gates mean it can only fire where a scarp-derived catalogue is structurally blind.</td>
-          <td class="small">Different derivative order from H-C and R6-3 (2nd vs 1st), and it deliberately does not require a conductivity contrast, so it fires on flexures that are invisible in cond_surf.</td>
-          <td><span class="tag t-info">qualitative: Medium</span><br>
-              <span class="tag t-mut">cost Low</span></td></tr><tr>
-          <td><b>R7-3</b><br><span class="small">Seismicity-gated structural lineaments</span><br><span class='tag t-info'>worst-rule DTI 0.0329 · mean DTI 0.0514</span><br><span class='small'>screening-only DTI</span></td>
-          <td class="small mono">R7_crossgrad or R6_gravterm + ieq_n100a15 (16), deq_n100a15 (10)</td>
-          <td class="small">Multiply the sharp structural score by a smoothed earthquake intensity/density gate (and by 1 − normalised deq).</td>
-          <td class="small">A fault that is currently slipping must produce earthquakes. QFaults is a Quaternary surface-evidence database, so an active fault with no recognised scarp is absent from it while still being a fault. Seismicity observes exactly the population the catalogue misses. Measured: both earthquake bands have higher medians inside catalogue pixels than outside, so they are density-like, and they are near-uncorrelated with each other (r = 0.083).</td>
-          <td class="small">H-D SUBTRACTS earthquake density from a strain budget (a deficit argument). This is a positive gate on a SHARP detector, using seismicity as evidence FOR a fault. R6-5 uses strain coupling, not seismicity.</td>
-          <td><span class="tag t-info">qualitative: Low-Medium</span><br>
-              <span class="tag t-mut">cost Low</span></td></tr><tr>
-          <td><b>R7-4</b><br><span class="small">Multi-band edge consensus (N-of-5 within 300 m)</span><br><span class='tag t-info'>worst-rule DTI 0.0162 · mean DTI 0.0264</span><br><span class='small'>screening-only DTI</span></td>
-          <td class="small mono">rtp (2), iso_grav_anom (13), cond_surf (17), depth_to_base_surf (15), tmi (14)</td>
-          <td class="small">Threshold each band's own gradient magnitude at its 90th percentile, dilate each binary edge by 3 px = 300 m, and require N of the five to agree.</td>
-          <td class="small">A fault juxtaposes rock of different susceptibility, density, conductivity and burial depth at the same place, so it moves FIVE independent physical quantities at once; noise moves one or two. 3 px is not a free parameter — it is the scorer's own tolerance, so two edges count as the same edge only within the distance the metric itself treats as a hit.</td>
-          <td class="small">Every existing detector is single-band or a pair product (R6-3). An N-of-M consensus over five independent measurements, with the tolerance tied to the scorer's kernel, is new.</td>
-          <td><span class="tag t-info">qualitative: Medium</span><br>
-              <span class="tag t-mut">cost Low</span></td></tr><tr>
-          <td><b>R7-5</b><br><span class="small">Regional structural grain where the catalogue is silent</span><br><span class='tag t-mut'>pending</span></td>
-          <td class="small mono">rtp (2) + existing_faults geometry (visible catalogue per fold)</td>
-          <td class="small">Structure tensor of the gradient-orientation field; coherence (λ1−λ2)/(λ1+λ2); inverted smoothed visible-catalogue density as a blindness gate; thin along the principal grain direction.</td>
-          <td class="small">A fault SYSTEM imposes one preferred orientation over kilometres. The organizers' definition of “new fault” explicitly includes parallel strands and newly mapped geometry of an existing system — a parallel strand is at the same orientation as the mapped system and within a few km of it, so it is invisible to any single-edge detector and to a mapper scanning imagery, yet it is a coherent extension of the regional grain.</td>
-          <td class="small">Nothing here computes a regional orientation-coherence field, and nothing uses “the catalogue fails to explain the observed grain” as a detection criterion. Known weakness: with the FULL catalogue the blindness gate leaves only 1,748 of 5,167,373 pixels (0.034%), so the submission-side version is effectively empty — only the per-fold version is measurable.</td>
-          <td><span class="tag t-info">qualitative: Unknown, probably low</span><br>
-              <span class="tag t-mut">cost Medium</span></td></tr><tr>
-          <td><b>H-S</b><br><span class="small">Supervised logistic classifier on multi-scale band context</span><br><span class='tag t-info'>worst-rule DTI 0.0327 · mean DTI 0.0467</span><br><span class='small'>historical local DTI · holdout_supervised.json</span></td>
-          <td class="small mono">all 19 official bands</td>
-          <td class="small">L2-regularised logistic regression on 57 features: the band value, its 3×3 mean (150 m) and its 9×9 mean (450 m), trained per fold on the VISIBLE catalogue only.</td>
-          <td class="small">This is the only hypothesis here that LEARNS. Every other detector is a hand-written transform; a classifier can weight the 19 bands against each other and can pick up combinations no single transform expresses. It is also the approach the organizers' own reference solution takes (a U-Net), which this repo had never attempted.</td>
-          <td class="small">Nothing in this repo was trained on the labels before. The classifier is re-trained for every holdout fold from that fold's visible catalogue, so the withheld segments are never training labels. Disclosed residual leakage: the 9×9 context mean of a training pixel can reach 4 px into the 5 px withheld buffer.</td>
-          <td><span class="tag t-info">qualitative: Medium</span><br>
-              <span class="tag t-mut">cost Medium (first supervised model)</span></td></tr><tr>
-          <td><b>R8-1a</b><br><span class="small">Topographic openness / sky-view factor for subtle scarps</span><br><span class='tag t-info'>worst-rule DTI 0.0445 · mean DTI 0.0641</span><br><span class='small'>historical local DTI · holdout_r8_quick.json</span></td>
-          <td class="small mono">det_elev (12)</td>
-          <td class="small">For each of 8 azimuths, maximum horizon inclination within 5 px (500 m); openness = 90° − mean(max_slope); edge is Hessian ridge + NMS of |∇ openness|.</td>
-          <td class="small">Hypothesis: horizon-angle metrics may emphasize some subdued terrain edges that a local slope threshold misses. The supplied elevation grid is 100 m; decimetre relief, Lahontan-wide prevalence, and catalogue omission are not established by this layer alone.</td>
-          <td class="small">Different terrain operator from slope/curvature and the prior Laplacian shoreline detector, but it remains a topographic feature and may be redundant.</td>
-          <td><span class="tag t-info">qualitative: Unknown (not estimated)</span><br>
-              <span class="tag t-mut">cost Low (compute)</span></td></tr><tr>
-          <td><b>R8-1b</b><br><span class="small">Multi-scale Topographic Position Index (TPI)</span><br><span class='tag t-info'>worst-rule DTI 0.0442 · mean DTI 0.0613</span><br><span class='small'>historical local DTI · holdout_r8_quick.json</span></td>
-          <td class="small mono">det_elev (12)</td>
-          <td class="small">TPI = elev − mean(elev in window) at 3/6/12 px (300 m/600 m/1.2 km); gradient of TPI → ridge → NMS; stack across scales.</td>
-          <td class="small">A multiscale elevation residual may emphasize some topographic breaks, but slope, depositional edges, drainage, roads, and other landforms can create similar patterns. It cannot by itself establish a missing fault or resolve sub-pixel relief.</td>
-          <td class="small">Uses local elevation residuals rather than horizon angles; still overlaps with prior topographic ridge, curvature, and shoreline detectors.</td>
-          <td><span class="tag t-info">qualitative: Unknown marginal DTI</span><br>
-              <span class="tag t-mut">cost Low (compute)</span></td></tr><tr>
-          <td><b>R8-2</b><br><span class="small">Fault-controlled drainage deflection (hydrologic lineament)</span><br><span class='tag t-info'>worst-rule DTI 0.0372 · mean DTI 0.0732</span><br><span class='small'>historical local DTI · holdout_r8_quick.json</span></td>
-          <td class="small mono">det_elev (12) + det_elev_slope (19)</td>
-          <td class="small">D8 steepest-descent flow direction on det_elev, flow accumulation by descending elevation order, log(1+acc) → |∇ log| → ridge + flat gate (45th pct) → directional coherence.</td>
-          <td class="small">A drainage anomaly could be consistent with fault-controlled ponding or diversion under cover, but DEM-derived flow is affected by topography, DEM artefacts, climate, and land use; the signature is not fault-specific.</td>
-          <td class="small">Adds a D8/flow-accumulation transform not used by the earlier edge operators, while remaining dependent on the same elevation data and potentially correlated with existing terrain features.</td>
-          <td><span class="tag t-info">qualitative: Unknown marginal DTI</span><br>
-              <span class="tag t-mut">cost Medium (feature QC)</span></td></tr><tr>
-          <td><b>R8-3</b><br><span class="small">Isostatic coherence breakdown (buried basin)</span><br><span class='tag t-info'>worst-rule DTI 0.0256 · mean DTI 0.0314</span><br><span class='small'>historical local DTI · holdout_r8_quick.json</span></td>
-          <td class="small mono">iso_grav_anom (13) + det_elev (12)</td>
-          <td class="small">Windowed Pearson r between gravity and topography (σ=6 px≈600 m): r = cov/σgσt; breakdown = 1−|r|; modulated by joint gradient; ridge-thin.</td>
-          <td class="small">A gravity–topography mismatch could flag a subsurface or lithologic boundary beneath subdued relief, but non-fault density contrasts, regional compensation, resolution, and processing can also produce decorrelation. No causal interpretation follows from the score alone.</td>
-          <td class="small">Tests local amplitude coherence rather than the earlier depth gradient or cross-field gradient alignment; related gravity/topography features can still overlap.</td>
-          <td><span class="tag t-info">qualitative: Unknown marginal DTI</span><br>
-              <span class="tag t-mut">cost Low-to-medium (scale/QC)</span></td></tr><tr>
-          <td><b>R8-4</b><br><span class="small">Magnetic remanence divergence</span><br><span class='tag t-info'>worst-rule DTI 0.0259 · mean DTI 0.0441</span><br><span class='small'>historical local DTI · holdout_r8_quick.json</span></td>
-          <td class="small mono">rtp (2) + tmi (14) + mag_anom (1)</td>
-          <td class="small">|robust_norm(rtp)−robust_norm(tmi)| and vs mag_anom; max; gradient → ridge.</td>
-          <td class="small">A mismatch between RTP, TMI, and magnetic-anomaly transforms may reflect remanent magnetization or processing differences and could highlight lithologic contacts. Such contacts are not necessarily faults; input scaling and reduction assumptions require checks.</td>
-          <td class="small">Compares transformed magnetic products rather than applying a single-field edge detector; it may be redundant with existing magnetic-gradient features and is not independent geological confirmation.</td>
-          <td><span class="tag t-info">qualitative: Unknown marginal DTI</span><br>
-              <span class="tag t-mut">cost Low-to-medium (normalization/QC)</span></td></tr><tr>
-          <td><b>R8-5</b><br><span class="small">Fault-intersection density (geothermal permeability)</span><br><span class='tag t-info'>worst-rule DTI 0.0138 · mean DTI 0.0271</span><br><span class='small'>historical local DTI · holdout_r8_quick.json</span></td>
-          <td class="small mono">secondary on ridge maps e.g. BASE_topo_ridge, HA_worms_rtp, R7_crossgrad</td>
-          <td class="small">Threshold each ridge at 85th pct → binary line → dilate 1 px → pairwise intersections (AND) → kernel density Gaussian σ=6 px (600 m halo) → robust_norm_nonzero → multiply by ridge skeleton.</td>
-          <td class="small">A dense intersection of candidate edges could mark a structurally complex zone, but it is only an intersection of detector outputs—not confirmed faults, fracture permeability, or a geothermal upflow measurement. Edge density and correlated false positives are major risks.</td>
-          <td class="small">Adds a secondary density transform over existing candidate ridge maps rather than a new physical observation. Its apparent novelty is computational; it does not independently validate the input lineaments.</td>
-          <td><span class="tag t-info">qualitative: Unknown marginal DTI; current R8 union is below the local topo baseline</span><br>
-              <span class="tag t-mut">cost Low-to-medium (threshold sensitivity)</span></td></tr><tr>
-          <td><b>R9-1</b><br><span class="small">Strike-aligned gap completion (“dotted-ridge closing”) — MEASURED</span><br><span class='tag t-info'>worst-rule DTI 0.0629 · mean DTI 0.0719</span><br><span class='small'>R9 paired confirmation DTI (predeclared rule: LOSES)</span></td>
-          <td class="small mono">the fused binary prediction map itself (no band, no catalogue)</td>
-          <td class="small">Oriented morphological closing restricted to pure gap-fill: pixel p emitted iff ≥1 support pixel lies on BOTH sides of p along one of four lattice line directions within reach (axial 3 px, diagonal 2 px), p touches dilated support, and p is not in a solid interior.</td>
-          <td class="small">Top-k + grid decimation emits physically continuous traces as DASHES; “new fault” is defined per PIXEL and each truth pixel is credited through a 300 m max, so a truth pixel inside a dash gap currently earns 0 TP_w while a prediction there costs almost no FP_w if the line is real.</td>
-          <td class="small">extension_rays/horsetail extrapolate FROM CATALOGUE TIPS; gravity_termination continues gravity ridges; no prior operator closes gaps in the prediction's own support from its own geometry.</td>
-          <td><span class="tag t-info">qualitative: MEASURED: LOSES (loose −0.0257 mean DTI, +145.6k px/fold; strict +32 px, tie)</span><br>
-              <span class="tag t-mut">cost Low</span></td></tr><tr>
-          <td><b>R9-2</b><br><span class="small">Epicentral-alignment lineaments — MEASURED</span><br><span class='tag t-info'>worst-rule DTI 0.0846 · mean DTI 0.0955</span><br><span class='small'>R9 paired confirmation DTI (predeclared rule: LOSES)</span></td>
-          <td class="small mono">ieq_n100a15 (16), deq_n100a15 (10)</td>
-          <td class="small">Smooth both earthquake-density bands, standardise, geometric mean (both must agree), Hessian ridge, NMS crest, keep crest cells with oriented persistence ≥5 crest px within ±9.</td>
-          <td class="small">Earthquakes occur ON faults; the catalogue is a surface-evidence compilation, so an active structure with no recognised scarp is absent from it while still producing aligned seismicity in two near-uncorrelated fields (r = 0.083).</td>
-          <td class="small">H-D subtracts seismicity in a deficit residual; R7-3 uses it as a multiplicative gate on OTHER bands' edges. No prior operator extracts lineaments FROM the seismicity fields.</td>
-          <td><span class="tag t-info">qualitative: MEASURED: LOSES (−0.0021 mean DTI at +16,590 px/fold)</span><br>
-              <span class="tag t-mut">cost Low</span></td></tr><tr>
-          <td><b>R9-3</b><br><span class="small">Parallel-offset “correction” edges — MEASURED</span><br><span class='tag t-info'>worst-rule DTI 0.0869 · mean DTI 0.0976</span><br><span class='small'>R9 paired confirmation DTI (predeclared rule: LOSES)</span></td>
-          <td class="small mono">visible catalogue (per fold) + R7_crossgrad edge field (rtp + iso_grav_anom)</td>
-          <td class="small">Within a 1–4 px perpendicular ring of a visible trace, keep independent-field crest pixels whose orientation is parallel to the local trace strike (≤25°) with an along-strike crest run ≥4 px. Emits EDGE pixels only, never a blanket halo.</td>
-          <td class="small">Organizer statement 3 names corrections/modifications within 300 m of known traces as target truth. A laterally offset high-quality potential-field edge beside a coarse legacy trace is exactly “newly mapped geometry”.</td>
-          <td class="small">extension_rays/horsetail fire at trace TIPS; R7-5 gates on catalogue ABSENCE; structural_grain never emits near the catalogue. This is the only ALONG-TRACE operator.</td>
-          <td><span class="tag t-info">qualitative: MEASURED: LOSES as a no-op (+26 px/fold, Δ −0.00001); the gate is too strict on this data</span><br>
-              <span class="tag t-mut">cost Medium</span></td></tr></tbody></table></div>
-</section>
-
-
-<section>
-  <h2>R13 — five ranked hypotheses (session 7)</h2>
-  <p class="small">Full register with layers, physical signature, why each could catch uncatalogued faults and how it
-  differs from earlier work: <a href="https://github.com/buffedlizard55-lab/13GEMSDOE/blob/main/knowledge/09_r13_hypotheses.md">knowledge/09_r13_hypotheses.md</a>.
-  Ranked by expected gain × probability ÷ cost; the rule was frozen before the run.</p>
-  <div class="scroll"><table><thead><tr><th>#</th><th>hypothesis</th><th>layers</th><th>status</th></tr></thead><tbody>
-  <tr><td>1</td><td>R13-4 paleo-geothermal feature halos (sinter/tufa = ground evidence of fault-controlled upflow)</td><td>INGENIOUS GDR 1391 (CC-BY-4.0) + band 19</td><td>run: LOSES (dose-response)</td></tr>
-  <tr><td>2</td><td>R13-1 local-contrast crest normalisation (subdued basin scarps)</td><td>band 19</td><td>run: LOSES</td></tr>
-  <tr><td>3</td><td>R13-2 scale-persistent crest</td><td>band 19</td><td>FRAGILE (Stage A beat the old base in 17/18 folds)</td></tr>
-  <tr><td>4</td><td>R13-3 tile-quota regional budget</td><td>BASE_topo_ridge</td><td>run: LOSES</td></tr>
-  <tr><td>5</td><td>R13-5 Euler depth-to-source clusters</td><td>band 2 rtp</td><td>deferred (cost, low prior)</td></tr>
-  <tr><td>+</td><td>R13-6 coverage-geometry lattices (post-hoc, disclosed)</td><td>none</td><td>WINS the frozen rule on the proxy — caveat: coverage-dominated proxy</td></tr>
-  </tbody></table></div>
-</section>
-<section>
-  <h2>R10 / R10b — the external-data register is now measured and closed</h2>
-  <p class="lede">Four hypotheses were predeclared in
-  <a href="https://github.com/buffedlizard55-lab/13GEMSDOE/blob/main/knowledge/06_r10_hypotheses.md">knowledge/06_r10_hypotheses.md</a>
-  <i>before</i> any map was built, with the decision rule written down first:
-  R10-3 damage-zone texture (3DEP slope_std × profile curvature), R10-1 1-m LiDAR
-  morphometric scarp composite, R10-2 radiometric alteration-ratio lineaments
-  (U/K, U/Th), R10-4 geothermal-vent conjunction. Two more were screened out on
-  measurement before build: the QFFDB-minus-catalogue difference (1 pixel) and a
-  LiDAR coherence channel (AUC 0.4608, below chance).</p>
-  <p class="small"><b>Outcome: all 24 challenger configurations across R8, R9, R10 and
-  R10b LOSE</b> to <code>topo_05_sp3</code> (confirmation worst-rule mean 0.08687; best
-  R10 challenger 0.08593; best R10b fusion 0.08286). No submission slot was spent.
-  One predeclaration was wrong in its mechanism and is corrected on the record: R10-4
-  was expected to be low-recall, and it measured the <i>highest</i> top-5% recall of the
-  family (0.0841) — it still loses, because its recall stays below the reference while
-  its precision gain is too small to pay for it under β = 2.</p>
-  <p class="small">What survives as a research direction is narrow and now evidence-based:
-  an external product only helps if it puts predictions within 300 m of faults the
-  topographic crest never touches. Re-ranking, tightening or fusing the neighbourhoods
-  the crest already hits cannot raise DTI, and univariate AUC is not a go/no-go signal
-  (irregularity I-13).</p>
-</section>
-
-<section>
-  <h2>Fresh external-data candidates — rank for research, not submission</h2>
-  <p class="lede">The rank is a qualitative geological prior, not a numerical DTI
-  forecast. These four directions use layers that have <b>not</b> been staged (the
-  GeoDAWN / 3DEP / QFFDB family has been — see above), and none has passed the
-  prescribed holdout. None is approved as viable or ready to submit.</p>
-  <div class="scroll"><table><thead><tr><th>rank / hypothesis</th>
-  <th>layers and physical signature</th><th>why it could find uncatalogued faults / difference from prior detectors</th>
-  <th>expected impact / cost</th><th>required official data and availability</th></tr></thead><tbody>
-  <tr><td><b>1 · Event-level focal-plane coherence</b></td>
-      <td>USGS ComCat hypocentres + moment-tensor nodal planes; coherent strike/dip geometry projected toward a shallow trace.</td>
-      <td>Could expose active buried structures or splays without a mapped scarp. Uses event-by-event focal mechanisms, not the supplied smoothed seismicity bands or the prior seismicity gate.</td>
-      <td>Medium possible, high variance; no score forecast.<br>Cost: medium-high</td>
-      <td>USGS ComCat/FDSN API. 17,178 M≥2 and 478 M≥3 moment-tensor bbox counts checked; counts are not valid-footprint coverage and local event payload is not staged.</td></tr>
-  <tr><td><b>2 · Repeat Landsat thermal/moisture corridors</b></td>
-      <td>Landsat Collection 2 Level-2 surface temperature/reflectance + QA; recurring date- and terrain-adjusted residual lineaments.</td>
-      <td>Could flag fault-controlled seepage or upflow under alluvium. Differs from static radiometry by requiring repeated satellite observations and temporal residualization; confounds include irrigation, land cover, weather, and shadow.</td>
-      <td>Low-to-medium, high false-positive risk.<br>Cost: high</td>
-      <td>USGS Landsat C2 Level-2 STAC. 875 January 2020 bbox metadata hits; one inspected item reported 61% cloud. Exact usable footprint and time series are unverified.</td></tr>
-  <tr><td><b>3 · Groundwater-head compartments</b></td>
-      <td>USGS groundwater-level measurements + well, aquifer, datum, and time metadata; persistent head offsets or different response across a candidate corridor.</td>
-      <td>Could indicate a buried hydraulic barrier or conduit without surface relief. Differs from static chemistry/temperature and DEM-derived flow by testing temporal well-head response; aquifer boundaries and pumping are confounders.</td>
-      <td>Low-to-medium, likely sparse.<br>Cost: high</td>
-      <td>USGS Water Data API field measurements. One 1976 groundwater record found in bbox; station density and comparable time coverage are unknown.</td></tr>
-  <tr><td><b>4 · Cross-depth MT edge persistence</b></td>
-      <td>Five ScienceBase depth-integrated conductance intervals; test whether a lateral edge recurs at the same location across adjacent depth products.</td>
-      <td>Could highlight a buried, vertically persistent boundary beneath weak surface expression. Differs from the prior surface-conductivity/basement rasters by using cross-depth persistence; conductors are not uniquely faults.</td>
-      <td>Low, high scale risk.<br>Cost: medium-high</td>
-      <td>USGS ScienceBase conductance products (DOI 10.5066/P9TWT2LU). Metadata lists five intervals; grids, native resolution, and valid-footprint coverage are not verified.</td></tr>
-  </tbody></table></div>
-  <p><a href="../knowledge/05_hypothesis_screen_2026-09-30.md">Full hypotheses, prior-art comparisons, official links, data checks, and validation gate</a>.</p>
-</section>
-
-<section>
-  <h2>External data that would unlock more — and whether it is obtainable</h2>
-  <div class="scroll"><table><thead><tr><th>source</th><th>what it adds</th>
-  <th>licence</th><th>status</th></tr></thead><tbody>
-  <tr><td><a href="https://gdr.openei.org/submissions/1391">INGENIOUS Great Basin
-      Compilation</a> (DOI 10.15121/1881483)</td>
-      <td><b>Quaternary Faults v2</b> carries fault <b>ages and slip rates</b> — the
-      missing holdout strata. Also <b>Paleo Geothermal Features</b> (sinter/tufa
-      deposits), 2 m temperature probes, Quaternary volcanics, heat flow, MT conductance.</td>
-      <td>CC-BY-4.0 ✅ permits competition use</td>
-      <td><span class="tag t-warn">verified to exist; download blocked by sandbox
-      egress — see L-2</span></td></tr>
-  <tr><td><a href="https://doi.org/10.5066/P93LGLVQ">GeoDAWN survey (USGS)</a></td>
-      <td>Native-resolution magnetics and radiometrics (the provided grid is
-      resampled to 100 m)</td><td>USGS public domain ✅</td>
-      <td><span class="tag t-warn">egress blocked</span></td></tr>
-  <tr><td>USGS 3DEP 1 m DEM (<code>1m_DEM_links.csv</code>)</td>
-      <td>Metre-scale scarp morphology</td><td>USGS public domain ✅</td>
-      <td><span class="tag t-bad">needs a DrivenData login</span></td></tr>
-  </tbody></table></div>
-  <p class="small"><b>Scope:</b> the earlier H/R detector register uses the supplied
-  bands where stated above. The fresh ranked shortlist is separate and requires the
-  external sources listed in its availability column; those data checks are incomplete,
-  so none of the four new candidates is called viable.</p>
-</section></main>
-<footer class="site"><div class="wrap">
-  <p><strong>13GEMSDOE</strong> — working repository for the
-  <a href="https://www.drivendata.org/competitions/306/competition-doe-gems/">DOE GEMS Prize Challenge</a>.
-  Page generated 2026-10-01 02:43 UTC from <code>reports/*.json</code>.</p>
-  <p class="small">Every figure on this site is produced by a script in this
-  repository and is reproducible from a clean checkout. Claims that could not be
-  verified against an official source are listed as irregularities rather than
-  presented as fact.</p>
-</div></footer></body></html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="13GEMSDOE: one-click, format-checked competition TIFF; explicit submission steps and auditable geological research.">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self' https://api.github.com; object-src 'none'; base-uri 'self'">
+<title>Research · 13GEMSDOE</title><link rel="stylesheet" href="assets/style.css"><script src="assets/site.js" defer></script></head>
+<body data-site-revision="r15-audit-20261001"><a class="skip-link" href="#main">Skip to page content</a>
+<div class="shell"><header class="masthead"><a class="brand" href="index.html" aria-label="13GEMSDOE home"><span class="brand-mark">13</span><span>GEMSDOE<small>Fault mapping, with evidence.</small></span></a><a href="https://www.drivendata.org/competitions/306/competition-doe-gems/" target="_blank" rel="noopener noreferrer">Official competition ↗</a></header>
+<section class="download-hero" aria-labelledby="download-title" id="download">
+<div class="hero-copy"><p class="eyebrow">DOE GEMS · submission workspace</p>
+<h1 id="download-title">Download the competition TIFF.</h1>
+<p class="hero-lead">One file. The official grid. Checked predictions in <strong>[0, 1]</strong>.</p>
+<div class="download-actions"><a class="button primary" data-testid="primary-download" href="downloads/13gems_20261001_r13-lattice-s5_v2_nan-outside.tif" download>↓ Download submission .tif <span>1.7 MB</span></a>
+<a class="button secondary" href="downloads/13gems_20261001_r13-lattice-s5_v2_nan-outside.zip" download>Download .zip</a></div>
+<p class="file-name"><code>13gems_20261001_r13-lattice-s5_v2_nan-outside.tif</code></p>
+<p class="format-line">1 band · float32 · EPSG:32611 · 3730 × 3292 · 100 m</p>
+</div><div class="download-status" role="group" aria-label="Download status">
+<span class="status good">✓ Local format checked</span>
+<h2>Current local reference</h2><p>Stride-5 coverage lattice. <strong>Not a geological discovery or a predicted leaderboard score.</strong></p>
+<p class="status-limit">DrivenData acceptance is <strong>not confirmed</strong>. No new experiment is cleared for a weekly slot.</p>
+<a href="executive_summary.html" class="text-link">Exact submission steps →</a>
+</div></section>
+<section class="note-panel" aria-labelledby="note-label"><div><h2 id="note-label">Short note for the submission form</h2><code id="submission-note">r13 lattice-s5 v2 20261001 | fault-blind every-5th-px grid, coverage baseline | local holdout 18/18 win, not a LB claim</code></div>
+<div class="note-action"><button class="button small" type="button" id="copy-note">Copy note</button><span id="copy-status" class="small-text" role="status" aria-live="polite"></span></div></section>
+<section aria-label="File integrity and diagnostic encoding"><details class="file-details"><summary>File integrity, encoding &amp; diagnostic alternative</summary>
+<p><strong>Primary SHA-256:</strong> <code class="hash">b4570b406efec198eb2f4d142ad8d0d6184b14b66f2f52b5c4d697f0647dc9b2</code></p>
+<button class="button small" id="verify-file" type="button" data-sha256="b4570b406efec198eb2f4d142ad8d0d6184b14b66f2f52b5c4d697f0647dc9b2" data-bytes="1706456">Check delivered file</button> <span id="verify-status" role="status" aria-live="polite"></span>
+<p>The primary has finite predictions inside the official footprint and <strong>NaN / NoData=nan outside</strong>. LZW, one-row strips, no predictor; matches the measured template convention. A local check is not a platform receipt.</p>
+<p><a href="downloads/13gems_20261001_r13-lattice-s5_v2_zerofill.tif" download>Zero-filled diagnostic TIFF</a> · <a href="downloads/13gems_20261001_r13-lattice-s5_v2_zerofill.zip" download>diagnostic ZIP</a>. Same footprint predictions, zeros outside, no NoData. <strong>Not the official template convention, not a second scientific experiment, and not an automatic second upload.</strong></p>
+<p><a href="downloads/submit.json">Download manifest</a> · <a href="https://github.com/buffedlizard55-lab/13GEMSDOE/blob/main/reports/form_responses.json" target="_blank" rel="noopener noreferrer">Recorded form evidence ↗</a></p></details></section><nav class="page-nav" aria-label="Main navigation"><a href="index.html">Overview</a><a href="executive_summary.html">How to submit</a><a href="evidence.html">Evidence</a><a href="hypotheses.html" aria-current="page">Research</a><a href="sources.html">Sources &amp; feed</a></nav><main id="main"><section class="section-heading"><p class="eyebrow">Predeclared before implementation</p><h2>Independent observations before another ensemble.</h2><p>Four unimplemented data/transform combinations were ranked. This is repository-level novelty, not a claim of new scientific laws; three revive previously untested proposals.</p></section>
+<article class="hypothesis-card"><div class="hypothesis-title"><span class="card-index">01</span><h3>Survey-corrected 2 m thermal corridors</h3><span class="status caution">TESTED · FAILED GATE</span></div><dl><dt>Exact inputs</dt><dd>GDR1391 Area, T2m, F2mDAB, location and dates.</dd><dt>Physical signature / off-catalogue rationale</dt><dd>Warm, same-survey probes aligned over a measured span; possible steam-heated upflow beneath cover. Heat is not displacement.</dd><dt>Difference from implemented approaches</dt><dd>New measured thermal input, not a radiometric edge or paleo-deposit halo. Previously proposed H-G, now tested.</dd><dt>Expected DTI / cost / obtainability</dt><dd>Small regional upside; low cost; data obtained. Qualitative planning judgment, not a score forecast.</dd></dl></article><article class="hypothesis-card"><div class="hypothesis-title"><span class="card-index">02</span><h3>Displaced lithologic-marker registration</h3><span class="status caution">NOT IMPLEMENTED</span></div><dl><dt>Exact inputs</dt><dd>Provided RTP/TMI; verified GeoDAWN K/Th/U; elevation as confounder control.</dd><dt>Physical signature / off-catalogue rationale</dt><dd>Matching multi-channel markers with a consistent nonzero offset across a prospective seam. Contacts/texture can mimic displacement.</dd><dt>Difference from implemented approaches</dt><dd>Test a registration offset, not gradient strength or edge consensus.</dd><dt>Expected DTI / cost / obtainability</dt><dd>Medium possible upside; medium-high cost; inputs obtained. Qualitative planning judgment, not a score forecast.</dd></dl></article><article class="hypothesis-card"><div class="hypothesis-title"><span class="card-index">03</span><h3>Focal-mechanism plane coherence</h3><span class="status caution">NOT DATA-READY</span></div><dl><dt>Exact inputs</dt><dd>USGS ComCat individual hypocentres and focal/moment-tensor planes, with uncertainties.</dd><dt>Physical signature / off-catalogue rationale</dt><dd>Coherent event-plane geometry projected toward a supported shallow trace. Active blind faults may have no scarp; nodal planes are ambiguous.</dd><dt>Difference from implemented approaches</dt><dd>Individual planes, not the provided smoothed seismic-density gate. Revives an untested proposal.</dd><dt>Expected DTI / cost / obtainability</dt><dd>Medium / high variance; high cost; event products not yet staged. Qualitative planning judgment, not a score forecast.</dd></dl></article><article class="hypothesis-card"><div class="hypothesis-title"><span class="card-index">04</span><h3>Groundwater-head response compartments</h3><span class="status caution">NOT DATA-READY</span></div><dl><dt>Exact inputs</dt><dd>USGS monitoring sites, time-resolved levels, aquifer/depth/datum/pumping metadata.</dd><dt>Physical signature / off-catalogue rationale</dt><dd>Persistent cross-boundary head offsets or different responses after harmonization. Pumping/lithology can produce the same pattern.</dd><dt>Difference from implemented approaches</dt><dd>Paired temporal hydraulic contrasts, not surface drainage or static chemistry. Revives an untested proposal.</dd><dt>Expected DTI / cost / obtainability</dt><dd>Low-to-medium possible; high cost; comparable network not established. Qualitative planning judgment, not a score forecast.</dd></dl></article><p><a href="https://github.com/buffedlizard55-lab/13GEMSDOE/blob/main/knowledge/11_r15_predeclared.md" target="_blank" rel="noopener noreferrer">Frozen specification, sources, criteria and gates ↗</a></p>
+<section class="section-heading"><h2>Top candidate: measured, then rejected for submission</h2><p>The frozen DAB ≥ 3°C / 1.5 km / ≥3 stations / PCA axis ratio ≥4 / perpendicular RMS ≤300 m rule drew observed spans only. No label-driven field construction, extrapolated regional halo, parameter sweep or after-the-fact threshold tuning.</p></section><div class="table-wrap"><table><thead><tr><th scope="col">Proxy protocol</th><th scope="col">Lattice reference</th><th scope="col">+ Thermal</th><th scope="col">Paired mean Δ</th><th scope="col">Wins</th></tr></thead><tbody><tr><td>18 system / segment folds</td><td>0.112184</td><td>0.112044</td><td>-0.000140</td><td>0/18</td></tr><tr><td>4 geographic blocks</td><td>0.242175</td><td>0.242013</td><td>-0.000162</td><td>0/4</td></tr></tbody></table></div>
+<div class="callout warning"><h3>RESEARCH_ONLY_DO_NOT_SUBMIT</h3><p>The thermal union won zero paired folds. All required improvement/win gates failed. It is not downloadable as a new competition recommendation; the current primary is unchanged.</p></div>
+<p>Geographic stress folds use 25.6 km tiles, four fixed checkerboard partitions, a 500 m visible-label buffer and a 300 m scoring guard. Existing random/short/isolated/oriented/dense system folds and segment folds are rerun separately. Public covariates remain visible; only catalogue labels are withheld. Neither protocol reproduces hidden expert truth.</p>
+<p><a href="https://github.com/buffedlizard55-lab/13GEMSDOE/blob/main/src/gems/thermal.py" target="_blank" rel="noopener noreferrer">Thermal transform ↗</a> · <a href="https://github.com/buffedlizard55-lab/13GEMSDOE/blob/main/src/gems/spatial.py" target="_blank" rel="noopener noreferrer">Geographic folds ↗</a> · <a href="https://github.com/buffedlizard55-lab/13GEMSDOE/blob/main/reports/holdout_r15_2026-10-01.json" target="_blank" rel="noopener noreferrer">Per-fold results ↗</a> · <a href="https://github.com/buffedlizard55-lab/13GEMSDOE/blob/main/knowledge/12_r15_results.md" target="_blank" rel="noopener noreferrer">Failure analysis ↗</a></p>
+<section class="section-heading"><h2>Next experiment, not next upload</h2><p>Displaced-marker matching has obtainable inputs and a different observation to test. Start with synthetic offset/confounder tests and a frozen paired gate. Event-plane and well-network proposals stay blocked until usable official data are actually acquired.</p></section></main>
+<noscript><p class="caption">Downloads work without JavaScript. Copy the selectable note manually; use the dated evidence and workflow links instead of interactive checks.</p></noscript>
+<footer><span>13GEMSDOE · Maximize P(Win) / Own the Outcome</span><span><a href="https://github.com/buffedlizard55-lab/13GEMSDOE" target="_blank" rel="noopener noreferrer">Code &amp; evidence ↗</a> · Facts reviewed 2026-10-01</span><p>Local verification ≠ live delivery ≠ platform acceptance ≠ scientific clearance. No competition upload is automated.</p></footer></div></body></html>

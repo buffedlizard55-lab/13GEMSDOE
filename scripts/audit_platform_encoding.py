@@ -1,19 +1,9 @@
 #!/usr/bin/env python3
-"""Measure what encoding the DrivenData platform actually accepts.
+"""Audit template, historical TIFF labels and current downloads; NOT server behavior.
 
-Inputs (all local; fetch them first if `data/raw` is empty):
-  data/raw/sample_submission.tif  official template   (scripts/fetch_data.py)
-  data/raw/labels.tif             official label raster
-  data/scored/*.tif               every file this group has a public score for
-  docs/downloads/archive/13gems-r11-greedy-mp.tif   the file the form REJECTED
-  docs/downloads/*.tif            the files this project currently ships
-
-Output: reports/platform_encoding_evidence.json
-
-The report answers one question with bytes rather than argument: *which
-GeoTIFF encoding has an acceptance receipt, and which does not?*
-
-Run:  python scripts/audit_platform_encoding.py
+Historical API/file name retained for reproducibility. Neither score filenames,
+team reports nor a hypothetical decoder establish acceptance of exact bytes.
+Run after bash scripts/download_competition_data.sh --small.
 """
 from __future__ import annotations
 
@@ -27,159 +17,76 @@ import numpy as np
 import rasterio
 
 ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(ROOT / "src"))
-from gems import encoding  # noqa: E402
-
-RAW = ROOT / "data" / "raw"
-SCORED = ROOT / "data" / "scored"
-DL = ROOT / "docs" / "downloads"
-OUT = ROOT / "reports" / "platform_encoding_evidence.json"
-
-# blob sha1 -> public score, from reports/leaderboard_ledger.csv and the
-# sibling repo registry; file names carry the score the team recorded.
-SCORE_LABEL_NOTE = (
-    "Scores are team-recorded public leaderboard values, not per-submission "
-    "receipts (see reports/leaderboard_ledger.csv, column `verified` = NO). "
-    "What IS verified here is the byte encoding of each file.")
+sys.path.insert(0, str(ROOT / 'src'))
+from gems import encoding, frontdoor, rio  # noqa: E402
 
 
-def sha256(path: Path) -> str:
-    h = hashlib.sha256()
-    with open(path, "rb") as fh:
-        for chunk in iter(lambda: fh.read(1 << 20), b""):
-            h.update(chunk)
-    return h.hexdigest()
-
-
-def resolve(*names: str) -> Path:
-    """The mirrors are filed under both the data-tab name and the canonical
-    name used by GEMSDOE's data/bridge/manifest.json.  Accept either."""
-    for n in names:
-        if (RAW / n).exists():
-            return RAW / n
-    raise SystemExit("missing official raster (looked for "
-                     + ", ".join(names) + f" in {RAW})"
-                     "\n  run: bash scripts/download_competition_data.sh")
+def sha(path: Path) -> str:
+    return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
 def main() -> int:
-    tmpl_path = resolve("sample_submission.tif", "example_submission.tif")
-    lab_path = resolve("labels.tif", "existing_faults.tif")
-
-    tmpl_sha = sha256(tmpl_path)
-    lab_sha = sha256(lab_path)
-    print(f"{tmpl_path.name} sha256 {tmpl_sha}")
-    print(f"  pin match: {tmpl_sha == encoding.SAMPLE_SUBMISSION_SHA256}")
-    print(f"{lab_path.name} sha256 {lab_sha}")
-    print(f"  pin match: {lab_sha == encoding.LABELS_SHA256}")
-
-    with rasterio.open(tmpl_path) as s:
-        tmpl = s.read(1)
-    footprint = np.isfinite(tmpl)
-    with rasterio.open(lab_path) as s:
+    tmpl, labels = rio.resolve_raw('template'), rio.resolve_raw('labels')
+    if sha(tmpl) != encoding.SAMPLE_SUBMISSION_SHA256 or sha(labels) != encoding.LABELS_SHA256:
+        raise RuntimeError('Official-raster mirror pins mismatch; stop the audit')
+    with rasterio.open(tmpl) as s:
+        fp = np.isfinite(s.read(1))
+    with rasterio.open(labels) as s:
         lab = s.read(1)
-    fp_from_labels = lab >= 0
-    same = bool(np.array_equal(footprint, fp_from_labels))
-    print(f"footprint {int(footprint.sum()):,} px; labels>=0 identical: {same}")
-
-    groups: dict[str, list[Path]] = {
-        "official_template": [tmpl_path],
-        "platform_scored": sorted(SCORED.glob("*.tif")),
-        "form_rejected": [DL / "archive" / "13gems-r11-greedy-mp.tif"],
-        "currently_shipped": sorted(p for p in DL.glob("*.tif")),
-    }
-
-    report: dict = {
-        "generated_utc": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
-        "question": "Which GeoTIFF encoding has a DrivenData acceptance receipt?",
-        "score_label_note": SCORE_LABEL_NOTE,
-        "official_template": {
-            "path": str(tmpl_path.relative_to(ROOT)),
-            "sha256": tmpl_sha,
-            "sha256_matches_published_pin": tmpl_sha == encoding.SAMPLE_SUBMISSION_SHA256,
-            "pin_source": ("GEMSDOE repo data/bridge/manifest.json (generated on a "
-                           "GitHub-hosted runner from the official data tab) and "
-                           "16GEMSDOE evidence/submission_validation_report.json"),
-            "footprint_pixels": int(footprint.sum()),
-            "outside_pixels": int((~footprint).sum()),
-            "labels_raster_sha256": lab_sha,
-            "labels_raster_matches_published_pin": lab_sha == encoding.LABELS_SHA256,
-            "footprint_equals_labels_ge_0": same,
-        },
-        "files": {},
-    }
-
-    for group, paths in groups.items():
-        for p in paths:
+    if not np.array_equal(fp, lab >= 0):
+        raise RuntimeError('Template and label footprints differ')
+    dl = ROOT / 'docs/downloads'
+    groups = {'official_template': [tmpl],
+              'historical_score_labelled_not_receipted': sorted((ROOT / 'data/scored').glob('*.tif')),
+              'user_reported_rejected': [dl / 'archive/13gems-r11-greedy-mp.tif'],
+              'currently_shipped': sorted(dl.glob('*.tif'))}
+    report = {'generated_utc': datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ'),
+              'question': 'What local encoding facts are measurable, and what remains unverified?',
+              'evidence_boundary': 'Historical score labels/team records are not per-file platform receipts. No current download has a remote acceptance receipt here.',
+              'legacy_field_warning': 'matches_accepted_pattern is a deprecated alias for matches_template_policy; it NEVER means accepted by DrivenData.',
+              'official_template': {'path': str(tmpl.relative_to(ROOT)), 'sha256': sha(tmpl),
+                                    'labels_sha256': sha(labels), 'pins_verified': True,
+                                    'footprint_pixels': int(fp.sum()), 'outside_pixels': int((~fp).sum()),
+                                    'footprint_equals_labels_ge_0': True},
+              'files': {}}
+    for group, files in groups.items():
+        for p in files:
             if not p.exists():
-                print(f"SKIP  {p} (absent)")
+                print('SKIP', p.relative_to(ROOT))
                 continue
-            key = f"{group}/{p.name}"
-            audit = encoding.audit_file(p, footprint)
-            audit["sha256"] = sha256(p)
-            audit["group"] = group
-            report["files"][key] = audit
-            print(f"{'MATCH' if audit['matches_accepted_pattern'] else 'DEVI '} "
-                  f"{key:70s} nodata={audit['profile']['nodata']} "
-                  f"nan={audit['placement']['n_nan_total']:,} "
-                  f"nanIn={audit['placement']['n_nan_inside_footprint']} "
-                  f"finOut={audit['placement']['n_finite_outside_footprint']:,} "
-                  f"{audit['layout']['compression']}/pred={audit['layout']['predictor']}")
-
-    # ---- the summary that decides the policy ------------------------------
-    scored = [v for v in report["files"].values() if v["group"] == "platform_scored"]
-    tmpl_audit = next(v for v in report["files"].values()
-                      if v["group"] == "official_template")
-    rejected = [v for v in report["files"].values() if v["group"] == "form_rejected"]
-    shipped = [v for v in report["files"].values() if v["group"] == "currently_shipped"]
-
-    n_scored = len(scored)
-    n_scored_nanoutside = sum(
-        1 for v in scored
-        if v["profile"]["nodata"] == "nan"
-        and v["placement"]["n_nan_outside_footprint"] == encoding.OUTSIDE_PIXELS
-        and v["placement"]["n_nan_inside_footprint"] == 0
-        and v["placement"]["n_finite_outside_footprint"] == 0)
-    n_scored_pred2 = sum(1 for v in scored if v["layout"]["predictor"] == 2)
-
-    summary = {
-        "n_platform_scored_files_audited": n_scored,
-        "n_platform_scored_files_with_nan_outside_nodata_nan": n_scored_nanoutside,
-        "n_platform_scored_files_with_predictor2": n_scored_pred2,
-        "official_template_uses_nan_outside_and_nodata_nan": (
-            tmpl_audit["profile"]["nodata"] == "nan"
-            and tmpl_audit["placement"]["n_nan_outside_footprint"] == encoding.OUTSIDE_PIXELS),
-        "official_template_predictor": tmpl_audit["layout"]["predictor"],
-        "official_template_compression": tmpl_audit["layout"]["compression"],
-        "rejected_file_deviations": (rejected[0]["deviations_from_accepted_pattern"]
-                                     if rejected else None),
-        "rejected_file_predictor2_simulation": (rejected[0].get("predictor2_simulation")
-                                                if rejected else None),
-        "shipped_files_matching_accepted_pattern": {
-            v["file"]: v["matches_accepted_pattern"] for v in shipped},
-        "policy": {
-            "primary_encoding": ("NaN outside the footprint, GDAL_NODATA=nan, all "
-                                 "footprint values finite and in [0, 1], "
-                                 "Predictor != 2"),
-            "why": (f"{n_scored_nanoutside}/{n_scored} platform-scored files use it and "
-                    "the official template uses it; 0 platform-scored files use "
-                    "Predictor=2; the single form-rejected file is the only one that does."),
-            "hedge_encoding": ("all-finite zero-fill outside the footprint, no NoData tag. "
-                               "Kept as a labelled fallback. No all-finite file in this "
-                               "group's history has an acceptance receipt that is "
-                               "independent of its NaN-outside twin."),
-            "falsified_hypothesis": ("'NaN cells caused the [0,1] rejection' -- the official "
-                                     "template and all nine scored files are NaN-outside."),
-        },
-    }
-    report["summary"] = summary
-
-    OUT.parent.mkdir(exist_ok=True)
-    OUT.write_text(json.dumps(report, indent=2) + "\n")
-    print(f"\nwrote {OUT.relative_to(ROOT)}")
-    print(json.dumps(summary["policy"], indent=2))
+            audit = encoding.audit_file(p, fp)
+            audit.update(sha256=sha(p), group=group, evidence_class='local_decoded_bytes')
+            if group == 'user_reported_rejected':
+                reads = frontdoor.read_all_readers(p)
+                ref = reads['rasterio/GDAL']
+                audit['actual_readers'] = {k: {'finite_min': float(a[np.isfinite(a)].min()),
+                                               'finite_max': float(a[np.isfinite(a)].max()),
+                                               'equals_gdal': bool(np.array_equal(ref, a, equal_nan=True))}
+                                          for k, a in reads.items()}
+                audit['rejection_source'] = 'user_reported_platform_response; no captured server decoder trace'
+            report['files'][f'{group}/{p.name}'] = audit
+            print(('MATCH ' if audit['matches_template_policy'] else 'DEVIATION '), group, p.name,
+                  audit['layout']['compression'], 'predictor=', audit['layout']['predictor'])
+    hist = [v for v in report['files'].values() if v['group'] == 'historical_score_labelled_not_receipted']
+    rejected = [v for v in report['files'].values() if v['group'] == 'user_reported_rejected']
+    report['summary'] = {
+        'n_historical_score_labelled_files_obtained': len(hist),
+        'n_historical_score_labelled_matching_template_policy': sum(v['matches_template_policy'] for v in hist),
+        'n_captured_current_file_acceptance_receipts': 0,
+        'server_rejection_cause': 'UNRESOLVED',
+        'policy': {'primary_encoding': 'NaN outside official footprint; NoData=nan; finite [0,1] float32 inside; LZW; no predictor',
+                   'why': 'Matches the measured official template and official format text. This is not a platform-acceptance inference.',
+                   'hedge_encoding': 'Diagnostic only: zero outside, no NoData; same footprint predictions. Do not automatically spend a second slot.',
+                   'predictor_simulation': 'Ignoring differencing can yield out-of-range numbers, but three actual local readers decode the archived rejected file correctly. Platform behavior is unknown.',
+                   'nan_handling': 'Template permits NaN outside; actual validator handling of the rejected upload has not been observed.'},
+        'rejected_file_actual_readers': rejected[0].get('actual_readers') if rejected else None,
+        'rejected_file_hypothetical_decoder': rejected[0].get('predictor2_simulation') if rejected else None,
+        'correction_record': 'knowledge/13_audit_corrections_2026-10-01.md'}
+    out = ROOT / 'reports/platform_encoding_evidence.json'
+    out.write_text(json.dumps(report, indent=2, allow_nan=False) + '\n')
+    print('wrote', out.relative_to(ROOT), '\nREJECTION CAUSE: UNRESOLVED')
     return 0
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     raise SystemExit(main())

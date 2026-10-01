@@ -1,29 +1,10 @@
 #!/usr/bin/env python3
-"""Verify, from the bytes on disk, that the front-door download actually works.
+"""Verify schema2 local downloads; local template policy is NOT acceptance.
 
-Checks (exit code 1 if ANY fails):
-  1. docs/downloads/submit.json exists at schema 2 and names files that exist,
-     with matching sha256 and sizes.
-  2. The .zip files each contain exactly one entry whose bytes equal the .tif.
-  3. latest.tif == PRIMARY, latest.zip == PRIMARY zip, latest_zerofill.* ==
-     HEDGE, and the retired latest_nan.* / latest_allfinite.* aliases are gone.
-  4. PRIMARY matches the EMPIRICALLY ACCEPTED encoding: float32, 1 band,
-     EPSG:32611, 3730x3292, official transform, nodata=nan, exactly 7,111,787
-     NaN and all of them outside the footprint, 0 NaN inside it, every finite
-     value in [0, 1], LZW, predictor 1 (never 2). This is the encoding of the
-     official sample_submission.tif and of all nine platform-scored group files
-     (reports/platform_encoding_evidence.json).
-  5. HEDGE is the NaN-free zero-filled twin: identical pixels inside the
-     footprint, 0.0 outside, no NoData tag; three TIFF readers agree on both.
-  6. Footprint equals the official label raster's footprint (when data/raw exists).
-  7. Every page of docs/ puts a link to the PRIMARY file in the first 4 KB of
-     body HTML, the link target exists, docs/index.html's FIRST <a download> is
-     the PRIMARY file, the repo README's first 2.5 KB links it, and the
-     repo-root index.html (GitHub Pages "/") shows it.
-  8. The note is one short line and appears verbatim on the front page.
-  9. (--live) the same file, fetched from GitHub Pages, has the manifest sha256.
-
-Run:  python scripts/verify_download.py [--live]
+Hashes/sizes, one-TIFF ZIP/CRC, alias identity, official grid/footprint/range,
+three actual TIFF decoders and top-of-page links are checked independently.
+--live delegates to verify_site_http.py for FULL deployed TIFF/ZIP/manifest/site
+checks. The earlier empirically-accepted/root-cause prose was withdrawn.
 """
 from __future__ import annotations
 
@@ -74,6 +55,7 @@ def main() -> int:
     ap.add_argument("--live", action="store_true",
                     help="also fetch the file from GitHub Pages and compare sha256")
     args = ap.parse_args()
+    results.clear()
 
     mpath = DL / "submit.json"
     check(mpath.exists(), "docs/downloads/submit.json exists")
@@ -126,7 +108,7 @@ def main() -> int:
           + (": " + "; ".join(problems) if problems else ""))
 
     check(facts["primary"]["matches_accepted_pattern"],
-          "PRIMARY matches the EMPIRICALLY ACCEPTED platform encoding"
+          "PRIMARY matches the LOCAL TEMPLATE POLICY platform encoding"
           + (": " + "; ".join(facts["primary"]["deviations_from_accepted_pattern"])
              if not facts["primary"]["matches_accepted_pattern"] else ""))
     check(facts["primary"]["n_nan"] == encoding.OUTSIDE_PIXELS,
@@ -185,20 +167,16 @@ def main() -> int:
           "repo-root .nojekyll exists (Pages source is '/', so Jekyll would "
           "otherwise process every page and asset)")
     note = m["note_for_form"]
-    check(len(note) <= frontdoor.MAX_NOTE_CHARS and "\n" not in note,
+    check(note.strip() and len(note) <= frontdoor.MAX_NOTE_CHARS and not any(c in note for c in "\r\n"),
           f"note is one short line ({len(note)} chars)")
     check(note in idx, "exact note text appears on docs/index.html")
     check(note in root_index.read_text(), "exact note text appears on the root index.html")
 
-    # 9: live
+    # 9: real deployed delivery is separate from on-disk verification.
     if args.live:
-        url = PAGES + "docs/" + primary_href
-        try:
-            data = urllib.request.urlopen(url, timeout=60).read()
-            check(hashlib.sha256(data).hexdigest() == P["sha256"],
-                  f"LIVE {url} sha256 == manifest ({len(data):,} bytes)")
-        except Exception as ex:  # noqa: BLE001
-            check(False, f"LIVE fetch of {url} failed: {ex}")
+        import subprocess
+        code = subprocess.run([sys.executable, str(ROOT / "scripts/verify_site_http.py"), "--live"]).returncode
+        check(code == 0, "FULL deployed-site HTTP verification passed")
 
     bad = [msg for ok, msg in results if not ok]
     print(f"\n{len(results) - len(bad)}/{len(results)} checks passed")

@@ -7,14 +7,16 @@ R7-1..R7-5) is analytic and unsupervised: a hand-written physical transform
 whose ranking is then thresholded. None of them learns from the catalogue at
 all. The competition's own reference solution
 (<https://github.com/drivendataorg/gems-prize-reference-solution>) trains a
-U-Net, i.e. the intended approach is supervised.
+U-Net, demonstrating one supervised baseline, not prescribing the only approach.
 
 This module is the cheap, CPU-only version of that: L2-regularised logistic
 regression on multi-scale context features built from the 19 official bands.
-It is deliberately *not* a deep network -- 3 GB of RAM and 2 cores rule that
-out here -- but it is supervised, it uses all 19 bands at once, and it can be
-trained per holdout fold on the VISIBLE catalogue only, which is the only way
-to score it honestly.
+Case-control sampling and class weights mean its sigmoid is a ranking/confidence
+score, NOT a calibrated regional fault probability.
+It is deliberately not the full reference deep network, whose training is too
+costly here without a GPU. This does not rule out all smaller CPU networks.
+It uses all 19 bands at once. Per-fold training uses visible catalogue positives
+and excludes hidden labels; held-out source bias still limits interpretation.
 
 Memory
 ------
@@ -28,7 +30,9 @@ own outer 4 rows touch the array boundary, exactly as a full-grid
 Leakage control
 ---------------
 `fit_labelled` takes an explicit `allowed_mask` of pixels that may be used for
-training. The holdout calls it with `visible & ~hidden_halo` and nothing else,
+training. The holdout must exclude the hidden halo from its allowed training domain;
+positives come only from visible catalogue labels, while allowed background
+provides negatives. Caller masks are part of the validation contract,
 so the withheld segments are never used as training labels. The context
 features are pixel-local (3x3 and 9x9 means), so a training pixel's 9x9
 neighbourhood can overlap the withheld halo; the buffer is 5 px, so the overlap
@@ -37,8 +41,8 @@ is bounded and is disclosed here rather than hidden.
 Features (57 total, all from the 19 official bands)
 ---------------------------------------------------
     f_0  .. f_18   the band value at the pixel
-    f_19 .. f_37   3x3 mean  (150 m context)
-    f_38 .. f_56   9x9 mean  (450 m context)
+    f_19 .. f_37   3x3 mean  (300 m window width; centre samples span +/-100 m)
+    f_38 .. f_56   9x9 mean  (900 m window width; centre samples span +/-400 m)
 
 Standardised with training-set statistics only.
 """
@@ -81,7 +85,7 @@ class LogisticModel:
     n_train_neg: int
 
     def predict(self, bands: list[np.ndarray]) -> np.ndarray:
-        """P(fault | features) as an (H, W) float32 map in [0, 1]."""
+        """Sigmoid confidence/ranking map in [0,1], not a calibrated fault probability."""
         H, W = bands[0].shape
         out = np.zeros((H, W), dtype=np.float32)
         for y0 in range(0, H, BLOCK_ROWS):

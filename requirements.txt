@@ -5,3 +5,6 @@ rasterio==1.4.4
 tifffile==2026.3.3
 pillow==12.3.0
 imagecodecs==2026.3.6
+
+# GDR shapefile ingestion used by the R15 independent thermal experiment
+pyshp==3.1.6

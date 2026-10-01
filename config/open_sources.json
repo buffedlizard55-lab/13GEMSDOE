@@ -1,0 +1,48 @@
+{
+  "schema": 1,
+  "policy": "Observe approved open-data and project endpoints only; NEVER automatically poll DrivenData, its community forum, or authenticated competition pages. Source changes need scientific review; transport success is not factual certification.",
+  "sources": [
+    {
+      "id": "gdr1391",
+      "title": "INGENIOUS regional dataset compilation",
+      "url": "https://gdr.openei.org/submissions/1391",
+      "format": "html",
+      "required_text": "INGENIOUS",
+      "max_bytes": 3000000,
+      "licence": "CC-BY-4.0; Ayling, Bridget, et al. (2022), DOI10.15121/1881483"
+    },
+    {
+      "id": "geodawn",
+      "title": "USGS GeoDAWN airborne magnetic/radiometric data",
+      "url": "https://www.usgs.gov/data/geodawn-airborne-magnetic-and-radiometric-surveys-northwestern-great-basin-nevada-and",
+      "format": "html",
+      "required_text": "GeoDAWN",
+      "max_bytes": 3000000,
+      "licence": "CC0-1.0; Glen and Earney (2024), DOI10.5066/P93LGLVQ"
+    },
+    {
+      "id": "official_rules",
+      "title": "Official GEMS rules document (change monitoring, not re-certification)",
+      "url": "https://docs.nlr.gov/docs/fy26osti/96647.pdf",
+      "format": "pdf",
+      "max_bytes": 5000000,
+      "licence": "Official competition rules; original document linked, not relicensed"
+    },
+    {
+      "id": "groundwater_api",
+      "title": "USGS Water Data measurement collection metadata",
+      "url": "https://api.waterdata.usgs.gov/ogcapi/v0/collections/field-measurements?f=json",
+      "format": "json",
+      "max_bytes": 3000000,
+      "licence": "USGS public data; comparable regional well-network availability not yet established"
+    },
+    {
+      "id": "reference_solution",
+      "title": "Organizer's reference solution repository metadata",
+      "url": "https://api.github.com/repos/drivendataorg/gems-prize-reference-solution/commits/main",
+      "format": "json",
+      "max_bytes": 3000000,
+      "licence": "Repository metadata; consult original repository licence for code reuse"
+    }
+  ]
+}

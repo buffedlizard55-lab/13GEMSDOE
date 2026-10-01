@@ -1,32 +1,9 @@
 #!/usr/bin/env python3
-"""Publish the R14 prioritised-union map as a listed second candidate.
+"""R14 research archive only. Failed predeclared gate; DO NOT SUBMIT.
 
-WHAT IT IS
-----------
-`union_tipsL10_1pct+lat6_4pct` (knowledge/10_r14_hypotheses.md, addendum B.2):
-along-strike propagation ribbons grown from every tip of the FULL public fault
-catalogue at a 1 % budget, then a stride-6 fault-blind lattice filling the rest
-of a fixed 4 % total budget (206,695 px).  A geological prior with a coverage
-floor.
-
-WHY IT IS PUBLISHED EVEN THOUGH IT DID NOT PASS THE GATE
---------------------------------------------------------
-`reports/holdout_r14_2026-10-01.json` records the honest outcome: it wins the
-`tip`-fold worst-rule mean by +39 % over the shipped reference (0.12253 vs
-0.08801) and loses the 15 pre-existing folds' worst-rule mean by 0.0279, far
-more than gate D3's 0.002 allowance, and it wins only 6 of 9 paired tip folds
-against gate D2's 7.  So it does **not** take the primary slot, and the primary
-stays `lattice_s5` under repository doctrine.
-
-It is published as a *named, distinct, format-proven* candidate because the two
-fold families disagree by construction (I-24: the pre-existing folds and the
-SGMC>=16px truth set both hide or exclude everything within ~1.6 km of a mapped
-fault, which is exactly where a propagation tip aims), and no local truth set
-demonstrably predicts the recorded public scores (I-26).  Three uploads per
-rolling 7-day window is enough to settle that empirically; this file is one arm
-of that experiment.
-
-Run:  python scripts/publish_r14_union.py [--dry-run]
+Existing downloads are retained for forensic review, not recommended experiments.
+This legacy publication command is disabled. --dry-run may inspect geometry but
+must not change the front door or advise spending a weekly slot.
 """
 from __future__ import annotations
 
@@ -81,6 +58,8 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--dry-run", action="store_true")
     args = ap.parse_args()
+    if not args.dry_run:
+        raise SystemExit("R14 failed its predeclared gate; no publication allowed and no files changed.")
 
     valid, known = rio.load_footprint(rio.resolve_raw("labels"))
     jitter = P.make_jitter(valid.shape)
@@ -104,45 +83,7 @@ def main() -> int:
         print("--dry-run: nothing written")
         return 0
 
-    paths = frontdoor.write_pair(DL, STEM, pred, valid)
-    checks = frontdoor.check_pair(paths["primary"], paths["hedge"], valid)
-    problems = frontdoor._all_ok(checks)
-    if problems:
-        raise RuntimeError("verification FAILED, nothing released: " + "; ".join(problems))
-
-    mpath = DL / "submit.json"
-    m = json.loads(mpath.read_text())
-    alts = m.get("alternates", [])
-    if any(a["stem"] == STEM for a in alts):
-        raise SystemExit(f"{STEM} is already listed")
-    alts.append({
-        "label": "R14 prioritised union — geological prior with a coverage floor",
-        "stem": STEM, "note_for_form": NOTE, "description": DESCRIPTION,
-        "evidence_link": EVIDENCE,
-        "gate": {"register": "knowledge/10_r14_hypotheses.md (addendum B.2)",
-                 "report": "reports/holdout_r14_2026-10-01.json",
-                 "verdict": "does NOT pass the predeclared gate (D2 6/9, D3 loses 0.0279)",
-                 "role": "experiment arm, not a recommendation"},
-        "primary": {"file": paths["primary"].name,
-                    "bytes": paths["primary"].stat().st_size,
-                    "sha256": frontdoor.sha256_file(paths["primary"]),
-                    "zip": paths["primary_zip"].name,
-                    "zip_bytes": paths["primary_zip"].stat().st_size,
-                    "zip_sha256": frontdoor.sha256_file(paths["primary_zip"])},
-        "hedge": {"file": paths["hedge"].name,
-                  "bytes": paths["hedge"].stat().st_size,
-                  "sha256": frontdoor.sha256_file(paths["hedge"]),
-                  "zip": paths["hedge_zip"].name,
-                  "zip_bytes": paths["hedge_zip"].stat().st_size,
-                  "zip_sha256": frontdoor.sha256_file(paths["hedge_zip"])},
-    })
-    m["alternates"] = alts
-    mpath.write_text(json.dumps(m, indent=2) + "\n")
-    print(f"published {paths['primary'].name}")
-    print(f"          {paths['hedge'].name}")
-    print(f"alternates now: {[a['stem'] for a in alts]}")
-    return 0
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    main()
