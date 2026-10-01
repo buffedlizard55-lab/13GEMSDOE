@@ -1021,8 +1021,18 @@
     "policy": {
       "primary_encoding": "NaN outside the footprint, GDAL_NODATA=nan, all footprint values finite and in [0, 1], Predictor != 2",
       "why": "9/10 platform-scored files use it and the official template uses it; 0 platform-scored files use Predictor=2; the single form-rejected file is the only one that does.",
-      "hedge_encoding": "all-finite zero-fill outside the footprint, no NoData tag. Kept as a labelled fallback. No all-finite file in this group's history has an acceptance receipt that is independent of its NaN-outside twin.",
-      "falsified_hypothesis": "'NaN cells caused the [0,1] rejection' -- the official template and all nine scored files are NaN-outside."
+      "hedge_encoding": "all-finite zero-fill outside the footprint, no NoData tag. Kept as a labelled fallback. It is NOT baseless: one all-finite file is team-recorded as accepted (12GEMSDOE r7-nms3-dem10-scarp_0c9199f14e62_allfinite, account SDCF9, score 0.1294 -- the same score as its NaN-outside twin, which is expected because encoding does not change footprint pixels; reports/form_responses.json entry 5, 16GEMSDOE registry/submissions.json). That is a team record, not a platform receipt, and cannot be distinguished from one upload recorded twice.",
+      "falsified_hypothesis": "'NaN cells caused the [0,1] rejection' -- the official template and all nine scored files are NaN-outside.",
+      "tenth_audited_file": {
+        "file": "data/scored/gems12_r7nms3_allfinite_LB0.1294.tif",
+        "sha256": "ce3f70fa2e1e7bbea60c8c62a2f805c22d15b8a8905ebec757259617ceb02fbc",
+        "why_it_deviates": "0 NaN total and 7,111,787 finite cells where the official template is NaN, although it still declares GDAL_NODATA=nan",
+        "recorded_score": 0.1294,
+        "recorded_account": "SDCF9",
+        "evidence_class": "team_recorded_not_receipt",
+        "note": "the all-finite twin of gems12_r7nms3_LB0.1294.tif (sha256 0c9199f1...), which carries the same recorded score. Both may have been uploaded, or one upload may have been recorded twice; nothing available here can distinguish them."
+      },
+      "counting_note": "Phrased as '9 of the 10 audited scored files', not 'all 9 accepted files': the 10th is the all-finite twin above and is team-recorded as accepted too, so the denominator is 10 and the NaN-outside count is 9."
     }
   }
 }

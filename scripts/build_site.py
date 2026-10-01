@@ -187,7 +187,8 @@ def build_index() -> str:
   </div>
   <div class="facts" style="margin-top:.4rem">
     <b>Why this encoding and not the zero-filled one:</b> this is the encoding of the official template
-    <i>and</i> of all <b>9</b> files this group has a public DrivenData score for. The single file the form
+    <i>and</i> of <b>9 of the 10</b> files this group has a public DrivenData score for (the 10th is an
+    all-finite twin of one of them, team-recorded and not receipted). The single file the form
     ever rejected is the only one in the project's history written with TIFF <code>PREDICTOR=2</code>
     (integer differencing on float samples); a reader that ignores that tag decodes it to
     <b>[−4.0, 3.0]</b>, which is exactly “Predicted values must be in range [0, 1]”.
@@ -196,7 +197,10 @@ def build_index() -> str:
   <div class="fallback"><b>Only if the form rejects the file above:</b>
     <a href="downloads/{e(B['file'])}" download>{e(B['file'])}</a> — the same predictions with 0.0 instead of NaN
     outside the survey area and no NoData tag, so it passes even a naive whole-array [0, 1] test. It is a hedge,
-    <b>not</b> the template's encoding, and no all-finite file in this group's history has an acceptance receipt of its own.
+    <b>not</b> the official template's encoding. One all-finite file <i>is</i> team-recorded as accepted
+    (12GEMSDOE <code>r7-nms3-dem10-scarp_…_allfinite</code>, account SDCF9, score 0.1294 — the same score as its
+    NaN-outside twin, as expected because encoding does not change footprint pixels), but that is a team record
+    and not a platform receipt, and it cannot be told apart from one upload recorded twice.
     <a href="executive_summary.html#if-the-form-rejects-it">What to do on each error message →</a>
   </div>
   {alt_html(m)}
@@ -1946,7 +1950,8 @@ nav a{{display:inline-block;margin:18px 14px 0 0;font-weight:600}}
 <div class="f"><b>Only if the form rejects it:</b> <a href="docs/downloads/{e(B['file'])}" download>{e(B['file'])}</a>
 — the same predictions with 0.0 instead of NaN outside the survey area (a hedge for a validator that
 rejects NaN itself). The file above is the encoding of the official <code>sample_submission.tif</code>
-and of all 9 files this group has a public DrivenData score for.</div>
+and of 9 of the 10 files this group has a public DrivenData score for; the 10th is an all-finite twin
+that is team-recorded, not receipted.</div>
 {alt_html(m, prefix="docs/downloads/")}
 <nav><a href="docs/">Full site →</a><a href="docs/executive_summary.html">Executive summary: how to submit →</a>
 <a href="https://github.com/buffedlizard55-lab/13GEMSDOE">Repository →</a></nav>

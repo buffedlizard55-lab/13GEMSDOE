@@ -36,6 +36,7 @@ from gems import propagation as P                          # noqa: E402
 from gems.encoding import FOOTPRINT_PIXELS                 # noqa: E402
 from gems.fastscore import FoldScorer, verify_against_reference  # noqa: E402
 from gems.holdout import build_folds, tip_folds            # noqa: E402
+from gems import rio                                          # noqa: E402
 
 RAW = ROOT / "data" / "raw"
 EXT = ROOT / "data" / "external_sgmc" / "derived_sgmc_faults_100m_u8.tif"
@@ -69,7 +70,7 @@ def main() -> int:
         raise SystemExit(f"fast scorer disagrees with the reference metric: {v}")
     print(f"scorer verified: {v['max_err']}")
 
-    with rasterio.open(RAW / "existing_faults.tif") as s:
+    with rasterio.open(rio.resolve_raw("labels", RAW)) as s:
         lab = s.read(1)
     valid = lab >= 0
     known = lab > 0

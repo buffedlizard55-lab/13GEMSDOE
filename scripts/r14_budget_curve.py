@@ -72,6 +72,7 @@ sys.path.insert(0, str(ROOT / "src"))
 from gems.fastscore import FoldScorer, verify_against_reference  # noqa: E402
 from gems.holdout import build_folds                             # noqa: E402
 from gems.metric import ALPHA, BETA                              # noqa: E402
+from gems import rio                                              # noqa: E402
 
 RAW = ROOT / "data" / "raw"
 OUT = ROOT / "reports" / "r14_budget_curve.json"
@@ -173,7 +174,7 @@ def main() -> int:
         raise SystemExit(f"fast scorer disagrees with the reference metric: {v}")
     print(f"fast scorer verified against src/gems/metric.dti: {v}")
 
-    with rasterio.open(RAW / "existing_faults.tif") as s:
+    with rasterio.open(rio.resolve_raw("labels", RAW)) as s:
         lab = s.read(1)
     valid = lab >= 0
     known = lab > 0
@@ -181,9 +182,12 @@ def main() -> int:
     n_valid = int(valid.sum())
     print(f"footprint {n_valid:,} px, catalogue {int(known.sum()):,} px")
 
-    feats = RAW / "training_features.tif"
+    try:
+        feats = rio.resolve_raw("features", RAW)
+    except FileNotFoundError:
+        feats = None
     geo: dict[str, np.ndarray] = {}
-    if feats.exists():
+    if feats is not None and feats.exists():
         print("reading geophysical ranking layers ...")
         geo["topo_slope_topK"] = rank_score(read_band(feats, B_DETREND_SLOPE))
         geo["tmi_hgrad_topK"] = rank_score(read_band(feats, B_TMI_HGRAD))

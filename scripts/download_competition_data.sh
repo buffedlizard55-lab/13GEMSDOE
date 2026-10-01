@@ -73,6 +73,18 @@ for row in "${SMALL_FILES[@]}"; do
   verify "$dest" "$want_sha" "$want_bytes"
 done
 
+# Many pre-existing scripts in this repository ask for the data-tab names
+# (existing_faults.tif / example_submission.tif) while others ask for the
+# canonical names used by the problem page (labels.tif / sample_submission.tif).
+# Stage BOTH so that whichever fetcher populated data/raw, every script runs.
+# The mapping is published in GEMSDOE data/bridge/manifest.json.
+alias_pair() {  # canonical  data-tab-name
+  if [[ -f "$RAW/$1" && ! -f "$RAW/$2" ]]; then cp -p "$RAW/$1" "$RAW/$2"; echo "OK   alias $RAW/$2 (== $1)"; fi
+  if [[ -f "$RAW/$2" && ! -f "$RAW/$1" ]]; then cp -p "$RAW/$2" "$RAW/$1"; echo "OK   alias $RAW/$1 (== $2)"; fi
+}
+alias_pair labels.tif existing_faults.tif
+alias_pair sample_submission.tif example_submission.tif
+
 if [[ "$SMALL_ONLY" == "1" ]]; then
   echo "--small given; skipping the 419 MB feature stack."
   exit 0
@@ -80,6 +92,8 @@ fi
 
 echo "== training_features.tif (419 MB, 5 pinned parts) =="
 bash "$ROOT/scripts/fetch_feature_stack.sh"
+
+alias_pair training_features.tif gems-geodawn-numerical-features.tif
 
 echo
 echo "All placements hash-verified. Next:  python scripts/prepare_data.py"

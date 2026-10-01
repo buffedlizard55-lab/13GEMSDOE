@@ -82,7 +82,7 @@ def main() -> int:
     ap.add_argument("--dry-run", action="store_true")
     args = ap.parse_args()
 
-    valid, known = rio.load_footprint(ROOT / "data" / "raw" / "existing_faults.tif")
+    valid, known = rio.load_footprint(rio.resolve_raw("labels"))
     jitter = P.make_jitter(valid.shape)
     pred = build(valid, known, jitter)
 

@@ -20,12 +20,17 @@ Two encodings of the SAME predictions are published:
 
   HEDGE    ``*_zerofill.tif``      0.0 outside the footprint, no NoData tag,
                                    no NaN anywhere.  Satisfies a naive
-                                   whole-array ``[0, 1]`` test, but it is NOT
-                                   the template's encoding, and no all-finite
-                                   file in this group's history has an
-                                   acceptance receipt independent of its
-                                   NaN-outside twin.  Use only if the form
-                                   rejects the primary.
+                                   whole-array ``[0, 1]`` test.  It is NOT the
+                                   official template's encoding, though one
+                                   all-finite file IS team-recorded as accepted
+                                   (12GEMSDOE ``..._allfinite``, account SDCF9,
+                                   score 0.1294 -- the same score as its
+                                   NaN-outside twin, as expected since encoding
+                                   does not change footprint pixels).  That is a
+                                   team record, not a platform receipt, and it
+                                   cannot be told apart from one upload recorded
+                                   twice.  Use only if the form rejects the
+                                   primary.
 
 This is the reverse of the ordering sessions 6-7 shipped.  Those sessions
 guessed that the NaN cells caused the form's

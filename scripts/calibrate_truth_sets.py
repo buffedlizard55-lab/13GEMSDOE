@@ -64,6 +64,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 from gems import encoding, metric  # noqa: E402
 from gems.holdout import build_folds  # noqa: E402
+from gems import rio  # noqa: E402
 
 RAW = ROOT / "data" / "raw"
 EXT = ROOT / "data" / "external_sgmc"
@@ -111,7 +112,7 @@ def dti_for(pred: np.ndarray, truth: np.ndarray, eval_mask: np.ndarray) -> dict:
 
 def main() -> int:
     t0 = time.time()
-    with rasterio.open(RAW / "existing_faults.tif") as s:
+    with rasterio.open(rio.resolve_raw("labels", RAW)) as s:
         lab = s.read(1)
     valid = lab >= 0
     known = lab > 0

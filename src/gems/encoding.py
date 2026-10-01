@@ -39,10 +39,18 @@ CONSEQUENCE (the policy this module enforces)
 ---------------------------------------------
 The primary upload encoding is **NaN outside the footprint, ``nodata=nan``,
 finite values in [0, 1] inside, and never ``Predictor=2``**.  That is the
-encoding of the official template *and* of all nine accepted files.  The
-all-finite zero-filled variant is kept as a labelled hedge only; no all-finite
-file in this group's history has an acceptance receipt independent of its
-NaN-outside twin.
+encoding of the official template *and* of nine of the ten audited scored files.
+
+The all-finite zero-filled variant is kept as a labelled hedge.  It is NOT
+baseless: one all-finite file is team-recorded as accepted (12GEMSDOE
+``r7-nms3-dem10-scarp_0c9199f14e62_allfinite``, account SDCF9, score 0.1294 --
+the same score as its NaN-outside twin, which is expected because the encoding
+does not change footprint pixels; see ``reports/form_responses.json`` entry 5
+and 16GEMSDOE ``registry/submissions.json``).  That is a *team record*, not a
+platform receipt, and it cannot be distinguished from one upload recorded twice.
+NaN-outside is still the primary because it matches the official template
+exactly, matches the official format text ("data outside the bounds is null or
+nan"), and is the encoding of the large majority of scored files.
 
 Honest limits: this module measures bytes.  It cannot observe DrivenData's
 validator; only the form's own response can confirm acceptance, and that
@@ -211,7 +219,7 @@ def accepted_pattern(report: dict[str, Any]) -> tuple[bool, list[str]]:
     if tuple(p["transform"]) != EXPECTED_TRANSFORM:
         dev.append(f"transform {tuple(p['transform'])} != {EXPECTED_TRANSFORM}")
     if p["nodata"] != "nan":
-        dev.append(f"nodata {p['nodata']!r} != 'nan' (all nine accepted files declare nan)")
+        dev.append(f"nodata {p['nodata']!r} != 'nan' (the official template and 9 of the 10 audited scored files declare nan)")
     if pl["n_nan_inside_footprint"] != 0:
         dev.append(f"{pl['n_nan_inside_footprint']} NaN inside the footprint "
                    "-> 'Predicted values must be in range [0, 1]'")
