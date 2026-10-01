@@ -1,0 +1,727 @@
+FID,Long_deg_NAD83,Lat_deg_NAD83,Location,State,Deposit_type,Map_unit,Ref_source,Comments
+1,-115.8682057,38.36521629,Abel Springs,NV,Travertine,Qt,Ayling_2020, 
+2,-112.0044515,43.03592228,Alkali Flats Warm Springs,ID,Travertine,Sedimentary rocks (Permian and Pennsylvanian),"Ross, 1971","IGS mapped spring. Digitized travertine in vicinity of mapped spring. Includes portions of Sections 28 and 33 in T4S, R38E.  Location appears to coincide with Alkali Flats Warm Springs in IGS database. TRS is in Bingham, not Bonneville County as Ross (1971)"
+3,-117.3382194,37.82560417,Alkali Hot Spring,NV,Travertine,Qt,Ball_1901;Albers and Stewart_1972, 
+4,-117.3370205,37.82420427,Alkali Hot Spring,NV,Sinter,Qssi,Faulds_2020,"Silica sinter and sulfur stains (sample collected), and mudpots"
+5,-117.3381594,37.82477785,Alkali Hot Spring,NV,Travertine,Qt,Faulds_2020,Mound slightly elongate to NNE (70 x 50 m)
+6,-117.335912,37.82303937,Alkali Hot Spring,NV,Explosion craters, ,Faulds_2020, 
+7,-118.7261275,39.2122326,Allen Springs,NV,Silica-cemented sand,Qss,Ayling and Hinz_2019, 
+8,-118.5340779,42.54388753,Alvord Hot Springs,OR,Sulfate crust, ,Faulds_2020,No sinter or travertine-just sulfate crusts
+9,-120.195632,40.301396,Amedee Hot Springs,CA,Travertine,Qt,"Feth and Barnes, 1979; Russell,1895","Location not field validated. Lassen, Sec. 8, T. 28 N., R. 16 E., Active, Water deposits limited amounts of travertine"
+10,-119.690212,42.501367,Antelope Hot Spring (Hart Mountain Hot Springs),OR,Travertine,Qt,"Waring,1965","Location not field validated. Lake, Sec. 32, T. 35 S., R 26 E., Unknown, Travertine occurs"
+11,-119.6905174,42.50145164,Antelope Hot Spring (Hart Mountain Hot Springs),OR,Sinter,Qssi,Faulds_2020,Opaline sinter with some carbonate
+12,-120.9167,40.084354,Arlington Springs,CA,Travertine,Qt,"Feth and Barnes, 1979; Waring,1915","Location questionable, not field validated. Plumas, Sec. 25, T. 26 N., R. 9 E., inactive, Considerable travertine was deposited. It is iron stained and inconspicuous"
+13,-115.1926259,37.46358829,Ash Meadows Spring (Amargosa Desert),NV,Travertine,Qt,"Hughes_1966;Mifflin_1968;Center for Water Resources Research_1973;Naff_1973;Dudley and Larson, 1976", 
+14,-119.7442631,40.1767191,Astor Pass,NV,Tufa,Qtm,Coolbaugh_2018, 
+15,-112.7280576,39.61249763,Baker Hot Springs,UT,Travertine,Qh,"Charles G. Oviatt, 1994, Quaternary geologic map of the Old River bed and vicinity, Millard, Juab, and Tooele Counties, Utah. M-161. Utah Geological Survey. 1:62,000 scale.","Travertine, tufa,  and carbonate cemented alluvial deposits associated with Baker Hot Springs"
+16,-118.7104833,41.92160243,Baltazor (Continental) Hot Springs,NV,Travertine,Qt,Mariner et al_1979;Hulen_1983, 
+17,-118.7104833,41.92160243,Baltazor (Continental) Hot Springs,NV,Sinter,Qssi,Mariner et al_1974, 
+18,-112.1419868,42.97885549,Bannock-01,ID,Travertine,Qtr,"Rember and Bennett, 1979, GM-13",Digitized from map.
+19,-112.1507561,42.96846231,Bannock-02,ID,Travertine,Qtr,"Rember and Bennett, 1979, GM-13",Digitized from map.
+20,-112.1385803,42.97129025,Bannock-03,ID,Travertine,Qtr,"Rember and Bennett, 1979, GM-13",Digitized from map.
+21,-112.1272496,42.97785852,Bannock-04,ID,Travertine,Qtr,"Rember and Bennett, 1979, GM-13",Digitized from map.
+22,-112.1270537,42.97198443,Bannock-05,ID,Travertine,Qtr,"Rember and Bennett, 1979, GM-13",Digitized from map.
+23,-112.1237399,42.95891963,Bannock-06,ID,Travertine,Qtr,"Rember and Bennett, 1979, GM-13",Digitized from map.
+24,-112.1266846,42.99661368,Bannock-07,ID,Travertine,Qtr,"Rember and Bennett, 1979, GM-13",Digitized from map.
+25,-112.0689372,42.3828733,Bannock-08,ID,Carbonate (travertine) cemented fan gravel,Qfgls,"DeVecchio and others, 2003, T-03-02",Digitized from map.
+26,-112.1072889,42.40053473,Bannock-09,ID,Carbonate (travertine) cemented fan gravel,Qfgls,"DeVecchio and others, 2003, T-03-02",Digitized from map.
+27,-116.3591308,39.56067745,Bartine Hot Spring,NV,Travertine,Qt,Waring_1965; Faulds_2020,Hot Spring Hill-large travertine mound north of current springs; no sinter oberved
+28,-111.7469329,42.26582934,Bear River Oneida Station,ID,Travertine,"Sedimentary rocks associated with Basin and Range extension (Quaternary, Pliocene, and Miocene)","Feth and Barnes, 1979",No IGS or IDWR mapped springs in section. Travertine deposits unclear in review of Google Earth aerial imagery. Terraces on east side of Bear River? Digitized area uncertain. Outcrops on slope apparent in imagery.
+29,-111.5303647,42.58197294,BearLake-01,ID,Tufa and travertine,Qtc,"Oriel and L.B. Platt, 1980, USGS_I-1127",Digitized from map.
+30,-111.3796532,42.42975374,BearLake-02,ID,Travertine,n.a.,"Feeney, Nouan Quadrangle, Unpublished","Unpublished Data, Personal Communication."
+31,-111.4782921,42.5518812,BearLake-03,ID,Travertine?,Qtc,"Oriel and Platt, 1980, I-1127",Digitized from map.
+32,-111.4669531,42.54124126,BearLake-04,ID,Travertine?,Qtc,"Oriel and Platt, 1980, I-1127",Digitized from map.
+33,-111.4599718,42.53525211,BearLake-05,ID,Travertine?,Qtc,"Oriel and Platt, 1980, I-1127",Digitized from map.
+34,-111.918103,40.81579655,Becks Hot Springs,UT,Travertine,Qst,"Feth, J.H., and Barnes, I., 1979, Spring-deposited travertine in eleven western states: U.S. Geological Survey Water-Resources Investigations Open-File Report 79-35.","Travertine mound associated with active hot spring, site is heaviley disturbed and urbanized"
+35,-118.5321148,37.80003519,Benton Hot Springs,CA,Silica-cemented sand,Qss,Faulds_2020,Silica cemented Cg-SS in roadcut west of development
+36,-118.4995115,37.90541645,Benton north,CA,Sinter,Qssi,Rhodes_2021,Reports of sinter; at end of fault. Not confirmed in the field
+37,-118.5544546,37.93559261,Benton north,CA,Sinter,Qssi,Rhodes_2021,Sinter ID on geological map; not field verified. ?
+38,-116.5888463,40.561476,Beowawe,NV,Sinter,Qssi,Faulds_2020,"Extensive sinter terrace, fumaroles, and argillic alteration"
+39,-116.5853797,40.56247432,Beowawe Geysers,NV,Sinter,Qssi,Oesterling_1962; Hose and Taylor_1974; Nolan and Anderson_1934; Erickson_1970;Wollenberg et al_1975;Rinehart_1968,"Extensive sinter terrace, fumaroles, and argillic alteration. Extinct geyser vents."
+40,-117.9383488,40.87213832,Big Alkali Spring,NV,Sinter,Qss,Cohen_1962, 
+41,-117.9384983,40.87220016,Big Alkali Spring,NV,Travertine,Qt,Cohen_1962; USGS-1979 report on travertine,Travertine mound about 175m by 60m and 3m thick; no current deposition.
+42,-117.0591045,38.95108337,Big Smoky Valley (Big Blue),NV,Travertine,Qt,Fiero_1968, 
+43,-118.090897,37.3856,Birch Creek,CA,Travertine,Qt,"Feth and Barnes, 1979; Barnes, 1965","lnyo, Secs. 31-32, T. 6 S., R. 35 E., Active, Streambed travertine forms for about 1.5 km below headwater springs"
+44,-118.9998432,40.95339568,Black Rock point springs,NV,Travertine,Qt,Ayling_2020, 
+45,-119.0147804,41.02212348,Black Rock springs_ BR-5,NV,Sinter,Qssi,Ayling_2020,Amorphous silica root casts
+46,-119.0148044,41.02228222,Black Rock springs_ BR-5,NV,Travertine,Qt,Ayling_2020, 
+47,-119.0148104,41.0226716,Black Rock springs_ BR-5,NV,Silica-cemented sand,Qss,Ayling_2020,Thick layer of travertine/sinter mix buried under lake seds
+48,-119.0162573,41.01406097,Black Rock springs_ BR-8,NV,Travertine,Qt,Ayling_2020, 
+49,-119.0157445,41.01588927,Black Rock springs_ BR-8,NV,Tufa,Qtm,Ayling_2020, 
+50,-119.0160009,41.01444,Black Rock springs_ BR-8,NV,Silica-cemented mud or ash,Qsm,Ayling_2020, 
+51,-111.7436364,42.98641966,Blackfoot River Warm Spring,ID,Travertine,Basalt (Pleistocene and Pliocene),"Ralston and Mayo, 1983",IGS mapped spring location. Digitized hillside in vicinity of mapped spring. Unable to verify travertine in aerial imagery and on geologic map.
+52,-116.29857,38.44732,Blue Jay Warm Spring,NV,Travertine,Qt,Waring et al_1965; Benoit_2002; Faulds_2020,Hot Creek Valley-some travertine float but no definitive mound
+53,-119.8228742,40.31337237,Bonham Ranch,NV,Tufa,Qtm,"Coolbaugh, 2022-Mar-26, observed in 2005/2006", 
+54,-119.8243188,40.31547975,Bonham Ranch,NV,Tufa,Qtm,"Coolbaugh, 2022-Mar-26, observed in 2005/2006", 
+55,-119.8237909,40.31659673,Bonham Ranch,NV,Tufa,Qtm,"Coolbaugh, 2022-Mar-26, observed in 2005/2006", 
+56,-119.8224964,40.31779792,Bonham Ranch,NV,Tufa,Qtm,"Coolbaugh, 2022-Mar-26, observed in 2005/2006", 
+57,-119.8208071,40.31656666,Bonham Ranch,NV,Tufa,Qtm,"Coolbaugh, 2022-Mar-26, observed in 2005/2006", 
+58,-119.8229164,40.3140918,Bonham Ranch,NV,Tufa,Qtm,"Coolbaugh, 2022-Mar-26, observed in 2005/2006", 
+59,-119.8236162,40.31621737,Bonham Ranch,NV,Tufa,Qtm,"Coolbaugh, 2022-Mar-26, observed in 2005/2006", 
+60,-119.8216965,40.31726629,Bonham Ranch (Smoke Creek),NV,Tufa,Qtm,Coolbaugh_2018, 
+61,-111.3784095,43.44382116,Bonneville-01,ID,Travertine,Qtr,"Mitchell and Bennet, 1979, GM-06",Digitized from map.
+62,-111.3968292,43.42770972,Bonneville-02,ID,Travertine,Qtr,"Mitchell and Bennet, 1979, GM-06",Digitized from map.
+63,-111.4128061,43.42554842,Bonneville-03,ID,Travertine,Qtr,"Mitchell and Bennet, 1979, GM-06",Digitized from map.
+64,-111.2084502,43.34672763,Bonneville-04,ID,Travertine,Qtr,"Mitchell and Bennet, 1979, GM-06",Digitized from map.
+65,-119.0131731,39.7875264,Brady Hot Springs,NV,Silica-cemented sand,Qss,Oesterling and Anctil_1962;Olmsted et al_1975;Robertson-Tait;Lovekin_2000, 
+66,-119.0087406,39.79354781,Brady Hot Springs,NV,Alteration, ,"Coolbaugh, 2022-Mar-26",Widespread mudpot features present
+67,-119.0068024,39.79606041,Brady Hot Springs,NV,Alteration, ,"Coolbaugh, 2022-Mar-26",Widespread mudpot features present
+68,-119.0113769,39.78948842,Brady Hot Springs,NV,Alteration, ,"Coolbaugh, 2022-Mar-26",Widespread mudpot features present
+69,-119.0064138,39.80299836,Brady Hot Springs,NV,Alteration, ,"Coolbaugh, 2022-Mar-26",Widespread mudpot features present
+70,-119.019224,39.77470934,Brady Hot Springs,NV,Sinter, ,"Coolbaugh, 2022-Mar-26,  mapped by Coolbaugh in 2010", 
+71,-119.0168794,39.7761627,Brady Hot Springs,NV,Sinter, ,"Coolbaugh, 2022-Mar-26,  mapped by Coolbaugh in 2010", 
+72,-119.0231511,39.78414292,Brady Hot Springs,NV,Sinter, ,"Coolbaugh, 2022-Mar-26,  mapped by Coolbaugh in 2010", 
+73,-119.016101,39.77955024,Brady Hot Springs,NV,Sinter, ,"Coolbaugh, 2022-Mar-26,  mapped by Coolbaugh in 2010", 
+74,-119.0150495,39.78148501,Brady Hot Springs,NV,Sinter, ,"Coolbaugh, 2022-Mar-26,  mapped by Coolbaugh in 2010", 
+75,-119.0143117,39.78375902,Brady Hot Springs,NV,Sinter, ,"Coolbaugh, 2022-Mar-26,  mapped by Coolbaugh in 2010", 
+76,-119.0147076,39.783242,Brady Hot Springs,NV,Sinter, ,"Coolbaugh, 2022-Mar-26,  mapped by Coolbaugh in 2010", 
+77,-119.0153489,39.78072148,Brady Hot Springs,NV,Sinter, ,"Coolbaugh, 2022-Mar-26,  mapped by Coolbaugh in 2010", 
+78,-119.0135367,39.78231097,Brady Hot Springs,NV,Sinter, ,"Coolbaugh, 2022-Mar-26,  mapped by Coolbaugh in 2010", 
+79,-119.012457,39.7844944,Brady Hot Springs,NV,Sinter, ,"Coolbaugh, 2022-Mar-26,  mapped by Coolbaugh in 2010", 
+80,-119.0096281,39.78817265,Brady Hot Springs,NV,Sinter, ,"Coolbaugh, 2022-Mar-26,  mapped by Coolbaugh in 2010", 
+81,-119.0114296,39.78584715,Brady Hot Springs,NV,Sinter, ,"Coolbaugh, 2022-Mar-26,  mapped by Coolbaugh in 2010", 
+82,-119.0109117,39.79352557,Brady Hot Springs,NV,Sinter, ,"Coolbaugh, 2022-Mar-26,  mapped by Coolbaugh in 2010", 
+83,-119.0132235,39.79306237,Brady Hot Springs,NV,Sinter, ,"Coolbaugh, 2022-Mar-26,  mapped by Coolbaugh in 2010", 
+84,-119.0077559,39.79365175,Brady Hot Springs,NV,Sinter, ,"Coolbaugh, 2022-Mar-26,  mapped by Coolbaugh in 2010", 
+85,-119.0084911,39.79183935,Brady Hot Springs,NV,Sinter, ,"Coolbaugh, 2022-Mar-26,  mapped by Coolbaugh in 2010", 
+86,-119.0081499,39.79763756,Brady Hot Springs,NV,Sinter, ,"Coolbaugh, 2022-Mar-26,  mapped by Coolbaugh in 2010", 
+87,-119.0050198,39.79998599,Brady Hot Springs,NV,Sinter, ,"Coolbaugh, 2022-Mar-26,  mapped by Coolbaugh in 2010", 
+88,-119.0076508,39.79960081,Brady Hot Springs,NV,Sinter, ,"Coolbaugh, 2022-Mar-26,  mapped by Coolbaugh in 2010", 
+89,-119.0077524,39.80203039,Brady Hot Springs,NV,Sinter, ,"Coolbaugh, 2022-Mar-26,  mapped by Coolbaugh in 2010", 
+90,-119.0040381,39.80661762,Brady Hot Springs,NV,Sinter, ,"Coolbaugh, 2022-Mar-26,  mapped by Coolbaugh in 2010", 
+91,-118.9968531,39.81331448,Brady Hot Springs,NV,Sinter, ,"Coolbaugh, 2022-Mar-26,  mapped by Coolbaugh in 2010", 
+92,-119.0022227,39.80875851,Brady Hot Springs,NV,Explosion craters, ,"Coolbaugh, 2022-Mar-26",Mapped by Coolbaugh in 2010
+93,-121.975747,44.780786,Breitenbush Hot Springs,OR,Travertine,Qt,"Feth and Barnes, 1979; Bowen and Peterson,1970","Location not field validated. Marion, Sec. 20, T. 9 S., R. 7 E., Active, Forty springs issue on travertine terrace"
+94,-119.216245,38.224904,Bridgeport Warm Springs,CA,Travertine,Qt,"Feth and Barnes, 1979; Waring, 1915","Location not field validated. Mono, Sec. 10, T. 4 N., R. 25 E., Active, Twenty pools are on travertine terrace about 100 m long. Extinct spring mounds are nearby"
+95,-116.0691124,40.21919654,Bruffey's (Mineral Hill) Hot Springs,NV,Travertine,Qt,Stearns et al_1937; White_1955; Goff et al_1994, 
+96,-119.3262218,38.23950836,Buckeye Hot Spring,CA,Travertine,Qt,"Feth and Barnes, 1979; Waring,1915","Mono, Sec. 4, T. 4 N., R. 24 E., Active, Water flows over domelike mass of travertine"
+97,-119.3262218,38.23950836,Buckeye Hot Spring,CA,Travertine,Qt,Faulds_2020,"Travertine on slopes and separate mound, but no silica"
+98,-117.3264608,40.36576563,Buffalo Valley Hot Springs,NV,Travertine,Qt,Faulds_2020; Hose and Taylor_1974; Olmsted et al_1975,"Buffalo Valley, broad area of hot springs with small travertine mounds-max temp-78C"
+99,-117.3253284,40.36813819,Buffalo Valley Hot Springs,NV,Travertine,Qt,Hose and Taylor_1974; Olmsted et al_1975, 
+100,-112.0545384,41.94314682,Cache county unnamed,UT,Travertine,Qst,"Feth, J.H., and Barnes, I., 1979, Spring-deposited travertine in eleven western states: U.S. Geological Survey Water-Resources Investigations Open-File Report 79-35.",Travertine mound associated with inactive spring
+101,-111.6725672,42.65407712,Caribou-01,ID,Tufa and travertine,Qt,"Armstrong, 1969, USGS_I-557",Digitized from map.
+102,-111.6583276,42.65850628,Caribou-02,ID,Tufa and travertine,Qt,"Armstrong, 1969, USGS_I-557",Digitized from map.
+103,-111.6489111,42.66026859,Caribou-03,ID,Tufa and travertine,Qt,"Armstrong, 1969, USGS_I-557",Digitized from map.
+104,-111.7176987,42.91036575,Caribou-04,ID,Tufa and travertine,Qtc,"Oriel and L.B. Platt, 1980, USGS_I-1127",Digitized from map.
+105,-111.8020456,42.94265797,Caribou-05,ID,Tufa and travertine,Qtc,"Oriel and L.B. Platt, 1980, USGS_I-1127",Digitized from map.
+106,-111.8801436,42.89177192,Caribou-06,ID,Tufa and travertine,Qtc,"Oriel and L.B. Platt, 1980, USGS_I-1127",Digitized from map.
+107,-111.747865,42.43899458,Caribou-07,ID,Tufa and travertine,Qtc,"Oriel and L.B. Platt, 1980, USGS_I-1127",Digitized from map.
+108,-111.789776,42.50529442,Caribou-08,ID,Tufa and travertine,Qtc,"Oriel and L.B. Platt, 1980, USGS_I-1127",Digitized from map.
+109,-111.7869012,42.49759196,Caribou-09,ID,Travertine?,Qtc?,"Keeley and others, 2011, T-11-2",Digitized from map.
+110,-111.5569591,42.71475555,Caribou-10,ID,Tufa and travertine,Qt,"Armstrong, 1969, USGS_I-557",Digitized from map.
+111,-111.5657934,42.71061739,Caribou-11,ID,Tufa and travertine,Qt,"Armstrong, 1969, USGS_I-557",Digitized from map.
+112,-111.5842791,42.7018887,Caribou-12,ID,Tufa and travertine,Qt,"Armstrong, 1969, USGS_I-557",Digitized from map.
+113,-111.7636569,42.71259088,Caribou-13,ID,Tufa,Qt,"Oriel, 1968, USGS_OF-68-204",Digitized from map.
+114,-111.5038803,42.61562161,Caribou-14,ID,Travertine?,Qtc,"Oriel and Platt, 1980, I-1127",Digitized from map.
+115,-111.6280082,42.66200102,Caribou-15,ID,Travertine?,Qtc,"Oriel and Platt, 1980, I-1127",Digitized from map.
+116,-111.5455313,42.77074832,Caribou-16,ID,Travertine?,Qtc,"Oriel and Platt, 1980, I-1127",Digitized from map.
+117,-111.5446813,42.90904208,Caribou-17,ID,Travertine?,Qtc,"Oriel and Platt, 1980, I-1127",Digitized from map.
+118,-111.5920222,42.92649607,Caribou-18,ID,Travertine?,Qtc,"Oriel and Platt, 1980, I-1127",Digitized from map.
+119,-111.5476735,42.64886222,Caribou-19,ID,Travertine?,Qtc,"Oriel and Platt, 1980, I-1127",Digitized from map.
+120,-111.5535108,42.68775904,Caribou-20,ID,Travertine?,Qtc,"Oriel and Platt, 1980, I-1127",Digitized from map.
+121,-111.5774177,42.65999556,Caribou-21,ID,Tufa,"Fluvial and lake sediment (Quaternary)
+Basalt (Pleistocene and Pliocene)
+Sedimentary rocks associated with Basin and Range extension (Quaternary, Pliocene, and Miocene)","Ross, 1971",Spring is not mapped in IGS or IDWR databases. Unable to discern spring or tufa from Google Earth imagery. Digitized section in GIS for reference.
+122,-118.5797608,39.77932625,Carson Sink tufa well?,NV,Tufa,Qtm,Rhodes_2021,Possible tufa from artesian well. Visible during drought.
+123,-118.809271,37.647283,Casa Diablo,CA,Travertine,Qt,"Feth and Barnes, 1979; Rinehart and Ross, 1964","Location not field validated. Mono, Sec. 32, T. 3 S., R. 29 E., Active, Travertine is being deposited at a hot spring"
+124,-118.844377,37.690586,Casa Diablo - Little Hot Creek,CA,Travertine,Qt,"Feth and Barnes, 1979; Waring, 1915","Location not field validated. Mono, Sec. 11, T. 3 S., R. 28 E., Unknown, Overflow channel and area about 45 m in diameter are covered by hard deposits ""apparently of silica and lime carbonate"""
+125,-118.907178,37.647568,Casa Diablo Hot Springs,CA,Sinter,Qssi,"Waring,1965; Russell, 1889; Waring, 1915; Whiting, 1888","Location not field validated. 20 springs, small deposit of sinter, sec 32 T 3S R 28E on US Highway 395, vapor baths, no. on figure 123"
+126,-119.01292,41.00113325,Casey Springs,NV,Silica-cemented mud or ash,Qsm,Ayling_2020, 
+127,-119.0124951,41.00207212,Casey Springs,NV,Silica-cemented sand,Qss,Ayling_2020, 
+128,-119.0135048,41.00299824,Casey Springs,NV,Travertine,Qt,Ayling_2020,Large travertine terrace
+129,-119.881395,42.212633,Charles Crump's Spring,OR,Tufa,Qtm,"Waring,1965; Trauger,1950","Location not field validated. H2S smell, Cattle water supply, no. on figure 49C"
+130,-115.7913032,38.46330633,Chimney Hot Springs,NV,Travertine,Qt,Fiero_1968;Reed et al_1983,"Large travertine mound with several active springs, and some fossil mounds."
+131,-115.7937151,38.47117332,Chimney Hot Springs north,NV,Travertine,Qt,Ayling_2020,Travertine mound north of the main Chimney Sp; one active spring vent still present. Might include sinter as well.
+132,-111.7156103,42.33170621,Cleveland Hot Springs,ID,Travertine,Lake Bonneville deposits (Pleistocene),"Ralston and Mayo, 1983","IGS and IDWR mapped springs in vicinity, including 'Cleveland Hot Springs #1'. Digitized vicinity around spring."
+133,-118.3547599,40.25480909,Colado,NV,Travertine,Qt,Rhodes_2021,Sheeted calcite on fault zone; like San Emido and Tungsten. Some silica present also.
+134,-119.5960427,38.30279869,Cold CO2 spring,CA,Travertine,Qt,Faulds_2020,Travertine and cold bubbling CO2 spring
+135,-117.8940783,39.98539208,Cottonwood Canyon travertine deposit,NV,Travertine,Qt,Goff et al_2002; Blackwell et al_2006;  Dixon et al_2003, 
+136,-112.580465,38.55922444,Cove Fort/Sulphurdale,UT,Hydrothermally altered deposits, ,"Kirby, 2022",Large zone of active degassing and related alteration
+137,-115.8663463,38.38860652,Coyote Hole Spring,NV,Travertine,Qt,Fiero_1968, 
+138,-115.8633674,38.38183619,Coyote south,NV,Travertine,Qt,Ayling_2020, 
+139,-116.5068699,40.41764559,Crescent Valley,NV,Silicified fault breccia, ,Faulds_2020, 
+140,-116.4261331,40.31852923,Crescent Valley,NV,Sinter,Qssi,Faulds_2020,"Massive, 20 m wide E-W-striking chalcedonic silica vein"
+141,-116.519496,40.39418498,Crescent Valley,NV,Sulfate crust, ,Faulds_2020, 
+142,-116.5172535,40.40129285,Crescent Valley,NV,Sulfur, ,Faulds_2020, 
+143,-116.4340513,40.31606367,"Crescent Valley, Hand-Me-Down (Dann) Hot Spring",NV,Sinter,Qssi,Faulds_2020,Opaline sinter uphill from Hand-Me-Down Hot Spring
+144,-116.4300283,40.3171971,"Crescent Valley, Hand-Me-Down (Dann) Hot Spring",NV,Sinter,Qssi,Faulds_2020,Silica sinter (but not opaline) on surface of alluvial fan north of hot springs
+145,-116.5068825,40.41765122,"Crescent Valley, Hot Springs Point",NV,Travertine,Qt,Faulds_2020,"Silicified fault breccia, travertine, and hot spring"
+146,-119.881365,42.212807,Crump,OR,Travertine,Qt,"Feth and Barnes, 1979; Bowen and Peterson,1970; Trauger, 1950","Location not field validated. Lake, Sec. 3, T. 39 S., R. 24 E., Active, Siliceous travertine covers broad areas: many extinct spring orifices are present"
+147,-119.878806,42.234368,Crump,OR,Travertine,Qt,"Feth and Barnes, 1979; Bowen and Peterson,1970; Trauger, 1950","Location not field validated. Lake, Sec. 34, T. 38 S., R. 24 E., Active, Three springs deposit travertine over lake terraces"
+148,-119.880055,42.21534831,Crump,OR,Sinter,Qssi,Faulds_2020,Sinter forms small mound 4-5 m in diameter; sinter appears to be elongated to NW
+149,-119.877945,42.239359,Crump,OR,Travertine,Qt,"Feth and Barnes, 1979; Trauger,1950","Location not field validated. Lake, Sec. 27, T. 38 S., R. 24 E., Active, Spring issues from travertine-covered terrace"
+150,-111.9111549,40.48672865,Crystal Hot Springs,UT,Travertine,Qst,"Blackett, R.E., and Wakefield, S., 2004, Geothermal resources of Utah – 2004 – a digital atlas of Utah’s geothermal resources:  Utah Geological Survey Open-File Report 431, CD.",Travertine aprons and travertine cemented alluvial and lacustrine deposits
+151,-117.1815114,38.8172893,Darrough's Hot Springs (N Big Smoky Valley),NV,Sinter,Qssi,Mariner et al_1974, 
+152,-117.1815114,38.8172893,Darrough's Hot Springs (N Big Smoky Valley),NV,Travertine,Qt, , 
+153,-118.9751804,39.73904921,Desert Peak,NV,Silica-cemented sand,Qss,Garside and Schilling_1979, 
+154,-118.9751804,39.73904921,Desert Peak,NV,Travertine,Qt,NBMG_2010, 
+155,-118.9675207,39.74773595,"Desert Peak, south-west",NV,Sinter, ,"Coolbaugh, 2022-Mar-26, originally documented by Benoit et al, Kratt et al", 
+156,-118.9720445,39.74562328,"Desert Peak, south-west",NV,Sinter, ,"Coolbaugh, 2022-Mar-26, originally documented by Benoit et al, Kratt et al", 
+157,-118.9757572,39.73930706,"Desert Peak, south-west",NV,Sinter, ,"Coolbaugh, 2022-Mar-26, originally documented by Benoit et al, Kratt et al", 
+158,-118.890601,39.842012,Desert Queen,NV,Tufa,Qtm,"Ayling, 2022",Located using Google Earth - not field-validated
+159,-118.873419,39.876224,Desert Queen,NV,Tufa,Qtm,"Ayling, 2022",Located using Google Earth - not field-validated
+160,-118.873881,39.875577,Desert Queen,NV,Tufa,Qtm,"Ayling, 2022",Located using Google Earth - not field-validated
+161,-118.870036,39.877378,Desert Queen,NV,Tufa,Qtm,"Ayling, 2022",Located using Google Earth - not field-validated
+162,-118.872456,39.886798,Desert Queen,NV,Tufa,Qtm,"Ayling, 2022",Located using Google Earth - not field-validated
+163,-118.8732033,39.81448897,Desert Queen,NV,Tufa,Qtm,Faulds_2020,Linear trend (N7W) of small tufa mounds up to 1.5 m high
+164,-118.8292445,39.81816181,Desert Queen,NV,Tufa,Qtm,"Mauldin, 2022 (migrated from NBMG database)", 
+165,-118.8753876,39.82115834,Desert Queen,NV,Tufa,Qtm,"Mauldin, 2022 (migrated from NBMG database)", 
+166,-118.8729826,39.81522665,Desert Queen,NV,Tufa,Qtm,"Mauldin, 2022 (migrated from NBMG database)", 
+167,-115.3045164,41.26131251,Devil's Punch Bowl (Deeth),NV,Travertine,Qt,NBMG_2010, 
+168,-116.6663153,39.03074423,Diana's Punch Bowl,NV,Travertine,Qt,Fiero_1968;Stewart and Carlson_1974, 
+169,-117.9171045,39.95528588,Dixie Valley,NV,Sinter,Qssi,Yap and Ayling_2018,Sinter layers in alluvial sediments in canyon wall
+170,-117.9214007,39.95284491,Dixie Valley Geyserite,NV,Sinter,Qssi,Coolbaugh_2018; Yap and Ayling_2018,Sinter terrace outcropping along range-front. Geyserite present in several places.
+171,-117.6032222,40.03320256,Dixie Valley Lower Ranch Hot Spring,NV,Travertine,Qt,Blackwell et al_2006; Reed et al_1983; Goff et al_2002, 
+172,-118.0871146,39.79314205,Dixie Valley near Dixie Meadows Hot Springs,NV,Alteration, ,"Coolbaugh, 2022-Mar-26","Hot ground with advanced argillic alteration, alunite, kaolinite"
+173,-118.0875952,39.79326066,Dixie Valley near Dixie Meadows Hot Springs,NV,Alteration, ,"Coolbaugh, 2022-Mar-26","Hot ground with advanced argillic alteration, alunite, kaolinite"
+174,-117.9169263,39.95429315,Dixie Valley south fumaroles,NV,Explosion craters, ,"Coolbaugh, 2022-Mar-26, Faulds_2020, originally identified/ mapped by Coolbaugh in 2005", 
+175,-117.9151253,39.95556964,Dixie Valley south fumaroles,NV,Explosion craters, ,"Coolbaugh, 2022-Mar-26, Faulds_2020, originally identified/ mapped by Coolbaugh in 2005", 
+176,-117.8542451,39.99483596,"Dixie Valley, Senator fumaroles",NV,Alteration, ,"Coolbaugh, 2022-Mar-26","Active steam zone, advanced argillic alteration"
+177,-117.8545862,39.99499284,"Dixie Valley, Senator fumaroles",NV,Sulfur, ,"Coolbaugh, 2022-Mar-26",Actively forming sulfur crystals
+178,-117.9179351,39.95451286,"Dixie Valley, south fumaroles area",NV,Alteration, ,"Coolbaugh, 2022-Mar-26",Active fumaroles with argillic alteration
+179,-117.916464,39.95561829,"Dixie Valley, south fumaroles area",NV,Alteration, ,"Coolbaugh, 2022-Mar-26",Active fumaroles with argillic alteration
+180,-119.0264901,41.05093332,Double Hot Springs (Black Rock Desert),NV,Travertine,Qt,Hose and Taylor_1974, 
+181,-119.0264901,41.05093332,Double Hot Springs (Black Rock Desert),NV,Sinter,Qssi,Hose and Taylor_1974, 
+182,-121.402831,40.442151,Drakes Hot Springs,CA,Travertine,Qt,"Feth and Barnes, 1979; Waring,1915","Location not field validated. Plumas, Sec. 22, T. 30 N., R. 5 E., Unknown, Travertine occurs at several places on bank above Hot Springs Creek"
+183,-115.7010579,38.94932853,Duckwater Springs,NV,Travertine,Qt,"White, D.E, USGS, pers.comm 1968",Very large travertine apron; multiple discharge areas. BAyling visited in June 2020
+184,-117.419003,44.537384,Durkee Travertine,OR,Travertine,Qt,"Brooks, 1989, Limestone deposits in Oregon","Sec. 11, T. 12 S., R. 43 E., The deposit is centered half mile south of the Ash Grove Cement West, Inc., cement plant and about 1,000 ft west of Interstate 1-84 and Union Pacific Railroad. Durkee I5-minute quadrangle. Deposition occurred in the conduit a"
+185,-117.419196,44.537402,Durkee Travertine,OR,Tufa,Qtm,"Brooks, 1989, Limestone deposits in Oregon","Sec. 11, T. 12 S., R. 43 E., The deposit is centered half mile south of the Ash Grove Cement West, Inc., cement plant and about 1,000 ft west of Interstate 1-84 and Union Pacific Railroad. Durkee I5-minute quadrangle. Deposition occurred in the conduit a"
+186,-118.5663801,41.56686348,Dyke Hot Spring,NV,Travertine,Qt,Mariner et al_1974, 
+187,-111.8371242,42.82531892,Eightmile Creek,ID,Travertine,Fluvial and lake sediment (Quaternary),"Feth and Barnes, 1979
+Mansfield, 1929",Location is not specific. Digitized apparent travertine ? terrace in T7S R39E Sec12 and T7S R40E Sec 7 associated with Eighteenmile Creek based on Google Earth imagery and topographic map review. Area mapped as fluvial and lake sediment (Lewis and others
+188,-111.9247515,41.23548401,El Monte Hot Springs,UT,Travertine,Qst,"Feth, J.H., and Barnes, I., 1979, Spring-deposited travertine in eleven western states: U.S. Geological Survey Water-Resources Investigations Open-File Report 79-35.",Travertine cemented alluvium and aprons associated with active hot spring
+189,-119.5732113,39.20543006,Eldorado Canyon travertine deposit,NV,Travertine,Qt,Garside and Schilling_1979, 
+190,-119.6316805,40.30161818,Emerson Pass,NV,Calcite-qtz veins, ,Faulds_2020, 
+191,-119.6316936,40.30162355,Emerson Pass,NV,Silica vein,Qssi,Faulds_2020,Possible paleo-travertine-sinter terrace with N20-58E calcite-qtz veins
+192,-119.6316936,40.30162355,Emerson Pass,NV,Travertine,Qt,Faulds_2020,Possible paleo-travertine-sinter terrace with N20-58E calcite-qtz veins
+193,-119.6401675,40.30602916,Emerson Pass,NV,Tufa,Qtm,Anderson and Faulds_2013_GRC, 
+194,-119.6402117,40.30375532,Emerson Pass,NV,Tufa,Qtm,Anderson and Faulds_2013_GRC, 
+195,-119.638773,40.30647676,Emerson Pass,NV,Tufa,Qtm,Anderson and Faulds_2013_GRC, 
+196,-119.6314106,40.301794,Emerson Pass,NV,Tufa,Qtm,Anderson and Faulds_2013_GRC, 
+197,-117.9078478,37.88579747,"Emigrant, Green Monster fumarole",NV,Alteration, ,"Coolbaugh, 2022-Mar-26, from Hulen et al., 2005, GRC Bulletin", 
+198,-117.9079311,37.885825,"Emigrant, Green Monster fumarole",NV,Sulfur, ,"Coolbaugh, 2022-Mar-26, from Hulen et al., 2005, GRC Bulletin", 
+199,-119.399613,38.353362,Fales Hot Spring,CA,Tufa,Qtm,"Waring,1965; Brues, 1928; Waring,1915","Location not field validated. Several springs, sec 24 T 6N R 23E 13 miles NW of Bridgeport, resort, no. on figure 114"
+200,-119.3994018,38.35363832,Fales Hot Springs,CA,Travertine,Qt,"Feth and Barnes, 1979; Waring,1915","Mono, Sec. 19, T. 6 N., R. 24 E., Inactive, Present springs are about 40 m lower than three travertine basins rimmed by deposits 15-45 m thick; largest is 30 m across"
+201,-113.0877584,42.61432348,Fall Creek Warm Springs,ID,Travertine,Lake beds (Eocene) fault contact with limestone (Carboniferous),"Stearns, 1937
+Waring, 1965
+Feth and Barnes, 1979","Digitized spring? vicinity. Uncertain if tufa is present. Apparent vegetation in 7/2019 Google Earth imagery and USGS 1984 7.5 minute Badger Peak Quadrangle topographic map support spring location. 
+Reported discharge (Stearns 1937) of 9,000 gpm seems ve"
+202,-111.317692,40.08293131,Fifth Water Hot Springs,UT,Travertine,Qst,"Blackett, R.E., and Wakefield, S., 2004, Geothermal resources of Utah – 2004 – a digital atlas of Utah’s geothermal resources:  Utah Geological Survey Open-File Report 431, CD.",Travertine cemented stream alluvium at active hot springs
+203,-117.9838922,37.85891994,Fish Lake Hot Springs,CA,Sinter,Qssi,Faulds_2020,Silica cemented sands and opaline sinter
+204,-117.9580509,37.9149219,Fish Lake Valley,NV,Silica-cemented mud or ash, ,"Coolbaugh, 2022-Mar-26, from Littlefield, 2010 (UNR M.Sc. thesis)", 
+205,-117.9649195,37.92575251,Fish Lake Valley,NV,Silica-cemented mud or ash, ,"Coolbaugh, 2022-Mar-26, from Littlefield, 2010 (UNR M.Sc. thesis)", 
+206,-118.0486954,37.86114927,Fish Lake Valley,NV,Silicified fault breccia, ,"Coolbaugh, 2022-Mar-26","Advanced argillic alteration, cinnabar, native sulfur"
+207,-118.0486715,37.86111731,Fish Lake Valley,NV,Sulfur, ,"Coolbaugh, 2022-Mar-26","Advanced argillic alteration, cinnabar, native sulfur"
+208,-119.3994018,38.35363832,Foles Hot Spring,CA,Travertine,Qt,Faulds_2020,Large travertine mound with 40 m wide crater
+209,-114.0378622,39.45848738,Gandy Warm Springs,UT,Travertine,Qst,"Feth, J.H., and Barnes, I., 1979, Spring-deposited travertine in eleven western states: U.S. Geological Survey Water-Resources Investigations Open-File Report 79-35.", 
+210,-111.7517328,42.69338324,Gem Valley Spring #2,ID,Tufa,Basalt (Pleistocene and Pliocene),"Ralston and Mayo, 1983",Digitized area around published coordinates (tufa?).
+211,-111.7991823,42.50227114,Gentile Valley Spring #1,ID,Travertine,Lake Bonneville deposits (Pleistocene),"Ralston and Mayo, 1983",IGS mapped spring location. Digitized opposite hillside based on report description and aerial photography. Unable to verify travertine in aerial imagery and on geologic map.
+212,-119.3667073,40.66276111,Gerlach,NV,Alteration, ,"Coolbaugh, 2022-Mar-26",Mudpots with argillic alteration
+213,-117.0869722,41.28175384,Getchell mine,NV,Sinter,Qssi,Rhodes_2021,Indicated on geological map; need field confirmation
+214,-117.4908489,40.95420151,Golconda Hot Springs,NV,Travertine,Qt,Mariner et al_1974 White_1955, 
+215,-117.4256011,40.94569463,Golconda mine,NV,Sinter,Qssi,Rhodes_2021,Mapped sinter and maganese deposit
+216,-117.4251974,40.9458188,Golconda mine,NV,Tufa,Qtm,Rhodes_2021,Mapped tufa (or is it travertine?) Need field confirmation
+217,-117.4919973,40.96197101,Golconda-Pumpernickel Valley,NV,Travertine,Qt,Faulds_2020, 
+218,-118.9118623,40.24662012,Granite Springs Valley,NV,Silica-cemented sand,Qss,Hinz; Faulds; Ayling 2018-2019, 
+219,-118.9156638,40.2028211,Granite Springs Valley,NV,Silica-cemented sand,Qss,Hinz; Faulds; Ayling 2018-2019, 
+220,-118.9126572,40.24620096,Granite Springs Valley,NV,Silica-cemented sand,Qss,Faulds_2020,Sinter and silicified sands
+221,-118.9157197,40.2066587,Granite Springs Valley,NV,Silica-cemented sand,Qss,Ayling_2021, 
+222,-118.9240036,40.26279831,Granite Springs Valley,NV,Silica-cemented sand,Qss,"Ayling and Kraal, 2021",Field validated
+223,-118.913002,40.24599838,Granite Springs Valley,NV,Silica-cemented sand,Qss,"Ayling and Kraal, 2021",Field validated
+224,-118.9160004,40.20660019,Granite Springs Valley,NV,Silica-cemented sand,Qss,"Ayling and Kraal, 2021",Field validated
+225,-118.913002,40.24129868,Granite Springs Valley,NV,Silica-cemented sand,Qss,"Ayling and Kraal, 2021",Field validated
+226,-118.9290009,40.26150131,Granite Springs Valley,NV,Silica-cemented sand,Qss,"Ayling and Kraal, 2021",Field validated
+227,-118.9150009,40.20729828,Granite Springs Valley,NV,Silica-cemented sand,Qss,"Hinz, 2017; Faulds,2017",Field validated
+228,-118.9179993,40.20849991,Granite Springs Valley,NV,Silica-cemented sand,Qss,"Hinz, 2017; Faulds,2017",Field validated
+229,-118.9199982,40.20940018,Granite Springs Valley,NV,Silica-cemented sand,Qss,"Hinz, 2017; Faulds,2017",Field validated
+230,-118.9229965,40.19979858,Granite Springs Valley,NV,Silica-cemented sand,Qss,"Hinz, 2017; Faulds,2017",Field validated
+231,-118.9229965,40.19810104,Granite Springs Valley,NV,Silica-cemented sand,Qss,"Hinz, 2017; Faulds,2017",Field validated
+232,-118.9219971,40.19829941,Granite Springs Valley,NV,Silica-cemented sand,Qss,"Hinz, 2017; Faulds,2017",Field validated
+233,-118.9150009,40.20899963,Granite Springs Valley,NV,Silica-cemented sand,Qss,"Hinz, 2017; Faulds,2017",Field validated
+234,-118.9100037,40.22499847,Granite Springs Valley,NV,Silica-cemented sand,Qss,"Hinz, 2017; Faulds,2017",Field validated
+235,-118.9120026,40.23600006,Granite Springs Valley,NV,Silica-cemented sand,Qss,"Hinz, 2017; Faulds,2017",Field validated
+236,-118.913002,40.23590088,Granite Springs Valley,NV,Silica-cemented sand,Qss,"Hinz, 2017; Faulds,2017",Field validated
+237,-118.913002,40.2358017,Granite Springs Valley,NV,Silica-cemented sand,Qss,"Hinz, 2017; Faulds,2017",Field validated
+238,-118.9150009,40.2364006,Granite Springs Valley,NV,Silica-cemented sand,Qss,"Hinz, 2017; Faulds,2017",Field validated
+239,-118.9150009,40.23709869,Granite Springs Valley,NV,Silica-cemented sand,Qss,"Hinz, 2017; Faulds,2017",Field validated
+240,-118.9160004,40.23799896,Granite Springs Valley,NV,Silica-cemented sand,Qss,"Hinz, 2017; Faulds,2017",Field validated
+241,-118.9160004,40.23830032,Granite Springs Valley,NV,Silica-cemented sand,Qss,"Hinz, 2017; Faulds,2017",Field validated
+242,-118.9160004,40.23849869,Granite Springs Valley,NV,Silica-cemented sand,Qss,"Hinz, 2017; Faulds,2017",Field validated
+243,-118.9140015,40.22679901,Granite Springs Valley,NV,Silica-cemented sand,Qss,"Hinz, 2017; Faulds,2017",Field validated
+244,-118.9160004,40.21630096,Granite Springs Valley,NV,Silica-cemented sand,Qss,"Hinz, 2017; Faulds,2017",Field validated
+245,-118.9150009,40.22069931,Granite Springs Valley,NV,Silica-cemented sand,Qss,"Hinz, 2017; Faulds,2017",Field validated
+246,-118.9160004,40.22050095,Granite Springs Valley,NV,Silica-cemented sand,Qss,"Hinz, 2017; Faulds,2017",Field validated
+247,-118.9140015,40.24860001,Granite Springs Valley,NV,Sinter,Qssi,"Ayling and Kraal, 2021",Field validated
+248,-118.9140015,40.24810028,Granite Springs Valley,NV,Sinter,Qssi,"Ayling and Kraal, 2021",Field validated
+249,-118.9150009,40.2132988,Granite Springs Valley,NV,Travertine,Qt,"Hinz, 2017; Faulds,2017",Field validated
+250,-118.9160004,40.21360016,Granite Springs Valley,NV,Travertine,Qt,"Hinz, 2017; Faulds,2017",Field validated
+251,-118.9150009,40.21429825,Granite Springs Valley,NV,Travertine,Qt,"Hinz, 2017; Faulds,2017",Field validated
+252,-118.9140015,40.21519852,Granite Springs Valley,NV,Travertine,Qt,"Hinz, 2017; Faulds,2017",Field validated
+253,-118.9140015,40.21530151,Granite Springs Valley,NV,Travertine,Qt,"Hinz, 2017; Faulds,2017",Field validated
+254,-118.9140015,40.2154007,Granite Springs Valley,NV,Travertine,Qt,"Hinz, 2017; Faulds,2017",Field validated
+255,-118.9140015,40.21549988,Granite Springs Valley,NV,Travertine,Qt,"Hinz, 2017; Faulds,2017",Field validated
+256,-118.9140015,40.2159996,Granite Springs Valley,NV,Travertine,Qt,"Hinz, 2017; Faulds,2017",Field validated
+257,-118.9140015,40.21620178,Granite Springs Valley,NV,Travertine,Qt,"Hinz, 2017; Faulds,2017",Field validated
+258,-118.9140015,40.21630096,Granite Springs Valley,NV,Travertine,Qt,"Hinz, 2017; Faulds,2017",Field validated
+259,-118.9140015,40.21640015,Granite Springs Valley,NV,Travertine,Qt,"Hinz, 2017; Faulds,2017",Field validated
+260,-118.9140015,40.21659851,Granite Springs Valley,NV,Travertine,Qt,"Hinz, 2017; Faulds,2017",Field validated
+261,-118.9140015,40.21730042,Granite Springs Valley,NV,Travertine,Qt,"Hinz, 2017; Faulds,2017",Field validated
+262,-118.9140015,40.21760178,Granite Springs Valley,NV,Travertine,Qt,"Hinz, 2017; Faulds,2017",Field validated
+263,-118.913002,40.21760178,Granite Springs Valley,NV,Travertine,Qt,"Hinz, 2017; Faulds,2017",Field validated
+264,-118.913002,40.2179985,Granite Springs Valley,NV,Travertine,Qt,"Hinz, 2017; Faulds,2017",Field validated
+265,-118.913002,40.2181015,Granite Springs Valley,NV,Travertine,Qt,"Hinz, 2017; Faulds,2017",Field validated
+266,-118.9120026,40.21849823,Granite Springs Valley,NV,Travertine,Qt,"Hinz, 2017; Faulds,2017",Field validated
+267,-118.913002,40.23249817,Granite Springs Valley,NV,Travertine,Qt,"Hinz, 2017; Faulds,2017",Field validated
+268,-118.9157171,40.20656595,Granite Springs Valley,NV,Tufa,Qtm,Ayling_2021,Field validated
+269,-118.9290009,40.26269913,Granite Springs Valley,NV,Tufa,Qtm,"Ayling and Kraal, 2021",Field validated
+270,-118.9169998,40.26129913,Granite Springs Valley,NV,Tufa,Qtm,"Ayling and Kraal, 2021",Field validated
+271,-118.927002,40.26010132,Granite Springs Valley,NV,Tufa,Qtm,"Ayling and Kraal, 2021",Field validated
+272,-118.9160004,40.20660019,Granite Springs Valley,NV,Tufa,Qtm,"Ayling and Kraal, 2021",Field validated
+273,-118.9290009,40.26150131,Granite Springs Valley,NV,Tufa,Qtm,"Ayling and Kraal, 2021",Field validated
+274,-112.5252494,40.64640944,Grantsville Warm Springs,UT,Travertine,Qst,"Feth, J.H., and Barnes, I., 1979, Spring-deposited travertine in eleven western states: U.S. Geological Survey Water-Resources Investigations Open-File Report 79-35.",Extensive travertine aprons surrounding large spring head
+275,-117.386717,37.027042,Grapevine Springs,CA,Travertine,Qt,"Feth and Barnes, 1979; Miller, 1977","Location not field validated. Inyo, Secs. 2, 3, 10, T. 11 S., R. 42 E., Active, Travertine forms topographic bench"
+276,-119.3643671,40.66278826,Great Boiling Springs (Gerlach geothermal system),NV,Silica-cemented mud or ash,Qsm,Mariner et al_1974;Wollenberg_1974, 
+277,-119.843514,38.695631,Grover Hot Springs,CA,Travertine,Qt,Faulds_2020,Minor travertine on slopes near Grover Hot Springs-location not taken
+278,-119.91423,42.072733,Hallinan Spring,OR,Travertine,Qt,"Feth and Barnes, 1979; Bowen and Peterson,1970","Location not field validated. Lake, 29, T. 40 S., Ft. 24 E., Active, Much siliceous travertine is in vicinity"
+279,-112.4977001,38.84773251,Hatton Hot Spring,UT,Travertine,Qt,Faulds_2020,Extensive travertine veins and mounds
+280,-112.4879009,38.85802208,Hatton Hot Spring,UT,Travertine,Qt,Faulds_2020,Extensive travertine veins and mounds
+281,-112.4903432,38.85742326,Hatton Hot Spring,UT,Travertine,Qt,Faulds_2020,Extensive travertine veins and mounds
+282,-112.4895394,38.85530815,Hatton Hot Springs,UT,Travertine,Qt,Ayling_2021,Large travertine mound with ridges aligned NE-SW and some ridges orthogonal to this.
+283,-112.490125,38.85409919,Hatton Hot Springs,UT,Travertine,Qst,"Lehi F. Hintze, 2008, Geologic map of the Richfield 30' x 60' quadrangle, southeast Millard County and parts of Beaver, Piute, and Sevier Counties, Utah. M-195dm. UGS. 1:100,000 scale.",Extensive travertine mounds and ridge active hot spring at southern end
+284,-118.5822068,38.56776515,Hawthorne,NV,Tufa,Qtm,Coolbaugh_June2020, 
+285,-119.095081,39.59128417,Hazen,NV,Silica-cemented sand,Qss,Faulds_2020,Silicified Lahontan sands
+286,-119.1071102,39.58360686,Hazen,NV,Silica-cemented sand,Qss,Faulds_2020,Silicified Lahontan sands
+287,-119.1087597,39.58386523,Hazen,NV,Silica-cemented sand,Qss,Faulds_2020,Opalized material in silicified Lahontan sands
+288,-119.1082401,39.589001,Hazen,NV,Silica-cemented sand,Qss,Faulds_2020,Silicified Lahontan sands
+289,-119.1072719,39.59047809,Hazen,NV,Silica-cemented sand,Qss,Faulds_2020,Silicified Lahontan sands with petrified wood
+290,-119.1173346,39.58365524,Hazen,NV,Silica-cemented sand,Qss,Faulds_2020,Silicified Lahontan sands
+291,-119.0935421,39.56183312,Hazen,NV,Silica-cemented sand,Qss,Faulds_2020,Small exposure of silicified Lahontan sands
+292,-119.0787962,39.55371007,Hazen,NV,Silica-cemented sand,Qss,Faulds_2020,Small exposure of silicified Lahontan sands
+293,-119.1110707,39.58826489,Hazen,NV,Sinter,Qssi,Faulds_2020,Opaline sinter
+294,-119.1102561,39.58482909,Hazen,NV,Sinter,Qssi,Faulds_2020,Pleistocene sinter
+295,-119.1154582,39.5870409,Hazen,NV,Sinter,Qssi,Faulds_2020,Sinter terrace with stem casts
+296,-119.1116747,39.59396587,Hazen,NV,Sinter,Qssi,Faulds_2020,Includes some silicified sands
+297,-119.1163545,39.58473619,Hazen,NV,Sinter,Qssi,Faulds_2020,Sinter with nearby vegetation indicative of a spring
+298,-119.0758807,39.56405097,Hazen,NV,Tufa,Qtm,Faulds_2020,2-4 m high tufa tower
+299,-120.007649,40.24783,High Rock Spring,CA,Tufa,Qtm,"Feth and Barnes, 1979; Russell,1885; Waring,1915","Location not field validated. Lassen, T. 28 N., R. 17 E.(?), Unknown, Large travertine crags occur. (Russell, 1885) Waring (1915) said travertine covers 0.8-1.0 ha and water temperature was 30°C."
+300,-119.4109609,38.89872315,Hind's(Nevada) Hot Springs,NV,Travertine,Qt,Mariner et al_1974, 
+301,-119.8493789,39.06453405,Hobo Hot Springs,NV,Travertine,Qt,NBMG_2008; Trexler et al_1980; Pease_1980; Birk_1987, 
+302,-114.5139092,42.31139234,Hollister,ID,Travertine,Rhyolite (Miocene),"Savage, 1969",Uncertain if digitized location is travertine. Surface excavations in vicinity.
+303,-119.9146672,40.08936836,Honey Lake - south end ,NV,Tufa,Qtm,"Coolbaugh, 2022-Mar-26",Field visited years ago; imprecise reports/'rumours' of hot springs/wells a short distance to north
+304,-118.860383,37.647279,Hot Creek,CA,Sinter,Qssi,"Feth and Barnes, 1979; D. E. White,1957, written commun.","Location not field validated. Mono, Sec. 35, T. 3 S., R. 28 E., Unknown, Big northwest pool on Hot Creek is in travertine and sinter"
+305,-118.828562,37.660966,Hot Creek - Casa Diablo,CA,Tufa,Qtm,"Waring,1965; Whiting, 1888","Location not field validated. 5 main springs and 2 stream vents, large tufa deposits, Sec 30 T3S, R29E, no. on figure 125"
+306,-118.860399,37.647306,Hot Creek - Casa Diablo,CA,Travertine,Qt,"Feth and Barnes, 1979; D. E. White, 1957, written commun.","Location not field validated. Mono, Sec. 35, T. 3 S., R. 28 E., Unknown, Big northwest pool on Hot Creek is in travertine and sinter"
+307,-117.1106328,40.92239353,Hot Pot Springs,NV,Travertine,Qt,Mariner et al_1974; Trexler et al_1982, 
+308,-118.8849999,39.73901604,Hot Springs Mts,NV,Tufa,Qtm,Faulds_2020,Tufa with quartz nodules
+309,-118.8917241,39.84230575,Hot Springs Mts,NV,Tufa,Qtm,Faulds_2020,Large tufa tower
+310,-116.6817185,39.94117045,Hot Springs Point,NV,Sinter,Qssi,Wilson_1960, 
+311,-116.6817185,39.94117045,Hot Springs Point,NV,Travertine,Qt,Wilson_1961, 
+312,-117.4932138,40.76099651,Hot Springs Ranch (Tipton),NV,Travertine,Qt,Mariner et al_1974; Waring_1919, 
+313,-117.4932138,40.76099651,Hot Springs Ranch (Tipton),NV,Sinter,Qssi,Mariner et al_1974, 
+314,-115.2863904,40.58655863,"Hot Sulphur Springs(Tuscarora, Ellison Ranch)",NV,Sinter,Qssi,Garside and Schilling_1979, 
+315,-115.2863904,40.58655863,"Hot Sulphur Springs(Tuscarora, Ellison Ranch)",NV,Travertine,Qt,Pilkington and Lange_1980, 
+316,-119.869695,42.063711,Houston Hot Springs,OR,Sinter,Qssi,"Waring,1965; Trauger, 1950","Location not field validated. H2S smell, sec 27 T 40S R24E 3 miles E of Warner Lake post office, used locally, no. on figure 51S"
+317,-118.505448,41.72120752,Howard Hot Spring,NV,Sinter,Qssi,Hose and Taylor_1974; Waring_1965; Stearns et al_1937; Mariner et al_1983; Faulds_2020,"Mostly chalcedonic sinter but some possible opaline sinter; possibly some cinnarbar; vein--354, 80E"
+318,-118.2743771,40.59246417,Humboldt House (Rye Patch),NV,Silica-cemented sand,Qss,Hinz; Silver et al_2011, 
+319,-117.7186577,40.00295923,Hyder Hot Springs,NV,Travertine,Qt,Blackwell et al_2006, 
+320,-116.8882354,43.07105361,IGS-Delamar-01,ID,Sinter and silicified zone,,"Gillerman and others, 2021",Imported from IGS database; Overlay Polygon
+321,-116.8648571,43.03436068,IGS-Delamar-02,ID,Sinter and silicified zone,,"Gillerman and others, 2021",Imported from IGS database; Overlay Polygon
+322,-116.8948593,43.04547281,IGS-Delamar-03,ID,Sinter and silicified zone,,"Gillerman and others, 2021",Imported from IGS database; Overlay Polygon
+323,-116.8948725,43.04712538,IGS-Delamar-04,ID,Sinter and silicified zone,,"Gillerman and others, 2021",Imported from IGS database; Overlay Polygon
+324,-116.8777841,43.08349069,IGS-Delamar-40,ID,Sinter and silicified zone,,"Gillerman and others, 2021",Imported from IGS database; Overlay Polygon
+325,-116.87685,43.05964273,IGS-Delamar-41,ID,Sinter and silicified zone,,"Gillerman and others, 2021",Imported from IGS database; Overlay Polygon
+326,-116.8778831,43.05602813,IGS-Delamar-42,ID,Sinter and silicified zone,,"Gillerman and others, 2021",Imported from IGS database; Overlay Polygon
+327,-116.8693731,43.02586178,IGS-Delamar-43,ID,Sinter and silicified zone,,"Gillerman and others, 2021",Imported from IGS database; Overlay Polygon
+328,-116.8825294,43.05547315,IGS-Delamar-44,ID,Sinter and silicified zone,,"Gillerman and others, 2021",Imported from IGS database; Overlay Polygon
+329,-116.8605875,43.02435041,IGS-Delamar-45,ID,Sinter and silicified zone,,"Gillerman and others, 2021",Imported from IGS database; Overlay Polygon
+330,-116.8667664,43.02320107,IGS-Delamar-46,ID,Sinter and silicified zone,,"Gillerman and others, 2021",Imported from IGS database; Overlay Polygon
+331,-116.865153,43.024571,IGS-Delamar-47,ID,Sinter and silicified zone,,"Gillerman and others, 2021",Imported from IGS database; Overlay Polygon
+332,-116.9200407,43.05815741,IGS-Delamar-48,ID,Sinter and silicified zone,,"Gillerman and others, 2021",Imported from IGS database; Overlay Polygon
+333,-116.8639965,43.02496096,IGS-Delamar-49,ID,Sinter and silicified zone,,"Gillerman and others, 2021",Imported from IGS database; Overlay Polygon
+334,-116.900207,43.050369,IGS-Delamar-50,ID,Sinter and silicified zone,,"Gillerman and others, 2021",Imported from IGS database; Overlay Polygon
+335,-116.8679125,43.03748692,IGS-Delamar-51,ID,Sinter and silicified zone,,"Gillerman and others, 2021",Imported from IGS database; Overlay Polygon
+336,-116.9122518,43.05124443,IGS-Delamar-52,ID,Sinter and silicified zone,,"Gillerman and others, 2021",Imported from IGS database; Overlay Polygon
+337,-116.8954304,43.04824745,IGS-Delamar-53,ID,Sinter and silicified zone,,"Gillerman and others, 2021",Imported from IGS database; Overlay Polygon
+338,-116.8690152,43.03869186,IGS-Delamar-54,ID,Sinter and silicified zone,,"Gillerman and others, 2021",Imported from IGS database; Overlay Polygon
+339,-116.8802534,43.04989851,IGS-Delamar-55,ID,Sinter and silicified zone,,"Gillerman and others, 2021",Imported from IGS database; Overlay Polygon
+340,-116.8783312,43.0496758,IGS-Delamar-56,ID,Sinter and silicified zone,,"Gillerman and others, 2021",Imported from IGS database; Overlay Polygon
+341,-116.8726928,43.04895395,IGS-Delamar-57,ID,Sinter and silicified zone,,"Gillerman and others, 2021",Imported from IGS database; Overlay Polygon
+342,-116.8643085,43.0545049,IGS-Delamar-58,ID,Sinter and silicified zone,,"Gillerman and others, 2021",Imported from IGS database; Overlay Polygon
+343,-116.880664,43.05731665,IGS-Delamar-59,ID,Sinter and silicified zone,,"Gillerman and others, 2021",Imported from IGS database; Overlay Polygon
+344,-116.8716732,43.05935829,IGS-Delamar-60,ID,Sinter and silicified zone,,"Gillerman and others, 2021",Imported from IGS database; Overlay Polygon
+345,-116.8692145,43.05907983,IGS-Delamar-61,ID,Sinter and silicified zone,,"Gillerman and others, 2021",Imported from IGS database; Overlay Polygon
+346,-116.8649617,43.05888092,IGS-Delamar-62,ID,Sinter and silicified zone,,"Gillerman and others, 2021",Imported from IGS database; Overlay Polygon
+347,-116.8815613,43.07255425,IGS-Delamar-63,ID,Sinter and silicified zone,,"Gillerman and others, 2021",Imported from IGS database; Overlay Polygon
+348,-116.8939529,43.05757471,IGS-Delamar-64,ID,Sinter and silicified zone,,"Gillerman and others, 2021",Imported from IGS database; Overlay Polygon
+349,-116.8700508,43.0434058,IGS-Delamar-65,ID,Sinter and silicified zone,,"Gillerman and others, 2021",Imported from IGS database; Overlay Polygon
+350,-116.8535169,43.00923284,IGS-Delamar-66,ID,Sinter and silicified zone,,"Gillerman and others, 2021",Imported from IGS database; Overlay Polygon
+351,-116.8499277,43.00798261,IGS-Delamar-67,ID,Sinter and silicified zone,,"Gillerman and others, 2021",Imported from IGS database; Overlay Polygon
+352,-116.9014655,43.05650864,IGS-Delamar-68,ID,Sinter and silicified zone,,"Gillerman and others, 2021",Imported from IGS database; Overlay Polygon
+353,-116.8798014,43.04028233,IGS-Delamar-69,ID,Sinter and silicified zone,,"Gillerman and others, 2021",Imported from IGS database; Overlay Polygon
+354,-116.8621032,43.02724077,IGS-Delamar-70,ID,Sinter and silicified zone,,"Gillerman and others, 2021",Imported from IGS database; Overlay Polygon
+355,-116.8754969,43.08276747,IGS-Delamar-71,ID,Sinter and silicified zone,,"Gillerman and others, 2021",Imported from IGS database; Overlay Polygon
+356,-112.8490166,42.60998642,IGS-Pocatello-01,ID,Travertine,Qtn,"Link and Stanford, 1999",Imported from IGS database
+357,-112.8530795,42.6107367,IGS-Pocatello-02,ID,Travertine,Qtn,"Link and Stanford, 1999",Imported from IGS database
+358,-112.8492521,42.61217072,IGS-Pocatello-03,ID,Travertine,Qtn,"Link and Stanford, 1999",Imported from IGS database
+359,-112.8537626,42.61908895,IGS-Pocatello-04,ID,Travertine,Qtn,"Link and Stanford, 1999",Imported from IGS database
+360,-112.851639,42.6193247,IGS-Pocatello-05,ID,Travertine,Qtn,"Link and Stanford, 1999",Imported from IGS database
+361,-112.8673884,42.62149011,IGS-Pocatello-06,ID,Travertine,Qtn,"Link and Stanford, 1999",Imported from IGS database
+362,-112.8951335,42.63575617,IGS-Pocatello-07,ID,Travertine,Qtn,"Link and Stanford, 1999",Imported from IGS database
+363,-112.8977179,42.64139531,IGS-Pocatello-08,ID,Travertine,Qtn,"Link and Stanford, 1999",Imported from IGS database
+364,-112.8678792,42.71774361,IGS-Pocatello-09,ID,Travertine,Qtn,"Link and Stanford, 1999",Imported from IGS database
+365,-112.8680921,42.71872566,IGS-Pocatello-10,ID,Travertine,Qtn,"Link and Stanford, 1999",Imported from IGS database
+366,-112.8830694,42.72299632,IGS-Pocatello-11,ID,Travertine,Qtn,"Link and Stanford, 1999",Imported from IGS database
+367,-112.8855383,42.72502787,IGS-Pocatello-12,ID,Travertine,Qtn,"Link and Stanford, 1999",Imported from IGS database
+368,-112.8718125,42.72403066,IGS-Pocatello-13,ID,Travertine,Qtn,"Link and Stanford, 1999",Imported from IGS database
+369,-112.8809869,42.72574923,IGS-Pocatello-14,ID,Travertine,Qtn,"Link and Stanford, 1999",Imported from IGS database
+370,-112.8854803,42.72664335,IGS-Pocatello-15,ID,Travertine,Qtn,"Link and Stanford, 1999",Imported from IGS database
+371,-112.8770379,42.7274382,IGS-Pocatello-17,ID,Travertine,Qtn,"Link and Stanford, 1999",Imported from IGS database
+372,-112.8735701,42.72952983,IGS-Pocatello-18,ID,Travertine,Qtn,"Link and Stanford, 1999",Imported from IGS database
+373,-112.3248935,42.95422829,IGS-Pocatello-19,ID,Travertine,Qtn,"Link and Stanford, 1999",Imported from IGS database
+374,-112.3243159,42.95492796,IGS-Pocatello-20,ID,Travertine,Qtn,"Link and Stanford, 1999",Imported from IGS database
+375,-112.7558976,42.5053809,IGS-Pocatello-21,ID,Travertine,Qtn,"Link and Stanford, 1999",Imported from IGS database
+376,-112.9106618,42.52110429,IGS-Pocatello-22,ID,Travertine,Qtn,"Link and Stanford, 1999",Imported from IGS database
+377,-112.7670521,42.52935738,IGS-Pocatello-23,ID,Travertine,Qtn,"Link and Stanford, 1999",Imported from IGS database
+378,-112.7871578,42.53334244,IGS-Pocatello-24,ID,Travertine,Qtn,"Link and Stanford, 1999",Imported from IGS database
+379,-112.8309855,42.53569389,IGS-Pocatello-25,ID,Travertine,Qtn,"Link and Stanford, 1999",Imported from IGS database
+380,-112.823322,42.54616639,IGS-Pocatello-26,ID,Travertine,Qtn,"Link and Stanford, 1999",Imported from IGS database
+381,-112.7243271,42.573739,IGS-Pocatello-27,ID,Travertine,Qtn,"Link and Stanford, 1999",Imported from IGS database
+382,-112.8467563,42.59146966,IGS-Pocatello-28,ID,Travertine,Qtn,"Link and Stanford, 1999",Imported from IGS database
+383,-112.8429476,42.59229558,IGS-Pocatello-29,ID,Travertine,Qtn,"Link and Stanford, 1999",Imported from IGS database
+384,-112.8342703,42.59243764,IGS-Pocatello-30,ID,Travertine,Qtn,"Link and Stanford, 1999",Imported from IGS database
+385,-112.850996,42.59750867,IGS-Pocatello-31,ID,Travertine,Qtn,"Link and Stanford, 1999",Imported from IGS database
+386,-112.8486713,42.60560524,IGS-Pocatello-32,ID,Travertine,Qtn,"Link and Stanford, 1999",Imported from IGS database
+387,-112.8536256,42.60698643,IGS-Pocatello-33,ID,Travertine,Qtn,"Link and Stanford, 1999",Imported from IGS database
+388,-112.8517611,42.60692044,IGS-Pocatello-34,ID,Travertine,Qtn,"Link and Stanford, 1999",Imported from IGS database
+389,-112.8480128,42.60671836,IGS-Pocatello-35,ID,Travertine,Qtn,"Link and Stanford, 1999",Imported from IGS database
+390,-112.8550741,42.60756489,IGS-Pocatello-36,ID,Travertine,Qtn,"Link and Stanford, 1999",Imported from IGS database
+391,-112.8518919,42.60860829,IGS-Pocatello-37,ID,Travertine,Qtn,"Link and Stanford, 1999",Imported from IGS database
+392,-112.8570658,42.60868454,IGS-Pocatello-38,ID,Travertine,Qtn,"Link and Stanford, 1999",Imported from IGS database
+393,-112.8548259,42.60902128,IGS-Pocatello-39,ID,Travertine,Qtn,"Link and Stanford, 1999",Imported from IGS database
+394,-112.8805038,42.60921251,IGS-Pocatello-40,ID,Travertine,Qtn,"Link and Stanford, 1999",Imported from IGS database
+395,-112.8561268,42.60941052,IGS-Pocatello-41,ID,Travertine,Qtn,"Link and Stanford, 1999",Imported from IGS database
+396,-112.8561605,42.61031453,IGS-Pocatello-42,ID,Travertine,Qtn,"Link and Stanford, 1999",Imported from IGS database
+397,-117.4909557,40.17797341,Jersey Valley,NV,Sinter,Qssi,Ferguson et al_1915;Mariner et al_1974, 
+398,-117.4909557,40.17797341,Jersey Valley,NV,Travertine,Qt,Cohen&Everett_1963; Mariner et al_1974; Goff et al_2002; Nosker_1981, 
+399,-117.4755823,40.18088409,Jersey Valley,NV,Sinter,Qssi,Coolbaugh_June2020,Exposed in powerplant excavation wall
+400,-112.2009967,38.61499999,Joseph Hot Springs,UT,Travertine,Qst,"Peter D. Rowley, 1988, Geologic map of the Antelope Range Quadrangle, Sevier and Piute Counties, Utah. M-106. UGS. 1:24,000 scale.",Travertine fans and travertine cemented alluvium associated with active hot spring
+401,-112.2114628,38.60413793,Joseph Hot Springs,UT,Travertine,Qst,"Peter D. Rowley, 1988, Geologic map of the Antelope Range Quadrangle, Sevier and Piute Counties, Utah. M-106. UGS. 1:24,000 scale.",Travertine cemented alluvium and travertine aprons at active hot spring
+402,-121.79765,42.261519,Klamath Hot Springs,OR,Silica-cemented sand,Qss,"Waring,1965; White et al., 1953; White et al., 1949; Peterson and Groh, 1967","Location not field validated. Water used for bathing/several wells supplying hot water for heating residences, no. on figure 27"
+403,-121.794234,42.26386,Klamath Hot Springs,OR,Tufa,Qtm,"Waring,1965; White et al., 1953; White et al., 1949; Peterson and Groh, 1968","Location not field validated. Water used for bathing/several wells supplying hot water for heating residences, no. on figure 27"
+404,-113.8786189,39.24070571,Knolls Cold Springs,UT,Travertine,Qst,"Kirby, 2022",Active vegetated travertine cold spring mounds
+405,-113.8741935,39.24828448,Knolls Cold Springs,UT,Travertine,Qst,"Kirby, 2022",Active vegetated travertine cold spring mounds
+406,-113.8716427,39.24924594,Knolls Cold Springs,UT,Travertine,Qst,"Kirby, 2022",Active vegetated travertine cold spring mounds
+407,-117.8870139,40.39749437,Kyle Hot Springs,NV,Sinter,Qssi,Noble_1974; Loetz and Phoenix_1955; Wollenberd_1974; Mariner et al_1974,Inactive opaline sinter and travertine mound
+408,-117.8870892,40.39758278,Kyle Hot Springs,NV,Travertine,Qt,Noble_1974; Loetz and Phoenix_1955; Wollenberd_1974; Mariner et al_1974; Faulds_2020,Inactive opaline sinter and travertine mound
+409,-117.8841931,40.40680318,Kyle Hot Springs,NV,Travertine,Qt,Faulds_2020,Travertine mound with 64C spring
+410,-119.3787788,40.13917876,Lake Range-tufa,NV,Tufa,Qtm,Faulds_2020,Sizeable area with tufa mound and towers with springs
+411,-115.1515602,36.2171336,Las Vegas Valley,NV,Sinter,Qssi,Faulds_2020,Possible opaline sinter (sample collected) along Valley View fault
+412,-112.0087183,42.62087557,Lava Hot Springs #1,ID,Travertine,"contact with Alluvial deposits (Quaternary) and
+Sedimentary rocks (Devonian to Ordovician)","Young and Mitchell, 1973
+Feth and Barnes, 1979","Mapped IGS and IDWR location. Unclear travertine deposit location based on Google Earth imagery review. Digitized around the vicinity of the spring.  Travertine terrace deposits upslope (outcrop at 5,400 ft contour and along slope below to spring)?"
+413,-117.6497798,40.60363843,"Leach (Pleasant Valley, Nelson's, Guthrie) Hot Springs",NV,Sinter,Qssi,Dreyer_1940;Olmsted et al_1975; Waring et al_1965, 
+414,-118.7189842,39.22142784,Lee Allen Hot Springs,NV,Silica-cemented sand,Qss,"Coolbaugh, 2022-Mar-26, originally mapped by Hinz", 
+415,-118.7237831,39.20867501,Lee Hot Springs,NV,Silica-cemented sand,Qss,Mariner et al_1974;Glancy and Katzer_1975, 
+416,-118.7231002,39.2082368,Lee Hot Springs,NV,Tufa,Qtm,Ayling_2019, 
+417,-111.8254368,42.8040246,Little Flat Canyon,ID,Travertine,Fluvial and lake sediment (Quaternary),"Feth and Barnes, 1979
+Mansfield, 1929","Digitized location based on review of Google Earth imagery and topographic map. Area mapped as fluvial and lake sediment (Lewis and others, 2012) supports travertine."
+418,-115.7712006,38.55586556,Lockes Hot Springs,NV,Travertine,Qt,Waring_1965; Ayling_2020, 
+419,-115.772733,38.564423,Lockes Hot Springs,NV,Travertine,Qt,Ayling_2020, Large travertine apron mapped from imagery
+420,-118.4079666,40.16288249,Lovelock area,NV,Tufa,Qtm,Faulds_2020,8 m high tufa mound-one of 6 mounds in area
+421,-118.719388,41.0510804,MacFarlane Hot Springs,NV,Travertine,Qt,Sibbett et al_1982;Swanberg and Bowers_1982;,"Faulds: Travertine-calcite vein--N83E, 81N, hot springs present"
+422,-118.7187184,41.05097697,MacFarlane Hot Springs,NV,Travertine,Qt,"Kraushaar and Cashman, 2013; Faulds_2020","Travertine-calcite fissure ridge; veining trending N83E, 81N, hot spring present"
+423,-118.7159162,41.05120789,MacFarlane Hot Springs,NV,Travertine,Qt,Faulds_2020,Smaller travertine vein to NE of main body at 11-332
+424,-112.2404001,42.1730024,Malad Warm Spring,ID,Travertine,Lake Bonneville deposits (Pleistocene),"Ralston and Mayo, 1983
+Young and Mitchell, 1973",IGS mapped spring. Digitized travertine ? in vicinity of mapped spring.
+425,-111.7073424,42.30829653,Maple Grove Hot Spring,ID,Tufa,Windermere Supergroup (Cambrian and Neoproterozoic),"Ralston and Mayo, 1983",IGS mapped spring. Tufa deposit unclear based on aerial photography review. Digitized vicinity around spring.
+426,-115.2864043,41.19205597,Mary's River spring,NV,Silica-cemented sand,Qss,Rhodes_2021,Silica-cemented fan deposits + sinter + active warm springs.
+427,-117.4999789,39.86958073,McCoy Mecury Mine (Antelope Valley),NV,Travertine,Qt,Olson et al_1979, 
+428,-118.8629643,41.80924549,McGee Mtn,NV,Alteration, ,"Coolbaugh, 2022-Mar-26","Steam-heated argillic alteration, 2-meter temp anomaly present"
+429,-118.8630197,41.80691205,McGee Mtn,NV,Alteration, ,"Coolbaugh, 2022-Mar-26","Steam-heated argillic alteration, 2-meter temp anomaly present"
+430,-118.8614461,41.80788512,McGee Mt-Painted Hill Mine,NV,Silica-cemented sand,Qss,Faulds_2020,Hot wells in area with reported steam and warm water
+431,-116.9048388,39.59934074,McGinness Hills,NV,Sinter,Qssi,Coolbaugh et al_2006; Stewart&McKee_1968; Casaceli et al_1986; Fournier_1977, 
+432,-112.4979777,38.86187271,Meadow Hot Springs,UT,Travertine,Qst,"Lehi F. Hintze, 2008, Geologic map of the Richfield 30' x 60' quadrangle, southeast Millard County and parts of Beaver, Piute, and Sevier Counties, Utah. M-195dm. UGS. 1:100,000 scale.",Travertine cemented alluvium and lacustrine deposits large active spring pools
+433,-118.348129,42.67874417,Mickey Hot Spring,OR,Sinter,Qssi,Faulds_2020,"3-4 m high, 25 m wide sinter mound"
+434,-119.17323,37.535839,Middle Fork San Joaquin River,CA,Travertine,Qt,"Feth and Barnes, 1979; Waring,1915","Location not field validated. Madera, Sec. 6, T. 5 S., R. 26 E. (proj.), Unknown, Several iron-stained travertine deposits occur on north side Middle Fork San Joaquin River"
+435,-111.4679043,40.5246817,Midway Hot Springs,UT,Travertine,Qst,"Robert F. Biek, 2019, Interim Geologic Map of the Heber City Quadrangle, Summit and Wasatch Counties, Utah. OFR-712dm. UGS. 1:24,000 scale.",Travertine dome associated with greater Midway Hot Springs system
+436,-111.4759234,40.51820229,Midway Hot Springs,UT,Travertine,Qst,"Robert F. Biek, 2019, Interim Geologic Map of the Heber City Quadrangle, Summit and Wasatch Counties, Utah. OFR-712dm. UGS. 1:24,000 scale.",Travertine dome associated with greater Midway Hot Springs system
+437,-111.4783419,40.53137366,Midway Hot Springs,UT,Travertine,Qafo/Qst,"Robert F. Biek, 2019, Interim Geologic Map of the Heber City Quadrangle, Summit and Wasatch Counties, Utah. OFR-712dm. UGS. 1:24,000 scale.",Travertine cemented alluvium related to Midway Hot Springs system
+438,-111.4863312,40.52155151,Midway Hot Springs,UT,Travertine,Qafo/Qst,"Robert F. Biek, 2019, Interim Geologic Map of the Heber City Quadrangle, Summit and Wasatch Counties, Utah. OFR-712dm. UGS. 1:24,000 scale.",Travertine cemented alluvium related to Midway Hot Springs system
+439,-111.482771,40.53458439,Midway Hot Springs,UT,Travertine,Qst,"Robert F. Biek, 2019, Interim Geologic Map of the Heber City Quadrangle, Summit and Wasatch Counties, Utah. OFR-712dm. UGS. 1:24,000 scale.",Travertine dome associated with greater Midway Hot Springs system
+440,-119.144771,38.013045,Mono Lake,CA,Tufa,Qtm,"Feth and Barnes, 1979; Dunn, 1953","Location not field validated. Mono, Tps. 1-2 N., R. 26 E., Active, Many towers and mushroom-shaped masses of travertine are along west and north shores of Mono Lake. Sublacustrine masses surround active springs"
+441,-112.1070724,38.63418325,Monroe Hot Springs,UT,Travertine,Qst,"Lehi F. Hintze, 2008, Geologic map of the Richfield 30' x 60' quadrangle, southeast Millard County and parts of Beaver, Piute, and Sevier Counties, Utah. M-195dm. UGS. 1:100,000 scale.",Travertine mound associated with active hot spring
+442,-112.1070592,38.63087458,Monroe Hot Springs,UT,Travertine,Qst,"Lehi F. Hintze, 2008, Geologic map of the Richfield 30' x 60' quadrangle, southeast Millard County and parts of Beaver, Piute, and Sevier Counties, Utah. M-195dm. UGS. 1:100,000 scale.",Travertine mound associated with active hot spring
+443,-114.8074182,39.66792153,Monte Neva Hot Springs,NV,Travertine,Qt,Clark et al_1920; Mifflin_1968; Stearns et al_1937; Hose&Taylor_1974, 
+444,-115.1811289,38.35171609,Moon River Warm Spring,NV,Travertine,Qt,Faulds_2020,Travertine 1-2 m thick common on alluvial surfaces in area
+445,-117.0638423,40.31451324,Mound Springs,NV,Travertine,Qt,Faulds_2020,Broad area of travertine but no sinter
+446,-117.0706661,40.31222093,Mound Springs,NV,Travertine,Qt,Faulds_2020,Travertine mound at fault intersection
+447,-111.726835,42.37350659,Mound Valley Warm Spring,ID,Travertine,Fluvial and lake sediment (Quaternary),"Ralston and Mayo, 1983","IGS mapped spring location 'Mound Valley Warm Springs' plots in Section 15. 
+Digitized vicinity in Sections 13 and 24 based on Ralston and others (1983) description."
+448,-121.4986292,40.45690788,"Mt. Lassen, Bumpass Hell",CA,Alteration, ,"Coolbaugh, 2022-Mar-26",Argillic alteration related to Bumpass Hell
+449,-119.3793694,40.65388103,Mud Springs (Gerlach geothermal system),NV,Silica-cemented sand,Qss,Coolbaugh_June2020,Opal-replaced vegetative matter around thermal springs
+450,-117.4607344,44.02294845,Neal Hot Springs,OR,Sinter,Qssi,Faulds_2020,Opaline sinter terrace
+451,-117.4636268,44.02439725,Neal Hot Springs,OR,Sinter,Qssi,Hinz_2018,Opaline Sinter terrace
+452,-118.0057138,40.05568589,New York Canyon,NV,Argillic alteration, ,Faulds_2020, 
+453,-118.0040778,40.05004332,New York Canyon kaolin deposit,NV,Sinter,Qssi,Papke_1977; Stewart&Carlson_1974, 
+454,-114.0712663,41.92979585,Nile Spring (Goose Creek),NV,Travertine,Qt,Mariner et al_1974; Waring_1965, 
+455,-114.9907025,41.1818513,North Wells Hot Spring,NV,Travertine,Qt,Ayling_2018; USGS travertine report_1979, 
+456,-113.8624246,42.17527605,Oakley Warm Spring,ID,Travertine,Near contact with alluvial-fan deposits (Quaternary) and Windermere Supergroup (Cambrian and Neoproterozoic),"Feth and Barnes, 1979",Mapped IGS and IDWR spring. Digitized vicinity around the mapped spring location based on review of Google Earth imagery and topographic map.
+457,-118.736393,44.371489,Overholt Creek,OR,Travertine,Qt,"Feth and Barnes, 1979; Barnes,1978, field observ.; O'Neil and Barnes, 1971","Location not field validated. Grant, Sec. 10, T. 14 S., R. 33 E., Active, Streambed travertine armors bed of Overholt Creek"
+458,-119.015758,39.591166,Patua,NV,Explosion craters, ,"Faulds, 2021",Located using Google Earth (after initial field observation). Could be explosion craters or extinct mud-pots.
+459,-119.015427,39.590551,Patua,NV,Explosion craters, ,"Faulds, 2021",Located using Google Earth (after initial field observation). Could be explosion craters or extinct mud-pots.
+460,-119.015502,39.589417,Patua,NV,Explosion craters, ,"Faulds, 2021",Located using Google Earth (after initial field observation). Could be explosion craters or extinct mud-pots.
+461,-119.1151959,39.58683995,Patua,NV,Silica-cemented sand,Qss,Hinz and Ayling_2019, 
+462,-118.7891813,41.36239202,Pinto Hot Springs,NV,Travertine,Qt,Mariner et al_1974; Hose&Taylor_1974; Wilden_1964;Olson_1985, 
+463,-118.7889418,41.36255661,Pinto Hot Springs,NV,Sinter,Qssi,Faulds_2020; Hose and Taylor_1974,Mainly opaline sinter with lesser tufa; boiling hot springs
+464,-118.7889418,41.36255661,Pinto Hot Springs,NV,Tufa,Qtm,Faulds_2020,Mainly opaline sinter with lesser tufa; boiling hot springs
+465,-116.6401254,39.0797089,Potts Ranch Hot Springs,NV,Travertine,Qt,Faulds_2020,Some travertine but no sinter; temp 47.1C
+466,-116.6410485,39.08019703,Potts Ranch Hot Springs,NV,Travertine,Qt,Fiero_1968;Stewart and Carlson_1974, 
+467,-119.6873109,40.14126215,Pyramid Lake,NV,Tufa,Qtm,"Ayling, 2022",Located using Google Earth imagery; not field-validated
+468,-119.6785306,40.14533564,Pyramid Lake,NV,Tufa,Qtm,"Ayling, 2022",Located using Google Earth imagery; not field-validated
+469,-119.5359507,39.9047128,Pyramid Lake,NV,Tufa,Qtm,"Ayling, 2022",Located using Google Earth imagery; not field-validated
+470,-119.5495977,39.91157167,Pyramid Lake,NV,Tufa,Qtm,"Ayling, 2022",Located using Google Earth imagery; not field-validated
+471,-119.5777535,39.92790593,Pyramid Lake,NV,Tufa,Qtm,"Ayling, 2022",Located using Google Earth imagery; not field-validated
+472,-119.5884586,39.92950112,Pyramid Lake,NV,Tufa,Qtm,"Ayling, 2022",Located using Google Earth imagery; not field-validated
+473,-119.5860438,39.92892946,Pyramid Lake,NV,Tufa,Qtm,"Ayling, 2022",Located using Google Earth imagery; not field-validated
+474,-119.5938118,39.93865739,Pyramid Lake,NV,Tufa,Qtm,"Ayling, 2022",Located using Google Earth imagery; not field-validated
+475,-119.601479,39.95377274,Pyramid Lake,NV,Tufa,Qtm,"Ayling, 2022",Located using Google Earth imagery; not field-validated
+476,-119.6097051,39.95745814,Pyramid Lake,NV,Tufa,Qtm,"Ayling, 2022",Located using Google Earth imagery; not field-validated
+477,-119.6203959,39.97474721,Pyramid Lake,NV,Tufa,Qtm,"Ayling, 2022",Located using Google Earth imagery; not field-validated
+478,-119.6321678,40.00761594,Pyramid Lake,NV,Tufa,Qtm,"Ayling, 2022",Located using Google Earth imagery; not field-validated
+479,-119.631188,40.01572615,Pyramid Lake,NV,Tufa,Qtm,"Ayling, 2022",Located using Google Earth imagery; not field-validated
+480,-119.6474943,40.02914547,Pyramid Lake,NV,Tufa,Qtm,"Ayling, 2022",Located using Google Earth imagery; not field-validated
+481,-119.6495789,40.03062973,Pyramid Lake,NV,Tufa,Qtm,"Ayling, 2022",Located using Google Earth imagery; not field-validated
+482,-119.6577743,40.03895422,Pyramid Lake,NV,Tufa,Qtm,"Ayling, 2022",Located using Google Earth imagery; not field-validated
+483,-119.6898067,40.09072844,Pyramid Lake,NV,Tufa,Qtm,"Ayling, 2022",Located using Google Earth imagery; not field-validated
+484,-119.6895908,40.08990889,Pyramid Lake,NV,Tufa,Qtm,"Ayling, 2022",Located using Google Earth imagery; not field-validated
+485,-119.7181115,40.11277798,Pyramid Lake,NV,Tufa,Qtm,"Ayling, 2022",Located using Google Earth imagery; not field-validated
+486,-119.5028491,39.98016079,Pyramid Rock Boiling Springs,NV,Tufa,Qtm,Coolbaugh_2018, 
+487,-112.0985468,38.63955733,Red Hill Hot Springs,UT,Alteration, ,Faulds_2020,Significant alteration with travertine; spring-75.4C
+488,-112.0985468,38.63955733,Red Hill Hot Springs,UT,Travertine,Qst,"Lehi F. Hintze, 2008, Geologic map of the Richfield 30' x 60' quadrangle, southeast Millard County and parts of Beaver, Piute, and Sevier Counties, Utah. M-195dm. UGS. 1:100,000 scale.",Travertine mound associated with active hot spring
+489,-119.073485,37.618869,Reds Meadows Hot Springs,CA,Travertine,Qt,"Feth and Barnes, 1979; Waring, 1915","Location not field validated. Madera, Sec. 10, T. 4 S., R. 26 E. (proj.), Active, Springs have formed small deposit of travertine"
+490,-117.1959636,39.50315706,Reese River/west of Austin,NV,Silica-cemented sand,Qss,Coolbaugh_June2020, 
+491,-118.037366,38.29368007,Rhodes Marsh,NV,Silica-cemented sand,Qss,Faulds_2020,Opaline sands
+492,-118.0369222,38.2912816,Rhodes Marsh,NV,Silica-cemented sand,Qss,"Coolbaugh, 2022-Mar-26, mapped by Coolbaugh in 2006",Mapped by Coolbaugh in 2004
+493,-118.0364927,38.29541287,Rhodes Marsh,NV,Silica-cemented sand,Qss,"Coolbaugh, 2022-Mar-26, mapped by Coolbaugh in 2006",Mapped by Coolbaugh in 2005
+494,-118.0363433,38.29738464,Rhodes Marsh,NV,Silica-cemented sand,Qss,"Coolbaugh, 2022-Mar-26, mapped by Coolbaugh in 2006",Mapped by Coolbaugh in 2006
+495,-118.0377221,38.29360774,Rhodes Marsh,NV,Silica-cemented sand,Qss,Ayling_2019, 
+496,-119.142806,44.892754,Ritter Hot Spring,OR,Travertine,Qt,"Feth and Barnes, 1979; Hewett et al., 1928","Location not field validated. Grant, Sec. 6, T. 8 S., R. 30 E., Active, Thin film of CaCO3 is associated with zeolites and calcite"
+497,-118.370358,38.144929,Rock House Spring,NV,Travertine,Qt,Coolbaugh_June2020,Thermal springs up to 35 deg C
+498,-118.374093,38.143249,Rock House Spring,NV,Travertine,Qt,Coolbaugh_June2020,Thermal springs up to 35 deg C
+499,-112.86951,38.46832627,Roosevelt Hot Spring,UT,Sinter,Qssi,Ayling_2021,Large opal sinter ridge aligned with the Opal Mound fault zone.
+500,-112.8691912,38.4695691,Roosevelt Hot Spring,UT,Sinter,Qssi,Faulds_2020,"Sinter vein and sinter mound; vein-N22E, 90"
+501,-112.8720921,38.46355842,Roosevelt Hot Spring,UT,Sinter,Qs,"Knudsen, T., Kleber, E., Hiscock, A., and Kirby, S.M., 2019, Quaternary geology of the Utah FORGE site and vicinity,  Millard and Beaver Counties, Utah, in Allis, R., and Moore, J.N., editors, Geothermal characteristics of the Roosevelt Hot Springs syste",Large opal sinter ridge aligned with the Opal Mound fault zone
+502,-112.8530949,38.49861177,Roosevelt Hot Spring,UT,Alteration, ,"Coolbaugh, 2022-Mar-26",Active steam area with argillic alteration
+503,-115.2858581,40.58700463,Ruby Valley-Sulfur Hot Spring,NV,Sinter,Qssi,Faulds_2020,"Opaline sinter common, 90.5C max temp"
+504,-118.268028,40.526938,Rye Patch,NV,Explosion craters, ,"Coolbaugh, 2022", 
+505,-118.5884653,39.31018405,Salt Wells,NV,Silica-cemented sand,Qss,"Coolbaugh, 2022-Mar-26, mapped by Coolbaugh in 2004",Mapped by Coolbaugh in 1990
+506,-118.5957967,39.30828587,Salt Wells,NV,Silica-cemented sand,Qss,"Coolbaugh, 2022-Mar-26, mapped by Coolbaugh in 2004",Mapped by Coolbaugh in 1991
+507,-118.5866065,39.30950853,Salt Wells,NV,Silica-cemented sand,Qss,"Coolbaugh, 2022-Mar-26, mapped by Coolbaugh in 2004",Mapped by Coolbaugh in 1992
+508,-118.5794522,39.29138313,Salt Wells,NV,Silica-cemented sand,Qss,"Coolbaugh, 2022-Mar-26, mapped by Coolbaugh in 2004",Mapped by Coolbaugh in 1993
+509,-118.5689063,39.28625394,Salt Wells,NV,Silica-cemented sand,Qss,"Coolbaugh, 2022-Mar-26, mapped by Coolbaugh in 2004",Mapped by Coolbaugh in 1994
+510,-118.572208,39.29361429,Salt Wells,NV,Silica-cemented sand,Qss,"Coolbaugh, 2022-Mar-26, mapped by Coolbaugh in 2004",Mapped by Coolbaugh in 1995
+511,-118.5721544,39.29998383,Salt Wells,NV,Silica-cemented sand,Qss,"Coolbaugh, 2022-Mar-26, mapped by Coolbaugh in 2004",Mapped by Coolbaugh in 1996
+512,-118.5785664,39.30257865,Salt Wells,NV,Silica-cemented sand,Qss,"Coolbaugh, 2022-Mar-26, mapped by Coolbaugh in 2004",Mapped by Coolbaugh in 1997
+513,-118.5826358,39.30563161,Salt Wells,NV,Silica-cemented sand,Qss,"Coolbaugh, 2022-Mar-26, mapped by Coolbaugh in 2004",Mapped by Coolbaugh in 1998
+514,-118.5753393,39.31258696,Salt Wells,NV,Silica-cemented sand,Qss,"Coolbaugh, 2022-Mar-26, mapped by Coolbaugh in 2004",Mapped by Coolbaugh in 1999
+515,-118.5903748,39.31655723,Salt Wells,NV,Silica-cemented sand,Qss,"Coolbaugh, 2022-Mar-26, mapped by Coolbaugh in 2004",Mapped by Coolbaugh in 2000
+516,-118.5870854,39.31855238,Salt Wells,NV,Silica-cemented sand,Qss,"Coolbaugh, 2022-Mar-26, mapped by Coolbaugh in 2004",Mapped by Coolbaugh in 2001
+517,-118.5875974,39.3221107,Salt Wells,NV,Silica-cemented sand,Qss,"Coolbaugh, 2022-Mar-26, mapped by Coolbaugh in 2004",Mapped by Coolbaugh in 2002
+518,-118.5864545,39.32709332,Salt Wells,NV,Silica-cemented sand,Qss,"Coolbaugh, 2022-Mar-26, mapped by Coolbaugh in 2004",Mapped by Coolbaugh in 2003
+519,-118.5823826,39.3500946,Salt Wells,NV,Silica-cemented sand,Qss,"Coolbaugh, 2022-Mar-26, mapped by Coolbaugh in 2004",Mapped by Coolbaugh in 2004
+520,-118.5761195,39.30397369,Salt Wells,NV,Silica-cemented sand,Qss,Hoover et al_1977;Morrison_1964;Trexler et al_1981;Coolbaugh et al_2004;Edmiston&Benoit_1984;Stearns et al_1937;Russel_1985;Bell_1984, 
+521,-118.5660778,39.40630325,Salt Wells north,NV,Silica-cemented sand,Qss,Coolbaugh_June2020, 
+522,-118.5775143,39.38231703,Salt Wells north,NV,Silica-cemented sand,Qss,Coolbaugh_June2020, 
+523,-118.5765842,39.3581513,"Salt Wells playa, north of plant",NV,Silica-cemented sand,Qss,Coolbaugh_June2020, 
+524,-119.4025231,40.39287077,San Emidio,NV,Alteration, ,"Coolbaugh, 2022-Mar-26",Advanced argillic alteration
+525,-119.4001275,40.40306367,San Emidio,NV,Alteration, ,"Coolbaugh, 2022-Mar-26",Advanced argillic alteration
+526,-119.4003351,40.40756741,San Emidio,NV,Alteration, ,"Coolbaugh, 2022-Mar-26",Advanced argillic alteration
+527,-119.4023011,40.39331165,San Emidio,NV,Sulfur, ,"Coolbaugh, 2022-Mar-26",Sulfur with advanced argillic alteration
+528,-119.4024088,40.39374866,San Emidio,NV,Silica-cemented sand,Qss,Ayling_2019, 
+529,-119.4001387,40.40353895,San Emidio,NV,Silica-cemented sand,Qss,Ayling_2019, 
+530,-117.8294006,41.37310226,Sand Spring,NV,Travertine,Qt,Rhodes_2021,Travertine dominated with some silica.
+531,-120.255765,40.357397,Shafter (Wendel) Hot Springs,CA,Travertine,Qt,"Feth and Barnes, 1979; Russell,1885; Stearns et al.,1937","Location not field validated. Lassen, Sec. 23, T. 29 N., R. 15 E., Active, Travertine crags 50 ft. high occur. Russell (1885) reported discharge as 2,840 L/s. Stearns and others (1937) reported 16 L/s. in October 1957 one of us (J.H.F.) measured temperat"
+532,-116.6270518,41.05289562,Silver Cloud mine,NV,Sinter,Qssi,Rhodes_2021,Sheep Creek geothermal prospect;  mapped as opalite
+533,-117.632387,37.77341455,Silver Peak - north,NV,Travertine,Qt,Faulds_2020,"Travertine mound, fissures, and steam vents"
+534,-117.633647,37.761559,Silver Peak Hot Springs,NV,Sinter,Qssi,Henkle et al_2005, Mixed travertine and sinter terrace juxtaposed against Cambrian bedrock along Silver Peak fault zone.
+535,-115.4081064,40.25228462,Smith Creek Valley (Smith Ranch?),NV,Travertine,Qt,Mariner et al_1974; Waring_1965; Everett&Rush_1964, 
+536,-119.8220162,40.3174572,Smoke Creek Desert,NV,Tufa,Qtm,Faulds_2020,"Tufa towers in right step in normal fault zone, Bonham Ranch area"
+537,-119.8062639,40.55724996,Smoke Creek Desert (west),NV,Tufa,Qtm,Ayling_2020,BAyling visited in June2020.
+538,-119.8009149,40.56175553,Smoke Creek Desert (west),NV,Tufa,Qtm,Ayling_2020,Located using Google Earth imagery; not field-validated
+539,-119.7985206,40.56842683,Smoke Creek Desert (west),NV,Tufa,Qtm,Ayling_2020,Located using Google Earth imagery; not field-validated
+540,-119.7989722,40.56761059,Smoke Creek Desert (west),NV,Tufa,Qtm,Ayling_2020,Located using Google Earth imagery; not field-validated
+541,-119.7989886,40.56706101,Smoke Creek Desert (west),NV,Tufa,Qtm,Ayling_2020,Located using Google Earth imagery; not field-validated
+542,-119.7987655,40.56950968,Smoke Creek Desert (west),NV,Tufa,Qtm,Ayling_2020,Located using Google Earth imagery; not field-validated
+543,-119.7981887,40.57174614,Smoke Creek Desert (west),NV,Tufa,Qtm,Ayling_2020,Located using Google Earth imagery; not field-validated
+544,-119.7980308,40.57275826,Smoke Creek Desert (west),NV,Tufa,Qtm,Ayling_2020,Located using Google Earth imagery; not field-validated
+545,-119.7960773,40.57556608,Smoke Creek Desert (west),NV,Tufa,Qtm,Ayling_2020,Located using Google Earth imagery; not field-validated
+546,-119.7972799,40.57403158,Smoke Creek Desert (west),NV,Tufa,Qtm,Ayling_2020,Located using Google Earth imagery; not field-validated
+547,-119.7931825,40.57378671,Smoke Creek Desert (west),NV,Tufa,Qtm,Ayling_2020,Located using Google Earth imagery; not field-validated
+548,-119.7936232,40.57145775,Smoke Creek Desert (west),NV,Tufa,Qtm,Ayling_2020,Located using Google Earth imagery; not field-validated
+549,-119.7935144,40.57279636,Smoke Creek Desert (west),NV,Tufa,Qtm,Ayling_2020,Located using Google Earth imagery; not field-validated
+550,-119.7977479,40.57371053,Smoke Creek Desert (west),NV,Tufa,Qtm,Ayling_2020,Located using Google Earth imagery; not field-validated
+551,-119.8116455,40.57092992,Smoke Creek Desert (west),NV,Tufa,Qtm,Ayling_2020,Located using Google Earth imagery; not field-validated
+552,-119.8110524,40.56928658,Smoke Creek Desert (west),NV,Tufa,Qtm,Ayling_2020,Located using Google Earth imagery; not field-validated
+553,-119.8091533,40.56384507,Smoke Creek Desert (west),NV,Tufa,Qtm,Ayling_2020,Located using Google Earth imagery; not field-validated
+554,-119.8125107,40.56291457,Smoke Creek Desert (west),NV,Tufa,Qtm,Ayling_2020,Located using Google Earth imagery; not field-validated
+555,-119.812255,40.56345872,Smoke Creek Desert (west),NV,Tufa,Qtm,Ayling_2020,Located using Google Earth imagery; not field-validated
+556,-119.8125325,40.56143448,Smoke Creek Desert (west),NV,Tufa,Qtm,Ayling_2020,Located using Google Earth imagery; not field-validated
+557,-119.7965616,40.55675478,Smoke Creek Desert (west),NV,Tufa,Qtm,Ayling_2020,Located using Google Earth imagery; not field-validated
+558,-119.7954897,40.55992718,Smoke Creek Desert (west),NV,Tufa,Qtm,Ayling_2020,Located using Google Earth imagery; not field-validated
+559,-119.7968065,40.5741785,Smoke Creek Desert (west),NV,Tufa,Qtm,Ayling_2020,Located using Google Earth imagery; not field-validated
+560,-119.796012,40.57625716,Smoke Creek Desert (west),NV,Tufa,Qtm,Ayling_2020,Located using Google Earth imagery; not field-validated
+561,-119.7863915,40.58252578,Smoke Creek Desert (west),NV,Tufa,Qtm,Ayling_2020,Located using Google Earth imagery; not field-validated
+562,-119.7883722,40.58175853,Smoke Creek Desert (west),NV,Tufa,Qtm,Ayling_2020,Located using Google Earth imagery; not field-validated
+563,-119.7887585,40.57942413,Smoke Creek Desert (west),NV,Tufa,Qtm,Ayling_2020,Located using Google Earth imagery; not field-validated
+564,-119.7889544,40.58174765,Smoke Creek Desert (west),NV,Tufa,Qtm,Ayling_2020,Located using Google Earth imagery; not field-validated
+565,-119.7902005,40.58397867,Smoke Creek Desert (west),NV,Tufa,Qtm,Ayling_2020,Located using Google Earth imagery; not field-validated
+566,-119.7882035,40.5849799,Smoke Creek Desert (west),NV,Tufa,Qtm,Ayling_2020,Located using Google Earth imagery; not field-validated
+567,-119.782479,40.58996433,Smoke Creek Desert (west),NV,Tufa,Qtm,Ayling_2020,Located using Google Earth imagery; not field-validated
+568,-119.7847427,40.58771154,Smoke Creek Desert (west),NV,Tufa,Qtm,Ayling_2020,Located using Google Earth imagery; not field-validated
+569,-119.7841115,40.58858763,Smoke Creek Desert (west),NV,Tufa,Qtm,Ayling_2020,Located using Google Earth imagery; not field-validated
+570,-118.8549327,39.56398337,Soda Lake,NV,Silica-cemented sand,Qss,Hinz, 
+571,-119.366634,37.878616,Soda Spring,CA,Travertine,Qt,"Feth and Barnes, 1979; Waring, 1915","Tuolumne, Sec. 5, T. 1 S., R. 24 E., Active, Springs emerge from low mound of iron-stained travertine"
+572,-111.6051756,42.65733554,Soda Springs Geyser,ID,Travertine,Basalt (Pleistocene and Pliocene),"Ralston and Mayo, 1983
+Young and Mitchell, 1973",Clear travertine based on aerial photo review.
+573,-111.6088399,42.73656178,Soda Springs_T8SR42ESec7,ID,Tufa,Alluvial deposits (Quaternary),"Ross, 1971",Unclear tufa ? deposits from aerial imagery.
+574,-111.5041945,42.6460281,Soda Springs_T9SR42ESec12,ID,Travertine,"Sedimentary rocks (Permian and Pennsylvanian)
+Sedimentary rocks associated with Basin and Range extension (Quaternary, Pliocene, and Miocene)","Feth and Barnes, 1979","Travertine unclear in aerial photography in Sec 12. Digitized areas in Sec 13 and Sec 14, but unclear if travertine. Mapped as ""Sulphur Spring"" in Google Earth. Not included in IGS thermal spring database."
+575,-111.4990454,42.64253768,Soda Springs_T9SR42ESec13,ID,Travertine?,-,-,-
+576,-116.1039979,35.14071299,Sodaville (Soda) Spring,CA,Travertine,Qt,White_1955; Garside_1955; Kerr_1946; Roberts_1955, 
+577,-117.7259973,40.08733325,"Sou (Seven Devils, Gilbert's) Hot Springs",NV,Travertine,Qt,Faulds_2020; Hague and Emmons_1877,Several travertine mounds; 10-15 m high
+578,-117.9497269,40.84596205,South Big Alkali,NV,Travertine,Qt,Rhodes_2021,Sheeted calcite along fault zone.
+579,-120.962903,40.033127,Spanish Creek,CA,Travertine,Qt,"Feth and Barnes, 1979; Waring,1915","Location not field validated. Plumas, Sec. 15, T. 25N., R. 9 E., Active, Travertine covers slope about 120 m long below springs and forms bluff 100 m long beside Spanish Creek"
+580,-116.8557725,39.32742439,Spencer Hot Springs,NV,Travertine,Qt,Meinzer_1917, 
+581,-116.8558282,39.32719144,Spencer Hot Springs,NV,Travertine,Qt,Faulds_2020,Only travertine observed; temp 70.7C
+582,-118.8520293,38.24924872,Spring Peak epithermal,NV,Sinter,Qssi,Coolbaugh_June2020,"Sinter, geyserite ""Spring Peak"" epithermal prospect"
+583,-111.9287327,42.11882484,Squaw Hot (Vincent) Springs #2,ID,Travertine,Alluvial deposits (Quaternary) and,"Young and Mitchell, 1973","Mapped IGS and IDWR spring 'Squaw Hot (Vincent) Springs #2"". Digitized travertine ? in vincinity of springs based on Google Earth imagery review."
+584,-119.754162,39.38817808,Steamboat Hot Springs,NV,Travertine,Qt,White_1968;Mariner et al_1974, 
+585,-119.7613301,39.38082852,Steamboat Hot Springs,NV,Alteration, ,"Coolbaugh, 2022-Mar-26","Advanced argillic alteration includes alunite, kaolinite, and residual silica"
+586,-119.7606789,39.38649134,Steamboat Hot Springs,NV,Alteration, ,"Coolbaugh, 2022-Mar-26","Advanced argillic alteration includes alunite, kaolinite, and residual silica"
+587,-119.7617252,39.38691522,Steamboat Hot Springs,NV,Alteration, ,"Coolbaugh, 2022-Mar-26","Advanced argillic alteration includes alunite, kaolinite, and residual silica"
+588,-119.7639733,39.38669763,Steamboat Hot Springs,NV,Alteration, ,"Coolbaugh, 2022-Mar-26","Advanced argillic alteration includes alunite, kaolinite, and residual silica"
+589,-119.7673436,39.38775568,Steamboat Hot Springs,NV,Alteration, ,"Coolbaugh, 2022-Mar-26","Advanced argillic alteration includes alunite, kaolinite, and residual silica"
+590,-119.7705891,39.38672622,Steamboat Hot Springs,NV,Alteration, ,"Coolbaugh, 2022-Mar-26","Advanced argillic alteration includes alunite, kaolinite, and residual silica"
+591,-119.7411939,39.38019307,Steamboat Hot Springs,NV,Silica-cemented sand,Qss,"Coolbaugh, 2022-Mar-26, originally documented by White et al., 1964", 
+592,-119.7400358,39.38247962,Steamboat Hot Springs,NV,Silica-cemented sand,Qss,"Coolbaugh, 2022-Mar-26, originally documented by White et al., 1964", 
+593,-119.7432502,39.38668025,Steamboat Hot Springs,NV,Silica-cemented sand,Qss,"Coolbaugh, 2022-Mar-26, originally documented by White et al., 1964", 
+594,-119.7564767,39.39075818,Steamboat Hot Springs,NV,Silica-cemented sand,Qss,"Coolbaugh, 2022-Mar-26, originally documented by White et al., 1964", 
+595,-119.7545363,39.3929888,Steamboat Hot Springs,NV,Silica-cemented sand,Qss,"Coolbaugh, 2022-Mar-26, originally documented by White et al., 1964", 
+596,-119.744349,39.3943734,Steamboat Hot Springs,NV,Silica-cemented sand,Qss,"Coolbaugh, 2022-Mar-26, originally documented by White et al., 1964", 
+597,-119.7575046,39.37134807,Steamboat Hot Springs,NV,Silica-cemented sand,Qss,"Coolbaugh, 2022-Mar-26, originally documented by White et al., 1964", 
+598,-119.7527058,39.39593006,Steamboat Hot Springs,NV,Silica-cemented sand,Qss,"Coolbaugh, 2022-Mar-26, originally documented by White et al., 1964", 
+599,-119.7589993,39.38138429,Steamboat Hot Springs,NV,Sulfur, ,"Coolbaugh, 2022-Mar-26",Native sulfur with argillic alteration
+600,-119.743731,39.387818,Steamboat Hot Springs,NV,Sinter,Qssi,Garside and Schilling_1979; Thompson and White_1964, 
+601,-119.743807,39.392137,Steamboat Hot Springs,NV,Sinter,Qssi,Garside and Schilling_1979; Thompson and White_1964, 
+602,-115.8625435,38.3981267,Storm Spring,NV,Travertine,Qt,Ayling_2020, 
+603,-115.8584788,38.40292976,Storm Spring north,NV,Travertine,Qt,Ayling_2020, 
+604,-115.2863904,40.58655863,Sulphur Hot Springs,NV,Sinter,Qssi,Olmsted et al_1975, 
+605,-115.2863904,40.58655863,Sulphur Spring (Brooks Spring),NV,Travertine,Qt,Flynn et al_1979; Kerr_1940; Trexler et al_1982, 
+606,-118.7022202,40.85689095,Sulphur Spring (Crofoot Lewis Mine),NV,Sinter,Qssi,"https://mrdata.usgs.gov/mrds/show-mrds.php?dep_id=10310408, Ebert and Rye (1997); Fournier_1981;Wallace_1980", 
+607,-120.794317,42.83014,Summer Lake,OR,Travertine,Qt,"Feth and Barnes, 1979; Trauger,1950","Location not field validated. Lake, Sec. 2, T. 32 S., R. 16 E., Active, Considerable travertine is in vicinity"
+608,-120.667944,42.718091,Summer Lake Hot Spring,OR,Sinter,Qssi,"Waring,1965; Trauger, 1950; Waring, 1908","Location not field validated. 3 main springs, H2S smell Sec 11 T 33S R17E, used for bathing and irrigation, no. on figure 42"
+609,-120.087526,41.529861,Surprise Valley,CA,Travertine,Qt,"Feth and Barnes, 1979; Raab and Dickson,1969","Location not field validated. Modoc, Sec. 1, T. 42 N., R. 16 E., Inactive, Travertine aprons are above present springs; Hg minerals are depositing below"
+610,-120.209637,41.668302,Surprise Valley,CA,Explosion craters, ,"Faulds, 2014; White, 1955",Location not field validated.
+611,-118.3634227,38.15111581,Teels Marsh,NV,Travertine,Qt,"Coolbaugh, 2022-Mar-26, mapped by Coolbaugh in 2016", 
+612,-118.389571,38.15051048,Teels Marsh,NV,Travertine,Qt,"Coolbaugh, 2022-Mar-26, mapped by Coolbaugh in 2016", 
+613,-118.3205566,38.13697256,Teels Marsh,NV,Travertine,Qt,"Coolbaugh, 2022-Mar-26, mapped by Coolbaugh in 2016", 
+614,-118.3257823,38.13665451,Teels Marsh,NV,Travertine,Qt,"Coolbaugh, 2022-Mar-26, mapped by Coolbaugh in 2016", 
+615,-118.3464756,38.15416556,Teels Marsh,NV,Travertine,Qt,"Coolbaugh, 2022-Mar-26, mapped by Coolbaugh in 2016", 
+616,-118.3789838,38.13618163,Teels Marsh,NV,Travertine,Qt,"Coolbaugh, 2022-Mar-26, mapped by Coolbaugh in 2016", 
+617,-118.3744449,38.13969772,Teels Marsh,NV,Travertine,Qt,"Coolbaugh, 2022-Mar-26, mapped by Coolbaugh in 2016", 
+618,-118.3836547,38.17288545,Teels Marsh,NV,Tufa,Qtm,"Coolbaugh, 2022-Mar-26, mapped by Coolbaugh in 2016", 
+619,-117.3875218,41.4222445,The Hot Springs (Day Warm Springs in Paradise Valley),NV,Travertine,Qt,Mariner et al_1974; Trexler et al_1981, 
+620,-119.6817451,40.14416818,The Needle Rocks,NV,Sinter,Qssi,Bonham_1964; Benson et al_1995; Grose&Keller_1975; Waring_1965, 
+621,-113.2048683,38.17229632,Thermo Hot Spring,UT,Sinter,Qssi,Faulds_2020,Prominent terrace consisting of opaline sinter
+622,-113.2045045,38.17348361,Thermo Hot Spring,UT,Sinter,Qssi,Faulds_2020,2 right-stepping spring mounds trending N10-15E
+623,-113.2032737,38.17564964,Thermo Hot Spring,UT,Sinter,Qh,"P. D. Rowley, 1978, Geologic map of the Thermo 15-minute quadrangle, Beaver and Iron Counties, Utah. GQ-1493. USGS. 1:62,000 scale.",Elongate sinter mound along fault trace with active spring flow
+624,-113.1971316,38.18497672,Thermo Hot Spring,UT,Sinter,Qh,"P. D. Rowley, 1978, Geologic map of the Thermo 15-minute quadrangle, Beaver and Iron Counties, Utah. GQ-1493. USGS. 1:62,000 scale.",Elongate sinter mound along fault trace with active spring flow
+625,-114.9858372,41.1616224,Three-mile spring,NV,Travertine,Qt,Ayling_2017; Mariner et al_1974, 
+626,-117.3492644,40.8649565,Tipton Hot Springs,NV,Travertine,Qt,Faulds_2020, 
+627,-119.2045704,38.2456683,Travertine Hot Springs,CA,Travertine,Qt,"Garside and Schilling_1979; Faulds_2020; Waring,1965; Crawford, 1894;",Large NNE-trending travertine ridge--one of many
+628,-119.2114637,38.25384736,Travertine Hot Springs,CA,Sinter,Qssi,Hinz_unpublished,Age is uncertain. Drusy opaline silica present and infilling fractures
+629,-111.7245826,42.33790834,Treasureton Warm Springs vicinity,ID,Travertine,Lake Bonneville deposits (Pleistocene),"Feth and Barnes, 1979",Location is not specific. IGS and IDWR mapped springs in section include 'Treasureton Warm Springs #1' and 'Treastureton Warm Springs #2'. Digitized vicinity around mapped springs.
+630,-119.1149272,40.77173687,Trego Hot Springs,NV,Travertine,Qt,Trexler et al_1979?,Large travertine mound
+631,-118.9843533,39.86475383,Trinity Range,NV,Sinter,Qssi,Rhodes_2021,"Area of sinter, stratified sinter-mud, chalcedony veining"
+632,-118.9843312,39.86398666,Trinity Range,NV,Tufa,Qtm,Rhodes_2021,Coincident with sinter but tufa point-sources
+633,-111.6554019,42.46147679,Trout Creek Spring,ID,Travertine,Sedimentary rocks (Ordovician and Cambrian),"Ralston and Mayo, 1983","Digitized area around Trout Creek Spring (on topographic map) but travertine is not apparent. Image in Google Earth is obscured by trees.
+Trout Creek Spring is not in IGS or IDWR thermal spring databases."
+634,-119.1300876,39.927058,Truckee Range,NV,Explosion craters, ,"Faulds, 2020", 
+635,-119.128523,39.9275462,Truckee Range,NV,Explosion craters, ,"Faulds, 2020", 
+636,-116.1466917,41.47757882,Tuscarora,NV,Silica-cemented sand,Qss,Deering and Faulds_2013, 
+637,-116.1459731,41.47782559,Tuscarora,NV,Alteration, ,"Coolbaugh, 2022-Mar-26",Small mudpots observed in 2004
+638,-116.1490582,41.46909543,Tuscarora,NV,Silica-cemented sand,Qss,Hinz_2018, 
+639,-116.1508167,41.46861625,Tuscarora,NV,Sinter,Qssi,Faulds_2020,Partially opaline sinter; lower west part of NNE-elongated sinter terrace
+640,-111.8842409,42.90558319,Twentyfour Mile Creek,ID,Travertine,"Sedimentary rocks associated with Basin and Range extension (Quaternary, Pliocene, and Miocene)","Mansfield, 1929",Digitized area based on report description. Some travertine may be under Twentyfour Mile Reservoir? Coordinate from Google Earth imagery supporting spring ? expression on slope.
+641,-111.3709895,39.99017172,Unnamed Cold Spring,UT,Travertine,Qst,"Kirby, 2022",Travertine deposits associated with active cold spring in Spanish Fork Canyon
+642,-111.7411668,40.74225668,Unnamed Cool Spring in Parleys Canyon,UT,Travertine,Qst,"Kirby, 2022",Extensive hillside travertine fan from active cool spring
+643,-111.7049622,42.30555634,Unnamed Hot Spring near Maple Grove (875),ID,Tufa,Windermere Supergroup (Cambrian and Neoproterozoic),"Ralston and Mayo, 1983",IGS mapped spring. Feature in aerial photography review may be obscured by trees. Digitized vicinity around spring.
+644,-111.7619987,42.98765529,Unnamed Spring on Blackfoot River,ID,Travertine,Contact in vicinity of Sedimentary rocks (Triassic) and Basalt (Pleistocene and Pliocene),"Ralston and Mayo, 1983",Unmapped spring location. Digitized travertine? Several areas have similar appearance. Spring issuing from upslope?
+645,-111.7112292,42.33958566,Unnamed Spring_T12SR41ESec31,ID,Travertine,Lake Bonneville deposits (Pleistocene),"Ralston and Mayo, 1983","Spring mapped in IGS thermal spring database.
+Digitized travertine?. No apparent travertine expression near mapped spring. Selected area to south for digitizing based on aerial photograph review."
+646,-111.7028929,42.88893444,Unnamed spring_T6SR41ESec19,ID,Travertine,"vicinity: Sedimentary rocks (Triassic); Sedimentary rocks associated with Basin and Range extension (Quaternary, Pliocene, and Miocene)","Young and Mitchell, 1973",Mapped IGS and IDWR location. Digitized spring vicinity and travertine ? based on Google Earth imagery review.
+647,-111.7998054,42.95089728,Unnamed Springs_T5SR40ESec29,ID,Travertine,Sedimentary rocks (Triassic),"Mansfield, 1929","No mapped IGS or IDWR springs in vicinity. Digitized spring ? and travertine? features based on review of Google Earth imagery.
+Spring mapped on topo map to the north, with supporting vegetation based on aerial photograph review."
+648,-112.5457493,38.6126326,Unnamed system northeast of Cove Fort,UT,Hydrothermally altered deposits,Qsa,"Lehi F. Hintze, 2008, Geologic map of the Richfield 30' x 60' quadrangle, southeast Millard County and parts of Beaver, Piute, and Sevier Counties, Utah. M-195dm. UGS. 1:100,000 scale.",One of several zones of active degassing and related alteration near Cove Fort
+649,-111.8177114,40.77392525,Unnamed travertine deposit,UT,Travertine,Qst,"Feth, J.H., and Barnes, I., 1979, Spring-deposited travertine in eleven western states: U.S. Geological Survey Water-Resources Investigations Open-File Report 79-35.",Travertine fans and orofice associated with cold spring
+650,-111.6490479,39.50289346,Unnamed travertine deposit,UT,Travertine,Qst,"Irving J. Witkind, 2002, Geologic map of the Nephi 30' x 60' quadrangle. M-189dm. UGS. 1:100,000 scale.","Travertine mound; no current springflow; noted on Feth and Barnes, 1979"
+651,-111.6515248,39.52030892,Unnamed travertine deposit,UT,Travertine,Qst,"Irving J. Witkind, 2002, Geologic map of the Nephi 30' x 60' quadrangle. M-189dm. UGS. 1:100,000 scale.","Travertine mound; no current springflow; noted on Feth and Barnes, 1979"
+652,-112.5755717,38.75427296,Unnamed Travertine Deposits,UT,Travertine,Qst,"Lehi F. Hintze, 2008, Geologic map of the Richfield 30' x 60' quadrangle, southeast Millard County and parts of Beaver, Piute, and Sevier Counties, Utah. M-195dm. UGS. 1:100,000 scale.",Travertine deposits with no active springs
+653,-112.5821676,38.75911718,Unnamed Travertine Deposits,UT,Travertine,Qst,"Lehi F. Hintze, 2008, Geologic map of the Richfield 30' x 60' quadrangle, southeast Millard County and parts of Beaver, Piute, and Sevier Counties, Utah. M-195dm. UGS. 1:100,000 scale.",Travertine deposits with no active springs
+654,-111.7130754,42.34044703,Unnamed Warm Spring near Cleveland,ID,Travertine,Lake Bonneville deposits (Pleistocene),"Ralston and Mayo, 1983",Digitized vicinity around apparent springs based on aerial photograph review.
+655,-116.3677413,38.52011534,Upper Hot Creek Ranch Springs,NV,Travertine,Qt,Fiero_1986; Everett&Rush_1966, 
+656,-112.029669,41.33674813,Utah Hot Springs,UT,Travertine,Qst,"Feth, J.H., and Barnes, I., 1979, Spring-deposited travertine in eleven western states: U.S. Geological Survey Water-Resources Investigations Open-File Report 79-35.",Travertine cemented alluvium associated with active hot spring
+657,-120.969194,40.053841,V. and M. Quarry,CA,Travertine,Qt,"Feth and Barnes, 1979; R. H. Mariner, 1977, oral comm.; Waring, 1915","Location questionable, not field validated. Plumas, Sec. 3, T. 25 N., R. 9 E., Inactive, Travertine deposit 25 m in diameter 30 m high has been extensively quarried"
+658,-118.7757481,40.22784919,Velvet Mine,NV,Sinter,Qssi,Rhodes_2021,Suspected opalized fault zone
+659,-119.1761453,39.16509073,Wabuska,NV,Silica-cemented sand,Qss,Hinz_2018, 
+660,-119.3310471,40.86000228,"Ward's (Fly Ranch, Hualapai Flat) Hot Springs",NV,Sinter,Qssi,Sinclair_1926, 
+661,-119.3310471,40.86000228,"Ward's (Fly Ranch, Hualapai Flat) Hot Springs",NV,Travertine,Qt,Flynn et al_1979, 
+662,-116.3737043,38.18765659,Warm (Nanny Goat) Springs,NV,Travertine,Qt,Mariner et al_1974; Garside and Schilling_1979,BAyling tried to visit in June 2020: signs warning of biohazard risk and private property. Did not enter.
+663,-117.773081,36.805777,"Warm Spring, Saline Valley",CA,Travertine,Qt,"Feth and Barnes, 1979; White, 1955","Location not field validated. Inyo, T. 13 S., R. 38 E., Unknown, Extensive blanket of travertine contains manganese minerals"
+664,-119.869695,42.063711,Warner Valley Ranch 1,OR,Sinter,Qssi,"Waring,1965; Trauger, 1950","Location not field validated. Pool of sulfurous water, no. on figure 49D, Sec 27 T 40S R 24E"
+665,-119.869695,42.063711,Warner Valley Ranch 2,OR,Sinter,Qssi,"Waring,1965; Trauger, 1950","Location not field validated. Pool of sulfurous water, no. on figure 49D, Sec 27 T 40S R 24E"
+666,-119.869695,42.063711,Warner Valley Ranch 3,OR,Sinter,Qssi,"Waring,1965; Trauger, 1950","Location not field validated. Pool of sulfurous water, no. on figure 49D, Sec 27 T 40S R 24E"
+667,-111.9002724,40.79138884,Wasatch Hot Springs,UT,Travertine,Qst,"Blackett, R.E., and Wakefield, S., 2004, Geothermal resources of Utah – 2004 – a digital atlas of Utah’s geothermal resources:  Utah Geological Survey Open-File Report 431, CD.","Travetine cemented alluvial deposits, heavily modified and urbanized"
+668,-111.9276041,42.13263917,Wayland Hot Springs,ID,Travertine,Quaternary alluvium,"Young and Mitchell, 1973
+Feth and Barnes, 1979","IGS and IDWR mapped springs in vicinity including 'Battle Creek (Wayland) Hot Springs #1', 'Battle Creek Hot Springs #2', 'Battle Creek Hot Springs #3', and 'Battle Creek Hot Springs #4'. Digitized vicinity around springs."
+669,-111.9280584,42.1327959,Wayland HS,ID,Travertine,Qt,Hinz_2021, 
+670,-118.8358723,39.81727656,White Plains,NV,Tufa,Qtm,"Coolbaugh_June2020; Coolbaugh et al., 2007, SGW", 
+671,-113.4302971,39.90639723,Wilson Health Springs,UT,Travertine,Qst,"Donald L. Clark, 2016, Geologic map of Dugway Proving Ground and adjacent areas, Tooele County, Utah. M-274dm. Utah Geological Survey. 1:75,000 scale.",Extensive active travertine fans and mounds at Utah's largest hot springs
+672,-113.4258571,39.91084495,Wilson Health Springs,UT,Travertine,Qst,"Donald L. Clark, 2016, Geologic map of Dugway Proving Ground and adjacent areas, Tooele County, Utah. M-274dm. Utah Geological Survey. 1:75,000 scale.",Travertine dome associated with greater Midway Hot Springs system
+673,-119.3915134,40.41886286,Wind Mountain-San Emideo,NV,Silica-cemented sand,Qss,Faulds_2020,Silicified seds cut by quartz vein at Wind Mountain; <5 Ma
+674,-119.3810246,39.94558531,Winnemucca Dry Lake,NV,Tufa,Qtm,Faulds_2020,Extensive area of prominent tufa mounds
+675,-119.3744885,39.93462994,Winnemucca Dry Lake,NV,Tufa,Qtm,Faulds_2020,Extensive area of prominent tufa mounds
+676,-119.3744134,39.93449837,Winnemucca Dry Lake,NV,Tufa,Qtm,Ayling_2019,Located using Google Earth imagery; not field-validated
+677,-119.37587,39.92974138,Winnemucca Dry Lake,NV,Tufa,Qtm,Ayling_2019,Located using Google Earth imagery; not field-validated
+678,-119.3712813,39.93626428,Winnemucca Dry Lake,NV,Tufa,Qtm,Ayling_2019,Located using Google Earth imagery; not field-validated
+679,-119.3800029,39.9437448,Winnemucca Dry Lake,NV,Tufa,Qtm,Ayling_2019,Located using Google Earth imagery; not field-validated
+680,-119.3815557,39.96493561,Winnemucca Dry Lake,NV,Tufa,Qtm,Ayling_2019,Located using Google Earth imagery; not field-validated
+681,-119.3820014,39.96581787,Winnemucca Dry Lake,NV,Tufa,Qtm,Ayling_2019,Located using Google Earth imagery; not field-validated
+682,-119.3829354,39.97986129,Winnemucca Dry Lake,NV,Tufa,Qtm,Ayling_2019,Located using Google Earth imagery; not field-validated
+683,-119.3826385,39.97934303,Winnemucca Dry Lake,NV,Tufa,Qtm,Ayling_2019,Located using Google Earth imagery; not field-validated
+684,-119.3826152,39.97902888,Winnemucca Dry Lake,NV,Tufa,Qtm,Ayling_2019,Located using Google Earth imagery; not field-validated
+685,-119.3816798,39.98599362,Winnemucca Dry Lake,NV,Tufa,Qtm,Ayling_2019,Located using Google Earth imagery; not field-validated
+686,-119.3876248,39.99373761,Winnemucca Dry Lake,NV,Tufa,Qtm,Ayling_2019,Located using Google Earth imagery; not field-validated
+687,-119.3874045,39.99337509,Winnemucca Dry Lake,NV,Tufa,Qtm,Ayling_2019,Located using Google Earth imagery; not field-validated
+688,-119.3872034,39.99204925,Winnemucca Dry Lake,NV,Tufa,Qtm,Ayling_2019,Located using Google Earth imagery; not field-validated
+689,-119.3935948,40.00027142,Winnemucca Dry Lake,NV,Tufa,Qtm,Ayling_2019,Located using Google Earth imagery; not field-validated
+690,-119.3769599,40.07532255,Winnemucca Dry Lake,NV,Tufa,Qtm,Ayling_2019,Located using Google Earth imagery; not field-validated
+691,-119.3743845,40.08083852,Winnemucca Dry Lake,NV,Tufa,Qtm,Ayling_2019,Located using Google Earth imagery; not field-validated
+692,-119.3772007,40.12549394,Winnemucca Dry Lake,NV,Tufa,Qtm,Ayling_2019,Located using Google Earth imagery; not field-validated
+693,-119.3752626,40.12478242,Winnemucca Dry Lake,NV,Tufa,Qtm,Ayling_2019,Located using Google Earth imagery; not field-validated
+694,-119.3736752,40.11870855,Winnemucca Dry Lake,NV,Tufa,Qtm,Ayling_2019,Located using Google Earth imagery; not field-validated
+695,-119.3784843,40.13705453,Winnemucca Dry Lake,NV,Tufa,Qtm,"Ayling, 2022",Located using Google Earth imagery; not field-validated
+696,-119.373707,39.93198156,Winnemucca Dry Lake,NV,Tufa,Qtm,"Ayling, 2022",Located using Google Earth imagery; not field-validated
+697,-119.3733035,39.92427622,Winnemucca Dry Lake,NV,Tufa,Qtm,"Ayling, 2022",Located using Google Earth imagery; not field-validated
+698,-119.3746702,40.12381553,Winnemucca Dry Lake,NV,Tufa,Qtm,"Ayling, 2022",Located using Google Earth imagery; not field-validated
+699,-119.37924,40.13778584,Winnemucca Dry Lake,NV,Tufa,Qtm,"Ayling, 2022",Located using Google Earth imagery; not field-validated
+700,-119.3715155,40.11647862,Winnemucca Dry Lake,NV,Tufa,Qtm,"Ayling, 2022",Located using Google Earth imagery; not field-validated
+701,-119.3826519,40.08682987,Winnemucca Dry Lake,NV,Tufa,Qtm,"Ayling, 2022",Located using Google Earth imagery; not field-validated
+702,-119.3934794,40.00495081,Winnemucca Dry Lake,NV,Tufa,Qtm,"Ayling, 2022",Located using Google Earth imagery; not field-validated
+703,-119.3939593,39.99819609,Winnemucca Dry Lake,NV,Tufa,Qtm,"Ayling, 2022",Located using Google Earth imagery; not field-validated
+704,-119.3795654,39.93857261,Winnemucca Dry Lake,NV,Tufa,Qtm,"Ayling, 2022",Located using Google Earth imagery; not field-validated
+705,-119.3752707,40.22883283,Winnemucca Dry Lake,NV,Tufa,Qtm,"Ayling, 2022",Located using Google Earth imagery; not field-validated
+706,-119.3766508,40.23332883,Winnemucca Dry Lake,NV,Tufa,Qtm,"Ayling, 2022",Located using Google Earth imagery; not field-validated
+707,-119.373948,40.23751121,Winnemucca Dry Lake,NV,Tufa,Qtm,"Ayling, 2022",Located using Google Earth imagery; not field-validated
+708,-119.375021,40.26032456,Winnemucca Dry Lake,NV,Tufa,Qtm,"Ayling, 2022",Located using Google Earth imagery; not field-validated
+709,-119.3637178,40.28234735,Winnemucca Dry Lake,NV,Tufa,Qtm,"Ayling, 2022",Located using Google Earth imagery; not field-validated

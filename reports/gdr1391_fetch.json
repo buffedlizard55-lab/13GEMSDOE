@@ -1,0 +1,88 @@
+{
+  "source": "https://gdr.openei.org/submissions/1391",
+  "doi": "10.15121/1881483",
+  "license": "CC-BY-4.0",
+  "fetched_utc": "2026-10-01T01:03:07Z",
+  "files": {
+    "data/external_gdr1391/2m_temperature_probe_INGENIOUS_regional_data/2m_temperature_probe_INGENIOUS_regional_data/2m_temperature_probe.xlsx": {
+      "bytes": 761321,
+      "sha256": "38d0f01fa47ae73c934973e5187c1a473ba8c5cea26b70dc7a62b4350c3cfdcd"
+    },
+    "data/external_gdr1391/2m_temperature_probe_INGENIOUS_regional_data/2m_temperature_probe_INGENIOUS_regional_data/README.txt": {
+      "bytes": 1602,
+      "sha256": "47abb8411d57754c5066e84ce2333fd05e146c1da969ea83375288f295242669"
+    },
+    "data/external_gdr1391/2m_temperature_probe_INGENIOUS_regional_data/2m_temperature_probe_INGENIOUS_regional_data/2m_temperature_probe_n83geo/2m_temperature_probe_n83geo.cpg": {
+      "bytes": 5,
+      "sha256": "3ad3031f5503a4404af825262ee8232cc04d4ea6683d42c5dd0a2f2a27ac9824"
+    },
+    "data/external_gdr1391/2m_temperature_probe_INGENIOUS_regional_data/2m_temperature_probe_INGENIOUS_regional_data/2m_temperature_probe_n83geo/2m_temperature_probe_n83geo.dbf": {
+      "bytes": 26149306,
+      "sha256": "8ca68c801db748f2a42e88b5a8a542dee6bbb37479275eaab48fc78f27da2076"
+    },
+    "data/external_gdr1391/2m_temperature_probe_INGENIOUS_regional_data/2m_temperature_probe_INGENIOUS_regional_data/2m_temperature_probe_n83geo/2m_temperature_probe_n83geo.prj": {
+      "bytes": 167,
+      "sha256": "84cf5b9a3c1a444f83ac30ff76f8c5035990223027ba69b2f4d628388adcbd65"
+    },
+    "data/external_gdr1391/2m_temperature_probe_INGENIOUS_regional_data/2m_temperature_probe_INGENIOUS_regional_data/2m_temperature_probe_n83geo/2m_temperature_probe_n83geo.sbn": {
+      "bytes": 35140,
+      "sha256": "681758fe667d64a30512dabe777f3959da734bcb605b02ca1b68fb5684dcdfc8"
+    },
+    "data/external_gdr1391/2m_temperature_probe_INGENIOUS_regional_data/2m_temperature_probe_INGENIOUS_regional_data/2m_temperature_probe_n83geo/2m_temperature_probe_n83geo.sbx": {
+      "bytes": 1044,
+      "sha256": "452fe0a2d46a47a80abf6f73f150036c49a33634105410b7de2868694f72460e"
+    },
+    "data/external_gdr1391/2m_temperature_probe_INGENIOUS_regional_data/2m_temperature_probe_INGENIOUS_regional_data/2m_temperature_probe_n83geo/2m_temperature_probe_n83geo.shp": {
+      "bytes": 106500,
+      "sha256": "727d7ef80ed19ce3f1e61102567aaba63e8893b8b3cba9911bf916b9a23ab612"
+    },
+    "data/external_gdr1391/2m_temperature_probe_INGENIOUS_regional_data/2m_temperature_probe_INGENIOUS_regional_data/2m_temperature_probe_n83geo/2m_temperature_probe_n83geo.shp.xml": {
+      "bytes": 1779,
+      "sha256": "93648422de30e053ce5d0e461162af0a8ed5ca3fee6ed080b4b3307c0d2730d3"
+    },
+    "data/external_gdr1391/2m_temperature_probe_INGENIOUS_regional_data/2m_temperature_probe_INGENIOUS_regional_data/2m_temperature_probe_n83geo/2m_temperature_probe_n83geo.shx": {
+      "bytes": 30500,
+      "sha256": "20033923096c4509792e5e53b5b847c9d91c1a0fe52dc5dd5095ed376903f7fb"
+    },
+    "data/external_gdr1391/paleo_geothermal_regional/Paleo_geothermal_final.cpg": {
+      "bytes": 5,
+      "sha256": "3ad3031f5503a4404af825262ee8232cc04d4ea6683d42c5dd0a2f2a27ac9824"
+    },
+    "data/external_gdr1391/paleo_geothermal_regional/Paleo_geothermal_final.csv": {
+      "bytes": 105551,
+      "sha256": "c28bd7fac4a3acc7fa2bf24ead0c4f799fd9b059432ea921cc97cc9e012f86dc"
+    },
+    "data/external_gdr1391/paleo_geothermal_regional/Paleo_geothermal_final.dbf": {
+      "bytes": 1115579,
+      "sha256": "bf74eb01504bc58ff5488958ac4076b18f21f30d36c55925b5c2c245304105bf"
+    },
+    "data/external_gdr1391/paleo_geothermal_regional/Paleo_geothermal_final.prj": {
+      "bytes": 167,
+      "sha256": "84cf5b9a3c1a444f83ac30ff76f8c5035990223027ba69b2f4d628388adcbd65"
+    },
+    "data/external_gdr1391/paleo_geothermal_regional/Paleo_geothermal_final.sbn": {
+      "bytes": 7116,
+      "sha256": "39db813742e1911c8238f8e61409528a050274824a40e1ce2913f2356b09b1cc"
+    },
+    "data/external_gdr1391/paleo_geothermal_regional/Paleo_geothermal_final.sbx": {
+      "bytes": 476,
+      "sha256": "2be6cda8ce96ee6aec7bb123cfa8e9c93d404ac127db7d5ef717400b6ecdedbf"
+    },
+    "data/external_gdr1391/paleo_geothermal_regional/Paleo_geothermal_final.shp": {
+      "bytes": 19952,
+      "sha256": "d424108b376e8a22ea307a4f53b3f23a0a9079c69b8108368d1177c5f223b940"
+    },
+    "data/external_gdr1391/paleo_geothermal_regional/Paleo_geothermal_final.shx": {
+      "bytes": 5772,
+      "sha256": "c530c9243852c51304ed576d6ee6e52f9c81f7a3a0c8aab99f248cf46e15baf4"
+    },
+    "data/external_gdr1391/raw/2m_temperature_probe_INGENIOUS_regional_data.zip": {
+      "bytes": 1080530,
+      "sha256": "1301f70d230058e616ea5d34d1c7a32fabf7d49198172f376c59c89bd652eca3"
+    },
+    "data/external_gdr1391/raw/paleo_geothermal_regional.zip": {
+      "bytes": 84008,
+      "sha256": "faffcf697f32dbbf6cbb317cd1effb3e305538ce38eb239d72d0c6fa071e91ca"
+    }
+  }
+}
